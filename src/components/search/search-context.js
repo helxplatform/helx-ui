@@ -128,6 +128,8 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
+  // This function will handle all checked items and store them in a state array,
+  // along with update and remove each items. Each checkbox action will invoke this function
   const doSelect = newSelect => {
     const idx = resultsSelected.indexOf(newSelect);
     if (idx >= 0) {
