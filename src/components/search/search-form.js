@@ -1,11 +1,30 @@
 import React, { useEffect, useState } from 'react'
+import styled from 'styled-components';
 import { Input } from '../input'
 import { Button } from '../button'
+import { Container } from '../layout';
 import { useHelxSearch } from './search-context'
 import { InputGroup } from '../input-group'
 
+const SearchBarContainer = styled(Container)`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+`
+
+const SearchBarInputGroup = styled(InputGroup)`
+    width: 70%;
+`
+
+const LaunchAppButton = styled(Button)`
+    margin-left: 20px;
+    border-radius: 5px;
+    width: 10%;
+`
+
 export const SearchForm = () => {
-  const { query, doSearch, inputRef } = useHelxSearch()
+  const { query, doSearch, inputRef, launchApp, resultSelected } = useHelxSearch()
   const [searchTerm, setSearchTerm] = useState(query)
 
   const handleChangeQuery = event => setSearchTerm(event.target.value)
@@ -24,9 +43,12 @@ export const SearchForm = () => {
   useEffect(() => setSearchTerm(query), [query])
 
   return (
-    <InputGroup>
-      <Input ref={ inputRef } value={ searchTerm } onChange={ handleChangeQuery } onKeyDown={ handleKeyDown } style={{ flex: 1 }} />
-      <Button small onClick={ () => doSearch(searchTerm) }>Search</Button>
-    </InputGroup>
+    <SearchBarContainer>
+      <SearchBarInputGroup>
+        <Input ref={inputRef} value={searchTerm} onChange={handleChangeQuery} onKeyDown={handleKeyDown} style={{ flex: 1 }} />
+        <Button small onClick={() => doSearch(searchTerm)}>Search</Button>
+      </SearchBarInputGroup>
+      <LaunchAppButton small onClick={launchApp}>Launch App</LaunchAppButton>
+    </SearchBarContainer>
   )
 }
