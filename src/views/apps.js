@@ -10,6 +10,7 @@ import { Icon } from '../components/icon'
 import { Link } from '../components/link'
 import { Input } from '../components/input';
 import { Dropdown } from '../components/dropdown';
+import { Slider } from '../components/slider';
 import { useEnvironment } from '../contexts'
 
 const Relative = styled.div`
@@ -84,15 +85,15 @@ const SpecsInput = styled(Input)`
   height: 30px;
 `
 
-const AppCard = ({ name, description, details, docs, status }) => {
+const AppCard = ({ name, app_id, description, detail, docs, status, cpu, gpu, memory }) => {
   const theme = useTheme()
   const helxAppstoreUrl = useEnvironment().helxAppstoreUrl;
   const [flipped, setFlipped] = useState(false)
 
   //create 3 state variables to store specs information
-  const [currentMemory, setMemory] = useState(0);
-  const [currentCpu, setCpu] = useState(0);
-  const [currentGpu, setGpu] = useState(0);
+  const [currentMemory, setMemory] = useState(memory.substring(0, memory.length-1));
+  const [currentCpu, setCpu] = useState(cpu);
+  const [currentGpu, setGpu] = useState(gpu);
 
   const toggleConfig = event => setFlipped(!flipped)
 
@@ -100,9 +101,9 @@ const AppCard = ({ name, description, details, docs, status }) => {
   const launchApp = event => {
     axios({
       method: 'GET',
-      url: `${helxAppstoreUrl}start/`,
+      url: `${helxAppstoreUrl}/service/`,
       params: {
-        app_id: name,
+        app_id: app_id,
         cpu: currentCpu,
         memory: currentMemory,
         gpu: currentGpu
@@ -138,13 +139,16 @@ const AppCard = ({ name, description, details, docs, status }) => {
       <Relative>
         <Card.Body>
           <Paragraph>{description}</Paragraph>
-          <Paragraph dense>{details}</Paragraph>
+          <Paragraph dense>{detail}</Paragraph>
           <Link to={docs}>App Documentation</Link>
         </Card.Body>
         <ConfigSlider visible={flipped}>
           <h5>App Config</h5>
           <ul>
-            <Dropdown value={currentMemory} id="memory" placeholder="Memory" onChange={handleMemoryChange}>
+            <li>CPU<Slider type="range" min={cpu} max="8" value={currentCpu} onChange={(e) => setCpu(e.target.value)} /> {currentCpu}</li>
+            <li>GPU<Slider type="range" min={gpu} max="8" value={currentGpu} onChange={(e) => setGpu(e.target.value)} /> {currentGpu}</li>
+            <li>Memory<Slider type="range" min={memory.substring(0, memory.length-1)} max="10000" value={currentMemory} onChange={(e) => setMemory(e.target.value)} /> {currentMemory}M</li>
+            {/* <Dropdown value={currentMemory} id="memory" placeholder="Memory" onChange={handleMemoryChange}>
               {memorySpecs.map(memory => <option value={memory}>{memory} GB Memory</option>)}
             </Dropdown>
             <Dropdown value={currentCpu} placeholder="CPU" onChange={handleCpuChange}>
@@ -152,7 +156,7 @@ const AppCard = ({ name, description, details, docs, status }) => {
             </Dropdown>
             <Dropdown value={currentGpu} placeholder="GPU" onChange={handleGpuChange}>
               {gpuSpecs.map(gpu => <option value={gpu}>{gpu} GPU Core</option>)}
-            </Dropdown>
+            </Dropdown> */}
           </ul>
           <div className="actions">
             <Button small variant="success" onClick={() => { launchApp(); toggleConfig(); }} style={{ width: '150px' }}>
@@ -177,34 +181,78 @@ const AppCard = ({ name, description, details, docs, status }) => {
 
 export const Apps = () => {
   const context = useEnvironment().config.context;
+  const helxAppstoreUrl = useEnvironment().helxAppstoreUrl;
   const [apps, setApps] = useState({});
 
-  useEffect(() => {
-    setApps({
-      "imagej": {
-        "app_id": "aancnc",
-        "name": "ImageJ Viewer",
-        "logo_name": "ImageJ",
-        "description": "Imagej is an image processor developed at NIH/LOCI.",
-        "details": "can display, edit, analyze, process, save and print 8-bit, 16-bit and 32-bit images. It can read many image formats.",
-        "docs": "https://imagej.nih.gov/ij/",
-        "cpu": [1, 2, 4],
-        "gpu": [1, 2, 4],
-        "memory": [1, 2, 4, 8]
-      },
-      "napari": {
-        "app_id": "Napari Image Viewer",
-        "name": "Napari Image Viewer",
-        "logo_name": "ImageJ",
-        "description": "Napari is a fast, interactive, multi-dimensional image viewer.",
-        "details": "It enables browsing, annotating, and analyzing large multi-dimensional images.",
-        "docs": "https://napari.org/",
-        "status": "Ready",
-        "cpu": [1, 2, 4],
-        "gpu": [1, 2, 4],
-        "memory": [1, 2, 4, 8]
-      }
-    })
+  const appstoreResponse = {
+    "blackbalsam": {
+      "name": "Blackbalsam",
+      "app_id": "blackbalsam",
+      "description": "An A.I., visualization, and parallel computing environment.",
+      "detail": "A.I.(Tensorflow,Keras,PyTorch,Gensim) Vis(Plotly,Bokeh,Seaborn) Compute(Spark).",
+      "docs": "https://github.com/stevencox/blackbalsam",
+      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/blackbalsam/docker-compose.yaml",
+      "cpu": 0,
+      "gpu": 0,
+      "memory": "1000M"
+    },
+    "cloud-top": {
+      "name": "Cloud Top",
+      "app_id": "cloud-top",
+      "description": "CloudTop is a cloud native, browser accessible Linux desktop.",
+      "detail": "A Ubuntu graphical desktop environment for experimenting with native applications in the cloud.",
+      "docs": "https://helxplatform.github.io/cloudtop-docs/",
+      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/cloud-top/docker-compose.yaml",
+      "cpu": 0,
+      "gpu": 0,
+      "memory": "1000M"
+    },
+    "imagej": {
+      "name": "ImageJ Viewer",
+      "app_id": "imagej",
+      "description": "Imagej is an image processor developed at NIH/LOCI.",
+      "detail": "can display, edit, analyze, process, save and print 8-bit, 16-bit and 32-bit images. It can read many image formats.",
+      "docs": "https://imagej.nih.gov/ij/",
+      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/imagej/docker-compose.yaml",
+      "cpu": 0,
+      "gpu": 0,
+      "memory": "2000M"
+    },
+    "jupyter-ds": {
+      "name": "Jupyter Data Science",
+      "app_id": "jupyter-ds",
+      "description": "Jupyter DataScience - A Jupyter notebook for exploring and visualizing data.",
+      "detail": "Includes R, Julia, and Python.",
+      "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
+      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/jupyter-ds/docker-compose.yaml",
+      "cpu": 0,
+      "gpu": 0,
+      "memory": "1000M"
+    },
+    "napari": {
+      "name": "Napari Image Viewer",
+      "app_id": "napari",
+      "description": "Napari is a fast, interactive, multi-dimensional image viewer.",
+      "detail": "It enables browsing, annotating, and analyzing large multi-dimensional images.",
+      "docs": "https://napari.org/",
+      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/napari/docker-compose.yaml",
+      "cpu": 0,
+      "gpu": 0,
+      "memory": "8000M"
+    }
+  }
+
+  useEffect(async () => {
+    // const response = await axios({
+    //   url: `${helxAppstoreUrl}/api/v1/apps`,
+    //   method: 'GET'
+    // }).then((res) => {
+    //   console.log(res);
+
+    // }).catch((e) => {
+    //   console.log(e);
+    // })
+    setApps(appstoreResponse);
   }, [])
 
   if (!apps) return (
