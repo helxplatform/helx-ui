@@ -9,17 +9,27 @@ import { useAuth } from '../../contexts'
 
 const LoginInput = styled(Input)` 
     margin: 10px 10px;
-    width: 20%
+    width: 20%;
 `
 
 const LoginInputGroup = styled(InputGroup)`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    margin: 10px auto 20px auto;
 `
 
-const LoginContainer = styled(Container)` 
-    height: max-content;
+const LoginContainer = styled(Container)`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+`
+
+const LoginButton = styled(Button)`
+    width: 20%;
 `
 
 export const Login = () => {
@@ -34,9 +44,8 @@ export const Login = () => {
         </LoginInput>
         <LoginInput placeholder="Password" onChange={(event) => { setPwd(event.target.value) }}>
         </LoginInput>
-        <Button onClick={() => { auth.login([username, pwd]) }}>LOGIN</Button>
-
       </LoginInputGroup>
+      <LoginButton onClick={() => { auth.login([username, pwd]) }}>LOGIN</LoginButton>
     </LoginContainer>
   )
 }
