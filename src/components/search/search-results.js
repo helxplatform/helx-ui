@@ -34,7 +34,7 @@ const Meta = styled.div(({ theme, underline, overline }) => css`
 export const SearchResults = () => {
   const theme = useTheme()
   const auth = useAuth()
-  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, resultsSelected, error } = useHelxSearch()
+  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error } = useHelxSearch()
 
   const MemoizedResultsSummary = useMemo(() => {
     if (!results) return null
@@ -85,17 +85,7 @@ export const SearchResults = () => {
             {
               results.length >= 1 && (
                 <Meta underline>
-                  <div>
-                    Results { (currentPage - 1) * perPage + 1 } to { (currentPage - 1) * perPage + results.length } of { totalResults } total results
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    {
-                      resultsSelected.size > 0 && (
-                        <span style={{ color: theme.color.success }}>
-                          {resultsSelected.size} result{resultsSelected.size !== 1 ? `s` : `` } selected
-                        </span>
-                      )
-                    }
-                  </div>
+                  <div>Results { (currentPage - 1) * perPage + 1 } to { (currentPage - 1) * perPage + results.length } of { totalResults } total results</div>
                   <div>
                     { MemoizedActions }
                   </div>
