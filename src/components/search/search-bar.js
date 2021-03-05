@@ -1,19 +1,45 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { Input } from '../input';
 import { useNavigate } from '@reach/router';
+import { Icon } from '../icon'
 
 const Searchbar = styled.div(({ theme }) => `
-    margin-left: 2vw;
-    margin-right: 2vw;
-    font-family: Arial, FontAwesome
+    margin-left: ${ theme.spacing.md };
+    height: 100%;
+    color: white;
+    font-size: 110%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: ${ theme.color.grey.light };
+    &:hover svg {
+        filter: opacity(0.75);
+    }
 `)
 
-const Searchform = styled(Input)(({ theme }) => `
-    border-radius: 5px;
+const SearchInput = styled(Input)(({ theme }) => `
+    background-color: transparent;
+    height: 100%;
+    border-radius: 0 !important;
+    border: 0;
+    outline: 0;
+    filter: opacity(0.5);
+    transition: filter 250ms;
+    &:focus {
+        filter: opacity(1.0);
+    }
+`)
+
+const StyledSearchIcon = styled(Icon).attrs((({ theme }) => ({
+    // fill: theme.color.grey.main,
+})))(({ theme }) => `
+    filter: opacity(0.25);
+    margin-left: ${ theme.spacing.md };
 `)
 
 export const HeLxSearchBar = () => {
+    const theme = useTheme();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -27,7 +53,10 @@ export const HeLxSearchBar = () => {
 
     return (
         <Searchbar>
-            <Searchform placeholder="&#xF002;" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} onKeyDown={onKeyDown} />
+            <StyledSearchIcon icon="magnifyingGlass" size={ 24 } />
+            <SearchInput
+              value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} onKeyDown={onKeyDown}
+            />
         </Searchbar>
     )
 }
