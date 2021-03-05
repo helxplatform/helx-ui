@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components'
 
 const RIPPLE_DURATION = 500 // in milliseconds
 
-export const Wrapper = styled.button(({ theme, variant, small, shadow = true }) => `
+export const Wrapper = styled.button(({ theme, variant, small }) => `
   background-color: ${ variant ? theme.color[variant] : theme.color.primary.main };
   color: ${ theme.color.white };
   padding: ${ theme.spacing[small ? 'small' : 'medium'] } ${ theme.spacing[small ? 'medium' : 'large' ] };
@@ -28,7 +28,7 @@ export const Wrapper = styled.button(({ theme, variant, small, shadow = true }) 
     filter: brightness(0.9);
   }
   &:not(:disabled):active, &:not(:disabled):focus {
-    ${ shadow == true ? `filter: drop-shadow(0 0 4px ${ variant ? theme.color[variant] : theme.color.primary.main }cc);` : undefined }
+    filter: drop-shadow(0 0 4px ${ variant ? theme.color[variant] : theme.color.primary.main }cc);
   }
 `)
 
