@@ -35,6 +35,8 @@ const icons = {
   firstPage: <path d="M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6zM6 6h2v12H6z"/>,
   lastPage: <path d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6zM16 6h2v12h-2z"/>,
   // media
+  ellipsis: <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>,
+  // misc
   pause: <Fragment>
           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
           <path d="M0 0h24v24H0z" fill="none"/>
