@@ -104,7 +104,7 @@ export const Icon = ({ icon, size, fill, style, ...rest }) => {
       width={ `${ size }px` } height={ `${ size }px` }
       viewBox="0 0 24 24"
       fill={ fill }
-      style={{ ...style, transition: 'fill 250ms' }}
+      style={{ ...style, transition: 'all 250ms' }}
       { ...rest }
     >
       { icons[icon] }
