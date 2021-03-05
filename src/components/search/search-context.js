@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import axios from 'axios'
 import { useNavigate } from '@reach/router'
 import { useAuth, useEnvironment } from '../../contexts'
+import { useWindowWidth } from '../../hooks'
 
 //
 
@@ -14,9 +15,13 @@ const PER_PAGE = 10
 
 //
 
-
+const PAGINATION_RADIUS = {
+  mobile: 1,
+  desktop: 3,
+}
 
 export const HelxSearch = ({ children }) => {
+  const { isCompact } = useWindowWidth()
   const { helxSearchUrl } = useEnvironment()
   const [query, setQuery] = useState('')
   const [isLoadingResults, setIsLoadingResults] = useState(false);
@@ -26,9 +31,15 @@ export const HelxSearch = ({ children }) => {
   const [totalResults, setTotalResults] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
+  const [paginationRadius, setPaginationRadius] = useState(PAGINATION_RADIUS.mobile)
+
   const auth = useAuth()
   const inputRef = useRef()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    setPaginationRadius(isCompact ? PAGINATION_RADIUS.mobile : PAGINATION_RADIUS.desktop)
+  }, [isCompact])
 
   useEffect(() => {
     // this lets the user press backslash to jump focus to the search box
@@ -153,7 +164,14 @@ export const HelxSearch = ({ children }) => {
   }
 
   return (
-    <HelxSearchContext.Provider value={{ query, setQuery, error, isLoadingResults, results, doSelect, resultsSelected, launchApp, totalResults, currentPage, setCurrentPage, perPage: PER_PAGE, pageCount, doSearch, inputRef }}>
+    <HelxSearchContext.Provider value={{
+      query, setQuery, doSearch, inputRef,
+      error, isLoadingResults,
+      results, totalResults,
+      doSelect, resultsSelected,
+      launchApp,
+      currentPage, setCurrentPage, perPage: PER_PAGE, pageCount, paginationRadius,
+    }}>
       { children}
     </HelxSearchContext.Provider>
   )
