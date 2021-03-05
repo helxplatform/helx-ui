@@ -38,10 +38,10 @@ const Wrapper = styled.article(({ theme }) => css`
 `)
 
 export const Result = ({ index, result }) => {
-  const { doSelect } = useHelxSearch();
+  const { resultsSelected, doSelect } = useHelxSearch();
   return (
     <Wrapper>
-      <div className="checkbox"><input type="checkbox" onChange={() => doSelect(result)}></input></div>
+      <div className="checkbox"><input checked={resultsSelected.has(result.id)} type="checkbox" onChange={() => doSelect(result)}></input></div>
       <div className="index">{index}</div>
       <div className="details">
         <div className="result-heading">

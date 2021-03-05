@@ -22,7 +22,7 @@ export const HelxSearch = ({ children }) => {
   const [isLoadingResults, setIsLoadingResults] = useState(false);
   const [error, setError] = useState({})
   const [results, setResults] = useState([])
-  const [resultsSelected, setResultsSelected] = useState([]);
+  const [resultsSelected, setResultsSelected] = useState(new Map());
   const [totalResults, setTotalResults] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
@@ -131,13 +131,21 @@ export const HelxSearch = ({ children }) => {
   // This function will handle all checked items and store them in a state array,
   // along with update and remove each items. Each checkbox action will invoke this function
   const doSelect = newSelect => {
-    const idx = resultsSelected.indexOf(newSelect);
-    if (idx >= 0) {
-      let newArray = [...resultsSelected];
-      newArray.splice(idx, 1);
-      setResultsSelected(newArray);
+    let newSet = new Map(resultsSelected);
+    if (!newSet.has(newSelect.id)){
+      newSet.set(newSelect.id, newSelect);
     }
-    else setResultsSelected([...resultsSelected, newSelect]);
+    else{
+      newSet.delete(newSelect.id)
+    }
+    setResultsSelected(newSet);
+    // const idx = resultsSelected.indexOf(newSelect);
+    // if (idx >= 0) {
+    //   let newArray = [...resultsSelected];
+    //   newArray.splice(idx, 1);
+    //   setResultsSelected(newArray);
+    // }
+    // else setResultsSelected([...resultsSelected, newSelect]);
   }
 
   const launchApp = () => {
