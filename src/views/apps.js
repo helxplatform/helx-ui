@@ -11,6 +11,7 @@ import { Link } from '../components/link'
 import { Input } from '../components/input';
 import { Dropdown } from '../components/dropdown';
 import { Slider } from '../components/slider';
+import { Tab, TabGroup } from '../components/tab';
 import { useEnvironment } from '../contexts'
 
 const Relative = styled.div`
@@ -91,7 +92,7 @@ const AppCard = ({ name, app_id, description, detail, docs, status, cpu, gpu, me
   const [flipped, setFlipped] = useState(false)
 
   //create 3 state variables to store specs information
-  const [currentMemory, setMemory] = useState(memory.substring(0, memory.length-1));
+  const [currentMemory, setMemory] = useState(memory.substring(0, memory.length - 1));
   const [currentCpu, setCpu] = useState(cpu);
   const [currentGpu, setGpu] = useState(gpu);
 
@@ -147,7 +148,7 @@ const AppCard = ({ name, app_id, description, detail, docs, status, cpu, gpu, me
           <ul>
             <li>CPU<Slider type="range" min={cpu} max="8" value={currentCpu} onChange={(e) => setCpu(e.target.value)} /> {currentCpu}</li>
             <li>GPU<Slider type="range" min={gpu} max="8" value={currentGpu} onChange={(e) => setGpu(e.target.value)} /> {currentGpu}</li>
-            <li>Memory<Slider type="range" min={memory.substring(0, memory.length-1)} max="10000" value={currentMemory} onChange={(e) => setMemory(e.target.value)} /> {currentMemory}M</li>
+            <li>Memory<Slider type="range" min={memory.substring(0, memory.length - 1)} max="10000" value={currentMemory} onChange={(e) => setMemory(e.target.value)} /> {currentMemory}M</li>
             {/* <Dropdown value={currentMemory} id="memory" placeholder="Memory" onChange={handleMemoryChange}>
               {memorySpecs.map(memory => <option value={memory}>{memory} GB Memory</option>)}
             </Dropdown>
@@ -179,10 +180,47 @@ const AppCard = ({ name, app_id, description, detail, docs, status, cpu, gpu, me
   )
 }
 
+const ServiceCard = ({ name, docs, sid, fqsid, creation_time, cpu, gpu, memory }) => {
+  const theme = useTheme()
+  return (
+    <Card style={{ minHeight: '300px', margin: `${theme.spacing.large} 0` }}>
+      <Card.Header><AppHeader>{name} <Status class><RunningStatus />Running</Status></AppHeader></Card.Header>
+      <Relative>
+        <Card.Body>
+          <Paragraph style={{ display: 'flex', fontSize: 20, justifyContent: 'space-between'}}><span>CPU: {cpu}</span> <span>GPU: {gpu}</span> <span>Memory: {memory}</span></Paragraph>
+          <Paragraph>Creation Time: {creation_time}</Paragraph>
+          <Link to={docs}>App Documentation</Link>
+        </Card.Body>
+      </Relative>
+      <Card.Footer style={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+      }}>
+        <StopButton small>Stop App</StopButton>
+      </Card.Footer>
+    </Card>
+  )
+}
+
 export const Apps = () => {
   const context = useEnvironment().config.context;
   const helxAppstoreUrl = useEnvironment().helxAppstoreUrl;
   const [apps, setApps] = useState({});
+  const [services, setServices] = useState([]);
+  const [active, setActive] = useState('Apps');
+
+  const serviceResponse = [
+    {
+      "name": "Cloud Top",
+      "docs": "https://helxplatform.github.io/cloudtop-docs/",
+      "sid": "da600a3dd98e4b5ea3cfb5b63ae66732",
+      "fqsid": "cloud-top-da600a3dd98e4b5ea3cfb5b63ae66732",
+      "creation_time": "3-4-2021 20:21:9",
+      "cpu": 1000,
+      "gpu": 1,
+      "memory": "0.001"
+    }
+  ]
 
   const appstoreResponse = {
     "blackbalsam": {
@@ -253,7 +291,15 @@ export const Apps = () => {
     //   console.log(e);
     // })
     setApps(appstoreResponse);
-  }, [])
+    if (active === 'Apps') {
+      setApps(appstoreResponse);
+      setServices([]);
+    }
+    else {
+      setApps({});
+      setServices(serviceResponse);
+    }
+  }, [active])
 
   if (!apps) return (
     <Container>
@@ -266,9 +312,12 @@ export const Apps = () => {
 
   return (
     <Container>
-      <Title>Apps</Title>
-
-      { Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
+      <TabGroup>
+        <Tab active={active === 'Apps'} onClick={() => setActive('Apps')}>Apps</Tab>
+        <Tab active={active === 'Services'} onClick={() => setActive('Services')}>Services</Tab>
+      </TabGroup>
+      {Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
+      {services.map(service => <ServiceCard key={service.sid} {...service} />)}
 
     </Container>
   )
