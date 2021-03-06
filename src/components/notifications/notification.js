@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css, keyframes } from 'styled-components'
 import { useNotifications } from './notifications-context'
-import { colors, icons, types } from './config'
+import { types } from './config'
 
 const fade = keyframes`
   0% {
@@ -54,17 +54,20 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
 export const Notification = ({ message }) => {
   const { closeNotification, colors, icons } = useNotifications()
 
+  const close = useCallback(() => {
+    closeNotification(message.id)
+  }, [closeNotification, message.id])
+
   useEffect(() => {
     const closeTimer = setTimeout(() => closeNotification(message.id), 3000)
     return () => clearTimeout(closeTimer)
-  }, [])
+  }, [closeNotification, message.id])
 
   return (
-    <Wrapper onClick={ () => closeNotification(message.id) } color={ colors[message.type] }>
+    <Wrapper onClick={ close } color={ colors[message.type] }>
       <div className="icon">{ icons[message.type] }</div>
       <div className="text">
-        { message.text }<br />
-        <small>{ message.id }</small>
+        { message.text }
       </div>
       <button className="close">&times;</button>
     </Wrapper>
