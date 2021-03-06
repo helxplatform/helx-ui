@@ -15,7 +15,10 @@ const fade = keyframes`
 `
 
 const Wrapper = styled.div(({ color, theme }) => css`
-  background-color: ${ color };
+  background-color: white;
+  border-style: solid;
+  border-width: 1px 1px 1px 1rem;
+  border-color: ${ color };
   padding: 1rem;
   cursor: pointer;
   animation: ${ fade } 150ms ease-out forwards;
