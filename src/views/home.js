@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import { Container } from '../components/layout'
 import { Title, Paragraph } from '../components/typography'
 import { Tooltip } from '../components/tooltip'
+import { useNotifications } from '../components/notifications'
 
 export const Home = () => {
+  const { addNotification } = useNotifications()
   return (
     <Container>
       <Title>Home</Title>
@@ -18,7 +20,7 @@ export const Home = () => {
     </Paragraph>
     
     <Tooltip tip="TEST!" placement="bottom"> 
-      <button>tooltip test</button>
+      <button onClick={() => addNotification('test!')}>tooltip test</button>
     </Tooltip>
   </Container>
   )

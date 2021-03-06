@@ -4,6 +4,7 @@ import { ThemeProvider } from 'styled-components'
 import { theme } from './theme'
 import { LocationProvider, Router } from '@reach/router'
 import { AuthProvider, EnvironmentProvider } from './contexts'
+import { Notifications } from './components/notifications'
 import {
   Home,
   Apps,
@@ -16,22 +17,24 @@ import {
 const App = () => {
   return (
     <EnvironmentProvider>
-      <AuthProvider>
-        <ThemeProvider theme={theme}>
-          <LocationProvider>
-            <Layout>
-              <Router>
-                <Home path="/" />
-                <Apps path="/apps" />
-                <Account path="/account" />
-                <Search path="/search/*" />
-                <Branding path="/branding" />
-                <NotFound default />
-              </Router>
-            </Layout>
-          </LocationProvider>
-        </ThemeProvider>
-      </AuthProvider>
+      <Notifications>
+        <AuthProvider>
+          <ThemeProvider theme={theme}>
+            <LocationProvider>
+              <Layout>
+                <Router>
+                  <Home path="/" />
+                  <Apps path="/apps" />
+                  <Account path="/account" />
+                  <Search path="/search/*" />
+                  <Branding path="/branding" />
+                  <NotFound default />
+                </Router>
+              </Layout>
+            </LocationProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </Notifications>
     </EnvironmentProvider>
   );
 }
