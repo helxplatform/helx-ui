@@ -4,15 +4,21 @@ import styled, { css, keyframes } from 'styled-components'
 import { notificationTypes, useNotifications } from './notifications-context'
 
 const fade = keyframes`
-  0% { opacity: 0.0; }
-  100% { opacity: 1.0; }
+  0% {
+    opacity: 0.0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1.0;
+    transform: translateX(0);
+  }
 `
 
 const Wrapper = styled.div(({ color, theme }) => css`
   background-color: ${ color };
   padding: 1rem;
   cursor: pointer;
-  animation: ${ fade } 500ms ease-out forwards;
+  animation: ${ fade } 150ms ease-out forwards;
   border-radius: 4px;
   transition: filter 250ms;
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.2)) brightness(1.0);
