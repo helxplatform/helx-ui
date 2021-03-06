@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Notification } from './notification'
 import { NotificationsTray } from './notifications-tray'
@@ -8,16 +8,24 @@ export const NotificationsContext = React.createContext({})
 
 export const Notifications = ({ children }) => {
   const [queue, setQueue] = useState([])
+  const timers = useRef([])
 
-  const addNotification = newMessage => {
+  const addNotification = message => {
+    const newMessage = { ...message, id: Math.random().toString(36).substr(2, 9) }
+    console.log(`adding ${ newMessage.id }`)
     const newQueue = [ ...queue, newMessage]
     setQueue(newQueue)
   }
 
-  const closeNotification = id => {
+  const closeNotification = useCallback(id => {
+    console.log(`removing ${ id }`)
     const newQueue = queue.filter(message => message.id !== id)
     setQueue(newQueue)
-  }
+  }, [])
+
+  useEffect(() => {
+    console.table(queue)
+  }, [queue])
 
   return (
     <NotificationsContext.Provider value={{ addNotification, closeNotification, colors, icons }}>

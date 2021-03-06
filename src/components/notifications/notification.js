@@ -62,7 +62,10 @@ export const Notification = ({ message }) => {
   return (
     <Wrapper onClick={ () => closeNotification(message.id) } color={ colors[message.type] }>
       <div className="icon">{ icons[message.type] }</div>
-      <div className="text">{ message.text }</div>
+      <div className="text">
+        { message.text }<br />
+        <small>{ message.id }</small>
+      </div>
       <button className="close">&times;</button>
     </Wrapper>
   )
