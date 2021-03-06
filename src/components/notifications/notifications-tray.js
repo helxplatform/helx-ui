@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Notification } from './notification'
 import { notificationTypes } from './notifications-context'
+import { icons } from './notification-icons'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -19,7 +20,7 @@ const Wrapper = styled.div`
 export const NotificationsTray = ({ notifications }) => {
   return (
     <Wrapper>
-      { notifications.map(message => <Notification key={ message.id } message={ message } />) }
+      { notifications.map(message => <Notification key={ message.id } message={ message } icon={ icons[message.type] } />) }
     </Wrapper>
   )
 }
