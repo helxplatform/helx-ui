@@ -1,20 +1,33 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Notification } from './notification'
+import { notificationTypes } from './notifications-context'
 
 const Wrapper = styled.div`
-  border: 1px solid red;
   position: fixed;
   bottom: 0;
   right: 0;
-  width: 200px;
-  padding: 1rem;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.5rem;
 `
 
-export const NotificationsTray = ({ queue }) => {
+export const NotificationsTray = ({ notifications }) => {
   return (
     <Wrapper>
-      { queue.map((message, i) => <Notification key={ i } message={ message } />) }
+      { notifications.map(message => <Notification key={ message.id } message={ message } />) }
     </Wrapper>
   )
+}
+
+NotificationsTray.propTypes = {
+  notifications: PropTypes.arrayOf(PropTypes.shape({
+    type: PropTypes.oneOf(notificationTypes).isRequired,
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    text: PropTypes.string.isRequired,
+  })).isRequired,
 }

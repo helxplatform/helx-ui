@@ -14,10 +14,17 @@ import {
   NotFound
 } from './views'
 
+const notificationColors = {
+  info: theme.color.info,
+  success: theme.color.success,
+  error: theme.color.danger,
+  warning: theme.color.warning,
+}
+
 const App = () => {
   return (
     <EnvironmentProvider>
-      <Notifications>
+      <Notifications colors={ notificationColors }>
         <AuthProvider>
           <ThemeProvider theme={theme}>
             <LocationProvider>

@@ -1,21 +1,41 @@
-import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import styled, { css, keyframes } from 'styled-components'
+import { notificationTypes, useNotifications } from './notifications-context'
 
-const Wrapper = styled.div`
-  border: 1px solid red;
-  padding: 1rem;
+const fade = keyframes`
+  0% { opacity: 0.0; }
+  100% { opacity: 1.0; }
 `
 
-export const Notification = ({ message }) => {
-  const [open, setOpen] = useState(true)
-
-  const handleClose = () => {
-    setOpen(false)
+const Wrapper = styled.div(({ color, theme }) => css`
+  background-color: ${ color };
+  padding: 1rem;
+  cursor: pointer;
+  animation: ${ fade } 500ms ease-out forwards;
+  border-radius: 4px;
+  transition: filter 250ms;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.2)) brightness(1.0);
+  &:hover {
+    filter: drop-shadow(0 0 7px rgba(0, 0, 0, 0.25)) brightness(1.1);
   }
+`)
+
+export const Notification = ({ message }) => {
+  const [closing, setClosing] = useState(false)
+  const { closeNotification, notificationColors } = useNotifications()
 
   return (
-    <Wrapper open={ open } onClick={ handleClose }>
-      { message }
+    <Wrapper onClick={ () => closeNotification(message.id) } color={ notificationColors[message.type] }>
+      { message.type } : { message.text }
     </Wrapper>
   )
+}
+
+Notification.propTypes = {
+  message: PropTypes.shape({
+    type: PropTypes.oneOf(notificationTypes).isRequired,
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    text: PropTypes.string.isRequired,
+  }).isRequired,
 }

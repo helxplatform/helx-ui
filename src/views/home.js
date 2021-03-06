@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Container } from '../components/layout'
-import { Title, Paragraph } from '../components/typography'
-import { Tooltip } from '../components/tooltip'
+import { Title, Heading, Paragraph } from '../components/typography'
 import { useNotifications } from '../components/notifications'
 
 export const Home = () => {
@@ -18,10 +17,17 @@ export const Home = () => {
         cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
         proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
     </Paragraph>
+
+    <Heading>Add Notifications</Heading>
     
-    <Tooltip tip="TEST!" placement="bottom"> 
-      <button onClick={() => addNotification('test!')}>tooltip test</button>
-    </Tooltip>
+    <button onClick={() => addNotification({ id: Date.now(), type: 'info', text: 'here is some information' })}>add info</button>
+    <br /><br />
+    <button onClick={() => addNotification({ id: Date.now(), type: 'error', text: 'an error occurred' })}>add error</button>
+    <br /><br />
+    <button onClick={() => addNotification({ id: Date.now(), type: 'success', text: 'that was successful' })}>add success</button>
+    <br /><br />
+    <button onClick={() => addNotification({ id: Date.now(), type: 'warning', text: 'be careful' })}>add warning</button>
+    <br /><br />
   </Container>
   )
 }
