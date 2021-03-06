@@ -17,7 +17,6 @@ const fade = keyframes`
 
 const Wrapper = styled.div(({ color, icon, theme }) => css`
   background-color: white;
-  border-width: 1px solid ${ color };
   cursor: pointer;
   animation: ${ fade } 150ms ease-out forwards;
   border-radius: 4px;
@@ -41,8 +40,8 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
   }
   & .text {
     flex: 1;
-    background-color: white;
     padding: 1rem;
+    background-color: transparent;
   }
   & .close {
     transition: filter 250ms;
