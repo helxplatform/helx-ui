@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css, keyframes } from 'styled-components'
-import { notificationTypes, useNotifications } from './notifications-context'
-import { icons } from './notification-icons'
+import { useNotifications } from './notifications-context'
+import { colors, icons, types } from './config'
 
 const fade = keyframes`
   0% {
@@ -52,12 +52,12 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
   }
 `)
 
-export const Notification = ({ message, icon }) => {
-  const { closeNotification, notificationColors } = useNotifications()
+export const Notification = ({ message }) => {
+  const { closeNotification, colors, icons } = useNotifications()
 
   return (
-    <Wrapper onClick={ () => closeNotification(message.id) } color={ notificationColors[message.type] }>
-      <div className="icon">{ icon }</div>
+    <Wrapper onClick={ () => closeNotification(message.id) } color={ colors[message.type] }>
+      <div className="icon">{ icons[message.type] }</div>
       <div className="text">{ message.text }</div>
       <button className="close">&times;</button>
     </Wrapper>
@@ -66,7 +66,7 @@ export const Notification = ({ message, icon }) => {
 
 Notification.propTypes = {
   message: PropTypes.shape({
-    type: PropTypes.oneOf(notificationTypes).isRequired,
+    type: PropTypes.oneOf(types).isRequired,
     id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     text: PropTypes.string.isRequired,
   }).isRequired,
