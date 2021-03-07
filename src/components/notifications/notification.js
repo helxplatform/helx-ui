@@ -55,10 +55,6 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
 export const Notification = ({ message }) => {
   const { closeNotification, colors, icons, timeout } = useNotifications()
 
-  const close = useCallback(() => {
-    closeNotification(message.id)
-  }, [closeNotification, message.id])
-
   useEffect(() => {
     if (message.autoClose) {
       const closeTimer = setTimeout(() => closeNotification(message.id), timeout)
@@ -66,8 +62,20 @@ export const Notification = ({ message }) => {
     }
   }, [closeNotification, message.autoClose, message.id, timeout])
 
+  const close = useCallback(() => {
+    closeNotification(message.id)
+  }, [closeNotification, message.id])
+
+  const handleMouseOver = () => {
+    console.log(`mouse over ${ message.id }`)
+  }
+
+  const handleMouseOut = () => {
+    console.log(`mouse out ${ message.id }`)
+  }
+
   return (
-    <Wrapper onClick={ close } color={ colors[message.type] }>
+    <Wrapper onClick={ close } color={ colors[message.type] } onMouseOver={ handleMouseOver } onMouseOut={ handleMouseOut }>
       <div className="icon">{ icons[message.type] }</div>
       <div className="text">
         { message.text }

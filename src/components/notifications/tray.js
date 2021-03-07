@@ -9,12 +9,12 @@ const Wrapper = styled.div`
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
+  width: calc(100% - 1rem);
   max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin: 0.5rem;
+  padding: 0.5rem;
 `
 
 export const NotificationsTray = ({ notifications }) => {
