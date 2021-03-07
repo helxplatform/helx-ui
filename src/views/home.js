@@ -20,13 +20,15 @@ export const Home = () => {
 
     <Heading>Add Notifications</Heading>
     
-    <button onClick={() => addNotification({ type: 'info', text: 'here is some information' })}>add info</button>
+    <button onClick={() => addNotification({ type: 'info', text: 'here is some information' })}>info notification</button>
     <br /><br />
-    <button onClick={() => addNotification({ type: 'error', text: 'an error occurred' })}>add error</button>
+    <button onClick={() => addNotification({ type: 'info', text: 'here is some information. you must close me.', autoClose: false })}>stubborn info notification</button>
     <br /><br />
-    <button onClick={() => addNotification({ type: 'success', text: 'that was successful' })}>add success</button>
+    <button onClick={() => addNotification({ type: 'error', text: 'an error occurred' })}>error notification</button>
     <br /><br />
-    <button onClick={() => addNotification({ type: 'warning', text: 'be careful' })}>add warning</button>
+    <button onClick={() => addNotification({ type: 'success', text: 'that was successful' })}>success notification</button>
+    <br /><br />
+    <button onClick={() => addNotification({ type: 'warning', text: 'be careful' })}>warning notification</button>
     <br /><br />
   </Container>
   )

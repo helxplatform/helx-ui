@@ -59,8 +59,10 @@ export const Notification = ({ message }) => {
   }, [closeNotification, message.id])
 
   useEffect(() => {
-    const closeTimer = setTimeout(() => closeNotification(message.id), timeout)
-    return () => clearTimeout(closeTimer)
+    if (message.autoClose) {
+      const closeTimer = setTimeout(() => closeNotification(message.id), timeout)
+      return () => clearTimeout(closeTimer)
+    }
   }, [closeNotification, message.id])
 
   return (
@@ -79,5 +81,6 @@ Notification.propTypes = {
     type: PropTypes.oneOf(types).isRequired,
     id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     text: PropTypes.string.isRequired,
+    autoClose: PropTypes.bool.isRequired,
   }).isRequired,
 }

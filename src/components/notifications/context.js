@@ -9,7 +9,12 @@ export const Notifications = ({ timeout, children }) => {
   const [queue, setQueue] = useState([])
 
   const addNotification = message => {
-    const newMessage = { ...message, id: Math.random().toString(36).substr(2, 9) }
+    const newMessage = {
+      autoClose: true, // default to auto close
+      ...message, // spread message prop in, possibly overwriting autoclose
+      id: Math.random().toString(36).substr(2, 9), // construct id
+    }
+    // append new message to notifications queue
     setQueue([ ...queue, newMessage])
   }
 
