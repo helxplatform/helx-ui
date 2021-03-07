@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css, keyframes } from 'styled-components'
 import { useNotifications } from './context'
 import { types } from './config'
 
-const fade = keyframes`
+const fadeIn = keyframes`
   0% {
     opacity: 0.0;
     transform: translateY(100%);
@@ -15,10 +15,19 @@ const fade = keyframes`
   }
 `
 
+const fadeOut = keyframes`
+  0% {
+    opacity: 1.0;
+  }
+  100% {
+    opacity: 0.0;
+  }
+`
+
 const Wrapper = styled.div(({ color, icon, theme }) => css`
   background-color: white;
   cursor: pointer;
-  animation: ${ fade } 150ms ease-out forwards;
+  animation: ${ fadeIn } 100ms ease-out normal;
   border-radius: 4px;
   transition: filter 250ms;
   display: flex;
@@ -50,20 +59,30 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
     color: ${ color };
     padding: 0.5rem;
   }
+  &.exiting {
+    animation: ${ fadeOut } 250ms ease-out forwards;
+  }
 `)
 
 export const Notification = ({ message }) => {
   const { closeNotification, colors, icons, timeout } = useNotifications()
+  const [closing, setClosing] = useState(false)
 
   useEffect(() => {
     if (message.autoClose) {
-      const closeTimer = setTimeout(() => closeNotification(message.id), timeout)
-      return () => clearTimeout(closeTimer)
+      const fadeTimer = setTimeout(() => setClosing(true), timeout)
+      const closeTimer = setTimeout(() => closeNotification(message.id), timeout + 250)
+      return () => {
+        clearTimeout(fadeTimer)
+        clearTimeout(closeTimer)
+      }
     }
   }, [closeNotification, message.autoClose, message.id, timeout])
 
   const close = useCallback(() => {
-    closeNotification(message.id)
+    setClosing(true)
+    const closeTimer = setTimeout(() => closeNotification(message.id), 250)
+    return () => clearTimeout(closeTimer)
   }, [closeNotification, message.id])
 
   const handleMouseOver = () => {
@@ -75,7 +94,13 @@ export const Notification = ({ message }) => {
   }
 
   return (
-    <Wrapper onClick={ close } color={ colors[message.type] } onMouseOver={ handleMouseOver } onMouseOut={ handleMouseOut }>
+    <Wrapper
+      onClick={ close }
+      color={ colors[message.type] }
+      onMouseOver={ handleMouseOver }
+      onMouseOut={ handleMouseOut }
+      className={ closing ? 'exiting' : undefined }
+    >
       <div className="icon">{ icons[message.type] }</div>
       <div className="text">
         { message.text }
