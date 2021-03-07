@@ -1,3 +1,5 @@
+export const timeout = 5000
+
 export const colors = {
   error: '#c16a5d',
   info: '#49a0d9',
@@ -14,3 +16,4 @@ export const icons = {
 }
 
 export const types = ['error', 'info', 'success', 'warning']
+

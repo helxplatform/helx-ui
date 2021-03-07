@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { NotificationsTray } from './tray'
-import { colors, icons } from './config'
+import * as config from './config'
 
 export const NotificationsContext = React.createContext({})
 
-export const Notifications = ({ children }) => {
+export const Notifications = ({ timeout, children }) => {
   const [queue, setQueue] = useState([])
 
   const addNotification = message => {
@@ -18,7 +18,14 @@ export const Notifications = ({ children }) => {
   }, [])
 
   return (
-    <NotificationsContext.Provider value={{ addNotification, closeNotification, colors, icons }}>
+    <NotificationsContext.Provider
+      value={{
+        addNotification, closeNotification,
+        colors: config.colors,
+        icons: config.icons,
+        timeout: timeout
+      }}
+    >
       { children }
       <NotificationsTray notifications={ queue } />
     </NotificationsContext.Provider>
@@ -34,6 +41,10 @@ Notifications.propTypes = {
     success: PropTypes.string.isRequired,
     warning: PropTypes.string.isRequired,
   }).isRequired,
+  timeout: PropTypes.number.isRequired,
 }
 
-Notifications.defaultProps = { colors: colors }
+Notifications.defaultProps = {
+  colors: config.colors,
+  timeout: config.timeout,
+}

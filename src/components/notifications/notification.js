@@ -52,14 +52,14 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
 `)
 
 export const Notification = ({ message }) => {
-  const { closeNotification, colors, icons } = useNotifications()
+  const { closeNotification, colors, icons, timeout } = useNotifications()
 
   const close = useCallback(() => {
     closeNotification(message.id)
   }, [closeNotification, message.id])
 
   useEffect(() => {
-    const closeTimer = setTimeout(() => closeNotification(message.id), 3000)
+    const closeTimer = setTimeout(() => closeNotification(message.id), timeout)
     return () => clearTimeout(closeTimer)
   }, [closeNotification, message.id])
 
