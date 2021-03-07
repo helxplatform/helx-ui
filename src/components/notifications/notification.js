@@ -4,6 +4,8 @@ import styled, { css, keyframes } from 'styled-components'
 import { useNotifications } from './context'
 import { types } from './config'
 
+const fadeOutTime = 250 // ms
+
 const fadeIn = keyframes`
   0% {
     opacity: 0.0;
@@ -24,7 +26,18 @@ const fadeOut = keyframes`
   }
 `
 
-const Wrapper = styled.div(({ color, icon, theme }) => css`
+const shrink = keyframes`
+  0% {
+    transform: scaleX(1.0);
+    filter: opacity(0.2);
+  }
+  100% {
+    transform: scaleX(0.0);
+    filter: opacity(0.1);
+  }
+`
+
+const Wrapper = styled.div(({ color, icon, theme, autoClose, timeVisible }) => css`
   background-color: white;
   cursor: pointer;
   animation: ${ fadeIn } 100ms ease-out normal;
@@ -52,6 +65,18 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
     flex: 1;
     padding: 1rem;
     background-color: transparent;
+    &::after {
+      content: "";
+      position: absolute;
+      left: 2.5rem;
+      right: 0;
+      bottom: 0;
+      height: 100%;
+      background-color: ${ color };
+      transform-origin: 0 50%;
+      filter: opacity(0.2);
+      animation: ${ autoClose ? shrink : 'none' } ${ timeVisible - fadeOutTime }ms linear forwards;
+    }
   }
   & .close {
     transition: filter 250ms;
@@ -60,7 +85,7 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
     padding: 0.5rem;
   }
   &.exiting {
-    animation: ${ fadeOut } 250ms ease-out forwards;
+    animation: ${ fadeOut } ${ fadeOutTime }ms ease-out forwards;
   }
 `)
 
@@ -71,7 +96,7 @@ export const Notification = ({ message }) => {
   useEffect(() => {
     if (message.autoClose) {
       const fadeTimer = setTimeout(() => setClosing(true), timeout)
-      const closeTimer = setTimeout(() => closeNotification(message.id), timeout + 250)
+      const closeTimer = setTimeout(() => closeNotification(message.id), timeout + fadeOutTime)
       return () => {
         clearTimeout(fadeTimer)
         clearTimeout(closeTimer)
@@ -81,7 +106,7 @@ export const Notification = ({ message }) => {
 
   const close = useCallback(() => {
     setClosing(true)
-    const closeTimer = setTimeout(() => closeNotification(message.id), 250)
+    const closeTimer = setTimeout(() => closeNotification(message.id), fadeOutTime)
     return () => clearTimeout(closeTimer)
   }, [closeNotification, message.id])
 
@@ -95,6 +120,8 @@ export const Notification = ({ message }) => {
 
   return (
     <Wrapper
+      autoClose={ message.autoClose }
+      timeVisible={ timeout + fadeOutTime }
       onClick={ close }
       color={ colors[message.type] }
       onMouseOver={ handleMouseOver }
