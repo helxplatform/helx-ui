@@ -10,8 +10,7 @@ export const Notifications = ({ children }) => {
 
   const addNotification = message => {
     const newMessage = { ...message, id: Math.random().toString(36).substr(2, 9) }
-    const newQueue = [ ...queue, newMessage]
-    setQueue(newQueue)
+    setQueue([ ...queue, newMessage])
   }
 
   const closeNotification = useCallback(id => {
