@@ -7,7 +7,8 @@ import { Notification } from './notification'
 const Wrapper = styled.div`
   position: fixed;
   bottom: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 90%;
   max-width: 400px;
   display: flex;

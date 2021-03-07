@@ -7,11 +7,11 @@ import { types } from './config'
 const fade = keyframes`
   0% {
     opacity: 0.0;
-    transform: translateX(100%);
+    transform: translateY(100%);
   }
   100% {
     opacity: 1.0;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 `
 
