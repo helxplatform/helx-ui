@@ -64,7 +64,7 @@ export const Notification = ({ message }) => {
       const closeTimer = setTimeout(() => closeNotification(message.id), timeout)
       return () => clearTimeout(closeTimer)
     }
-  }, [closeNotification, message.autoClose, message.id])
+  }, [closeNotification, message.autoClose, message.id, timeout])
 
   return (
     <Wrapper onClick={ close } color={ colors[message.type] }>
