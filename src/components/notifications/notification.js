@@ -25,6 +25,7 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
   flex-direction: row;
   align-items: stretch;
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.2)) brightness(1.0);
+  overflow: hidden;
   &:hover {
     filter: drop-shadow(0 0 7px rgba(0, 0, 0, 0.25)) brightness(1.1);
     & .close {
