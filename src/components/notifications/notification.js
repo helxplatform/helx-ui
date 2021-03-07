@@ -46,9 +46,9 @@ const Wrapper = styled.div(({ color, icon, theme }) => css`
   }
   & .close {
     transition: filter 250ms;
-    filter: opacity(0.0);
-    border: 0;
+    filter: opacity(0.25);
     color: ${ color };
+    padding: 0.5rem;
   }
 `)
 
@@ -64,7 +64,7 @@ export const Notification = ({ message }) => {
       const closeTimer = setTimeout(() => closeNotification(message.id), timeout)
       return () => clearTimeout(closeTimer)
     }
-  }, [closeNotification, message.id])
+  }, [closeNotification, message.autoClose, message.id])
 
   return (
     <Wrapper onClick={ close } color={ colors[message.type] }>
@@ -72,7 +72,7 @@ export const Notification = ({ message }) => {
       <div className="text">
         { message.text }
       </div>
-      <button className="close">&times;</button>
+      <div className="close">&times;</div>
     </Wrapper>
   )
 }
