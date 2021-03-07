@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from 'react'
 import PropTypes from 'prop-types'
-import { NotificationsTray } from './notifications-tray'
+import { NotificationsTray } from './tray'
 import { colors, icons } from './config'
 
 export const NotificationsContext = React.createContext({})

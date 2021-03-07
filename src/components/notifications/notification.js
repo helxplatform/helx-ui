@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css, keyframes } from 'styled-components'
-import { useNotifications } from './notifications-context'
+import { useNotifications } from './context'
 import { types } from './config'
 
 const fade = keyframes`
