@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css, keyframes } from 'styled-components'
 import { useNotifications } from './context'
@@ -84,7 +84,7 @@ const Wrapper = styled.div(({ color, icon, theme, autoClose, timeVisible }) => c
     color: ${ color };
     padding: 0.5rem;
   }
-  &.exiting {
+  &.closing {
     animation: ${ fadeOut } ${ fadeOutTime }ms ease-out forwards;
   }
 `)
@@ -126,7 +126,7 @@ export const Notification = ({ message }) => {
       color={ colors[message.type] }
       onMouseOver={ handleMouseOver }
       onMouseOut={ handleMouseOut }
-      className={ closing ? 'exiting' : undefined }
+      className={ closing ? 'closing' : undefined }
     >
       <div className="icon">{ icons[message.type] }</div>
       <div className="text">
