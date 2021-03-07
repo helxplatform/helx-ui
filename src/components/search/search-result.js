@@ -68,7 +68,7 @@ export const Result = ({ index, result }) => {
   const { addNotification } = useNotifications()
 
   const handleSelectResult = result => event => {
-    const notificationText = resultsSelected.has(result.id) ? `Unselected ${result.id}` : `Selected ${result.id}`
+    const notificationText = resultsSelected.has(result.id) ? `Unselected "${result.name}" (${result.id})` : `Selected "${result.name}" (${result.id})`
     addNotification({ text: notificationText, type: 'info' })
     doSelect(result)
   }
