@@ -17,3 +17,6 @@ export const icons = {
 
 export const types = ['error', 'info', 'success', 'warning']
 
+export const defaults = {
+  autoClose: true,
+}

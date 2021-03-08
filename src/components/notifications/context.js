@@ -10,7 +10,7 @@ export const Notifications = ({ timeout, children }) => {
 
   const addNotification = message => {
     const newMessage = {
-      autoClose: true, // default to auto close
+      ...config.defaults, // default to auto close
       ...message, // spread message prop in, possibly overwriting autoclose
       id: Math.random().toString(36).substr(2, 9), // construct id
     }
