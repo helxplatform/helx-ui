@@ -64,6 +64,7 @@ const ResultSelector = styled(Button).attrs({ shadow: false })(({ theme, selecte
 
 export const Result = ({ index, result }) => {
   const { resultsSelected, doSelect } = useHelxSearch();
+
   return (
     <Wrapper selected={resultsSelected.has(result.id)}>
       <div className="index">{index}</div>
@@ -75,7 +76,7 @@ export const Result = ({ index, result }) => {
         <div className="result-json">
           <ReactJson src={result} collapsed={true} enableClipboard={false} theme="monokai" style={{ borderRadius: '3px' }} />
           <ResultSelector onClick={() => doSelect(result)}>
-            <Icon icon="check" fill="white" />
+            <Icon icon={resultsSelected.has(result.id) ? 'check' : 'add' } fill="#eee" />
           </ResultSelector>
         </div>
       </div>
