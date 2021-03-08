@@ -10,7 +10,7 @@ const Wrapper = styled.div`
   left: 50%;
   transform: translateX(-50%);
   width: calc(100% - 1rem);
-  max-width: 400px;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
