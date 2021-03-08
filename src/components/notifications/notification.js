@@ -53,6 +53,11 @@ const Wrapper = styled.div(({ color, icon, theme, autoClose, timeVisible }) => c
     & .close {
       filter: opacity(1.0);
     }
+    & .close-text {
+      font-size: 75%;
+      filter: opacity(1.0);
+      transition: filter 500ms;
+    }
   }
   & .icon {
     background-color: ${ color };
@@ -83,6 +88,9 @@ const Wrapper = styled.div(({ color, icon, theme, autoClose, timeVisible }) => c
     filter: opacity(0.25);
     color: ${ color };
     padding: 0.5rem;
+  }
+  & .close-text {
+    filter: opacity(0.0);
   }
   &.closing {
     animation: ${ fadeOut } ${ fadeOutTime }ms ease-out forwards;
@@ -132,7 +140,9 @@ export const Notification = ({ message }) => {
       <div className="text">
         { message.text }
       </div>
-      <div className="close">&times;</div>
+      <div className="close">
+        <small className="close-text">CLOSE</small> &times;
+      </div>
     </Wrapper>
   )
 }
