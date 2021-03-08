@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components'
 import ReactJson from 'react-json-view'
 import { Icon } from '../icon'
 import { Button } from '../button'
+import { useNotifications } from '../notifications'
 
 const Wrapper = styled.article(({ theme, selected }) => css`
   margin: 1rem 0;
@@ -64,6 +65,13 @@ const ResultSelector = styled(Button).attrs({ shadow: false })(({ theme, selecte
 
 export const Result = ({ index, result }) => {
   const { resultsSelected, doSelect } = useHelxSearch();
+  const { addNotification } = useNotifications()
+
+  const handleSelectResult = result => event => {
+    const notificationText = resultsSelected.has(result.id) ? `Unselected "${result.name}" (${result.id})` : `Selected "${result.name}" (${result.id})`
+    addNotification({ text: notificationText, type: 'info' })
+    doSelect(result)
+  }
 
   return (
     <Wrapper selected={resultsSelected.has(result.id)}>

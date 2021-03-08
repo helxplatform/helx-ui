@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { Container } from '../components/layout'
-import { Title, Paragraph } from '../components/typography'
-import { Tooltip } from '../components/tooltip'
+import { Title, Heading, Paragraph } from '../components/typography'
+import { useNotifications } from '../components/notifications'
 
 export const Home = () => {
+  const { addNotification } = useNotifications()
   return (
     <Container>
       <Title>Home</Title>
@@ -16,10 +17,19 @@ export const Home = () => {
         cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
         proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
     </Paragraph>
+
+    <Heading>Add Notifications</Heading>
     
-    <Tooltip tip="TEST!" placement="bottom"> 
-      <button>tooltip test</button>
-    </Tooltip>
+    <button onClick={() => addNotification({ type: 'info', text: 'here is some information' })}>info notification</button>
+    <br /><br />
+    <button onClick={() => addNotification({ type: 'info', text: 'here is some information. you must close me.', autoClose: false })}>stubborn info notification</button>
+    <br /><br />
+    <button onClick={() => addNotification({ type: 'error', text: 'an error occurred' })}>error notification</button>
+    <br /><br />
+    <button onClick={() => addNotification({ type: 'success', text: 'that was successful' })}>success notification</button>
+    <br /><br />
+    <button onClick={() => addNotification({ type: 'warning', text: 'be careful' })}>warning notification</button>
+    <br /><br />
   </Container>
   )
 }
