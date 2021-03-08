@@ -83,8 +83,8 @@ export const Result = ({ index, result }) => {
         </div>
         <div className="result-json">
           <ReactJson src={result} collapsed={true} enableClipboard={false} theme="monokai" style={{ borderRadius: '3px' }} />
-          <ResultSelector onClick={handleSelectResult(result)}>
-            <Icon icon="check" fill="white" />
+          <ResultSelector onClick={() => doSelect(result)}>
+            <Icon icon={resultsSelected.has(result.id) ? 'check' : 'add' } fill="#eee" />
           </ResultSelector>
         </div>
       </div>
