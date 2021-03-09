@@ -31,7 +31,7 @@ const Meta = styled.div(({ theme, underline, overline }) => css`
   animation: ${ theme.animation.fadeIn };
 `)
 
-const SelectedBar = styled.button(({ theme }) => css`
+const SelectedBar = styled.div(({ theme }) => css`
   color: ${theme.color.success};
   border: none;
   outline: none;
@@ -39,14 +39,37 @@ const SelectedBar = styled.button(({ theme }) => css`
   cursor: pointer;
   &:hover ${SelectedDropdown}{
     display: flex;
-    min-width: 100px;
+    background-color: ${theme.color.grey.light}
   }
 `)
 
-const SelectedDropdown = styled.div`
+const SelectedDropdown = styled.div(({ theme }) => css`
   display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: absolute;
+  border-radius: 5px;
+  padding: 20px 10px;
+  z-index: 1;
+  color: ${theme.color.primary.dark};
+  & :hover {
+    filter: brightness(0.9);
+  }
+`)
+
+const SelectedDropdownCheckbox = styled.input`
+  margin-right: 2px;
 `
+
+const SelectedDropdownButton = styled.button(({ theme }) => css`
+  background-color: ${theme.color.primary.dark};
+  color: white;
+  border: 0;
+  border-radius: ${theme.border.radius};
+  margin: ${theme.spacing.small};
+  padding: ${theme.spacing.small};
+`)
 
 export const SearchResults = () => {
   const theme = useTheme()
@@ -121,7 +144,7 @@ export const SearchResults = () => {
                       resultsSelected.size > 0 && (
                         <SelectedBar>
                           {resultsSelected.size} result{resultsSelected.size !== 1 ? `s` : `` } selected
-                          <SelectedDropdown><button onClick={() => setSelectedView(!selectedView)}>Show Selected Only</button><button onClick={clearSelect}>Clear</button></SelectedDropdown>
+                          <SelectedDropdown><div onClick={() => setSelectedView(!selectedView)}><SelectedDropdownCheckbox checked={selectedView} type="checkbox"/>Show Selected Only</div><div><SelectedDropdownButton onClick={clearSelect}>Clear</SelectedDropdownButton><SelectedDropdownButton onClick={clearSelect}>Launch App</SelectedDropdownButton></div></SelectedDropdown>
                         </SelectedBar>
                       )
                     }
