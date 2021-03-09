@@ -31,6 +31,22 @@ const Meta = styled.div(({ theme, underline, overline }) => css`
   animation: ${ theme.animation.fadeIn };
 `)
 
+const SelectedBar = styled.button(({ theme }) => css`
+  color: ${theme.color.success};
+  border: none;
+  outline: none;
+  background-color: white;
+  cursor: pointer;
+  &:hover ${SelectedDropdown}{
+    display: block;
+  }
+`)
+
+const SelectedDropdown = styled.div`
+  display: none;
+  position: absolute;
+`
+
 export const SearchResults = () => {
   const theme = useTheme()
   const auth = useAuth()
@@ -90,9 +106,10 @@ export const SearchResults = () => {
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     {
                       resultsSelected.size > 0 && (
-                        <span style={{ color: theme.color.success }}>
+                        <SelectedBar>
                           {resultsSelected.size} result{resultsSelected.size !== 1 ? `s` : `` } selected
-                        </span>
+                          <SelectedDropdown>Selected Only</SelectedDropdown>
+                        </SelectedBar>
                       )
                     }
                   </div>
