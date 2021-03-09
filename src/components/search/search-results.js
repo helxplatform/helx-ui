@@ -38,24 +38,29 @@ const SelectedBar = styled.div(({ theme }) => css`
   background-color: white;
   cursor: pointer;
   &:hover ${SelectedDropdown}{
-    display: flex;
-    background-color: ${theme.color.grey.light}
+    visibility: visible;
+    opacity: 1;
   }
 `)
 
 const SelectedDropdown = styled.div(({ theme }) => css`
-  display: none;
+  visibility: hidden;
+  opacity: 0;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: absolute;
   border-radius: 5px;
   padding: 20px 10px;
+  background-color: ${theme.color.grey.light};
   z-index: 1;
   color: ${theme.color.primary.dark};
   & :hover {
     filter: brightness(0.9);
   }
+  transition: opacity 500ms;
+  -webkit-transition: opacity 500ms;
 `)
 
 const SelectedDropdownCheckbox = styled.input`
