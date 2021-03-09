@@ -159,6 +159,7 @@ export const HelxSearch = ({ children }) => {
 
   const clearSelect = () => {
     setResultsSelected(new Map());
+    setSelectedView(false);
   }
 
   const launchApp = () => {
