@@ -143,20 +143,17 @@ export const HelxSearch = ({ children }) => {
   // along with update and remove each items. Each checkbox action will invoke this function
   const doSelect = newSelect => {
     let newSet = new Map(resultsSelected);
-    if (!newSet.has(newSelect.id)){
+    if (!newSet.has(newSelect.id)) {
       newSet.set(newSelect.id, newSelect);
     }
-    else{
+    else {
       newSet.delete(newSelect.id)
     }
     setResultsSelected(newSet);
-    // const idx = resultsSelected.indexOf(newSelect);
-    // if (idx >= 0) {
-    //   let newArray = [...resultsSelected];
-    //   newArray.splice(idx, 1);
-    //   setResultsSelected(newArray);
-    // }
-    // else setResultsSelected([...resultsSelected, newSelect]);
+  }
+
+  const clearSelect = () => {
+    setResultsSelected(new Map());
   }
 
   const launchApp = () => {
@@ -168,7 +165,7 @@ export const HelxSearch = ({ children }) => {
       query, setQuery, doSearch, inputRef,
       error, isLoadingResults,
       results, totalResults,
-      doSelect, resultsSelected,
+      doSelect, resultsSelected, clearSelect,
       launchApp,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount, paginationRadius,
     }}>

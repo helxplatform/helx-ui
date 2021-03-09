@@ -50,7 +50,7 @@ const SelectedDropdown = styled.div`
 export const SearchResults = () => {
   const theme = useTheme()
   const auth = useAuth()
-  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, resultsSelected, error } = useHelxSearch()
+  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, resultsSelected, clearSelect, error } = useHelxSearch()
 
   const MemoizedResultsSummary = useMemo(() => {
     if (!results) return null
@@ -108,7 +108,7 @@ export const SearchResults = () => {
                       resultsSelected.size > 0 && (
                         <SelectedBar>
                           {resultsSelected.size} result{resultsSelected.size !== 1 ? `s` : `` } selected
-                          <SelectedDropdown>Selected Only</SelectedDropdown>
+                          <SelectedDropdown><button>Show Selected Only</button><button onClick={clearSelect}>Clear</button></SelectedDropdown>
                         </SelectedBar>
                       )
                     }
