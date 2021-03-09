@@ -20,7 +20,7 @@ const Wrapper = styled.article(({ theme, selected }) => css`
     min-width: 3rem;
     display: flex;
     justify-content: flex-end;
-    color: ${ selected ? theme.color.success : 'inherit' };
+    color: ${selected ? theme.color.success : 'inherit'};
     transition: color 250ms;
   }
   & .details {
@@ -39,11 +39,11 @@ const Wrapper = styled.article(({ theme, selected }) => css`
   & .result-json {
     position: relative;
     overflow: hidden;
-    & ${ ResultSelector } {
-      transform: translateY(calc(-100% + ${ theme.spacing.sm }));
-      background-color: ${ selected ? theme.color.success : theme.color.grey.dark };
+    & ${ResultSelector} {
+      transform: translateY(calc(-100% + ${theme.spacing.sm}));
+      background-color: ${selected ? theme.color.success : theme.color.grey.dark};
     }
-    &:hover ${ ResultSelector } {
+    &:hover ${ResultSelector} {
       transform: translateY(0);
     }
   }
@@ -57,16 +57,15 @@ const ResultSelector = styled(Button).attrs({ shadow: false })(({ theme, selecte
   position: absolute;
   top: 0;
   right: 0;
-  padding: ${ theme.spacing.sm };
+  padding: ${theme.spacing.sm};
   border-bottom-right-radius: 0;
   border-top-left-radius: 0;
   transition: transform 250ms, filter 250ms;
 `)
 
 export const Result = ({ index, result }) => {
-  const { resultsSelected, doSelect } = useHelxSearch();
+  const { resultsSelected, selectedView, setSelectedView, doSelect } = useHelxSearch();
   const { addNotification } = useNotifications()
-
   const handleSelectResult = result => event => {
     const notificationText = resultsSelected.has(result.id) ? `Unselected "${result.name}" (${result.id})` : `Selected "${result.name}" (${result.id})`
     addNotification({ text: notificationText, type: 'info' })
@@ -84,7 +83,7 @@ export const Result = ({ index, result }) => {
         <div className="result-json">
           <ReactJson src={result} collapsed={true} enableClipboard={false} theme="monokai" style={{ borderRadius: '3px' }} />
           <ResultSelector onClick={() => doSelect(result)}>
-            <Icon icon={resultsSelected.has(result.id) ? 'check' : 'add' } fill="#eee" />
+            <Icon icon={resultsSelected.has(result.id) ? 'check' : 'add'} fill="#eee" />
           </ResultSelector>
         </div>
       </div>

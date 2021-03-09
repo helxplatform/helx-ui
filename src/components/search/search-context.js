@@ -32,6 +32,7 @@ export const HelxSearch = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const [paginationRadius, setPaginationRadius] = useState(PAGINATION_RADIUS.mobile)
+  const [selectedView, setSelectedView] = useState(false);
 
   const auth = useAuth()
   const inputRef = useRef()
@@ -63,6 +64,8 @@ export const HelxSearch = ({ children }) => {
   }, [window.location.search])
 
   useEffect(() => {
+    // close selected view when loading new search
+    setSelectedView(false);
     const fetchResults = async () => {
       setIsLoadingResults(true)
       try {
@@ -152,6 +155,8 @@ export const HelxSearch = ({ children }) => {
     setResultsSelected(newSet);
   }
 
+  // clear all selected history
+
   const clearSelect = () => {
     setResultsSelected(new Map());
   }
@@ -165,7 +170,7 @@ export const HelxSearch = ({ children }) => {
       query, setQuery, doSearch, inputRef,
       error, isLoadingResults,
       results, totalResults,
-      doSelect, resultsSelected, clearSelect,
+      selectedView, setSelectedView, doSelect, resultsSelected, clearSelect,
       launchApp,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount, paginationRadius,
     }}>

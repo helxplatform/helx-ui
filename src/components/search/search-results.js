@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react'
+import React, { Fragment, useEffect, useState, useMemo } from 'react'
 import styled, { css, useTheme } from 'styled-components'
 import { useHelxSearch } from './search-context'
 import { useAuth } from '../../contexts'
@@ -38,7 +38,8 @@ const SelectedBar = styled.button(({ theme }) => css`
   background-color: white;
   cursor: pointer;
   &:hover ${SelectedDropdown}{
-    display: block;
+    display: flex;
+    min-width: 100px;
   }
 `)
 
@@ -50,7 +51,19 @@ const SelectedDropdown = styled.div`
 export const SearchResults = () => {
   const theme = useTheme()
   const auth = useAuth()
-  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, resultsSelected, clearSelect, error } = useHelxSearch()
+  const [currentResults, setCurrentResults] = useState([]);
+  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, resultsSelected, clearSelect, error, selectedView, setSelectedView } = useHelxSearch()
+
+  // handle selected view and update search results when needed
+
+  useEffect(() => {
+    if(selectedView){
+      setCurrentResults(Array.from(resultsSelected.values()));
+    }
+    else{
+      setCurrentResults(results);
+    }
+  },[results, selectedView])
 
   const MemoizedResultsSummary = useMemo(() => {
     if (!results) return null
@@ -108,7 +121,7 @@ export const SearchResults = () => {
                       resultsSelected.size > 0 && (
                         <SelectedBar>
                           {resultsSelected.size} result{resultsSelected.size !== 1 ? `s` : `` } selected
-                          <SelectedDropdown><button>Show Selected Only</button><button onClick={clearSelect}>Clear</button></SelectedDropdown>
+                          <SelectedDropdown><button onClick={() => setSelectedView(!selectedView)}>Show Selected Only</button><button onClick={clearSelect}>Clear</button></SelectedDropdown>
                         </SelectedBar>
                       )
                     }
@@ -120,7 +133,7 @@ export const SearchResults = () => {
               )
             }
             {
-              results.map((result, i) => {
+              currentResults.map((result, i) => {
                 const index = (currentPage - 1) * perPage + i + 1
                 return <Result key={ `result-${ index }` } index={ index } result={ result } />
               })
