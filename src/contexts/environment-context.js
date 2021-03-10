@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRegistry } from '../hooks'
 
 export const EnvironmentContext = createContext({})
@@ -22,12 +22,28 @@ export const EnvironmentProvider = ({ children }) => {
     })
   }
 
+  // store csrf token
+  const [csrfToken, setCsrfToken] = useState();
+
+  useEffect(() => {
+    if (document.cookie && document.cookie !== '') {
+      let cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        let trimmedCookies = cookies[i].trim();
+        if(trimmedCookies.substring(0,10) === 'csrftoken='){
+            setCsrfToken(trimmedCookies.substring(10))
+        }
+      }
+    }
+  })
+
   return (
     <EnvironmentContext.Provider value={{
       helxSearchUrl: process.env.REACT_APP_HELX_SEARCH_URL,
       helxAppstoreUrl: process.env.REACT_APP_HELX_APPSTORE_URL,
       config: config,
-      updateConfig: updateConfig
+      updateConfig: updateConfig,
+      csrfToken
     }}>
       { children}
     </EnvironmentContext.Provider>

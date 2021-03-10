@@ -205,6 +205,7 @@ const ServiceCard = ({ name, docs, sid, fqsid, creation_time, cpu, gpu, memory }
 export const Apps = () => {
   const context = useEnvironment().config.context;
   const helxAppstoreUrl = useEnvironment().helxAppstoreUrl;
+  const helxAppstoreCsrfToken = useEnvironment().csrfToken;
   const [apps, setApps] = useState({});
   const [services, setServices] = useState([]);
   const [active, setActive] = useState('Apps');
@@ -283,7 +284,10 @@ export const Apps = () => {
   useEffect(async () => {
     // const response = await axios({
     //   url: `${helxAppstoreUrl}/api/v1/apps`,
-    //   method: 'GET'
+    //   method: 'GET',
+    //   headers: {
+    //     'X-CSRFToken': helxAppstoreCsrfToken
+    //   }
     // }).then((res) => {
     //   console.log(res);
 
