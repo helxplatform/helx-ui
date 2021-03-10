@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react'
+import React, { Fragment, useEffect, useState, useMemo } from 'react'
 import styled, { css, useTheme } from 'styled-components'
 import { useHelxSearch } from './search-context'
 import { useAuth } from '../../contexts'
@@ -31,10 +31,75 @@ const Meta = styled.div(({ theme, underline, overline }) => css`
   animation: ${ theme.animation.fadeIn };
 `)
 
+const SelectedBar = styled.div(({ theme }) => css`
+  display: flex;
+  justify-content: center;
+  color: ${theme.color.success};
+  background-color: white;
+  cursor: pointer;
+  &:hover ${SelectedDropdown}{
+    visibility: visible;
+    opacity: 1;
+  }
+`)
+
+const SelectedText = styled.div(({ theme }) => css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+`)
+
+const SelectedDropdown = styled.div(({ theme }) => css`
+  visibility: hidden;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  position: absolute;
+  border-radius: 5px;
+  padding: 20px 10px;
+  background-color: ${theme.color.grey.light};
+  z-index: 1;
+  color: ${theme.color.primary.dark};
+  & :hover {
+    filter: brightness(0.9);
+  }
+  transition: opacity 500ms;
+  -webkit-transition: opacity 500ms;
+`)
+
+const SelectedDropdownCheckbox = styled.input`
+  margin-right: 2px;
+`
+
+const SelectedDropdownButton = styled.button(({ theme }) => css`
+  background-color: ${theme.color.primary.dark};
+  color: white;
+  border: 0;
+  border-radius: ${theme.border.radius};
+  margin: ${theme.spacing.small};
+  padding: ${theme.spacing.small};
+`)
+
 export const SearchResults = () => {
   const theme = useTheme()
   const auth = useAuth()
-  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, resultsSelected, error } = useHelxSearch()
+  const [currentResults, setCurrentResults] = useState([]);
+  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, resultsSelected, clearSelect, error, selectedView, setSelectedView } = useHelxSearch()
+
+  // handle selected view and update search results when needed
+
+  useEffect(() => {
+    if(selectedView){
+      setCurrentResults(Array.from(resultsSelected.values()));
+    }
+    else{
+      setCurrentResults(results);
+    }
+  },[results, selectedView])
 
   const MemoizedResultsSummary = useMemo(() => {
     if (!results) return null
@@ -88,14 +153,15 @@ export const SearchResults = () => {
                   <div>
                     Results { (currentPage - 1) * perPage + 1 } to { (currentPage - 1) * perPage + results.length } of { totalResults } total results
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                    {
+                  </div>
+                  {
                       resultsSelected.size > 0 && (
-                        <span style={{ color: theme.color.success }}>
-                          {resultsSelected.size} result{resultsSelected.size !== 1 ? `s` : `` } selected
-                        </span>
+                        <SelectedBar>
+                          <SelectedText>{resultsSelected.size} result{resultsSelected.size !== 1 ? `s` : `` } selected <Icon icon="chevronDown" fill={theme.color.grey.main}/></SelectedText>
+                          <SelectedDropdown><div onClick={() => setSelectedView(!selectedView)}><SelectedDropdownCheckbox checked={selectedView} type="checkbox"/>Show Selected Only</div><div><SelectedDropdownButton onClick={clearSelect}>Clear</SelectedDropdownButton><SelectedDropdownButton onClick={clearSelect}>Launch App</SelectedDropdownButton></div></SelectedDropdown>
+                        </SelectedBar>
                       )
                     }
-                  </div>
                   <div>
                     { MemoizedActions }
                   </div>
@@ -103,7 +169,7 @@ export const SearchResults = () => {
               )
             }
             {
-              results.map((result, i) => {
+              currentResults.map((result, i) => {
                 const index = (currentPage - 1) * perPage + i + 1
                 return <Result key={ `result-${ index }` } index={ index } result={ result } />
               })
