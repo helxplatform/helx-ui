@@ -32,15 +32,22 @@ const Meta = styled.div(({ theme, underline, overline }) => css`
 `)
 
 const SelectedBar = styled.div(({ theme }) => css`
+  display: flex;
+  justify-content: center;
   color: ${theme.color.success};
-  border: none;
-  outline: none;
   background-color: white;
   cursor: pointer;
   &:hover ${SelectedDropdown}{
     visibility: visible;
     opacity: 1;
   }
+`)
+
+const SelectedText = styled.div(({ theme }) => css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
 `)
 
 const SelectedDropdown = styled.div(({ theme }) => css`
@@ -50,6 +57,7 @@ const SelectedDropdown = styled.div(({ theme }) => css`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-top: 20px;
   position: absolute;
   border-radius: 5px;
   padding: 20px 10px;
@@ -145,15 +153,15 @@ export const SearchResults = () => {
                   <div>
                     Results { (currentPage - 1) * perPage + 1 } to { (currentPage - 1) * perPage + results.length } of { totalResults } total results
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                    {
+                  </div>
+                  {
                       resultsSelected.size > 0 && (
                         <SelectedBar>
-                          {resultsSelected.size} result{resultsSelected.size !== 1 ? `s` : `` } selected
+                          <SelectedText>{resultsSelected.size} result{resultsSelected.size !== 1 ? `s` : `` } selected <Icon icon="chevronDown" fill={theme.color.grey.main}/></SelectedText>
                           <SelectedDropdown><div onClick={() => setSelectedView(!selectedView)}><SelectedDropdownCheckbox checked={selectedView} type="checkbox"/>Show Selected Only</div><div><SelectedDropdownButton onClick={clearSelect}>Clear</SelectedDropdownButton><SelectedDropdownButton onClick={clearSelect}>Launch App</SelectedDropdownButton></div></SelectedDropdown>
                         </SelectedBar>
                       )
                     }
-                  </div>
                   <div>
                     { MemoizedActions }
                   </div>
