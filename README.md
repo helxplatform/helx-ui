@@ -10,15 +10,24 @@ For local development you can get started with:
 $ npm start
 ```
 
-To use [appstore](https://github.com/helxplatform/appstore/tree/develop/appstore)
-as a local backend for development you can follow the appstore local dev docs,
-or use a local kubernetes environment. Both setups have different advantages and
-disadvantages. In the future we hope to have this available as a simple
-`docker-compose` setup.
+### Appstore backend
 
-### Appstore local non kubernetes
+To use the `appstore` as a local backend you will need to have minikube installed
+and optionally `docker-compose`. For simple setups `docker-compose` is enough to
+run the appstore and provide endpoints for development. For more advance capabilities
+it is helpful to run the appstore in minikube with port forwarding so that service
+endpoints will start and stop services in your local minikube environment.
 
-Make sure to have `python3` installed and follow the setup [doc](https://github.com/helxplatform/appstore/tree/develop/appstore).
+### Appstore docker-compose
+
+Make sure you have minikube installed then:
+
+```bash
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+This cannot launch apps due to running in stub mode, but will allow login and
+serve up some stubbed data.
 
 ### Appstore local kubernetes
 
@@ -32,6 +41,9 @@ kubectl port-forward service/helx-nginx 8080:80
 ```
 
 Navigate to endpoints at `http://localhost:8080/`.
+
+With this setup appstore and tycho will use your local cluster enabling full
+interaction with launched app instances.
 
 ## Environment Variables
 

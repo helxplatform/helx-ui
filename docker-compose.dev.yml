@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  appstore:
+    image: helxplatform/appstore:react-build
+    volumes:
+      - $HOME/.kube/config:/home/appstore/.kube/config
+      - $HOME/.minikube/:$HOME/.minikube/
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
