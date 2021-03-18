@@ -21,5 +21,5 @@ RUN npm run build
 FROM nginx:latest
 RUN apt-get update && apt-get install nano tree -y
 EXPOSE 80
-COPY --from=builder /src/build /usr/share/nginx/html/
+COPY --from=builder /src/build/frontend /usr/share/nginx/html/
 CMD ["nginx", "-g", "daemon off;"]
