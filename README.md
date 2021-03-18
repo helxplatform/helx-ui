@@ -4,7 +4,7 @@ This is a [React](reactjs.org/) app created with [create-react-app](https://crea
 
 ## Development
 
-For local development you can get started with:
+For local React development you can get started with:
 
 ```bash
 $ npm start
@@ -23,11 +23,18 @@ endpoints will start and stop services in your local minikube environment.
 Make sure you have minikube installed then:
 
 ```bash
+cp .env.example .env
 docker-compose -f docker-compose.dev.yml up -d
 ```
 
-This cannot launch apps due to running in stub mode, but will allow login and
-serve up some stubbed data.
+Optionally
+
+```bash
+vim .env
+```
+
+This cannot launch apps due to running in stub mode, but will allow login (with
+Django admin, see details below for social login) and serve up some stubbed data.
 
 ### Appstore local kubernetes
 
@@ -47,6 +54,8 @@ interaction with launched app instances.
 
 ## Environment Variables
 
+### React
+
 See `.env.example` for the most up to date variables. Copy/move `.env.example`
 to `.env` for local `npm run` and `docker-compose` detection.
 
@@ -56,6 +65,62 @@ to `.env` for local `npm run` and `docker-compose` detection.
 - `REACT_APP_HELX_APPSTORE_URL`: host/path the app will used to get backend data
 - `BUILD_PATH`: Environment variable used by `create-react-app` to determine
 the react build output path
+
+### Appstore
+
+The following variables control the appstore backend configuration. Defaults are
+provided in `env.sample` with the exception of github login variables. These are
+a minimum set that should provide ease of use and functionality for frontend
+development without needing to understand all appstore environment variables
+and configuration.
+
+- `WHITELIST_REDIRECT`: prevents Django from performing a redirect for unauthorized
+(not unauthenticated) users and instead raises a 403 that React can handle.
+- `DEV_PHASE`: defaults to `stub` providing sample data and doesn't rely on Tycho
+talking to Kubernetes
+- `DEBUG`: handles how Django routes/raises on error and the amount of detail provided
+- `ALLOW_DJANGO_LOGIN`: toggle Django login as a provider, doesn't impact admin login
+- `OAUTH_PROVIDERS`: list of oauth login providers
+- `GITHUB_NAME`: app name you configured for your github oauth app
+- `GITHUB_CLIENT_ID`: github generated client id
+- `GITHUB_SECRET`: github generated client secret
+- `AUTHORIZED_USERS`: your primary github email
+- `NAMESPACE`: optional, not required in stub mode, most likely `default` for
+local dev. This is the kubernetes namespace Tycho will start services in.
+
+For more details on the appstore variables please see the appstore [README](https://github.com/helxplatform/appstore/tree/develop/appstore#app-development).
+
+## Appstore login configuration
+
+Out of the box the `admin` account is configured and available for use. For
+some dev this login may be enough to test changes or validate an update, but
+for testing a more standard user login view/flow you will want to use one
+of the social login options.
+
+The following steps describe setting up github social login for use with the
+appstore backend. This is probably the easiest login provider to setup for local
+testing.
+
+- Login to GitHub
+- Setup a GitHub OAuth [app](https://docs.github.com/en/developers/apps/creating-an-oauth-app)
+
+> You can use 127.0.0.1, localhost or 0.0.0.0 here, but it needs to match the
+> address you use locally these are not interchangeable. Mixing them will raise
+> a callback error in the login flow.
+
+- Copy `.env.example` to `.env`
+- Add your app name, secret and id to the GITHUB_* variables
+- Add your github email to `AUTHORIZED_USERS` so that your user can login, and
+your user will be authorized to access appstore resources.
+- If you have already started appstore restart it
+  - If running in `docker-compose` you shouldn't need to do anything more that restart
+  - If running appstore locally you will need to remove the generated sqlite database
+and makes sure to rerun the `start` command or use the `manageauthorizedusers` command.
+- appstore login should now be configured to support github social authentication
+and your user has been added as an authorized user.
+
+For more details please reference the devops [README](https://github.com/helxplatform/devops/tree/develop#configure-environment-variables-for-helx-deployment)
+and check the section on OAuth login.
 
 ## Production build configuration
 
