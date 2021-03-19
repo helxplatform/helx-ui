@@ -230,15 +230,14 @@ const ServiceCard = ({ name, docs, sid, fqsid, creation_time, cpu, gpu, memory }
 }
 
 export const Apps = () => {
-  const context = useEnvironment().config.context;
   const helxAppstoreUrl = useEnvironment().helxAppstoreUrl;
   const helxAppstoreCsrfToken = useEnvironment().csrfToken;
   const [apps, setApps] = useState({});
   const [services, setServices] = useState([]);
-  const [active, setActive] = useState('Apps');
+  const [active, setActive] = useState('Available');
 
   useEffect(async () => {
-    if (active === 'Apps') {
+    if (active === 'Available') {
       setServices([]);
       setApps({
         "blackbalsam": {
@@ -362,8 +361,8 @@ export const Apps = () => {
   return (
     <Container>
       <TabGroup>
-        <Tab active={active === 'Apps'} onClick={() => setActive('Apps')}>Apps</Tab>
-        <Tab active={active === 'Services'} onClick={() => setActive('Services')}>Services</Tab>
+        <Tab active={active === 'Available'} onClick={() => setActive('Available')}>Available</Tab>
+        <Tab active={active === 'Active'} onClick={() => setActive('Active')}>Active</Tab>
       </TabGroup>
       {Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
       {services.map(service => <ServiceCard key={service.sid} {...service} />)}
