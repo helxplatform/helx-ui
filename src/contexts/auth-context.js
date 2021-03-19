@@ -35,54 +35,27 @@ export const AuthProvider = ({ children }) => {
   const environment = useEnvironment();
   const helxAppstoreUrl = environment.helxAppstoreUrl;
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('loggedInUser')));
+  const [providers, setProviders] = useState([]);
+
+  // load login provider
+
+  useEffect(() => {
+    loginProvider();
+  }, [])
+
+  const loginProvider = async () => {
+    const provider_response = await axios({
+      method: 'GET',
+      url: `${helxAppstoreUrl}/api/v1/providers/`
+    });
+    setProviders(provider_response.data);
+  }
 
   // call the /api/token endpoint, and store tokens in user's data model
-  const loginHandler = async (credentials) => {
-    console.log('Logging in...')
-    let loggedInUser = JSON.parse(JSON.stringify(initialUser));
+  const loginHandler = async (url) => {
 
-    let response = {
-      "message": "Authentication successful.",
-      "data": {
-        "refresh_token": "samplerefreshtoken",
-        "access_token": "sampleaccesstoken",
-        "metadata": {
-          "context": "braini",
-          "branding": "BRAIN-I App Registry",
-          "logo_name": "BRAIN-I_app_logo",
-          "logo_path": ""
-        }
-      }
-    }
-
-    loggedInUser.refresh_token = response.refresh_token;
-    loggedInUser.access_token = response.access_token;
-    loggedInUser.username = credentials[0];
-    loggedInUser.config.context = response.data.metadata.context;
-    loggedInUser.config.branding = response.data.metadata.branding;
-    localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-    setUser(loggedInUser);
-
-    environment.updateConfig(response.data.metadata.context, response.data.metadata.branding);
-    //   const login_response = await axios({
-    //     method: 'POST',
-    //     url: `${helxAppstoreUrl}/api-token-auth/`,
-    //     data:{
-    //     username: credentials[0],
-    //     password: credentials[1]
-    //   }
-    // }).then(res => {
-    //     let loggedInUser = JSON.parse(JSON.stringify(initialUser));
-    //     loggedInUser.refesh_token = res.data.refesh;
-    //     loggedInUser.access_token = res.data.access;
-    //     localStorage.setItem('refresh_token', res.data.refresh);
-    //     localStorage.setItem('access_token', res.data.access);
-    //     loggedInUser.username = credentials[0];
-    //     setUser(loggedInUser);
-    //   }).catch(e => {
-    //     console.log(e);
-    //     alert("Username and password does not match. Please try again.")
-    //   })
+    // redirect to the provider login
+    window.location.href = helxAppstoreUrl + url;
   }
 
   const logoutHandler = () => {
@@ -130,7 +103,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user: user, login: loginHandler, logout: logoutHandler, saveSearch: favoriteSearchHandler, updateSearchHistory }}>
+    <AuthContext.Provider value={{ user: user, providers: providers, login: loginHandler, logout: logoutHandler, saveSearch: favoriteSearchHandler, updateSearchHistory }}>
       { children}
     </AuthContext.Provider>
   )
