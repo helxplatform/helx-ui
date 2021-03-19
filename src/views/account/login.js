@@ -3,9 +3,11 @@ import styled, { useTheme } from 'styled-components'
 import { Container } from '../../components/layout'
 import { Title, Paragraph } from '../../components/typography'
 import { Input } from '../../components/input';
+import { Icon } from '../../components/icon';
 import { InputGroup } from '../../components/input-group';
 import { Button } from '../../components/button'
 import { useAuth } from '../../contexts'
+import { NotFound } from '../not-found';
 
 const LoginInput = styled(Input)` 
     margin: 10px 10px;
@@ -30,22 +32,21 @@ const LoginContainer = styled(Container)`
 
 const LoginButton = styled(Button)`
     width: 20%;
+    margin: 10px 10px;
 `
 
 export const Login = () => {
-  const auth = useAuth();
+  const { providers, login } = useAuth();
   const [username, setUserName] = useState();
   const [pwd, setPwd] = useState();
+
+  if (providers.length == 0) return <NotFound />
 
   return (
     <LoginContainer>
       <LoginInputGroup>
-        <LoginInput placeholder="Username" onChange={(event) => { setUserName(event.target.value) }}>
-        </LoginInput>
-        <LoginInput placeholder="Password" onChange={(event) => { setPwd(event.target.value) }}>
-        </LoginInput>
+        {providers.map(provider => <LoginButton onClick={() => login(provider.url)}><Icon icon={provider.name.toLowerCase()}></Icon>{provider.name}</LoginButton>)}
       </LoginInputGroup>
-      <LoginButton onClick={() => { auth.login([username, pwd]) }}>LOGIN</LoginButton>
     </LoginContainer>
   )
 }
