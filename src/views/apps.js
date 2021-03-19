@@ -13,7 +13,8 @@ import { Input } from '../components/input';
 import { Dropdown } from '../components/dropdown';
 import { Slider } from '../components/slider';
 import { Tab, TabGroup } from '../components/tab';
-import { useEnvironment } from '../contexts'
+import { useEnvironment } from '../contexts';
+import DataTable from 'react-data-table-component';
 
 const Relative = styled.div`
   position: relative;
@@ -316,56 +317,87 @@ const app_response = {
 
 const instance_response = [
   {
-      "name": "Jupyter Data Science",
-      "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-      "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-      "fqsid": "jupyter-ds",
-      "creation_time": "time",
-      "cpus": 0.0,
-      "gpus": 0,
-      "memory": "0.0"
+    "name": "Jupyter Data Science",
+    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
+    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
+    "fqsid": "jupyter-ds",
+    "creation_time": "time",
+    "cpus": 0.0,
+    "gpus": 0,
+    "memory": "0.0"
   },
   {
-      "name": "Jupyter Data Science",
-      "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-      "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-      "fqsid": "jupyter-ds",
-      "creation_time": "time",
-      "cpus": 0.0,
-      "gpus": 0,
-      "memory": "0.0"
+    "name": "Jupyter Data Science",
+    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
+    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
+    "fqsid": "jupyter-ds",
+    "creation_time": "time",
+    "cpus": 0.0,
+    "gpus": 0,
+    "memory": "0.0"
   },
   {
-      "name": "Jupyter Data Science",
-      "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-      "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-      "fqsid": "jupyter-ds",
-      "creation_time": "time",
-      "cpus": 0.0,
-      "gpus": 0,
-      "memory": "0.0"
+    "name": "Jupyter Data Science",
+    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
+    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
+    "fqsid": "jupyter-ds",
+    "creation_time": "time",
+    "cpus": 0.0,
+    "gpus": 0,
+    "memory": "0.0"
   },
   {
-      "name": "Jupyter Data Science",
-      "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-      "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-      "fqsid": "jupyter-ds",
-      "creation_time": "time",
-      "cpus": 0.0,
-      "gpus": 0,
-      "memory": "0.0"
+    "name": "Jupyter Data Science",
+    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
+    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
+    "fqsid": "jupyter-ds",
+    "creation_time": "time",
+    "cpus": 0.0,
+    "gpus": 0,
+    "memory": "0.0"
   },
   {
-      "name": "Jupyter Data Science",
-      "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-      "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-      "fqsid": "jupyter-ds",
-      "creation_time": "time",
-      "cpus": 0.0,
-      "gpus": 0,
-      "memory": "0.0"
+    "name": "Jupyter Data Science",
+    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
+    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
+    "fqsid": "jupyter-ds",
+    "creation_time": "time",
+    "cpus": 0.0,
+    "gpus": 0,
+    "memory": "0.0"
   }
 ]
+
+const columns = [
+  {
+    name: 'App Name',
+    selector: 'name',
+    sortable: true
+  },
+  {
+    name: 'Creation Time',
+    selector: 'creation_time',
+    sortable: true
+  },
+  {
+    name: 'CPU',
+    selector: 'cpus',
+    sortable: true
+  },
+  {
+    name: 'GPU',
+    selector: 'gpus',
+    sortable: true
+  },
+  {
+    name: 'Memory',
+    selector: 'memory',
+    sortable: true
+  }
+]
+const handleChange = (state) => {
+  console.log(state.selectedRows);
+}
 
 export const Apps = () => {
   const { helxAppstoreUrl } = useEnvironment();
@@ -412,8 +444,19 @@ export const Apps = () => {
         <Tab active={active === 'Active'} onClick={() => setActive('Active')}>Active</Tab>
       </TabGroup>
       {Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
-      {services.map(service => <ServiceCard key={service.sid} {...service} />)}
-
+      {services.length > 0 ? < DataTable
+        columns={columns}
+        data={services}
+        selectableRows
+        Clicked
+        Selected={handleChange}
+        contextMessage={{
+          singular: 'instance',
+          plural: 'instances',
+          message: 'selected'
+        }}
+        contextActions={<StopButton>Stop</StopButton>}
+      /> : <span />}
     </Container>
   )
 }
