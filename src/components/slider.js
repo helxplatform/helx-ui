@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const Slider = styled.input`
     margin-left: 10px;
-    width: 25%;
+    margin-right: 10px;
     height: 20px;
     border-radius: 5px;
     background: #d3d3d3;

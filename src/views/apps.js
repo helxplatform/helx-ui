@@ -86,15 +86,42 @@ const SpecsInput = styled(Input)`
   height: 30px;
 `
 
-const AppCard = ({ name, app_id, description, detail, docs, status, cpu, gpu, memory }) => {
+const SpecName = styled.span`
+  width: 6vw;
+`
+
+const Spec = styled.span`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+const SpecContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+`
+
+const SpecMinMax = styled.span`
+  width: 12vw;
+`
+
+const SliderMinMaxContainer = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 5vw;
+  width: 50vw;
+`
+
+const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
   const theme = useTheme()
   const helxAppstoreUrl = useEnvironment().helxAppstoreUrl;
   const [flipped, setFlipped] = useState(false)
 
   //create 3 state variables to store specs information
-  const [currentMemory, setMemory] = useState(memory.substring(0, memory.length - 1));
-  const [currentCpu, setCpu] = useState(cpu);
-  const [currentGpu, setGpu] = useState(gpu);
+  const [currentMemory, setMemory] = useState(minimum_resources.memory.substring(0, minimum_resources.memory.length - 1));
+  const [currentCpu, setCpu] = useState(minimum_resources.cpus);
+  const [currentGpu, setGpu] = useState(minimum_resources.gpus);
 
   const toggleConfig = event => setFlipped(!flipped)
 
@@ -146,9 +173,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, cpu, gpu, me
         <ConfigSlider visible={flipped}>
           <h5>App Config</h5>
           <ul>
-            <li>CPU<Slider type="range" min={cpu} max="8" value={currentCpu} onChange={(e) => setCpu(e.target.value)} /> {currentCpu}</li>
-            <li>GPU<Slider type="range" min={gpu} max="8" value={currentGpu} onChange={(e) => setGpu(e.target.value)} /> {currentGpu}</li>
-            <li>Memory<Slider type="range" min={memory.substring(0, memory.length - 1)} max="10000" value={currentMemory} onChange={(e) => setMemory(e.target.value)} /> {currentMemory}M</li>
+            <SpecContainer><SpecName>CPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.cpus} {minimum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentCpu}</b><Slider type="range" min={minimum_resources.cpus} max={maximum_resources.cpus} value={currentCpu} onChange={(e) => setCpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.cpus} {maximum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+            <SpecContainer><SpecName>GPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.gpus} {minimum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentGpu}</b><Slider type="range" min={minimum_resources.gpus} max={maximum_resources.gpus} value={currentGpu} onChange={(e) => setGpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.gpus} {maximum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+            <SpecContainer><SpecName>Memory</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.memory}</SpecMinMax><Spec><b>{currentMemory}</b><Slider type="range" min={minimum_resources.memory.substring(0, minimum_resources.memory.length - 1)} max={maximum_resources.memory.substring(0, maximum_resources.memory.length - 1)} value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.memory}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
             {/* <Dropdown value={currentMemory} id="memory" placeholder="Memory" onChange={handleMemoryChange}>
               {memorySpecs.map(memory => <option value={memory}>{memory} GB Memory</option>)}
             </Dropdown>
@@ -187,7 +214,7 @@ const ServiceCard = ({ name, docs, sid, fqsid, creation_time, cpu, gpu, memory }
       <Card.Header><AppHeader>{name} <Status class><RunningStatus />Running</Status></AppHeader></Card.Header>
       <Relative>
         <Card.Body>
-          <Paragraph style={{ display: 'flex', fontSize: 20, justifyContent: 'space-between'}}><span>CPU: {cpu}</span> <span>GPU: {gpu}</span> <span>Memory: {memory}</span></Paragraph>
+          <Paragraph style={{ display: 'flex', fontSize: 20, justifyContent: 'space-between' }}><span>CPU: {cpu}</span> <span>GPU: {gpu}</span> <span>Memory: {memory}</span></Paragraph>
           <Paragraph>Creation Time: {creation_time}</Paragraph>
           <Link to={docs}>App Documentation</Link>
         </Card.Body>
@@ -210,98 +237,116 @@ export const Apps = () => {
   const [services, setServices] = useState([]);
   const [active, setActive] = useState('Apps');
 
-  const serviceResponse = [
-    {
-      "name": "Cloud Top",
-      "docs": "https://helxplatform.github.io/cloudtop-docs/",
-      "sid": "da600a3dd98e4b5ea3cfb5b63ae66732",
-      "fqsid": "cloud-top-da600a3dd98e4b5ea3cfb5b63ae66732",
-      "creation_time": "3-4-2021 20:21:9",
-      "cpu": 1000,
-      "gpu": 1,
-      "memory": "0.001"
-    }
-  ]
-
-  const appstoreResponse = {
-    "blackbalsam": {
-      "name": "Blackbalsam",
-      "app_id": "blackbalsam",
-      "description": "An A.I., visualization, and parallel computing environment.",
-      "detail": "A.I.(Tensorflow,Keras,PyTorch,Gensim) Vis(Plotly,Bokeh,Seaborn) Compute(Spark).",
-      "docs": "https://github.com/stevencox/blackbalsam",
-      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/blackbalsam/docker-compose.yaml",
-      "cpu": 0,
-      "gpu": 0,
-      "memory": "1000M"
-    },
-    "cloud-top": {
-      "name": "Cloud Top",
-      "app_id": "cloud-top",
-      "description": "CloudTop is a cloud native, browser accessible Linux desktop.",
-      "detail": "A Ubuntu graphical desktop environment for experimenting with native applications in the cloud.",
-      "docs": "https://helxplatform.github.io/cloudtop-docs/",
-      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/cloud-top/docker-compose.yaml",
-      "cpu": 0,
-      "gpu": 0,
-      "memory": "1000M"
-    },
-    "imagej": {
-      "name": "ImageJ Viewer",
-      "app_id": "imagej",
-      "description": "Imagej is an image processor developed at NIH/LOCI.",
-      "detail": "can display, edit, analyze, process, save and print 8-bit, 16-bit and 32-bit images. It can read many image formats.",
-      "docs": "https://imagej.nih.gov/ij/",
-      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/imagej/docker-compose.yaml",
-      "cpu": 0,
-      "gpu": 0,
-      "memory": "2000M"
-    },
-    "jupyter-ds": {
-      "name": "Jupyter Data Science",
-      "app_id": "jupyter-ds",
-      "description": "Jupyter DataScience - A Jupyter notebook for exploring and visualizing data.",
-      "detail": "Includes R, Julia, and Python.",
-      "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/jupyter-ds/docker-compose.yaml",
-      "cpu": 0,
-      "gpu": 0,
-      "memory": "1000M"
-    },
-    "napari": {
-      "name": "Napari Image Viewer",
-      "app_id": "napari",
-      "description": "Napari is a fast, interactive, multi-dimensional image viewer.",
-      "detail": "It enables browsing, annotating, and analyzing large multi-dimensional images.",
-      "docs": "https://napari.org/",
-      "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/napari/docker-compose.yaml",
-      "cpu": 0,
-      "gpu": 0,
-      "memory": "8000M"
-    }
-  }
-
   useEffect(async () => {
-    // const response = await axios({
-    //   url: `${helxAppstoreUrl}/api/v1/apps`,
-    //   method: 'GET',
-    //   headers: {
-    //     'X-CSRFToken': helxAppstoreCsrfToken
-    //   }
-    // }).then((res) => {
-    //   console.log(res);
-
-    // }).catch((e) => {
-    //   console.log(e);
-    // })
-    setApps(appstoreResponse);
     if (active === 'Apps') {
-      setApps(appstoreResponse);
       setServices([]);
+      setApps({
+        "blackbalsam": {
+          "name": "Blackbalsam",
+          "app_id": "blackbalsam",
+          "description": "An A.I., visualization, and parallel computing environment.",
+          "detail": "A.I.(Tensorflow,Keras,PyTorch,Gensim) Vis(Plotly,Bokeh,Seaborn) Compute(Spark).",
+          "docs": "https://github.com/stevencox/blackbalsam",
+          "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/blackbalsam/docker-compose.yaml",
+          "minimum_resources": {
+            "cpus": "1",
+            "gpus": 0,
+            "memory": "1000M"
+          },
+          "maximum_resources": {
+            "cpus": "4",
+            "gpus": "4",
+            "memory": "4000M"
+          }
+        },
+        "cloud-top": {
+          "name": "Cloud Top",
+          "app_id": "cloud-top",
+          "description": "CloudTop is a cloud native, browser accessible Linux desktop.",
+          "detail": "A Ubuntu graphical desktop environment for experimenting with native applications in the cloud.",
+          "docs": "https://helxplatform.github.io/cloudtop-docs/",
+          "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/cloud-top/docker-compose.yaml",
+          "minimum_resources": {
+            "cpus": "1",
+            "gpus": 0,
+            "memory": "1000M"
+          },
+          "maximum_resources": {
+            "cpus": "4",
+            "gpus": "4",
+            "memory": "4000M"
+          }
+        },
+        "imagej": {
+          "name": "ImageJ Viewer",
+          "app_id": "imagej",
+          "description": "Imagej is an image processor developed at NIH/LOCI.",
+          "detail": "can display, edit, analyze, process, save and print 8-bit, 16-bit and 32-bit images. It can read many image formats.",
+          "docs": "https://imagej.nih.gov/ij/",
+          "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/imagej/docker-compose.yaml",
+          "minimum_resources": {
+            "cpus": ".5",
+            "gpus": 0,
+            "memory": "2000M"
+          },
+          "maximum_resources": {
+            "cpus": "4",
+            "gpus": "4",
+            "memory": "4000M"
+          }
+        },
+        "jupyter-ds": {
+          "name": "Jupyter Data Science",
+          "app_id": "jupyter-ds",
+          "description": "Jupyter DataScience - A Jupyter notebook for exploring and visualizing data.",
+          "detail": "Includes R, Julia, and Python.",
+          "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
+          "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/jupyter-ds/docker-compose.yaml",
+          "minimum_resources": {
+            "cpus": "0.50",
+            "gpus": 0,
+            "memory": "1000M"
+          },
+          "maximum_resources": {
+            "cpus": "4",
+            "gpus": "4",
+            "memory": "1000M"
+          }
+        },
+        "napari": {
+          "name": "Napari Image Viewer",
+          "app_id": "napari",
+          "description": "Napari is a fast, interactive, multi-dimensional image viewer.",
+          "detail": "It enables browsing, annotating, and analyzing large multi-dimensional images.",
+          "docs": "https://napari.org/",
+          "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/napari/docker-compose.yaml",
+          "minimum_resources": {
+            "cpus": "2",
+            "gpus": 0,
+            "memory": "8000M"
+          },
+          "maximum_resources": {
+            "cpus": "2",
+            "gpus": 0,
+            "memory": "8000M"
+          }
+        }
+      })
     }
     else {
       setApps({});
-      setServices(serviceResponse);
+      setServices([
+        {
+          "name": "Cloud Top",
+          "docs": "https://helxplatform.github.io/cloudtop-docs/",
+          "sid": "da600a3dd98e4b5ea3cfb5b63ae66732",
+          "fqsid": "cloud-top-da600a3dd98e4b5ea3cfb5b63ae66732",
+          "creation_time": "3-4-2021 20:21:9",
+          "cpu": 1000,
+          "gpu": 1,
+          "memory": "0.001"
+        }
+      ]);
     }
   }, [active])
 
