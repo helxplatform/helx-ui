@@ -15,6 +15,7 @@ RUN npm install
 # Copy in source files
 COPY . /src
 # Build app
+ENV BUILD_PATH=./build/frontend
 RUN npm run build
 # Production environment
 ########################
