@@ -48,7 +48,7 @@ export const SearchForm = () => {
         <Input ref={inputRef} value={searchTerm} onChange={handleChangeQuery} onKeyDown={handleKeyDown} style={{ flex: 1 }} />
         <Button small onClick={() => doSearch(searchTerm)}>Search</Button>
       </SearchBarInputGroup>
-      <LaunchAppButton small onClick={launchApp}>Launch App</LaunchAppButton>
+      {/* <LaunchAppButton small onClick={launchApp}>Launch App</LaunchAppButton> */}
     </SearchBarContainer>
   )
 }
