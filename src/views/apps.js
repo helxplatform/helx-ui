@@ -26,6 +26,8 @@ const Relative = styled.div`
     top: 0;
     width: 100%;
     height: 100%;
+    display: flex;
+    justify-content: space-around;
   }
   &:nth-child(1) { z-index: -1; }
   &:nth-child(2) { z-index: -2; }
@@ -34,6 +36,7 @@ const Relative = styled.div`
 
 const ConfigSlider = styled(Card.Body)(({ theme, visible }) => `
   height: 100%;
+  flex-direction: column;
   transform: translateY(${visible ? '0' : '100%'});
   background-color: ${visible ? theme.color.black : theme.color.grey.dark};
   transition: transform 250ms, background-color 750ms;
@@ -55,6 +58,9 @@ const ConfigSlider = styled(Card.Body)(({ theme, visible }) => `
     display: flex;
     justify-content: flex-end;
     gap: ${theme.spacing.medium};
+  }
+  & h5{
+    padding-top: 3vh;
   }
 `)
 
@@ -82,6 +88,17 @@ const AppHeader = styled.div(({ theme }) => `
     display: flex;
     justify-content: space-between;
 `)
+
+const AppLogo = styled.img`
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: scale-down;
+`
+
+const AppInfo = styled.div`
+  width:80%;
+`
 
 const SpecsInput = styled(Input)`
   width: 15%;
@@ -150,27 +167,21 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
     memorySpecs.push(i);
   }
 
-  const handleMemoryChange = event => {
-    setMemory(event.target.value);
+  const getLogoUrl = (app_id) => {
+    return `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_id}/icon.png`
   }
-
-  const handleCpuChange = event => {
-    setCpu(event.target.value);
-  }
-
-  const handleGpuChange = event => {
-    setGpu(event.target.value);
-  }
-
 
   return (
     <Card style={{ minHeight: '300px', margin: `${theme.spacing.large} 0` }}>
-      <Card.Header><AppHeader>{name} {status === "Running" ? <Status class><RunningStatus />Running</Status> : <span />}</AppHeader></Card.Header>
+      <Card.Header><AppHeader><b>{name}</b></AppHeader></Card.Header>
       <Relative>
         <Card.Body>
-          <Paragraph>{description}</Paragraph>
-          <Paragraph dense>{detail}</Paragraph>
-          <Link to={docs}>App Documentation</Link>
+          <AppLogo src={'' + getLogoUrl(app_id)} />
+          <AppInfo>
+            <Paragraph>{description}</Paragraph>
+            <Paragraph dense>{detail}</Paragraph>
+            <Link to={docs}>App Documentation</Link>
+          </AppInfo>
         </Card.Body>
         <ConfigSlider visible={flipped}>
           <h5>App Config</h5>
@@ -191,10 +202,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
         justifyContent: 'flex-end',
         transition: 'background-color 400ms'
       }}>
-        {status === "Running" ? <StopButton small>Stop App</StopButton> :
-          <Button small variant={flipped ? 'danger' : 'info'} onClick={toggleConfig} style={{ width: '150px' }}>
-            <Icon icon={flipped ? 'close' : 'launch'} fill="#eee" />{flipped ? 'Cancel' : 'Launch App'}
-          </Button>}
+        <Button small variant={flipped ? 'danger' : 'info'} onClick={toggleConfig} style={{ width: '150px' }}>
+          <Icon icon={flipped ? 'close' : 'launch'} fill="#eee" />{flipped ? 'Cancel' : 'Launch App'}
+        </Button>
       </Card.Footer>
     </Card>
   )
