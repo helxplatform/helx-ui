@@ -138,9 +138,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
   const [flipped, setFlipped] = useState(false)
 
   //create 3 state variables to store specs information
-  const [currentMemory, setMemory] = useState(minimum_resources.memory.substring(0, minimum_resources.memory.length - 1));
-  const [currentCpu, setCpu] = useState(minimum_resources.cpus);
-  const [currentGpu, setGpu] = useState(minimum_resources.gpus);
+  const [currentMemory, setMemory] = useState(localStorage.getItem('currentMemory') === null ? minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) : localStorage.getItem('currentMemory'));
+  const [currentCpu, setCpu] = useState(localStorage.getItem('currentCpu') === null ? minimum_resources.cpus : localStorage.getItem('currentCpu'));
+  const [currentGpu, setGpu] = useState(localStorage.getItem('currentGpu') === null ? minimum_resources.gpus : localStorage.getItem('currentGpu'));
 
   const toggleConfig = event => setFlipped(!flipped)
 
@@ -156,6 +156,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
         gpu: currentGpu
       }
     })
+    localStorage.setItem('currentCpu', currentCpu);
+    localStorage.setItem('currentGpu', currentGpu);
+    localStorage.setItem('currentMemory', currentMemory);
     alert(`Launching ${name} with ${currentCpu} CPU core, ${currentGpu} GPU Core and ${currentMemory} GB Memory.`)
   }
   const gpuSpecs = [];
