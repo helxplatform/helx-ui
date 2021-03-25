@@ -34,8 +34,9 @@ let initialUser = {
 export const AuthProvider = ({ children }) => {
   const environment = useEnvironment();
   const helxAppstoreUrl = environment.helxAppstoreUrl;
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('loggedInUser')));
+  const [user, setUser] = useState();
   const [providers, setProviders] = useState([]);
+  const [isAuth, setAuth] = useState(false)
 
   // load login provider
 
@@ -53,6 +54,17 @@ export const AuthProvider = ({ children }) => {
 
   // call the /api/token endpoint, and store tokens in user's data model
   const loginHandler = async (url) => {
+    const login_response = await axios({
+      method: 'GET',
+      url: `${helxAppstoreUrl}/api/v1/users/`
+    }).catch(e => {
+      if(e.response.status === 403){
+        setAuth(false);
+      }
+      else{
+        setAuth(true);
+      }
+    })
 
     // redirect to the provider login
     window.location.href = helxAppstoreUrl + url;
@@ -103,7 +115,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user: user, providers: providers, login: loginHandler, logout: logoutHandler, saveSearch: favoriteSearchHandler, updateSearchHistory }}>
+    <AuthContext.Provider value={{ user: user, isAuth: isAuth, providers: providers, login: loginHandler, logout: logoutHandler, saveSearch: favoriteSearchHandler, updateSearchHistory }}>
       { children}
     </AuthContext.Provider>
   )

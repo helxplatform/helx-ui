@@ -413,42 +413,38 @@ const handleChange = (state) => {
 }
 
 export const Apps = () => {
-  const { helxAppstoreUrl } = useEnvironment();
+  const { isAuth, helxAppstoreUrl } = useEnvironment();
   const helxAppstoreCsrfToken = useEnvironment().csrfToken;
   const [apps, setApps] = useState({});
   const [services, setServices] = useState([]);
   const [active, setActive] = useState('Available');
-  const [whitelist, setWhitelist] = useState(false);
 
   useEffect(async () => {
     if (active === 'Available') {
       setServices([]);
       setApps(app_response);
-      // const app_response = await axios({
-      //   method: 'GET',
-      //   url: helxAppstoreUrl + '/api/v1/apps'
-      // }).then(res => {
-      //   setApps(res.data);
-      // }).catch(e => {
-      //   if (e.response.status === 403) {
-      //     setWhitelist(true)
-      //   }
-      // })
+    //   const app_response = await axios({
+    //     method: 'GET',
+    //     url: helxAppstoreUrl + '/api/v1/apps'
+    //   }).then(res => {
+    //     setApps(res.data);
+    //   })
     }
     else {
       setApps({});
       setServices(instance_response);
-      // const instance_response = await axios({
-      //   method: 'GET',
-      //   url: helxAppstoreUrl + '/api/v1/instance'
-      // })
-      // setApps(instance_response.data);
+    //   const instance_response = await axios({
+    //     method: 'GET',
+    //     url: helxAppstoreUrl + '/api/v1/instance'
+    //   }).then(res => {
+    //     setServices(res.data)
+    //   })
     }
   }, [active])
 
-  // if (whitelist) return (
-  //   <Whitelist />
-  // )
+  if (!isAuth) return (
+    <Whitelist />
+  )
 
   return (
     <Container>
