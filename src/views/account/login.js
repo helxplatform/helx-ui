@@ -31,9 +31,14 @@ const LoginContainer = styled(Container)`
 `
 
 const LoginButton = styled(Button)`
-    width: 20%;
+    width: 25%;
     margin: 10px 10px;
 `
+
+const LoginButtonText = styled.span`
+    width: 10vw;
+`
+
 
 export const Login = () => {
   const { providers, login } = useAuth();
@@ -45,7 +50,7 @@ export const Login = () => {
   return (
     <LoginContainer>
       <LoginInputGroup>
-        {providers.map(provider => <LoginButton onClick={() => login(provider.url)}><Icon icon={provider.name.toLowerCase()}></Icon>{provider.name}</LoginButton>)}
+        {providers.map(provider => <LoginButton onClick={() => login(provider.url)}><Icon icon={provider.name.toLowerCase()}></Icon><LoginButtonText>{provider.name}</LoginButtonText></LoginButton>)}
       </LoginInputGroup>
     </LoginContainer>
   )
