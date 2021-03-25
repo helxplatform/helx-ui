@@ -11,6 +11,7 @@ import { Link } from '../link'
 import { Icon } from '../icon'
 import { IconButton } from '../button'
 import { Tooltip } from '../tooltip'
+import { navigate } from '@reach/router';
 
 const Wrapper = styled.div``
 
@@ -114,12 +115,7 @@ export const SearchResults = () => {
 
   const ShowShareableLink = () => {
     addNotification({type: 'success', text: 'Link copied to clipboard'});
-    const link = document.createElement("textarea");
-    document.body.appendChild(link);
-    link.style.display = 'none';
-    link.value = `/search?q=${ query }&p=${ currentPage }`;
-    link.select();
-    document.execCommand("copy");
+    navigator.clipboard.writeText(window.location.href)
   }
 
   const MemoizedActions = useMemo(() => (
@@ -201,7 +197,6 @@ export const SearchResults = () => {
       <br/><br/>
 
       <PaginationTray />
-
       <br/><br/>
 
     </Wrapper>
