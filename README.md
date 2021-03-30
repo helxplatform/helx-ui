@@ -7,7 +7,7 @@ This is a [React](reactjs.org/) app created with [create-react-app](https://crea
 For local React development you can get started with:
 
 ```bash
-$ npm start
+make start
 ```
 
 ### Appstore backend
@@ -24,7 +24,7 @@ Make sure you have minikube installed then:
 
 ```bash
 cp .env.example .env
-docker-compose -f docker-compose.dev.yml up -d
+make dev
 ```
 
 Optionally
@@ -124,7 +124,7 @@ and check the section on OAuth login.
 
 ## Production build configuration
 
-For local development the app talks to the appstore as a seperate entity. In an
+For local development the app talks to the appstore as a separate entity. In an
 appstore deployment environment the appstore facilitates serving the frontend.
 The main impact this has on the frontend repo is the `homepage` field in
 `package.json` and `BUILD_PATH` in `.env`. Both of these are used to configure
@@ -136,4 +136,4 @@ build settings with react and webpack.
 In `appstore` the frontend app is served from a `static/frontend` directory,
 not the server root as react assumes by default. While these settings assist in
 deploying the frontend app they can be used in the frontend repo along with
-`npm run start` without requiring additional configuration in this project.
+`make start` without requiring additional configuration in this project.
