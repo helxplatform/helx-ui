@@ -1,0 +1,55 @@
+VERSION_FILE := ./package.json
+VERSION      := $(shell node -p "require('./package.json').version")
+DOCKER_ORG := helxplatform
+DOCKER_TAG   := helx-ui:${VERSION}
+
+
+.PHONY: build ci-install clean image install lint reinstall start test testi
+
+all: clean install lint test build image
+
+build:
+	echo "Building distribution packages for version $(VERSION)"
+	npm run build
+
+ci: clean ci-install lint test
+
+ci-install:
+	npm ci
+
+clean:
+	rm -rf build
+	rm -rf node_modules
+
+dev:
+	# setup .env first ex: cp .env.example .env 
+	docker-compose -f docker-compose.dev.yml up -d
+
+down:
+	docker-compose -f docker-compose.dev.yml down
+
+image:
+	echo "Building docker image: $(DOCKER_TAG)"
+	docker build -t $(DOCKER_ORG)/$(DOCKER_TAG) -f Dockerfile .
+
+install:
+	npm install
+
+lint:
+	npm run lint
+
+push:
+	docker image push $(DOCKER_ORG)/$(DOCKER_TAG)
+
+reinstall: clean install build
+
+start:
+	npm run start
+
+test:
+	# https://create-react-app.dev/docs/running-tests/#continuous-integration
+	# use testi for interactive
+	CI=true npm test
+
+testi:
+	npm run test

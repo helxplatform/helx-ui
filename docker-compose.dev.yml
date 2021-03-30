@@ -2,8 +2,7 @@ version: "3"
 
 services:
   appstore:
-    # image: helxplatform/appstore:develop-latest
-    image: helxplatform/appstore:react-build
+    image: helxplatform/appstore:develop-latest
     volumes:
       - $HOME/.kube/config:/home/appstore/.kube/config
       - $HOME/.minikube/:$HOME/.minikube/

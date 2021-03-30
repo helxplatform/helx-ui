@@ -24,7 +24,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "docker-build": "docker build -t helxplatform/helx-ui:latest ."
+    "lint": "eslint src"
   },
   "eslintConfig": {
     "extends": [
