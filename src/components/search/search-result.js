@@ -5,7 +5,9 @@ import styled, { css } from 'styled-components'
 import ReactJson from 'react-json-view'
 import { Icon } from '../icon'
 import { Button } from '../button'
+import { Card } from '../card';
 import { useNotifications } from '../notifications'
+import { Paragraph } from '../typography';
 
 const Wrapper = styled.article(({ theme, selected }) => css`
   margin: 1rem 0;
@@ -63,6 +65,10 @@ const ResultSelector = styled(Button).attrs({ shadow: false })(({ theme, selecte
   transition: transform 250ms, filter 250ms;
 `)
 
+const ResultBodyText = styled.p`
+  font-size: 1rem;
+`
+
 export const Result = ({ index, result }) => {
   const { resultsSelected, selectedView, setSelectedView, doSelect } = useHelxSearch();
   const { addNotification } = useNotifications()
@@ -74,17 +80,19 @@ export const Result = ({ index, result }) => {
 
   return (
     <Wrapper selected={resultsSelected.has(result.id)}>
-      <div className="index">{index}</div>
+      {/* <div className="index">{index}</div> */}
       <div className="details">
-        <div className="result-heading">
-          <span className="name">{result.name}</span>
-          <span className="id"><em>{result.tag_id}</em></span>
-        </div>
         <div className="result-json">
-          <ReactJson src={result} collapsed={true} enableClipboard={false} theme="monokai" style={{ borderRadius: '3px' }} />
-          <ResultSelector onClick={() => doSelect(result)}>
+          <Card>
+            <Card.Header><b>Concept: </b><a style={{ color: 'black' }} href={result.concept_action} target="_blank">{result.name}</a></Card.Header>
+            <Card.Body>
+              <ResultBodyText><b>Type:</b> {result.type}</ResultBodyText>
+              <ResultBodyText><b>Description:</b> {result.description === '' ? "There is no description for this concept." : result.description}</ResultBodyText>
+            </Card.Body>
+            {/* <ResultSelector onClick={() => doSelect(result)}>
             <Icon icon={resultsSelected.has(result.id) ? 'check' : 'add'} fill="#eee" />
-          </ResultSelector>
+          </ResultSelector> */}
+          </Card>
         </div>
       </div>
     </Wrapper>

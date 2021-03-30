@@ -26,6 +26,8 @@ const Relative = styled.div`
     top: 0;
     width: 100%;
     height: 100%;
+    display: flex;
+    justify-content: space-around;
   }
   &:nth-child(1) { z-index: -1; }
   &:nth-child(2) { z-index: -2; }
@@ -34,6 +36,7 @@ const Relative = styled.div`
 
 const ConfigSlider = styled(Card.Body)(({ theme, visible }) => `
   height: 100%;
+  flex-direction: column;
   transform: translateY(${visible ? '0' : '100%'});
   background-color: ${visible ? theme.color.black : theme.color.grey.dark};
   transition: transform 250ms, background-color 750ms;
@@ -55,6 +58,9 @@ const ConfigSlider = styled(Card.Body)(({ theme, visible }) => `
     display: flex;
     justify-content: flex-end;
     gap: ${theme.spacing.medium};
+  }
+  & h5{
+    padding-top: 3vh;
   }
 `)
 
@@ -82,6 +88,17 @@ const AppHeader = styled.div(({ theme }) => `
     display: flex;
     justify-content: space-between;
 `)
+
+const AppLogo = styled.img`
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: scale-down;
+`
+
+const AppInfo = styled.div`
+  width:80%;
+`
 
 const SpecsInput = styled(Input)`
   width: 15%;
@@ -121,9 +138,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
   const [flipped, setFlipped] = useState(false)
 
   //create 3 state variables to store specs information
-  const [currentMemory, setMemory] = useState(minimum_resources.memory.substring(0, minimum_resources.memory.length - 1));
-  const [currentCpu, setCpu] = useState(minimum_resources.cpus);
-  const [currentGpu, setGpu] = useState(minimum_resources.gpus);
+  const [currentMemory, setMemory] = useState(localStorage.getItem('currentMemory') === null ? minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) : localStorage.getItem('currentMemory'));
+  const [currentCpu, setCpu] = useState(localStorage.getItem('currentCpu') === null ? minimum_resources.cpus : localStorage.getItem('currentCpu'));
+  const [currentGpu, setGpu] = useState(localStorage.getItem('currentGpu') === null ? minimum_resources.gpus : localStorage.getItem('currentGpu'));
 
   const toggleConfig = event => setFlipped(!flipped)
 
@@ -139,6 +156,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
         gpu: currentGpu
       }
     })
+    localStorage.setItem('currentCpu', currentCpu);
+    localStorage.setItem('currentGpu', currentGpu);
+    localStorage.setItem('currentMemory', currentMemory);
     alert(`Launching ${name} with ${currentCpu} CPU core, ${currentGpu} GPU Core and ${currentMemory} GB Memory.`)
   }
   const gpuSpecs = [];
@@ -150,27 +170,21 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
     memorySpecs.push(i);
   }
 
-  const handleMemoryChange = event => {
-    setMemory(event.target.value);
+  const getLogoUrl = (app_id) => {
+    return `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_id}/icon.png`
   }
-
-  const handleCpuChange = event => {
-    setCpu(event.target.value);
-  }
-
-  const handleGpuChange = event => {
-    setGpu(event.target.value);
-  }
-
 
   return (
     <Card style={{ minHeight: '300px', margin: `${theme.spacing.large} 0` }}>
-      <Card.Header><AppHeader>{name} {status === "Running" ? <Status class><RunningStatus />Running</Status> : <span />}</AppHeader></Card.Header>
+      <Card.Header><AppHeader><b>{name}</b></AppHeader></Card.Header>
       <Relative>
         <Card.Body>
-          <Paragraph>{description}</Paragraph>
-          <Paragraph dense>{detail}</Paragraph>
-          <Link to={docs}>App Documentation</Link>
+          <AppLogo src={'' + getLogoUrl(app_id)} />
+          <AppInfo>
+            <Paragraph>{description}</Paragraph>
+            <Paragraph dense>{detail}</Paragraph>
+            <Link to={docs}>App Documentation</Link>
+          </AppInfo>
         </Card.Body>
         <ConfigSlider visible={flipped}>
           <h5>App Config</h5>
@@ -191,10 +205,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
         justifyContent: 'flex-end',
         transition: 'background-color 400ms'
       }}>
-        {status === "Running" ? <StopButton small>Stop App</StopButton> :
-          <Button small variant={flipped ? 'danger' : 'info'} onClick={toggleConfig} style={{ width: '150px' }}>
-            <Icon icon={flipped ? 'close' : 'launch'} fill="#eee" />{flipped ? 'Cancel' : 'Launch App'}
-          </Button>}
+        <Button small variant={flipped ? 'danger' : 'info'} onClick={toggleConfig} style={{ width: '150px' }}>
+          <Icon icon={flipped ? 'close' : 'launch'} fill="#eee" />{flipped ? 'Cancel' : 'Launch App'}
+        </Button>
       </Card.Footer>
     </Card>
   )
@@ -400,42 +413,38 @@ const handleChange = (state) => {
 }
 
 export const Apps = () => {
-  const { helxAppstoreUrl } = useEnvironment();
+  const { isAuth, helxAppstoreUrl } = useEnvironment();
   const helxAppstoreCsrfToken = useEnvironment().csrfToken;
   const [apps, setApps] = useState({});
   const [services, setServices] = useState([]);
   const [active, setActive] = useState('Available');
-  const [whitelist, setWhitelist] = useState(false);
 
   useEffect(async () => {
     if (active === 'Available') {
       setServices([]);
       setApps(app_response);
-      // const app_response = await axios({
-      //   method: 'GET',
-      //   url: helxAppstoreUrl + '/api/v1/apps'
-      // }).then(res => {
-      //   setApps(res.data);
-      // }).catch(e => {
-      //   if (e.response.status === 403) {
-      //     setWhitelist(true)
-      //   }
-      // })
+    //   const app_response = await axios({
+    //     method: 'GET',
+    //     url: helxAppstoreUrl + '/api/v1/apps'
+    //   }).then(res => {
+    //     setApps(res.data);
+    //   })
     }
     else {
       setApps({});
       setServices(instance_response);
-      // const instance_response = await axios({
-      //   method: 'GET',
-      //   url: helxAppstoreUrl + '/api/v1/instance'
-      // })
-      // setApps(instance_response.data);
+    //   const instance_response = await axios({
+    //     method: 'GET',
+    //     url: helxAppstoreUrl + '/api/v1/instance'
+    //   }).then(res => {
+    //     setServices(res.data)
+    //   })
     }
   }, [active])
 
-  // if (whitelist) return (
-  //   <Whitelist />
-  // )
+  if (!isAuth) return (
+    <Whitelist />
+  )
 
   return (
     <Container>

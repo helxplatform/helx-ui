@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState, useMemo } from 'react'
 import styled, { css, useTheme } from 'styled-components'
 import { useHelxSearch } from './search-context'
 import { useAuth } from '../../contexts'
+import { useNotifications } from '../notifications';
 import { Paragraph } from '../typography'
 import { LoadingSpinner } from '../loading-spinner'
 import { Result } from './search-result'
@@ -10,6 +11,7 @@ import { Link } from '../link'
 import { Icon } from '../icon'
 import { IconButton } from '../button'
 import { Tooltip } from '../tooltip'
+import { navigate } from '@reach/router';
 
 const Wrapper = styled.div``
 
@@ -87,6 +89,7 @@ const SelectedDropdownButton = styled.button(({ theme }) => css`
 export const SearchResults = () => {
   const theme = useTheme()
   const auth = useAuth()
+  const { addNotification } = useNotifications();
   const [currentResults, setCurrentResults] = useState([]);
   const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, resultsSelected, clearSelect, error, selectedView, setSelectedView } = useHelxSearch()
 
@@ -110,10 +113,15 @@ export const SearchResults = () => {
     )
   }, [query, pageCount, results, totalResults])
 
+  const ShowShareableLink = () => {
+    addNotification({type: 'success', text: 'Link copied to clipboard'});
+    navigator.clipboard.writeText(window.location.href)
+  }
+
   const MemoizedActions = useMemo(() => (
     <Fragment>
       <Tooltip tip="Shareable link" placement="top">
-        <Link to={ `/search?q=${ query }&p=${ currentPage }` } style={{ display: 'inline-flex', alignItems: 'center', color: theme.color.primary.dark }}>
+        <Link to={ `/search?q=${ query }&p=${ currentPage }` } onClick={ShowShareableLink} style={{ display: 'inline-flex', alignItems: 'center', color: theme.color.primary.dark }}>
           <Icon icon="link" fill={ theme.color.primary.dark } size={ 24 } style={{ padding: '0 4px 0 0' }} />
         </Link>
       </Tooltip>
@@ -189,7 +197,6 @@ export const SearchResults = () => {
       <br/><br/>
 
       <PaginationTray />
-
       <br/><br/>
 
     </Wrapper>

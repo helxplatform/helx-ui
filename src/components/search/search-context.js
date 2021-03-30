@@ -11,13 +11,13 @@ export const useHelxSearch = () => useContext(HelxSearchContext)
 
 //
 
-const PER_PAGE = 10
+const PER_PAGE = 1
 
 //
 
 const PAGINATION_RADIUS = {
   mobile: 1,
-  desktop: 3,
+  desktop: 5,
 }
 
 export const HelxSearch = ({ children }) => {
