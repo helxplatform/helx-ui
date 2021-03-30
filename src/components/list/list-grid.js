@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-export const Wrapper = styled.ul(({ theme, gap = theme.spacing.large }) => `
+const Wrapper = styled.ul(({ theme, gap = theme.spacing.large }) => `
   list-style-type: none;
   margin: 0;
   display: grid;
