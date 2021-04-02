@@ -1,8 +1,8 @@
 VERSION_FILE := ./package.json
 VERSION      := $(shell node -p "require('./package.json').version")
-DOCKER_ORG := helxplatform
+DOCKER_ORG   := helxplatform
 DOCKER_TAG   := helx-ui:${VERSION}
-
+BUILD_PATH   := ./build/frontend
 
 .PHONY: build ci-install clean image install lint reinstall start test testi
 
@@ -10,7 +10,7 @@ all: clean install lint test build image
 
 build:
 	echo "Building distribution packages for version $(VERSION)"
-	npm run build
+	BUILD_PATH=$(BUILD_PATH) npm run build
 
 ci: clean ci-install lint test
 
