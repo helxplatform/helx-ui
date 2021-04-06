@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import axios from 'axios';
 import styled, { useTheme } from 'styled-components'
-import { Whitelist } from './whitelist';
 import { Container } from '../components/layout'
 import { Title, Paragraph } from '../components/typography'
 import { Card } from '../components/card'
@@ -82,6 +81,7 @@ const Status = styled.div(({ theme }) => `
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;
     color: white;
+    padding: 10px;
 `)
 
 const AppHeader = styled.div(({ theme }) => `
@@ -134,7 +134,7 @@ const SliderMinMaxContainer = styled.span`
 
 const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
   const theme = useTheme()
-  const helxAppstoreUrl = useEnvironment().helxAppstoreUrl;
+  const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
   const [flipped, setFlipped] = useState(false)
 
   //create 3 state variables to store specs information
@@ -145,7 +145,7 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
   const toggleConfig = event => setFlipped(!flipped)
 
   //app can be launched here using axios to hit the /start endpoint
-  const launchApp = event => {
+  const launchApp = () => {
     axios({
       method: 'GET',
       url: `${helxAppstoreUrl}/service/`,
@@ -160,14 +160,6 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
     localStorage.setItem('currentGpu', currentGpu);
     localStorage.setItem('currentMemory', currentMemory);
     alert(`Launching ${name} with ${currentCpu} CPU core, ${currentGpu} GPU Core and ${currentMemory} GB Memory.`)
-  }
-  const gpuSpecs = [];
-  const cpuSpecs = []
-  const memorySpecs = [];
-  for (let i = 0; i <= 4; i += 0.25) {
-    if (i % 1 == 0) gpuSpecs.push(i);
-    cpuSpecs.push(i);
-    memorySpecs.push(i);
   }
 
   const getLogoUrl = (app_id) => {
@@ -213,238 +205,92 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
   )
 }
 
-const ServiceCard = ({ name, docs, sid, fqsid, creation_time, cpu, gpu, memory }) => {
-  const theme = useTheme()
-  return (
-    <Card style={{ minHeight: '300px', margin: `${theme.spacing.large} 0` }}>
-      <Card.Header><AppHeader>{name} <Status class><RunningStatus />Running</Status></AppHeader></Card.Header>
-      <Relative>
-        <Card.Body>
-          <Paragraph style={{ display: 'flex', fontSize: 20, justifyContent: 'space-between' }}><span>CPU: {cpu}</span> <span>GPU: {gpu}</span> <span>Memory: {memory}</span></Paragraph>
-          <Paragraph>Creation Time: {creation_time}</Paragraph>
-          <Link to={docs}>App Documentation</Link>
-        </Card.Body>
-      </Relative>
-      <Card.Footer style={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-      }}>
-        <StopButton small>Stop App</StopButton>
-      </Card.Footer>
-    </Card>
-  )
-}
-
-const app_response = {
-  "blackbalsam": {
-    "name": "Blackbalsam",
-    "app_id": "blackbalsam",
-    "description": "An A.I., visualization, and parallel computing environment.",
-    "detail": "A.I.(Tensorflow,Keras,PyTorch,Gensim) Vis(Plotly,Bokeh,Seaborn) Compute(Spark).",
-    "docs": "https://github.com/stevencox/blackbalsam",
-    "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/blackbalsam/docker-compose.yaml",
-    "minimum_resources": {
-      "cpus": "1",
-      "gpus": 0,
-      "memory": "1G"
-    },
-    "maximum_resources": {
-      "cpus": "1",
-      "gpus": 0,
-      "memory": "1G"
-    }
-  },
-  "cloud-top": {
-    "name": "Cloud Top",
-    "app_id": "cloud-top",
-    "description": "CloudTop is a cloud native, browser accessible Linux desktop.",
-    "detail": "A Ubuntu graphical desktop environment for experimenting with native applications in the cloud.",
-    "docs": "https://helxplatform.github.io/cloudtop-docs/",
-    "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/cloud-top/docker-compose.yaml",
-    "minimum_resources": {
-      "cpus": "1",
-      "gpus": 0,
-      "memory": "1G"
-    },
-    "maximum_resources": {
-      "cpus": "1",
-      "gpus": 0,
-      "memory": "1G"
-    }
-  },
-  "imagej": {
-    "name": "ImageJ Viewer",
-    "app_id": "imagej",
-    "description": "Imagej is an image processor developed at NIH/LOCI.",
-    "detail": "can display, edit, analyze, process, save and print 8-bit, 16-bit and 32-bit images. It can read many image formats.",
-    "docs": "https://imagej.nih.gov/ij/",
-    "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/imagej/docker-compose.yaml",
-    "minimum_resources": {
-      "cpus": ".5",
-      "gpus": 0,
-      "memory": "2000M"
-    },
-    "maximum_resources": {
-      "cpus": "1",
-      "gpus": 0,
-      "memory": "4000M"
-    }
-  },
-  "jupyter-ds": {
-    "name": "Jupyter Data Science",
-    "app_id": "jupyter-ds",
-    "description": "Jupyter DataScience - A Jupyter notebook for exploring and visualizing data.",
-    "detail": "Includes R, Julia, and Python.",
-    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-    "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/jupyter-ds/docker-compose.yaml",
-    "minimum_resources": {
-      "cpus": "0.50",
-      "gpus": 0,
-      "memory": "1000M"
-    },
-    "maximum_resources": {
-      "cpus": "0.50",
-      "gpus": 0,
-      "memory": "1000M"
-    }
-  },
-  "napari": {
-    "name": "Napari Image Viewer",
-    "app_id": "napari",
-    "description": "Napari is a fast, interactive, multi-dimensional image viewer.",
-    "detail": "It enables browsing, annotating, and analyzing large multi-dimensional images.",
-    "docs": "https://napari.org/",
-    "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/napari/docker-compose.yaml",
-    "minimum_resources": {
-      "cpus": "2",
-      "gpus": 0,
-      "memory": "8000M"
-    },
-    "maximum_resources": {
-      "cpus": "2",
-      "gpus": 0,
-      "memory": "8000M"
-    }
-  }
-}
-
-const instance_response = [
-  {
-    "name": "Jupyter Data Science",
-    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-    "fqsid": "jupyter-ds",
-    "creation_time": "time",
-    "cpus": 0.0,
-    "gpus": 0,
-    "memory": "0.0"
-  },
-  {
-    "name": "Jupyter Data Science",
-    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-    "fqsid": "jupyter-ds",
-    "creation_time": "time",
-    "cpus": 0.0,
-    "gpus": 0,
-    "memory": "0.0"
-  },
-  {
-    "name": "Jupyter Data Science",
-    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-    "fqsid": "jupyter-ds",
-    "creation_time": "time",
-    "cpus": 0.0,
-    "gpus": 0,
-    "memory": "0.0"
-  },
-  {
-    "name": "Jupyter Data Science",
-    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-    "fqsid": "jupyter-ds",
-    "creation_time": "time",
-    "cpus": 0.0,
-    "gpus": 0,
-    "memory": "0.0"
-  },
-  {
-    "name": "Jupyter Data Science",
-    "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-    "sid": "512164ae-beaf-4a04-9f21-f8e47ce992ef",
-    "fqsid": "jupyter-ds",
-    "creation_time": "time",
-    "cpus": 0.0,
-    "gpus": 0,
-    "memory": "0.0"
-  }
-]
-
-const columns = [
-  {
-    name: 'App Name',
-    selector: 'name',
-    sortable: true
-  },
-  {
-    name: 'Creation Time',
-    selector: 'creation_time',
-    sortable: true
-  },
-  {
-    name: 'CPU',
-    selector: 'cpus',
-    sortable: true
-  },
-  {
-    name: 'GPU',
-    selector: 'gpus',
-    sortable: true
-  },
-  {
-    name: 'Memory',
-    selector: 'memory',
-    sortable: true
-  }
-]
-const handleChange = (state) => {
-  console.log(state.selectedRows);
-}
-
 export const Apps = () => {
-  const { isAuth, helxAppstoreUrl } = useEnvironment();
-  const helxAppstoreCsrfToken = useEnvironment().csrfToken;
+  const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
   const [apps, setApps] = useState({});
-  const [services, setServices] = useState([]);
+  const [instances, setInstance] = useState([]);
   const [active, setActive] = useState('Available');
 
+  // pass in app_id and stop instance
+  const stopInstance = async (app_id) => {
+    await axios({
+      method: 'DELETE',
+      url: `${helxAppstoreUrl}/instance/${app_id}`
+    })
+  }
+
+  // iterate and stop all instances
+  const stopAll = async () => {
+    for await (let this_app of instances){
+      stopInstance(this_app.app_id);
+    }
+  }
+
+  const columns = [
+    {
+      name: 'App Name',
+      selector: 'name',
+      sortable: true
+    },
+    {
+      name: 'Creation Time',
+      selector: 'creation_time',
+      sortable: true
+    },
+    {
+      name: 'CPU',
+      selector: 'cpus',
+      sortable: true
+    },
+    {
+      name: 'GPU',
+      selector: 'gpus',
+      sortable: true
+    },
+    {
+      name: 'Memory',
+      selector: 'memory',
+      sortable: true
+    }, {
+      key: "action",
+      text: "Action",
+      className: "action",
+      width: 100,
+      center: true,
+      sortable: false,
+      name: <StopButton onClick={stopAll}>Stop All</StopButton>,
+      cell: (record) => {
+        return (
+          <Fragment>
+            <button onClick={() => stopInstance(record.app_id)}
+            ><Icon icon="close"></Icon></button>
+          </Fragment>
+        );
+      },
+    },
+  ]
+
+  // handle tab bar switches
   useEffect(async () => {
     if (active === 'Available') {
-      setServices([]);
-      setApps(app_response);
-    //   const app_response = await axios({
-    //     method: 'GET',
-    //     url: helxAppstoreUrl + '/api/v1/apps'
-    //   }).then(res => {
-    //     setApps(res.data);
-    //   })
+      setInstance([]);
+      const app_response = await axios({
+        method: 'GET',
+        url: helxAppstoreUrl + '/api/v1/apps'
+      }).then(res => {
+        setApps(res.data);
+      })
     }
     else {
       setApps({});
-      setServices(instance_response);
-    //   const instance_response = await axios({
-    //     method: 'GET',
-    //     url: helxAppstoreUrl + '/api/v1/instance'
-    //   }).then(res => {
-    //     setServices(res.data)
-    //   })
+      const instance_response = await axios({
+        method: 'GET',
+        url: helxAppstoreUrl + '/api/v1/instance'
+      }).then(res => {
+        setInstance(res.data)
+      })
     }
   }, [active])
-
-  if (!isAuth) return (
-    <Whitelist />
-  )
 
   return (
     <Container>
@@ -453,18 +299,9 @@ export const Apps = () => {
         <Tab active={active === 'Active'} onClick={() => setActive('Active')}>Active</Tab>
       </TabGroup>
       {Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
-      {services.length > 0 ? < DataTable
+      {instances.length > 0 ? < DataTable
         columns={columns}
-        data={services}
-        selectableRows
-        Clicked
-        Selected={handleChange}
-        contextMessage={{
-          singular: 'instance',
-          plural: 'instances',
-          message: 'selected'
-        }}
-        contextActions={<StopButton>Stop</StopButton>}
+        data={instances}
       /> : <span />}
     </Container>
   )
