@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useHelxSearch } from './search-context';
 import styled, { css } from 'styled-components'
@@ -8,6 +8,9 @@ import { Button } from '../button'
 import { Card } from '../card';
 import { useNotifications } from '../notifications'
 import { Paragraph } from '../typography';
+import { KnowledgeGraphs } from './knowledge-graph';
+import { Collapser } from '../collapser';
+import { useEnvironment } from '../../contexts';
 
 const Wrapper = styled.article(({ theme, selected }) => css`
   margin: 1rem 0;
@@ -55,6 +58,28 @@ const Wrapper = styled.article(({ theme, selected }) => css`
   animation: ${theme.animation.fadeIn};
 `)
 
+const collapserStyles = {
+  titleStyle: {
+    backgroundColor: '#eee',
+    borderWidth: '1px 0',
+    borderStyle: 'solid',
+    borderColor: 'var(--color-lightgrey)',
+  },
+  bodyStyle: {
+    backgroundColor: '#ddd',
+  }
+}
+
+const CollapserHeader = styled.div`
+    display: flex;
+    flex-direction: column;
+    @media (min-width: 920px) {
+        flex-direction: row;
+    }
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+`
+
 const ResultSelector = styled(Button).attrs({ shadow: false })(({ theme, selected }) => `
   position: absolute;
   top: 0;
@@ -70,8 +95,16 @@ const ResultBodyText = styled.p`
 `
 
 export const Result = ({ index, result }) => {
-  const { resultsSelected, selectedView, setSelectedView, doSelect } = useHelxSearch();
+  const { fetchKnowledgeGraphs, resultsSelected, selectedView, setSelectedView, doSelect } = useHelxSearch();
   const { addNotification } = useNotifications()
+  const [knowledgeGraphs, setKnowledgeGraphs] = useState([]);
+  useEffect(() => {
+    const getKgs = async () => {
+      const kgs = await fetchKnowledgeGraphs(result.id);
+      setKnowledgeGraphs(kgs);
+    }
+    getKgs();
+  }, [])
   const handleSelectResult = result => event => {
     const notificationText = resultsSelected.has(result.id) ? `Unselected "${result.name}" (${result.id})` : `Selected "${result.name}" (${result.id})`
     addNotification({ text: notificationText, type: 'info' })
@@ -93,6 +126,11 @@ export const Result = ({ index, result }) => {
             <Icon icon={resultsSelected.has(result.id) ? 'check' : 'add'} fill="#eee" />
           </ResultSelector> */}
           </Card>
+          {knowledgeGraphs.length > 0 && (
+            <Collapser key={`${result.name} kg`} ariaId={`${result.name} kg`} {...collapserStyles} title={<CollapserHeader>Knowledge Graph</CollapserHeader>}>
+              <KnowledgeGraphs graphs={knowledgeGraphs} />
+            </Collapser>
+          )}
         </div>
       </div>
     </Wrapper>

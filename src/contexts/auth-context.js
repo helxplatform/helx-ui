@@ -34,47 +34,11 @@ let initialUser = {
 export const AuthProvider = ({ children }) => {
   const environment = useEnvironment();
   const helxAppstoreUrl = environment.helxAppstoreUrl;
-  const [user, setUser] = useState();
-  const [providers, setProviders] = useState([]);
-  const [isAuth, setAuth] = useState(false)
+  const [user, setUser] = useState(initialUser);
 
-  // load login provider
-
-  useEffect(() => {
-    loginProvider();
-  }, [])
-
-  const loginProvider = async () => {
-    const provider_response = await axios({
-      method: 'GET',
-      url: `${helxAppstoreUrl}/api/v1/providers/`
-    });
-    setProviders(provider_response.data);
-  }
-
-  // call the /api/token endpoint, and store tokens in user's data model
-  const loginHandler = async (url) => {
-    const login_response = await axios({
-      method: 'GET',
-      url: `${helxAppstoreUrl}/api/v1/users/`
-    }).catch(e => {
-      if(e.response.status === 403){
-        setAuth(false);
-      }
-      else{
-        setAuth(true);
-      }
-    })
-
-    // redirect to the provider login
-    window.location.href = helxAppstoreUrl + url;
-  }
-
+  // logout link can be put here
   const logoutHandler = () => {
     console.log('Logging out...');
-    localStorage.removeItem('loggedInUser')
-    environment.updateConfig("commonshare", "HeLx Common App Registry");
-    setUser(null)
   }
 
   const favoriteSearchHandler = (query, page) => event => {
@@ -115,7 +79,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user: user, isAuth: isAuth, providers: providers, login: loginHandler, logout: logoutHandler, saveSearch: favoriteSearchHandler, updateSearchHistory }}>
+    <AuthContext.Provider value={{ user: user, logout: logoutHandler, saveSearch: favoriteSearchHandler, updateSearchHistory }}>
       { children}
     </AuthContext.Provider>
   )

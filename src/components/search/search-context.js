@@ -76,40 +76,7 @@ export const HelxSearch = ({ children }) => {
           offset: (currentPage - 1) * PER_PAGE,
           size: PER_PAGE,
         }
-        const response = await axios.post(helxSearchUrl, params)
-
-
-        // sample params and response from pic-sure api
-
-        // const queryID = response.query_id;
-        // const picSureResponse = await axios.get('http://pic-sure-api', {
-        //   query_id = queryID,
-        //   offset = 0,
-        //   size: 10
-        // });
-
-        // let tem_pic_sure_response = {
-        //   data: {
-        //     hits: [
-        //       0: {
-        //         _id: "MONDO:0005453",
-        //         apps: {
-        //           braini: {
-        //             cpu: 2,
-        //             gpu: 2,
-        //             memory: 2
-        //           },
-        //           blackbalsm: {
-        //             cpu: 4,
-        //             gpu: 4,
-        //             memory: 4
-        //           }
-        //         }
-        //       }
-        //     ]
-        //   }
-        // }
-
+        const response = await axios.post(`${helxSearchUrl}/search`, params)
 
         if (response.status === 200 && response.data.status === 'success' && response.data.result && response.data.result.hits) {
           const hits = response.data.result.hits.hits.map(r => r._source)
@@ -131,6 +98,22 @@ export const HelxSearch = ({ children }) => {
   useEffect(() => {
     setPageCount(Math.ceil(totalResults / PER_PAGE))
   }, [totalResults])
+
+  const fetchKnowledgeGraphs = async (tag_id) => {
+    const knowledgeGraphs = await axios.post(`${helxSearchUrl}/search_kg`, {
+      index: 'kg_index',
+      unique_id: tag_id,
+      query: query,
+      size: 100,
+    }).then(response => {
+      return response.data.result.hits.hits
+    })
+      .catch(error => {
+        console.error(error)
+        return []
+      })
+    return knowledgeGraphs.map(graph => graph._source.knowledge_graph.knowledge_graph)
+  }
 
   const doSearch = queryString => {
     const trimmedQuery = queryString.trim()
@@ -168,7 +151,7 @@ export const HelxSearch = ({ children }) => {
 
   return (
     <HelxSearchContext.Provider value={{
-      query, setQuery, doSearch, inputRef,
+      query, setQuery, doSearch, fetchKnowledgeGraphs, inputRef,
       error, isLoadingResults,
       results, totalResults,
       selectedView, setSelectedView, doSelect, resultsSelected, clearSelect,
