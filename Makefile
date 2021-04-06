@@ -21,7 +21,7 @@ clean:
 	rm -rf build
 	rm -rf node_modules
 
-dev:
+compose:
 	# setup .env first ex: cp .env.example .env 
 	docker-compose -f docker-compose.dev.yml up -d
 
