@@ -121,16 +121,16 @@ export const Result = ({ index, result }) => {
             <Card.Body>
               <ResultBodyText><b>Type:</b> {result.type}</ResultBodyText>
               <ResultBodyText><b>Description:</b> {result.description === '' ? "There is no description for this concept." : result.description}</ResultBodyText>
-              {knowledgeGraphs.length > 0 && (
-                <Collapser key={`${result.name} kg`} ariaId={`${result.name} kg`} {...collapserStyles} title={<CollapserHeader>Knowledge Graph</CollapserHeader>}>
-                  <KnowledgeGraphs graphs={knowledgeGraphs} />
-                </Collapser>
-              )}
             </Card.Body>
             {/* <ResultSelector onClick={() => doSelect(result)}>
             <Icon icon={resultsSelected.has(result.id) ? 'check' : 'add'} fill="#eee" />
           </ResultSelector> */}
           </Card>
+          {knowledgeGraphs.length > 0 && (
+            <Collapser key={`${result.name} kg`} ariaId={`${result.name} kg`} {...collapserStyles} title={<CollapserHeader>Knowledge Graph</CollapserHeader>}>
+              <KnowledgeGraphs graphs={knowledgeGraphs} />
+            </Collapser>
+          )}
         </div>
       </div>
     </Wrapper>
