@@ -6,10 +6,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    volumes:
-      - ./:/usr/src/app
-      - /usr/src/app/node_modules
     environment:
       NODE_ENV: production
     ports:
-      - 80:80
+      - 2000:80
