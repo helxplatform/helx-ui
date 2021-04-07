@@ -9,6 +9,8 @@ WORKDIR /src
 # Copy in source files
 COPY . /src
 # Build app
+ENV REACT_APP_HELX_SEARCH_URL=https://helx.renci.org
+ENV REACT_APP_HELX_APPSTORE_URL=http://0.0.0.0:8000
 RUN make install build
 
 ########################

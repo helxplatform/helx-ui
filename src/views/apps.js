@@ -149,7 +149,7 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
     axios({
       method: 'POST',
       url: `${helxAppstoreUrl}/api/v1/instances`,
-      params: {
+      data: {
         app_id: app_id,
         cpu: currentCpu,
         memory: currentMemory,
@@ -282,7 +282,7 @@ export const Apps = () => {
       setInstance([]);
       const app_response = await axios({
         method: 'GET',
-        url: helxAppstoreUrl + '/api/v1/apps',
+        url: `${helxAppstoreUrl}/api/v1/apps`,
         headers: {
           "X-CSRFToken": helxAppstoreCsrfToken
         }
@@ -294,7 +294,7 @@ export const Apps = () => {
       setApps({});
       const instance_response = await axios({
         method: 'GET',
-        url: helxAppstoreUrl + '/api/v1/instances',
+        url: `${helxAppstoreUrl}/api/v1/instances`,
         headers: {
           "X-CSRFToken": helxAppstoreCsrfToken
         }
