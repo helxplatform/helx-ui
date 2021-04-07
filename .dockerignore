@@ -1,0 +1,13 @@
+.env
+.env.sample
+docker-compose.dev.yml
+docker-compose.prod.yml
+eslintrc.json
+README.md
+.git/
+.github/
+.idea/
+.vscode/
+build/
+coverage/
+node_modules/
