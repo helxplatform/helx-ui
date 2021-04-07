@@ -147,13 +147,16 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
   //app can be launched here using axios to hit the /start endpoint
   const launchApp = () => {
     axios({
-      method: 'GET',
-      url: `${helxAppstoreUrl}/service/`,
+      method: 'POST',
+      url: `${helxAppstoreUrl}/api/v1/instances`,
       params: {
         app_id: app_id,
         cpu: currentCpu,
         memory: currentMemory,
         gpu: currentGpu
+      },
+      headers: {
+        "X-CSRFToken": helxAppstoreCsrfToken
       }
     })
     localStorage.setItem('currentCpu', currentCpu);
@@ -215,13 +218,16 @@ export const Apps = () => {
   const stopInstance = async (app_id) => {
     await axios({
       method: 'DELETE',
-      url: `${helxAppstoreUrl}/instance/${app_id}`
+      url: `${helxAppstoreUrl}/api/v1/instances/${app_id}`,
+      headers: {
+        "X-CSRFToken": helxAppstoreCsrfToken
+      }
     })
   }
 
   // iterate and stop all instances
   const stopAll = async () => {
-    for await (let this_app of instances){
+    for await (let this_app of instances) {
       stopInstance(this_app.app_id);
     }
   }
@@ -276,7 +282,10 @@ export const Apps = () => {
       setInstance([]);
       const app_response = await axios({
         method: 'GET',
-        url: helxAppstoreUrl + '/api/v1/apps'
+        url: helxAppstoreUrl + '/api/v1/apps',
+        headers: {
+          "X-CSRFToken": helxAppstoreCsrfToken
+        }
       }).then(res => {
         setApps(res.data);
       })
@@ -285,7 +294,10 @@ export const Apps = () => {
       setApps({});
       const instance_response = await axios({
         method: 'GET',
-        url: helxAppstoreUrl + '/api/v1/instance'
+        url: helxAppstoreUrl + '/api/v1/instances',
+        headers: {
+          "X-CSRFToken": helxAppstoreCsrfToken
+        }
       }).then(res => {
         setInstance(res.data)
       })

@@ -42,7 +42,7 @@ export const EnvironmentProvider = ({ children }) => {
       helxSearchUrl: process.env.REACT_APP_HELX_SEARCH_URL,
       helxAppstoreUrl: process.env.REACT_APP_HELX_APPSTORE_URL,
       context: context,
-      csrfToken
+      helxAppstoreCsrfToken: csrfToken
     }}>
       { children}
     </EnvironmentContext.Provider>
