@@ -23,10 +23,10 @@ clean:
 
 compose:
 	# setup .env first ex: cp .env.example .env 
-	docker-compose -f docker-compose.helxui.yml up --remove-orphans
+	docker-compose -f docker-compose.appstore.yml pull && docker-compose -f docker-compose.appstore.yml up --remove-orphans
 
 down:
-	docker-compose -f docker-compose.helxui.yml down --remove-orphans
+	docker-compose -f docker-compose.appstore.yml down --remove-orphans
 
 image:
 	echo "Building docker image: $(DOCKER_TAG)"
