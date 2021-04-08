@@ -8,14 +8,13 @@ const HomeContainer = styled(Container)`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-around;
 `
 const HeLxImage = styled.img`
   width: 30vw;
 `
 
 const HeLxIntro = styled.div`
-  width: 40vw;
+  width: 80vw;
 `
 
 export const Home = () => {
@@ -31,7 +30,6 @@ export const Home = () => {
           installation or other infrastructure concerns has broad reaching benefits
           and can be applied in many domains.
       </HeLxIntro>
-        <HeLxImage src={HeLxLogo} />
       </HomeContainer>
     </Container>
   )
