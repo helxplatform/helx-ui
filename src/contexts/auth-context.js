@@ -38,6 +38,8 @@ export const AuthProvider = ({ children }) => {
 
   // logout link can be put here
   const logoutHandler = () => {
+    // TODO, move logout redirect into the auth context? May not want to do this
+    // since we no longer login the user.
     console.log('Logging out...');
   }
 
