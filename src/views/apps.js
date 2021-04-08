@@ -228,7 +228,7 @@ export const Apps = () => {
   // iterate and stop all instances
   const stopAll = async () => {
     for await (let this_app of instances) {
-      stopInstance(this_app.app_id);
+      stopInstance(this_app.sid);
     }
   }
 
