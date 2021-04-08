@@ -65,8 +65,8 @@ export const PaginationTray = () => {
 
   return (
     <Wrapper role="navigation" aria-label="Pagination Navigation">
-      <PaginationLink to={ `/search?q=${ query }&p=1` } icon="firstPage" disabled={ currentPage <= 1 } aria-label="Go to first page" />
-      <PaginationLink to={ `/search?q=${ query }&p=${ currentPage - 1 }` } icon="chevronLeft" disabled={ currentPage <= 1 } aria-label="Go to previous page"/>
+      <PaginationLink to={ `/frontend/react/search?q=${ query }&p=1` } icon="firstPage" disabled={ currentPage <= 1 } aria-label="Go to first page" />
+      <PaginationLink to={ `/frontend/react/search?q=${ query }&p=${ currentPage - 1 }` } icon="chevronLeft" disabled={ currentPage <= 1 } aria-label="Go to previous page"/>
       <Icon icon="ellipsis" fill={ currentPage > paginationRadius + 1 ? theme.color.grey.light : 'transparent' } size={ 24 } />
       {
         [...Array(pageCount).keys()].map(i => {
@@ -96,7 +96,7 @@ export const PaginationTray = () => {
           return (
             <PaginationLink
               key={ `link-to-p${ i + 1 }` }
-              to={ `/search?q=${ query }&p=${ i + 1 }` }
+              to={ `/frontend/react/search?q=${ query }&p=${ i + 1 }` }
               disabled={ currentPage === i + 1 }
               aria-label={ currentPage === i + 1 ? `Current page, page ${ i + 1 }` : `Go to page ${ i + 1 }` }
               aria-current={ currentPage === i + 1 }
@@ -107,8 +107,8 @@ export const PaginationTray = () => {
         })
       }
       <Icon icon="ellipsis" fill={ pageCount > 2 * paginationRadius - 1 && currentPage < pageCount - paginationRadius ? theme.color.grey.light : 'transparent' } size={ 24 } />
-      <PaginationLink to={ `/search?q=${ query }&p=${ currentPage + 1 }` } icon="chevronRight" disabled={ currentPage >= pageCount } aria-label="Go to next page"/>
-      <PaginationLink to={ `/search?q=${ query }&p=${ pageCount }` } icon="lastPage" disabled={ currentPage >= pageCount } aria-label="Go to last page"/>
+      <PaginationLink to={ `/frontend/react/search?q=${ query }&p=${ currentPage + 1 }` } icon="chevronRight" disabled={ currentPage >= pageCount } aria-label="Go to next page"/>
+      <PaginationLink to={ `/frontend/react/search?q=${ query }&p=${ pageCount }` } icon="lastPage" disabled={ currentPage >= pageCount } aria-label="Go to last page"/>
     </Wrapper>
   )
 }
