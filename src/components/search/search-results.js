@@ -121,7 +121,7 @@ export const SearchResults = () => {
   const MemoizedActions = useMemo(() => (
     <Fragment>
       <Tooltip tip="Shareable link" placement="top">
-        <Link to={ `/search?q=${ query }&p=${ currentPage }` } onClick={ShowShareableLink} style={{ display: 'inline-flex', alignItems: 'center', color: theme.color.primary.dark }}>
+        <Link to={ `/frontend/react/search?q=${ query }&p=${ currentPage }` } onClick={ShowShareableLink} style={{ display: 'inline-flex', alignItems: 'center', color: theme.color.primary.dark }}>
           <Icon icon="link" fill={ theme.color.primary.dark } size={ 24 } style={{ padding: '0 4px 0 0' }} />
         </Link>
       </Tooltip>
