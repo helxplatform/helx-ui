@@ -121,7 +121,7 @@ export const HelxSearch = ({ children }) => {
       setQuery(trimmedQuery)
       setCurrentPage(1)
       auth.updateSearchHistory(trimmedQuery)
-      navigate(`/search?q=${trimmedQuery}&p=1`)
+      navigate(`/frontend/react/search?q=${trimmedQuery}&p=1`)
     }
   }
 

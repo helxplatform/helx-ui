@@ -6,8 +6,9 @@ import { List } from '../../components/list'
 import { Link } from '../../components/link'
 import { Button } from '../../components/button'
 import { Icon } from '../../components/icon'
-import { useAuth } from '../../contexts'
+import { useAuth, useEnvironment } from '../../contexts'
 import { Search } from '../search';
+
 
 const LogoutContainer = styled(Container)`
     display: flex;
@@ -35,9 +36,12 @@ function timeSince(date) {
 export const Profile = () => {
   const theme = useTheme()
   const auth = useAuth()
+  const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
+
   return (
     <LogoutContainer>
-      <Button onClick={() => auth.logout}>Log Out</Button>
+      <Button onClick={() => global.window && (global.window.location.href = `${helxAppstoreUrl}/accounts/logout/`)}>Log Out</Button>
+
       {/* <Heading>{ auth.user.username } ({ auth.user.email }) </Heading>
 
       <Button onClick={ auth.logout }>LOGOUT</Button>

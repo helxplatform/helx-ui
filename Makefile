@@ -21,16 +21,16 @@ clean:
 	rm -rf build
 	rm -rf node_modules
 
-dev:
+compose:
 	# setup .env first ex: cp .env.example .env 
-	docker-compose -f docker-compose.dev.yml up -d
+	docker-compose -f docker-compose.helxui.yml up --remove-orphans
 
 down:
-	docker-compose -f docker-compose.dev.yml down
+	docker-compose -f docker-compose.helxui.yml down --remove-orphans
 
 image:
 	echo "Building docker image: $(DOCKER_TAG)"
-	docker build -t $(DOCKER_ORG)/$(DOCKER_TAG) -f Dockerfile .
+	docker build . --no-cache --pull -t $(DOCKER_ORG)/$(DOCKER_TAG)
 
 install:
 	npm install
