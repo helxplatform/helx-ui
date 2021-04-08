@@ -67,7 +67,7 @@ const Header = styled.header(({ theme, compact }) => `
   top: 0;
   z-index: 1;
   & img {
-    min-height: ${compact ? '30px' : '60px'};
+    min-height: ${compact ? '20px' : '40px'};
   }
 `)
 
@@ -85,7 +85,7 @@ const BrandText = styled.div`
 `
 
 const BrandImage = styled.img`
-  width: 12vw;
+  width: 10vw;
   object-fit: scale-down;
 `
 
