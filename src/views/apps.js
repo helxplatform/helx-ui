@@ -239,11 +239,6 @@ export const Apps = () => {
       sortable: true
     },
     {
-      name: 'App Id',
-      selector: 'app_id',
-      sortable: false
-    },
-    {
       name: 'Creation Time',
       selector: 'creation_time',
       sortable: true
@@ -273,7 +268,7 @@ export const Apps = () => {
       cell: (record) => {
         return (
           <Fragment>
-            <button onClick={() => stopInstance(record.app_id)}
+            <button onClick={() => stopInstance(record.sid)}
             ><Icon icon="close"></Icon></button>
           </Fragment>
         );
