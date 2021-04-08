@@ -176,14 +176,14 @@ export const SearchResults = () => {
                 return <Result key={ `result-${ index }` } index={ index } result={ result } />
               })
             }
-            {
+            {/* {
               results.length >= 1 && (
                 <Meta overline>
                   <div>Results { (currentPage - 1) * perPage + 1 } to { (currentPage - 1) * perPage + results.length } of { totalResults } total results</div>
                   <div>{ MemoizedActions }</div>
                 </Meta>
               )
-            }
+            } */}
           </Fragment>
         )
       }
