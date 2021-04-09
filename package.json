@@ -1,6 +1,6 @@
 {
   "name": "ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "homepage": "/static/frontend",
   "dependencies": {
@@ -33,6 +33,7 @@
     ]
   },
   "engines": {
+    "node": "14.16.1",
     "npm": "6.x"
   },
   "browserslist": {
