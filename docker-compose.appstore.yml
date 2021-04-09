@@ -6,8 +6,8 @@ services:
     volumes:
       - $HOME/.kube/config:/home/appstore/.kube/config
       - $HOME/.minikube/:$HOME/.minikube/
-      - ./build/frontend:/usr/src/inst-mgmt/appstore/frontend/static/
-      - ./build/frontend/index.html:/usr/src/inst-mgmt/appstore/frontend/templates/frontend/
+      - ./build/frontend/index.html:/usr/src/inst-mgmt/frontend/templates/frontend/index.html
+      - ./build/frontend/:/usr/src/inst-mgmt/frontend/static/frontend
     env_file:
       - .env
     ports:
