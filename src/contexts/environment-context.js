@@ -6,12 +6,13 @@ export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
   const [context, setContext] = useState();
+  const relativeHost = window.location.origin;
 
   // update the context on initial render
   const loadContext = async () => {
     const context_response = await axios({
       method: 'GET',
-      url: `${process.env.REACT_APP_HELX_APPSTORE_URL}/api/v1/context`
+      url: `${relativeHost}/api/v1/context`
     })
     setContext(context_response.data);
   }
@@ -40,7 +41,7 @@ export const EnvironmentProvider = ({ children }) => {
   return (
     <EnvironmentContext.Provider value={{
       helxSearchUrl: process.env.REACT_APP_HELX_SEARCH_URL,
-      helxAppstoreUrl: process.env.REACT_APP_HELX_APPSTORE_URL,
+      helxAppstoreUrl: window.location.origin,
       context: context,
       helxAppstoreCsrfToken: csrfToken
     }}>
