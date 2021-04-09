@@ -1,11 +1,13 @@
 import React from 'react'
 import { Container } from '../components/layout'
-import { Title } from '../components/typography'
+import { Link } from '@reach/router'
+import { Paragraph, Title } from '../components/typography'
 
 export const NotFound = () => {
   return (
     <Container>
-      <Title>404: Not Found</Title>
+      <Title>Page not found</Title>
+      <Paragraph>Please try searching or go to <Link to='/frontend/react'>HeLx homepage</Link>.</Paragraph>
     </Container>
   )
 }
