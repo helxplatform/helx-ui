@@ -16,8 +16,6 @@ export const Search = () => {
       <HelxSearch>
         <SearchForm />
 
-        <br /><br /><br />
-
         <SearchResults />
 
       </HelxSearch>

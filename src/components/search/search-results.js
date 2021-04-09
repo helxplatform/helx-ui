@@ -125,7 +125,7 @@ export const SearchResults = () => {
           <Icon icon="link" fill={ theme.color.primary.dark } size={ 24 } style={{ padding: '0 4px 0 0' }} />
         </Link>
       </Tooltip>
-      {
+      {/* {
         auth.user && (
           <Tooltip tip="Save results" placement="top"> 
             <IconButton variant="transparent"
@@ -135,18 +135,12 @@ export const SearchResults = () => {
             />
           </Tooltip>
           )
-      }
+      } */}
     </Fragment>
   ), [query, currentPage, auth, theme.color.primary.dark])
 
   return (
     <Wrapper>
-
-      { MemoizedResultsSummary }
-
-      <PaginationTray />
-
-      <br/>
 
       { isLoadingResults && <LoadingSpinner style={{ margin: theme.spacing.extraLarge }} /> }
 
@@ -182,14 +176,14 @@ export const SearchResults = () => {
                 return <Result key={ `result-${ index }` } index={ index } result={ result } />
               })
             }
-            {
+            {/* {
               results.length >= 1 && (
                 <Meta overline>
                   <div>Results { (currentPage - 1) * perPage + 1 } to { (currentPage - 1) * perPage + results.length } of { totalResults } total results</div>
                   <div>{ MemoizedActions }</div>
                 </Meta>
               )
-            }
+            } */}
           </Fragment>
         )
       }

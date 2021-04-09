@@ -228,7 +228,7 @@ export const Apps = () => {
   // iterate and stop all instances
   const stopAll = async () => {
     for await (let this_app of instances) {
-      stopInstance(this_app.app_id);
+      stopInstance(this_app.sid);
     }
   }
 
@@ -237,11 +237,6 @@ export const Apps = () => {
       name: 'App Name',
       selector: 'name',
       sortable: true
-    },
-    {
-      name: 'App Id',
-      selector: 'app_id',
-      sortable: false
     },
     {
       name: 'Creation Time',
@@ -273,7 +268,7 @@ export const Apps = () => {
       cell: (record) => {
         return (
           <Fragment>
-            <button onClick={() => stopInstance(record.app_id)}
+            <button onClick={() => stopInstance(record.sid)}
             ><Icon icon="close"></Icon></button>
           </Fragment>
         );
