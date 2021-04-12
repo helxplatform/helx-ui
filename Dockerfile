@@ -1,7 +1,7 @@
 ###################
 # Build environment
 ###################
-FROM node:10.12.0-alpine AS builder
+FROM node:14.16.1-alpine AS builder
 RUN apk add make
 # Create and set working directory
 RUN mkdir /src
