@@ -140,7 +140,6 @@ export const Result = ({ index, result }) => {
         }
         return acc;
       }, [])
-      console.log(tem_result)
       setStudyVariables(tem_result);
     }
     getKgs();
