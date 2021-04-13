@@ -12,7 +12,6 @@ const Wrapper = styled.div`
 
 const VariableLink = styled.a.attrs(props => ({ target: '_blank', rel: 'noopener noreferrer', href: props.to }))`
     display: block;
-    padding: 0.5rem 0;
 `
 
 const List = styled.ul`
@@ -28,8 +27,8 @@ export const VariablesList = ({ studyId, variables }) => {
             <List>
                 {
                     variables.map(variable => (
-                        <ListItem key={ variable }>
-                            <VariableLink to={ dbGapLink.variable(studyId, variable) || null }>{ variable }</VariableLink>
+                        <ListItem key={ variable.id }>
+                            <VariableLink to={variable.e_link}>{variable.id}: {variable.id}</VariableLink>
                         </ListItem>
                     ))
                 }

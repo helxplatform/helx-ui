@@ -115,6 +115,21 @@ export const HelxSearch = ({ children }) => {
     return knowledgeGraphs.map(graph => graph._source.knowledge_graph.knowledge_graph)
   }
 
+  const fetchStudyVariable = async (_id, _query) => {
+    const studyVariables = await axios.post(`${helxSearchUrl}/search_var`, {
+      concept: _id,
+      index: 'variables_index',
+      query: _query,
+      size: 1000
+    }).then(response => {
+      return response.data.result.hits.hits
+    }).catch(error => {
+      console.error(error)
+      return []
+    })
+    return studyVariables.map(studyVar => studyVar._source);
+  }
+
   const doSearch = queryString => {
     const trimmedQuery = queryString.trim()
     if (trimmedQuery !== '') {
@@ -151,7 +166,7 @@ export const HelxSearch = ({ children }) => {
 
   return (
     <HelxSearchContext.Provider value={{
-      query, setQuery, doSearch, fetchKnowledgeGraphs, inputRef,
+      query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariable, inputRef,
       error, isLoadingResults,
       results, totalResults,
       selectedView, setSelectedView, doSelect, resultsSelected, clearSelect,
