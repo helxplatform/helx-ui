@@ -220,8 +220,8 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
 export const Apps = () => {
   const { addNotification } = useNotifications();
   const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
-  const [apps, setApps] = useState({});
-  const [instances, setInstance] = useState([]);
+  const [apps, setApps] = useState();
+  const [instances, setInstance] = useState();
   const [tab, setTab] = useState('Available');
   const [refresh, setRefresh] = useState(false);
 
@@ -265,8 +265,8 @@ export const Apps = () => {
       cell: (record) => {
         return (
           <Fragment>
-            <button onClick={() => window.open(record.url, "_blank") }>
-            <Icon icon="launch"></Icon>
+            <button onClick={() => window.open(record.url, "_blank")}>
+              <Icon icon="launch"></Icon>
             </button>
           </Fragment>
         );
@@ -303,7 +303,7 @@ export const Apps = () => {
         return (
           <Fragment>
             <button onClick={() => stopInstance(record.sid)}>
-            <Icon icon="close"></Icon>
+              <Icon icon="close"></Icon>
             </button>
           </Fragment>
         );
@@ -314,7 +314,7 @@ export const Apps = () => {
   // handle tab bar switches
   useEffect(async () => {
     if (tab === 'Available') {
-      setInstance([]);
+      setInstance();
       const app_response = await axios({
         method: 'GET',
         url: `${helxAppstoreUrl}/api/v1/apps`,
@@ -325,11 +325,11 @@ export const Apps = () => {
         setApps(res.data);
       }).catch(e => {
         // Note: axios global interceptor has been created to handle the 403 cirumstance
+        setApps({});
       })
     }
     else {
-      setApps({});
-      console.log("loading instances...")
+      setApps();
       const instance_response = await axios({
         method: 'GET',
         url: `${helxAppstoreUrl}/api/v1/instances`,
@@ -339,6 +339,7 @@ export const Apps = () => {
       }).then(res => {
         setInstance(res.data)
       }).catch(e => {
+        setInstance([]);
       })
     }
   }, [tab, refresh])
@@ -349,13 +350,18 @@ export const Apps = () => {
         <Tab active={tab === 'Available'} onClick={() => setTab('Available')}>Available</Tab>
         <Tab active={tab === 'Active'} onClick={() => setTab('Active')}>Active</Tab>
       </TabGroup>
-      {tab === 'Available' && Object.keys(apps).length !== 0 && Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
-      {tab === 'Available' && Object.keys(apps).length === 0 && <Status>No apps available</Status>}
-      {tab === 'Active' && instances.length > 0 && < DataTable
+      {tab === 'Active' ? 
+      (instances === undefined ? 
+      <div></div> : (instances.length > 0 ? 
+      < DataTable
         columns={columns}
         data={instances}
-      />}
-      {tab === 'Active' && instances.length === 0 && <Status>No instances running</Status>}
+      /> : 
+      <Status>No instances running</Status>)) : 
+      (apps === undefined ? <div></div> :
+        (Object.keys(apps).length !== 0 ? 
+        Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)
+          : <Status>No apps available</Status>))}
     </Container>
   )
 }
