@@ -82,10 +82,6 @@ const RunningStatus = styled.div(({ theme }) => `
     margin-right: 5px;
 `)
 
-const Status = styled.div(({ theme }) => `
-    margin-top: 10px;
-`)
-
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;
     color: white;
@@ -108,9 +104,9 @@ const AppInfo = styled.div`
   width:80%;
 `
 
-const SpecsInput = styled(Input)`
-  width: 15%;
-  height: 30px;
+const Status = styled.div`
+  padding-top: 15vh;
+  text-align: center;
 `
 
 const SpecName = styled.span`
