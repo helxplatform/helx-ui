@@ -239,6 +239,24 @@ export const Apps = () => {
       sortable: true
     },
     {
+      key: "action",
+      text: "Action",
+      className: "action",
+      width: 100,
+      center: true,
+      sortable: false,
+      name: 'Connect',
+      cell: (record) => {
+        return (
+          <Fragment>
+            <button onClick={() => window.open(record.url, "_blank") }>
+            <Icon icon="launch"></Icon>
+            </button>
+          </Fragment>
+        );
+      },
+    },
+    {
       name: 'Creation Time',
       selector: 'creation_time',
       sortable: true
@@ -268,8 +286,9 @@ export const Apps = () => {
       cell: (record) => {
         return (
           <Fragment>
-            <button onClick={() => stopInstance(record.sid)}
-            ><Icon icon="close"></Icon></button>
+            <button onClick={() => stopInstance(record.sid)}>
+            <Icon icon="close"></Icon>
+            </button>
           </Fragment>
         );
       },
