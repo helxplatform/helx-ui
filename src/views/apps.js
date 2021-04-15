@@ -14,7 +14,7 @@ import { Slider } from '../components/slider';
 import { Tab, TabGroup } from '../components/tab';
 import { useEnvironment } from '../contexts';
 import DataTable from 'react-data-table-component';
-import { Notifications } from '@mwatson/react-notifications';
+import { useNotifications } from '../components/notifications';
 
 const Relative = styled.div`
   position: relative;
@@ -133,6 +133,7 @@ const SliderMinMaxContainer = styled.span`
 
 const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
   const theme = useTheme()
+  const { addNotification } = useNotifications();
   const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
   const [flipped, setFlipped] = useState(false)
 
@@ -158,10 +159,14 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
         "X-CSRFToken": helxAppstoreCsrfToken
       }
     })
+      .then(res => {
+        addNotification({ type: 'success', text: 'Launching app successful.'})
+      }).catch(e => {
+        addNotification({ type: 'error', text: 'Error occurs when launching apps. Please try again!'})
+      })
     localStorage.setItem('currentCpu', currentCpu);
     localStorage.setItem('currentGpu', currentGpu);
     localStorage.setItem('currentMemory', currentMemory);
-    alert(`Launching ${name} with ${currentCpu} CPU core, ${currentGpu} GPU Core and ${currentMemory} GB Memory.`)
   }
 
   const getLogoUrl = (app_id) => {
@@ -208,10 +213,11 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
 }
 
 export const Apps = () => {
+  const { addNotification } = useNotifications();
   const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
   const [apps, setApps] = useState({});
   const [instances, setInstance] = useState([]);
-  const [active, setActive] = useState('Available');
+  const [tab, setTab] = useState('Available');
 
   // pass in app_id and stop instance
   const stopInstance = async (app_id) => {
@@ -221,6 +227,10 @@ export const Apps = () => {
       headers: {
         "X-CSRFToken": helxAppstoreCsrfToken
       }
+    }).then(res => {
+      addNotification({ type: 'sucess', text: `Instance ${app_id} stopped`})
+    }).catch(e => {
+      addNotification({ type: 'error', text: `Error occurs when stopping instance ${app_id}`})
     })
   }
 
@@ -296,7 +306,7 @@ export const Apps = () => {
 
   // handle tab bar switches
   useEffect(async () => {
-    if (active === 'Available') {
+    if (tab === 'Available') {
       setInstance([]);
       const app_response = await axios({
         method: 'GET',
@@ -310,6 +320,7 @@ export const Apps = () => {
     }
     else {
       setApps({});
+      console.log("loading instances...")
       const instance_response = await axios({
         method: 'GET',
         url: `${helxAppstoreUrl}/api/v1/instances`,
@@ -320,21 +331,21 @@ export const Apps = () => {
         setInstance(res.data)
       })
     }
-  }, [active])
+  }, [tab])
 
   return (
     <Container>
       <TabGroup>
-        <Tab active={active === 'Available'} onClick={() => setActive('Available')}>Available</Tab>
-        <Tab active={active === 'Active'} onClick={() => setActive('Active')}>Active</Tab>
+        <Tab active={tab === 'Available'} onClick={() => setTab('Available')}>Available</Tab>
+        <Tab active={tab === 'Active'} onClick={() => setTab('Active')}>Active</Tab>
       </TabGroup>
-      {active === 'Available' && Object.keys(apps).length !== 0 && Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
-      {active === 'Available' && Object.keys(apps).length === 0 && <Status>No apps available</Status>}
-      {active === 'Active' && instances.length > 0 && < DataTable
+      {tab === 'Available' && Object.keys(apps).length !== 0 && Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
+      {tab === 'Available' && Object.keys(apps).length === 0 && <Status>No apps available</Status>}
+      {tab === 'Active' && instances.length > 0 && < DataTable
         columns={columns}
         data={instances}
       />}
-      {active === 'Active' && instances.length === 0 && <Status>No instances running</Status>}
+      {tab === 'Active' && instances.length === 0 && <Status>No instances running</Status>}
     </Container>
   )
 }
