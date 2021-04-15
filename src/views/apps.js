@@ -16,6 +16,13 @@ import { useEnvironment } from '../contexts';
 import DataTable from 'react-data-table-component';
 import { useNotifications } from '../components/notifications';
 
+axios.interceptors.response.use(function (response) { }, function (error) {
+  if (error.response.status === 403) {
+    window.location.href = window.location.origin + '/frontend'
+  }
+  return Promise.reject(error)
+})
+
 const Relative = styled.div`
   position: relative;
   flex: 1;
@@ -160,9 +167,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
       }
     })
       .then(res => {
-        addNotification({ type: 'success', text: 'Launching app successful.'})
+        addNotification({ type: 'success', text: 'Launching app successful.' })
       }).catch(e => {
-        addNotification({ type: 'error', text: 'Error occurs when launching apps. Please try again!'})
+        addNotification({ type: 'error', text: 'Error occurs when launching apps. Please try again!' })
       })
     localStorage.setItem('currentCpu', currentCpu);
     localStorage.setItem('currentGpu', currentGpu);
@@ -229,10 +236,10 @@ export const Apps = () => {
         "X-CSRFToken": helxAppstoreCsrfToken
       }
     }).then(res => {
-      addNotification({ type: 'sucess', text: `Instance ${app_id} stopped`})
+      addNotification({ type: 'sucess', text: `Instance ${app_id} stopped` })
       setRefresh(!refresh);
     }).catch(e => {
-      addNotification({ type: 'error', text: `Error occurs when stopping instance ${app_id}`})
+      addNotification({ type: 'error', text: `Error occurs when stopping instance ${app_id}` })
     })
   }
 
@@ -318,6 +325,8 @@ export const Apps = () => {
         }
       }).then(res => {
         setApps(res.data);
+      }).catch(e => {
+        // Note: axios global interceptor has been created to handle the 403 cirumstance
       })
     }
     else {
@@ -331,6 +340,7 @@ export const Apps = () => {
         }
       }).then(res => {
         setInstance(res.data)
+      }).catch(e => {
       })
     }
   }, [tab, refresh])
