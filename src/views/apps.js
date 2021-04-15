@@ -16,7 +16,9 @@ import { useEnvironment } from '../contexts';
 import DataTable from 'react-data-table-component';
 import { useNotifications } from '../components/notifications';
 
-axios.interceptors.response.use(function (response) { }, function (error) {
+axios.interceptors.response.use(function (response) {
+  return response;
+}, function (error) {
   if (error.response.status === 403) {
     window.location.href = window.location.origin + '/frontend'
   }
