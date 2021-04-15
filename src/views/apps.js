@@ -14,6 +14,7 @@ import { Slider } from '../components/slider';
 import { Tab, TabGroup } from '../components/tab';
 import { useEnvironment } from '../contexts';
 import DataTable from 'react-data-table-component';
+import { Notifications } from '@mwatson/react-notifications';
 
 const Relative = styled.div`
   position: relative;
@@ -73,9 +74,7 @@ const RunningStatus = styled.div(({ theme }) => `
 `)
 
 const Status = styled.div(({ theme }) => `
-    display: flex;
-    align-items: center;
-    color: black;
+    margin-top: 10px;
 `)
 
 const StopButton = styled(Button)(({ theme }) => `
@@ -329,11 +328,13 @@ export const Apps = () => {
         <Tab active={active === 'Available'} onClick={() => setActive('Available')}>Available</Tab>
         <Tab active={active === 'Active'} onClick={() => setActive('Active')}>Active</Tab>
       </TabGroup>
-      {Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
-      {instances.length > 0 ? < DataTable
+      {active === 'Available' && Object.keys(apps).length !== 0 && Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
+      {active === 'Available' && Object.keys(apps).length === 0 && <Status>No apps available</Status>}
+      {active === 'Active' && instances.length > 0 && < DataTable
         columns={columns}
         data={instances}
-      /> : <span />}
+      />}
+      {active === 'Active' && instances.length === 0 && <Status>No instances running</Status>}
     </Container>
   )
 }
