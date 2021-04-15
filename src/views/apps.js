@@ -218,6 +218,7 @@ export const Apps = () => {
   const [apps, setApps] = useState({});
   const [instances, setInstance] = useState([]);
   const [tab, setTab] = useState('Available');
+  const [refresh, setRefresh] = useState(false);
 
   // pass in app_id and stop instance
   const stopInstance = async (app_id) => {
@@ -229,6 +230,7 @@ export const Apps = () => {
       }
     }).then(res => {
       addNotification({ type: 'sucess', text: `Instance ${app_id} stopped`})
+      setRefresh(!refresh);
     }).catch(e => {
       addNotification({ type: 'error', text: `Error occurs when stopping instance ${app_id}`})
     })
@@ -331,7 +333,7 @@ export const Apps = () => {
         setInstance(res.data)
       })
     }
-  }, [tab])
+  }, [tab, refresh])
 
   return (
     <Container>
