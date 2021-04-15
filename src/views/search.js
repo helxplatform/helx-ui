@@ -9,7 +9,7 @@ export const Search = () => {
   
   return (
     <Container>
-      <Title>Search</Title>
+      <Title>HeLx</Title>
 
       <br />
 
