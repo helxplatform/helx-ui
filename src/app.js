@@ -6,7 +6,7 @@ import { LocationProvider, Router } from '@reach/router'
 import { AuthProvider, EnvironmentProvider } from './contexts'
 import { Notifications } from './components/notifications'
 import {
-  Home,
+  About,
   Apps,
   Search,
   Account,
@@ -23,7 +23,7 @@ const App = () => {
             <LocationProvider>
               <Layout>
                 <Router>
-                  <Home path="/frontend/react/home" />
+                  <About path="/frontend/react/about" />
                   <Apps path="/frontend/react/apps" />
                   <Account path="/frontend/react/account" />
                   <Search path="/frontend/react" />
