@@ -14,6 +14,16 @@ import { Slider } from '../components/slider';
 import { Tab, TabGroup } from '../components/tab';
 import { useEnvironment } from '../contexts';
 import DataTable from 'react-data-table-component';
+import { useNotifications } from '../components/notifications';
+
+axios.interceptors.response.use(function (response) {
+  return response;
+}, function (error) {
+  if (error.response.status === 403) {
+    window.location.href = window.location.origin + '/frontend'
+  }
+  return Promise.reject(error)
+})
 
 const Relative = styled.div`
   position: relative;
@@ -72,12 +82,6 @@ const RunningStatus = styled.div(({ theme }) => `
     margin-right: 5px;
 `)
 
-const Status = styled.div(({ theme }) => `
-    display: flex;
-    align-items: center;
-    color: black;
-`)
-
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;
     color: white;
@@ -100,9 +104,9 @@ const AppInfo = styled.div`
   width:80%;
 `
 
-const SpecsInput = styled(Input)`
-  width: 15%;
-  height: 30px;
+const Status = styled.div`
+  padding-top: 15vh;
+  text-align: center;
 `
 
 const SpecName = styled.span`
@@ -134,6 +138,7 @@ const SliderMinMaxContainer = styled.span`
 
 const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
   const theme = useTheme()
+  const { addNotification } = useNotifications();
   const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
   const [flipped, setFlipped] = useState(false)
 
@@ -159,10 +164,14 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
         "X-CSRFToken": helxAppstoreCsrfToken
       }
     })
+      .then(res => {
+        addNotification({ type: 'success', text: 'Launching app successful.' })
+      }).catch(e => {
+        addNotification({ type: 'error', text: 'Error occurs when launching apps. Please try again!' })
+      })
     localStorage.setItem('currentCpu', currentCpu);
     localStorage.setItem('currentGpu', currentGpu);
     localStorage.setItem('currentMemory', currentMemory);
-    alert(`Launching ${name} with ${currentCpu} CPU core, ${currentGpu} GPU Core and ${currentMemory} GB Memory.`)
   }
 
   const getLogoUrl = (app_id) => {
@@ -209,10 +218,12 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
 }
 
 export const Apps = () => {
+  const { addNotification } = useNotifications();
   const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
-  const [apps, setApps] = useState({});
-  const [instances, setInstance] = useState([]);
-  const [active, setActive] = useState('Available');
+  const [apps, setApps] = useState();
+  const [instances, setInstance] = useState();
+  const [tab, setTab] = useState('Available');
+  const [refresh, setRefresh] = useState(false);
 
   // pass in app_id and stop instance
   const stopInstance = async (app_id) => {
@@ -222,6 +233,11 @@ export const Apps = () => {
       headers: {
         "X-CSRFToken": helxAppstoreCsrfToken
       }
+    }).then(res => {
+      addNotification({ type: 'sucess', text: `Instance ${app_id} stopped` })
+      setRefresh(!refresh);
+    }).catch(e => {
+      addNotification({ type: 'error', text: `Error occurs when stopping instance ${app_id}` })
     })
   }
 
@@ -249,8 +265,8 @@ export const Apps = () => {
       cell: (record) => {
         return (
           <Fragment>
-            <button onClick={() => window.open(record.url, "_blank") }>
-            <Icon icon="launch"></Icon>
+            <button onClick={() => window.open(record.url, "_blank")}>
+              <Icon icon="launch"></Icon>
             </button>
           </Fragment>
         );
@@ -287,7 +303,7 @@ export const Apps = () => {
         return (
           <Fragment>
             <button onClick={() => stopInstance(record.sid)}>
-            <Icon icon="close"></Icon>
+              <Icon icon="close"></Icon>
             </button>
           </Fragment>
         );
@@ -297,8 +313,8 @@ export const Apps = () => {
 
   // handle tab bar switches
   useEffect(async () => {
-    if (active === 'Available') {
-      setInstance([]);
+    if (tab === 'Available') {
+      setInstance();
       const app_response = await axios({
         method: 'GET',
         url: `${helxAppstoreUrl}/api/v1/apps`,
@@ -307,10 +323,13 @@ export const Apps = () => {
         }
       }).then(res => {
         setApps(res.data);
+      }).catch(e => {
+        // Note: axios global interceptor has been created to handle the 403 cirumstance
+        setApps({});
       })
     }
     else {
-      setApps({});
+      setApps();
       const instance_response = await axios({
         method: 'GET',
         url: `${helxAppstoreUrl}/api/v1/instances`,
@@ -319,21 +338,30 @@ export const Apps = () => {
         }
       }).then(res => {
         setInstance(res.data)
+      }).catch(e => {
+        setInstance([]);
       })
     }
-  }, [active])
+  }, [tab, refresh])
 
   return (
     <Container>
       <TabGroup>
-        <Tab active={active === 'Available'} onClick={() => setActive('Available')}>Available</Tab>
-        <Tab active={active === 'Active'} onClick={() => setActive('Active')}>Active</Tab>
+        <Tab active={tab === 'Available'} onClick={() => setTab('Available')}>Available</Tab>
+        <Tab active={tab === 'Active'} onClick={() => setTab('Active')}>Active</Tab>
       </TabGroup>
-      {Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}
-      {instances.length > 0 ? < DataTable
+      {tab === 'Active' ? 
+      (instances === undefined ? 
+      <div></div> : (instances.length > 0 ? 
+      < DataTable
         columns={columns}
         data={instances}
-      /> : <span />}
+      /> : 
+      <Status>No instances running</Status>)) : 
+      (apps === undefined ? <div></div> :
+        (Object.keys(apps).length !== 0 ? 
+        Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)
+          : <Status>No apps available</Status>))}
     </Container>
   )
 }

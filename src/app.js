@@ -23,9 +23,10 @@ const App = () => {
             <LocationProvider>
               <Layout>
                 <Router>
-                  <Home path="/frontend/react" />
+                  <Home path="/frontend/react/home" />
                   <Apps path="/frontend/react/apps" />
                   <Account path="/frontend/react/account" />
+                  <Search path="/frontend/react" />
                   <Search path="/frontend/react/search/*" />
                   <Branding path="/frontend/react/branding" />
                   <NotFound default />
