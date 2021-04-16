@@ -45,7 +45,7 @@ export const SearchForm = () => {
   return (
     <SearchBarContainer>
       <SearchBarInputGroup>
-        <Input ref={inputRef} value={searchTerm} onChange={handleChangeQuery} onKeyDown={handleKeyDown} style={{ flex: 1 }} />
+        <Input placeholder="Search HeLx" ref={inputRef} value={searchTerm} onChange={handleChangeQuery} onKeyDown={handleKeyDown} style={{ flex: 1 }} />
         <Button small onClick={() => doSearch(searchTerm)}>Search</Button>
       </SearchBarInputGroup>
       {/* <LaunchAppButton small onClick={launchApp}>Launch App</LaunchAppButton> */}

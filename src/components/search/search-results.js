@@ -86,6 +86,11 @@ const SelectedDropdownButton = styled.button(({ theme }) => css`
   padding: ${theme.spacing.small};
 `)
 
+const SearchResult = styled.div`
+  text-align: center;
+  padding-top: 20px;
+`
+
 export const SearchResults = () => {
   const theme = useTheme()
   const auth = useAuth()
@@ -172,7 +177,7 @@ export const SearchResults = () => {
             }
             {
               results.length === 0 && (
-                <div>No results found!</div>
+                <SearchResult>Your search <b>{query}</b>  did not match any documents.</SearchResult>
               )
             }
             {
