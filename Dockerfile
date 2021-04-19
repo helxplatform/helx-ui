@@ -10,7 +10,7 @@ WORKDIR /src
 COPY . /src
 # Build app
 ENV REACT_APP_HELX_SEARCH_URL=https://helx.renci.org
-RUN make install build
+RUN make clean install.npm lint test build.npm
 
 ########################
 # Production environment
