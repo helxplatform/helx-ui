@@ -68,9 +68,7 @@ const ConfigSlider = styled(Card.Body)(({ theme, visible }) => `
     justify-content: flex-end;
     gap: ${theme.spacing.medium};
   }
-  & h5{
-    padding-top: 3vh;
-  }
+
 `)
 
 const RunningStatus = styled.div(({ theme }) => `
@@ -93,15 +91,21 @@ const AppHeader = styled.div(({ theme }) => `
     justify-content: space-between;
 `)
 
+const AppContainer = styled.div`
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: space-around;
+`
+
 const AppLogo = styled.img`
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   border-radius: 10px;
   object-fit: scale-down;
 `
 
 const AppInfo = styled.div`
-  width:80%;
+  margin-left: 20px;
 `
 
 const Status = styled.div`
@@ -110,7 +114,7 @@ const Status = styled.div`
 `
 
 const SpecName = styled.span`
-  width: 6vw;
+  width: 5vw;
 `
 
 const Spec = styled.span`
@@ -120,20 +124,23 @@ const Spec = styled.span`
 `
 const SpecContainer = styled.div`
   display: flex;
+  flex-direction: row;
   align-items: center;
-  margin-bottom: 5px;
+  justify-content: space-between;
+  padding: 5px 0px;
+  width: 100%;
+`
+const SpecDefaultText = styled.span`
+  padding-right: 10vw;
 `
 
 const SpecMinMax = styled.span`
-  width: 12vw;
+  width: 8.5vw;
 `
 
 const SliderMinMaxContainer = styled.span`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-left: 5vw;
-  width: 50vw;
 `
 
 const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
@@ -143,9 +150,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
   const [flipped, setFlipped] = useState(false)
 
   //create 3 state variables to store specs information
-  const [currentMemory, setMemory] = useState(localStorage.getItem('currentMemory') === null ? minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) : localStorage.getItem('currentMemory'));
-  const [currentCpu, setCpu] = useState(localStorage.getItem('currentCpu') === null ? minimum_resources.cpus : localStorage.getItem('currentCpu'));
-  const [currentGpu, setGpu] = useState(localStorage.getItem('currentGpu') === null ? minimum_resources.gpus : localStorage.getItem('currentGpu'));
+  const [currentMemory, setMemory] = useState(localStorage.getItem('currentMemory') === null && localStorage.getItem('currentMemory') < minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) ? minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) : localStorage.getItem('currentMemory'));
+  const [currentCpu, setCpu] = useState(localStorage.getItem('currentCpu') === null && localStorage.getItem('currentCpu') < minimum_resources.cpus ? minimum_resources.cpus : localStorage.getItem('currentCpu'));
+  const [currentGpu, setGpu] = useState(localStorage.getItem('currentGpu') === null && localStorage.getItem('currentGpu') < minimum_resources.gpus ? minimum_resources.gpus : localStorage.getItem('currentGpu'));
 
   const toggleConfig = event => setFlipped(!flipped)
 
@@ -157,7 +164,7 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
       data: {
         app_id: app_id,
         cpus: currentCpu,
-        memory: `${currentMemory}M`,
+        memory: `${currentMemory * 1024}M`,
         gpu: currentGpu
       },
       headers: {
@@ -179,8 +186,8 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
   }
 
   return (
-    <Card style={{ minHeight: '300px', margin: `${theme.spacing.large} 0` }}>
-      <Card.Header><AppHeader><b>{name}</b></AppHeader></Card.Header>
+    <Card style={{ minHeight: '350px', margin: `${theme.spacing.medium}` }}>
+      <Card.Header><AppHeader><b>{name} {flipped ? "- App Config" : <span />}</b></AppHeader></Card.Header>
       <Relative>
         <Card.Body>
           <AppLogo src={'' + getLogoUrl(app_id)} />
@@ -191,12 +198,11 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
           </AppInfo>
         </Card.Body>
         <ConfigSlider visible={flipped}>
-          <h5>App Config</h5>
-          <ul>
-            <SpecContainer><SpecName>CPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.cpus} {minimum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentCpu}</b><Slider type="range" min={minimum_resources.cpus} max={maximum_resources.cpus} value={currentCpu} onChange={(e) => setCpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.cpus} {maximum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
-            <SpecContainer><SpecName>GPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.gpus} {minimum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentGpu}</b><Slider type="range" min={minimum_resources.gpus} max={maximum_resources.gpus} value={currentGpu} onChange={(e) => setGpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.gpus} {maximum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
-            <SpecContainer><SpecName>Memory</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.memory}</SpecMinMax><Spec><b>{currentMemory}</b><Slider type="range" min={minimum_resources.memory.substring(0, minimum_resources.memory.length - 1)} max={maximum_resources.memory.substring(0, maximum_resources.memory.length - 1)} value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.memory}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
-          </ul>
+          <div className="specs">
+            <SpecContainer><SpecName>CPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.cpus} {minimum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentCpu}</b><Slider type="range" min={minimum_resources.cpus} max={maximum_resources.cpus} step="1" value={currentCpu} onChange={(e) => setCpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.cpus} {maximum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+            <SpecContainer><SpecName>GPU</SpecName>{minimum_resources.gpus === maximum_resources.gpus ? <SpecDefaultText>Default Setting: {minimum_resources.gpus} Core</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.gpus} {minimum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentGpu}</b><Slider type="range" min={minimum_resources.gpus} max={maximum_resources.gpus} step="1" value={currentGpu} onChange={(e) => setGpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.gpus} {maximum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
+            <SpecContainer><SpecName>Memory</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) / 1024} G</SpecMinMax><Spec><b>{currentMemory}</b><Slider type="range" min={minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) / 1024} max={maximum_resources.memory.substring(0, maximum_resources.memory.length - 1) / 1024} step="1.25" value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.memory.substring(0, maximum_resources.memory.length - 1) / 1024} G</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+          </div>
           <div className="actions">
             <Button small variant="success" onClick={() => { launchApp(); toggleConfig(); }} style={{ width: '150px' }}>
               <Icon icon="check" fill="#eee" /> Confirm
@@ -322,7 +328,7 @@ export const Apps = () => {
           "X-CSRFToken": helxAppstoreCsrfToken
         }
       }).then(res => {
-        setApps(res.data);
+        setApps(res.data)
       }).catch(e => {
         // Note: axios global interceptor has been created to handle the 403 cirumstance
         setApps({});
@@ -350,18 +356,18 @@ export const Apps = () => {
         <Tab active={tab === 'Available'} onClick={() => setTab('Available')}>Available</Tab>
         <Tab active={tab === 'Active'} onClick={() => setTab('Active')}>Active</Tab>
       </TabGroup>
-      {tab === 'Active' ? 
-      (instances === undefined ? 
-      <div></div> : (instances.length > 0 ? 
-      < DataTable
-        columns={columns}
-        data={instances}
-      /> : 
-      <Status>No instances running</Status>)) : 
-      (apps === undefined ? <div></div> :
-        (Object.keys(apps).length !== 0 ? 
-        Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)
-          : <Status>No apps available</Status>))}
+      {tab === 'Active' ?
+        (instances === undefined ?
+          <div></div> : (instances.length > 0 ?
+            < DataTable
+              columns={columns}
+              data={instances}
+            /> :
+            <Status>No instances running</Status>)) :
+        (apps === undefined ? <div></div> :
+          (Object.keys(apps).length !== 0 ?
+            <AppContainer>{Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)}</AppContainer>
+            : <Status>No apps available</Status>))}
     </Container>
   )
 }

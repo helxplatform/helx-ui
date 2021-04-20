@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import styled from 'styled-components'
 
 const Wrapper = styled.div(({ theme }) => `
-  width: 100%;
+  width: 40vw;
   display: flex;
   flex-direction: column;
   justify-content: stretch;
