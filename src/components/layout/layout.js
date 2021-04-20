@@ -112,7 +112,6 @@ export const Layout = ({ children }) => {
         {context !== undefined ? 
         <Brand to="/frontend/react">
           <BrandImage src={'' + helxAppstoreUrl + context.logo_url} alt="Go Home" />
-          <BrandText style={{ color: context.color_scheme.primary}}>{context.title}</BrandText>
         </Brand>
         : <span />}
         <Flexer />
