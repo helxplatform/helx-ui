@@ -187,7 +187,7 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
           <AppInfo>
             <Paragraph>{description}</Paragraph>
             <Paragraph dense>{detail}</Paragraph>
-            <Link to={docs}>App Documentation</Link>
+            <Link to={docs}>About {name}</Link>
           </AppInfo>
         </Card.Body>
         <ConfigSlider visible={flipped}>
