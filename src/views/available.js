@@ -11,7 +11,6 @@ import { useApp } from '../contexts/app-context';
 import { useEnvironment } from '../contexts';
 import { useNotifications } from '@mwatson/react-notifications'
 import DataTable from 'react-data-table-component';
-import { TabBar } from '../components/tab';
 
 const AppHeader = styled.div(({ theme }) => `
     display: flex;
@@ -204,7 +203,6 @@ export const Available = () => {
 
     return (
         <Container>
-            <TabBar active="Available" />
             {apps !== undefined ? (Object.keys(apps).length !== 0 ?
                 <AppContainer>{Object.keys(apps).sort().map(appKey => <AppCard key={appKey} {...apps[appKey]} />)} : <Status>No apps available</Status></AppContainer> : <Status>No apps available</Status>) : <div></div>}
         </Container>

@@ -5,7 +5,6 @@ import { Container } from '../components/layout'
 import { Icon } from '../components/icon'
 import { useInstance } from '../contexts/instance-context';
 import DataTable from 'react-data-table-component';
-import { TabBar } from '../components/tab';
 
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;
@@ -117,8 +116,7 @@ export const Active = () => {
 
     return (
         <Container>
-            <TabBar active="Active" />
-            { instances === undefined ? <div></div> : (instances.length > 0 ? <DataTable column={column} data={instances} /> : <Status>No Instances Running!</Status>)}
+            { instances === undefined ? <div></div> : (instances.length > 0 ? <DataTable column={column} data={instances} /> : <Status>No instances running</Status>)}
         </Container>
     )
 }
