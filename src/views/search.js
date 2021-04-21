@@ -9,16 +9,13 @@ export const Search = () => {
   
   return (
     <Container>
-      <Title>HeLx</Title>
-
-      <br />
+      <Title hidden>HeLx</Title>
 
       <HelxSearch>
         <SearchForm />
-
         <SearchResults />
-
       </HelxSearch>
+
     </Container>
   )
 }
