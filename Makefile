@@ -56,7 +56,7 @@ lint:
 	npm run lint
 
 #test: run all test https://create-react-app.dev/docs/running-tests/#continuous-integration
-test:
+test: lint
 	CI=true npm test
 
 #test.interactive: run test in interactive mode, useful for development
