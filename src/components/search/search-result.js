@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useHelxSearch } from './search-context';
-import { useEnvironment } from '../../contexts';
 import styled, { css } from 'styled-components'
-import ReactJson from 'react-json-view'
-import { Icon } from '../icon'
-import { Button } from '../button'
 import { Card } from '../card';
 import { useNotifications } from '../notifications'
-import { Paragraph } from '../typography';
 import { KnowledgeGraphs } from './knowledge-graph';
 import { Collapser } from '../collapser';
-import { dbGapLink } from '../../utils/dbgap-links';
-import { ExternalLink } from '../external-link';
+import { Link } from '../link';
 import { VariablesList } from './study-variables-list';
 
 const Wrapper = styled.article(({ theme, selected }) => css`
@@ -47,13 +41,6 @@ const Wrapper = styled.article(({ theme, selected }) => css`
   & .result-json {
     position: relative;
     overflow: hidden;
-    & ${ResultSelector} {
-      transform: translateY(calc(-100% + ${theme.spacing.sm}));
-      background-color: ${selected ? theme.color.success : theme.color.grey.dark};
-    }
-    &:hover ${ResultSelector} {
-      transform: translateY(0);
-    }
   }
   & .react-json-view {
     padding: 1rem;
@@ -86,22 +73,12 @@ const CollapserHeader = styled.div`
 const StudyName = styled.div``
 const StudyAccession = styled.div``
 
-const ResultSelector = styled(Button).attrs({ shadow: false })(({ theme, selected }) => `
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: ${theme.spacing.sm};
-  border-bottom-right-radius: 0;
-  border-top-left-radius: 0;
-  transition: transform 250ms, filter 250ms;
-`)
-
 const ResultBodyText = styled.p`
   font-size: 1rem;
 `
 
 export const Result = ({ index, result }) => {
-  const { query, fetchKnowledgeGraphs, fetchStudyVariable, resultsSelected, selectedView, setSelectedView, doSelect } = useHelxSearch();
+  const { query, fetchKnowledgeGraphs, fetchStudyVariable, resultsSelected, doSelect } = useHelxSearch();
   const { addNotification } = useNotifications()
   const [knowledgeGraphs, setKnowledgeGraphs] = useState([]);
   const [studyVariables, setStudyVariables] = useState([]);
@@ -144,13 +121,8 @@ export const Result = ({ index, result }) => {
     }
     getKgs();
     getVar();
-  }, [])
-  const handleSelectResult = result => event => {
-    const notificationText = resultsSelected.has(result.id) ? `Unselected "${result.name}" (${result.id})` : `Selected "${result.name}" (${result.id})`
-    addNotification({ text: notificationText, type: 'info' })
-    doSelect(result)
-  }
-
+  }, [fetchKnowledgeGraphs, fetchStudyVariable, query, result.id])
+  
   return (
     <Wrapper selected={resultsSelected.has(result.id)}>
       <div className="details">
@@ -161,9 +133,6 @@ export const Result = ({ index, result }) => {
               <ResultBodyText><b>Type:</b> {result.type}</ResultBodyText>
               <ResultBodyText><b>Description:</b> {result.description === '' ? "There is no description for this concept." : result.description}</ResultBodyText>
             </Card.Body>
-            {/* <ResultSelector onClick={() => doSelect(result)}>
-            <Icon icon={resultsSelected.has(result.id) ? 'check' : 'add'} fill="#eee" />
-          </ResultSelector> */}
           </Card>
           {studyVariables.map(({ collection_id, collection_name, collection_link, variables }) => (
               <Collapser key={`${result.name} ${collection_id}`} ariaId={'studies'} {...collapserStyles}
@@ -171,11 +140,11 @@ export const Result = ({ index, result }) => {
                   <CollapserHeader>
                     <StudyName>
                       <strong>Study</strong>:
-                                    <ExternalLink to={collection_link} >{collection_name}</ExternalLink>
+                      <Link to={collection_link} >{collection_name}</Link>
                     </StudyName>
                     <StudyAccession>
                       <strong>Accession</strong>:
-                                    <ExternalLink to={collection_link} >{collection_id.replace(/^TOPMED\.STUDY:/, '')}</ExternalLink>
+                      <Link to={collection_link} >{collection_id.replace(/^TOPMED\.STUDY:/, '')}</Link>
                     </StudyAccession>
                   </CollapserHeader>
                 }
