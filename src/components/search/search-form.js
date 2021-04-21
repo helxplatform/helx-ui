@@ -7,20 +7,25 @@ import { useHelxSearch } from './search-context'
 import { InputGroup } from '../input-group'
 
 const SearchBarContainer = styled(Container)`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 `
 
 const SearchBarInputGroup = styled(InputGroup)`
-    width: 70%;
+  width: 100%;
+  max-width: 600px;
+  & > * {
+    line-height: 2rem;
+  }
 `
 
 const LaunchAppButton = styled(Button)`
-    margin-left: 20px;
-    border-radius: 5px;
-    width: 10%;
+  margin-left: 20px;
+  border-radius: 5px;
+  width: 10%;
 `
 
 export const SearchForm = () => {
