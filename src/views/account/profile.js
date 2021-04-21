@@ -8,7 +8,7 @@ import { Button } from '../../components/button'
 import { Icon } from '../../components/icon'
 import { useAuth, useEnvironment } from '../../contexts'
 import { Search } from '../search';
-
+import axios from "axios";
 
 const LogoutContainer = styled(Container)`
     display: flex;
@@ -33,14 +33,25 @@ function timeSince(date) {
   return Math.floor(seconds) + ` seconds ago`
 }
 
+async function logout(helxAppstoreUrl, helxAppstoreCsrfToken) {
+    await axios({
+        method: 'POST',
+        url: `${helxAppstoreUrl}/api/v1/users/logout/`,
+        data: {},
+        headers: {
+            "X-CSRFToken": helxAppstoreCsrfToken
+        }
+    }).then(r => global.window && (global.window.location.href = `${helxAppstoreUrl}/frontend`));
+}
+
 export const Profile = () => {
   const theme = useTheme()
   const auth = useAuth()
   const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
 
-  return (
-    <LogoutContainer>
-      <Button onClick={() => global.window && (global.window.location.href = `${helxAppstoreUrl}/accounts/logout/`)}>Log Out</Button>
+    return (
+        <LogoutContainer>
+            <Button onClick={() => logout(helxAppstoreUrl, helxAppstoreCsrfToken)}>Log Out</Button>
 
       {/* <Heading>{ auth.user.username } ({ auth.user.email }) </Heading>
 
