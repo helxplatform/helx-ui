@@ -136,6 +136,36 @@ const SliderMinMaxContainer = styled.span`
   width: 50vw;
 `
 
+function bytePower(unit_type) {
+  let ut = unit_type.toLowerCase()
+  const power = {
+    'k': 3,
+    'm': 6,
+    'g': 9,
+    't': 12,
+    'p': 15,
+    'e': 18,
+    'z': 21,
+    'y': 24,
+  }
+
+  return power[ut];
+}
+function formatBytes(mb, decimals = 2) {
+  let units = mb.substring(0, mb.length - 1)
+  let power_value = bytePower(mb[mb.length-1])
+  let bytes = units * Math.pow(10, power_value);
+
+  const k = 1000;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const parsed = parseFloat((bytes / Math.pow(k, i)).toFixed(dm))  + sizes[i];
+
+  return parsed;
+}
+
 const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
   const theme = useTheme()
   const { addNotification } = useNotifications();
@@ -143,7 +173,7 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
   const [flipped, setFlipped] = useState(false)
 
   //create 3 state variables to store specs information
-  const [currentMemory, setMemory] = useState(localStorage.getItem('currentMemory') === null ? minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) : localStorage.getItem('currentMemory'));
+  const [currentMemory, setMemory] = useState(localStorage.getItem('currentMemory') === null ? formatBytes(minimum_resources.memory) : localStorage.getItem('currentMemory'));
   const [currentCpu, setCpu] = useState(localStorage.getItem('currentCpu') === null ? minimum_resources.cpus : localStorage.getItem('currentCpu'));
   const [currentGpu, setGpu] = useState(localStorage.getItem('currentGpu') === null ? minimum_resources.gpus : localStorage.getItem('currentGpu'));
 
@@ -157,7 +187,7 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
       data: {
         app_id: app_id,
         cpus: currentCpu,
-        memory: `${currentMemory}M`,
+        memory: `${currentMemory}`,
         gpu: currentGpu
       },
       headers: {
@@ -193,9 +223,9 @@ const AppCard = ({ name, app_id, description, detail, docs, status, minimum_reso
         <ConfigSlider visible={flipped}>
           <h5>App Config</h5>
           <ul>
-            <SpecContainer><SpecName>CPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.cpus} {minimum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentCpu}</b><Slider type="range" min={minimum_resources.cpus} max={maximum_resources.cpus} value={currentCpu} onChange={(e) => setCpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.cpus} {maximum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
-            <SpecContainer><SpecName>GPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.gpus} {minimum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentGpu}</b><Slider type="range" min={minimum_resources.gpus} max={maximum_resources.gpus} value={currentGpu} onChange={(e) => setGpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.gpus} {maximum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
-            <SpecContainer><SpecName>Memory</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.memory}</SpecMinMax><Spec><b>{currentMemory}</b><Slider type="range" min={minimum_resources.memory.substring(0, minimum_resources.memory.length - 1)} max={maximum_resources.memory.substring(0, maximum_resources.memory.length - 1)} value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.memory}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+            <SpecContainer><SpecName>CPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.cpus} {minimum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentCpu}</b><Slider type="range" min={minimum_resources.cpus} max={maximum_resources.cpus} step="1" value={currentCpu} onChange={(e) => setCpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.cpus} {maximum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+            <SpecContainer><SpecName>GPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.gpus} {minimum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentGpu}</b><Slider type="range" min={minimum_resources.gpus} max={maximum_resources.gpus} step="1" value={currentGpu} onChange={(e) => setGpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.gpus} {maximum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+            <SpecContainer><SpecName>Memory</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {formatBytes(minimum_resources.memory)}</SpecMinMax><Spec><b>{currentMemory}</b><Slider type="range" min={minimum_resources.memory.substring(0, minimum_resources.memory.length - 1)} max={maximum_resources.memory.substring(0, maximum_resources.memory.length - 1)} step=".25" value={currentMemory} onChange={(e) => setMemory(e.target.value )} /></Spec><SpecMinMax>Max: {formatBytes(maximum_resources.memory)}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
           </ul>
           <div className="actions">
             <Button small variant="success" onClick={() => { launchApp(); toggleConfig(); }} style={{ width: '150px' }}>
