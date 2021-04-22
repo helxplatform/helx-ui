@@ -9,7 +9,6 @@ import { Paragraph } from '../typography'
 import { useApp } from '../../contexts/app-context';
 import { useEnvironment } from '../../contexts';
 import { useNotifications } from '@mwatson/react-notifications'
-import DataTable from 'react-data-table-component';
 
 const AppHeader = styled.div(({ theme }) => `
     display: flex;

@@ -5,6 +5,7 @@ import { Container } from '../components/layout'
 import { Icon } from '../components/icon'
 import { useInstance } from '../contexts/instance-context';
 import DataTable from 'react-data-table-component';
+import { useNotifications } from '@mwatson/react-notifications'
 
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;
@@ -20,6 +21,7 @@ const Status = styled.div`
 export const Active = () => {
     const [instances, setInstances] = useState();
     const [refresh, setRefresh] = useState(false);
+    const { addNotification } = useNotifications();
     const { loadInstances, stopInstance } = useInstance();
 
     useEffect(() => {
@@ -39,9 +41,10 @@ export const Active = () => {
         await stopInstance(app_id)
             .then(r => {
                 setRefresh(!refresh);
+                addNotification({ type: 'info', text: `Instance ${app_id} is stopped.` })
             })
             .catch(e => {
-
+                addNotification({ type: 'error', text: `Error occurs when stopping instance ${app_id}.` })
             })
     }
 
@@ -116,7 +119,7 @@ export const Active = () => {
 
     return (
         <Container>
-            { instances === undefined ? <div></div> : (instances.length > 0 ? <DataTable column={column} data={instances} /> : <Status>No instances running</Status>)}
+            { instances === undefined ? <div></div> : (instances.length > 0 ? <DataTable columns={column} data={instances} /> : <Status>No instances running</Status>)}
         </Container>
     )
 }
