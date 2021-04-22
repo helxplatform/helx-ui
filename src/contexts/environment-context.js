@@ -6,7 +6,7 @@ export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
   const [context, setContext] = useState();
-  const relativeHost = "http://localhost:8000";
+  const relativeHost = window.location.origin;
 
   // update the context on initial render
   const loadContext = async () => {
@@ -41,7 +41,7 @@ export const EnvironmentProvider = ({ children }) => {
   return (
     <EnvironmentContext.Provider value={{
       helxSearchUrl: process.env.REACT_APP_HELX_SEARCH_URL,
-      helxAppstoreUrl: "http://localhost:8000",
+      helxAppstoreUrl: window.location.origin,
       context: context,
       helxAppstoreCsrfToken: csrfToken
     }}>

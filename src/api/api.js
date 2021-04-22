@@ -14,29 +14,8 @@ axios.interceptors.response.use(function (response) {
     return Promise.reject(error)
 })
 
-export const Api = () => {
-    const { helxAppstoreUrl } = useEnvironment();
-
-    const loadApp = () => {
-        return axios.get(`${helxAppstoreUrl}/api/v1/apps`)
-    }
-
-    const loadInstance = () => {
-        return axios.get(`${helxAppstoreUrl}/api/v1/instances`)
-    }
-
-    const launchApp = (app_id, cpu, gpu, memory) => {
-        const params = {
-            app_id: app_id,
-            cpus: cpu,
-            memory: memory,
-            gpu: gpu
-        };
-        return axios.post(`${helxAppstoreUrl}/api/v1/instances/`, params);
-    }
-
-    const stopInstance = (app_id) => {
-        return axios.delete(`${helxAppstoreUrl}/api/v1/instances/${app_id}`);
-    }
-
+export const logoutHandler = (helxAppstoreUrl) => {
+    return axios.post(`${helxAppstoreUrl}/api/v1/users/logout/`)
+        .then(r =>
+            global.window && (global.window.location.href = `${helxAppstoreUrl}/accounts/logout/`))
 }
