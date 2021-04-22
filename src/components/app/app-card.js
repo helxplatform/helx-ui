@@ -26,7 +26,6 @@ const Relative = styled.div`
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: space-around;
   }
   &:nth-child(1) { z-index: -1; }
   &:nth-child(2) { z-index: -2; }
@@ -88,6 +87,7 @@ const SpecContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 5px 0px;
+  margin: 8px;
   width: 100%;
 `
 const SpecDefaultText = styled.span`
@@ -103,71 +103,119 @@ const SliderMinMaxContainer = styled.span`
   align-items: center;
 `
 
+const bytePower = (unit_type) => {
+  let ut = unit_type.toLowerCase()
+  const power = {
+    'k': 3,
+    'm': 6,
+    'g': 9,
+    't': 12,
+    'p': 15,
+    'e': 18,
+    'z': 21,
+    'y': 24,
+  }
+
+  return power[ut];
+}
+
+const toBytes = (config) => {
+  let units = config.substring(0, config.length - 1);
+  let power_value = bytePower(config[config.length - 1])
+  return units * Math.pow(10, power_value);
+}
+
+// convert bytes to human readable unit type
+const formatBytes = (bytes, decimals) => {
+  const k = 1000;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const parsed = parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
+  return parsed;
+}
+
+const formatMemory = (mb, decimals = 2) => {
+  let bytes = toBytes(mb);
+  return formatBytes(bytes, decimals);
+}
+
+
+// each app config value from localstorage will be validated here
+const validateLocalstorageValue = (config, app_id, min, max) => {
+  let prev = localStorage.getItem(`${app_id}-${config}`);
+  if (prev !== null && prev >= min && prev <= max) {
+    return prev;
+  }
+  else {
+    return min;
+  }
+}
+
 export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
-    const theme = useTheme()
-    const { addNotification } = useNotifications();
-    const { launchApp } = useApp();
-    const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
-    const [flipped, setFlipped] = useState(false)
+  const theme = useTheme()
+  const { addNotification } = useNotifications();
+  const { launchApp } = useApp();
+  const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
+  const [flipped, setFlipped] = useState(false)
+  const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
+  const [currentCpu, setCpu] = useState(validateLocalstorageValue('cpu', app_id, minimum_resources.cpus, maximum_resources.cpus));
+  const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpu, maximum_resources.gpu));
 
-    //create 3 state variables to store specs information
-    const [currentMemory, setMemory] = useState(localStorage.getItem('currentMemory') === null && localStorage.getItem('currentMemory') < minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) ? minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) : localStorage.getItem('currentMemory'));
-    const [currentCpu, setCpu] = useState(localStorage.getItem('currentCpu') === null && localStorage.getItem('currentCpu') < minimum_resources.cpus ? minimum_resources.cpus : localStorage.getItem('currentCpu'));
-    const [currentGpu, setGpu] = useState(localStorage.getItem('currentGpu') === null && localStorage.getItem('currentGpu') < minimum_resources.gpus ? minimum_resources.gpus : localStorage.getItem('currentGpu'));
+  const toggleConfig = event => setFlipped(!flipped)
 
-    const toggleConfig = event => setFlipped(!flipped)
+  //app can be launched here using axios to hit the /start endpoint
+  const appLauncher = () => {
+    launchApp(app_id, currentCpu, currentGpu, formatBytes(currentMemory))
+      .then(res => {
+        addNotification({ type: 'success', text: 'Launching app successful.' })
+      }).catch(e => {
+        addNotification({ type: 'error', text: 'Error occurs when launching apps. Please try again!' })
+      })
+    localStorage.setItem(`${app_id}-cpu`, currentCpu);
+    localStorage.setItem(`${app_id}-gpu`, currentGpu);
+    localStorage.setItem(`${app_id}-memory`, currentMemory);
+  }
 
-    //app can be launched here using axios to hit the /start endpoint
-    const appLauncher = () => {
-        launchApp(app_id)
-            .then(res => {
-                addNotification({ type: 'success', text: 'Launching app successful.' })
-            }).catch(e => {
-                addNotification({ type: 'error', text: 'Error occurs when launching apps. Please try again!' })
-            })
-        localStorage.setItem('currentCpu', currentCpu);
-        localStorage.setItem('currentGpu', currentGpu);
-        localStorage.setItem('currentMemory', currentMemory);
-    }
+  const getLogoUrl = (app_id) => {
+    return `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_id}/icon.png`
+  }
 
-    const getLogoUrl = (app_id) => {
-        return `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_id}/icon.png`
-    }
-
-    return (
-        <Card style={{ minHeight: '350px', margin: `${theme.spacing.medium}` }}>
-            <Card.Header><AppHeader><b>{name} {flipped ? "- App Config" : <span />}</b></AppHeader></Card.Header>
-            <Relative>
-                <Card.Body>
-                    <AppLogo src={'' + getLogoUrl(app_id)} />
-                    <AppInfo>
-                        <Paragraph>{description}</Paragraph>
-                        <Paragraph dense>{detail}</Paragraph>
-                        <Link to={docs}>About {name}</Link>
-                    </AppInfo>
-                </Card.Body>
-                <ConfigSlider visible={flipped}>
-                    <div className="specs">
-                        <SpecContainer><SpecName>CPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.cpus} {minimum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentCpu}</b><Slider type="range" min={minimum_resources.cpus} max={maximum_resources.cpus} step="1" value={currentCpu} onChange={(e) => setCpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.cpus} {maximum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
-                        <SpecContainer><SpecName>GPU</SpecName>{minimum_resources.gpus === maximum_resources.gpus ? <SpecDefaultText>Default Setting: {minimum_resources.gpus} Core</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.gpus} {minimum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentGpu}</b><Slider type="range" min={minimum_resources.gpus} max={maximum_resources.gpus} step="1" value={currentGpu} onChange={(e) => setGpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.gpus} {maximum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
-                        <SpecContainer><SpecName>Memory</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) / 1024} G</SpecMinMax><Spec><b>{currentMemory}</b><Slider type="range" min={minimum_resources.memory.substring(0, minimum_resources.memory.length - 1) / 1024} max={maximum_resources.memory.substring(0, maximum_resources.memory.length - 1) / 1024} step="1.25" value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.memory.substring(0, maximum_resources.memory.length - 1) / 1024} G</SpecMinMax></SliderMinMaxContainer></SpecContainer>
-                    </div>
-                    <div className="actions">
-                        <Button small variant="success" onClick={() => { appLauncher(); toggleConfig(); }} style={{ width: '150px' }}>
-                            <Icon icon="check" fill="#eee" /> Confirm
+  return (
+    <Card style={{ minHeight: '350px', margin: `${theme.spacing.medium}` }}>
+      <Card.Header><AppHeader><b>{name} {flipped ? "- App Config" : <span />}</b></AppHeader></Card.Header>
+      <Relative>
+        <Card.Body>
+          <AppLogo src={'' + getLogoUrl(app_id)} />
+          <AppInfo>
+            <Paragraph>{description}</Paragraph>
+            <Paragraph dense>{detail}</Paragraph>
+            <Link to={docs}>About {name}</Link>
+          </AppInfo>
+        </Card.Body>
+        <ConfigSlider visible={flipped}>
+          <div className="specs">
+            <SpecContainer><SpecName>CPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.cpus} {minimum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentCpu}</b><Slider type="range" min={minimum_resources.cpus} max={maximum_resources.cpus} step="1" value={currentCpu} onChange={(e) => setCpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.cpus} {maximum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+            <SpecContainer><SpecName>GPU</SpecName>{minimum_resources.gpus === maximum_resources.gpus ? <SpecDefaultText>Default Setting: {minimum_resources.gpus} Core</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.gpus} {minimum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentGpu}</b><Slider type="range" min={minimum_resources.gpus} max={maximum_resources.gpus} step="1" value={currentGpu} onChange={(e) => setGpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.gpus} {maximum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
+            <SpecContainer><SpecName>Memory</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {formatMemory(minimum_resources.memory)}</SpecMinMax><Spec><b>{formatBytes(currentMemory, 2)}</b><Slider type="range" min={toBytes(minimum_resources.memory)} max={toBytes(maximum_resources.memory)} step={toBytes("0.25G")} value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {formatMemory(maximum_resources.memory)}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+          </div>
+          <div className="actions">
+            <Button small variant="success" onClick={() => { appLauncher(); toggleConfig(); }} style={{ width: '150px' }}>
+              <Icon icon="check" fill="#eee" /> Confirm
               </Button>
-                    </div>
-                </ConfigSlider>
-            </Relative>
-            <Card.Footer style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                transition: 'background-color 400ms'
-            }}>
-                <Button small variant={flipped ? 'danger' : 'info'} onClick={toggleConfig} style={{ width: '150px' }}>
-                    <Icon icon={flipped ? 'close' : 'launch'} fill="#eee" />{flipped ? 'Cancel' : 'Launch App'}
-                </Button>
-            </Card.Footer>
-        </Card>
-    )
+          </div>
+        </ConfigSlider>
+      </Relative>
+      <Card.Footer style={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        transition: 'background-color 400ms'
+      }}>
+        <Button small variant={flipped ? 'danger' : 'info'} onClick={toggleConfig} style={{ width: '150px' }}>
+          <Icon icon={flipped ? 'close' : 'launch'} fill="#eee" />{flipped ? 'Cancel' : 'Launch App'}
+        </Button>
+      </Card.Footer>
+    </Card>
+  )
 }
