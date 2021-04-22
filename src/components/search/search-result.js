@@ -127,7 +127,7 @@ export const Result = ({ index, result }) => {
     <Wrapper selected={resultsSelected.has(result.id)}>
       <div className="details">
         <div className="result-json">
-          <Card style={{ width: '100%'}}>
+          <Card>
             <Card.Header><b>Concept: </b><a style={{ color: 'black' }} href={result.concept_action} target="_blank">{result.name}</a></Card.Header>
             <Card.Body>
               <ResultBodyText><b>Type:</b> {result.type}</ResultBodyText>

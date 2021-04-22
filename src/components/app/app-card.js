@@ -183,7 +183,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
   }
 
   return (
-    <Card style={{ minHeight: '350px', margin: `${theme.spacing.medium}` }}>
+    <Card style={{ minHeight: '350px' }}>
       <Card.Header><AppHeader><b>{name} {flipped ? "- App Config" : <span />}</b></AppHeader></Card.Header>
       <Relative>
         <Card.Body>
