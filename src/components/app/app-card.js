@@ -161,7 +161,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
   const [flipped, setFlipped] = useState(false)
   const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
   const [currentCpu, setCpu] = useState(validateLocalstorageValue('cpu', app_id, minimum_resources.cpus, maximum_resources.cpus));
-  const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpu, maximum_resources.gpu));
+  const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpus, maximum_resources.gpus));
 
   const toggleConfig = event => setFlipped(!flipped)
 
