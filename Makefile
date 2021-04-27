@@ -3,10 +3,14 @@ VERSION      := $(shell node -p "require('./package.json').version")
 DOCKER_ORG   := helxplatform
 DOCKER_TAG   := helx-ui:${VERSION}
 BUILD_PATH   := ./build/frontend
+TYCHO_BRANCH := develop
+TYCHO_PATH	 := ./tycho
 
 .DEFAULT_GOAL = help
 
 .PHONY: build clean help install lint publish test
+
+.SILENT: clone.tycho
 
 #help: List available tasks on this project
 help:
@@ -29,6 +33,11 @@ build: build.npm build.image
 compose.appstore:
 	echo "Setup .env first ex: cp .env.example .env"
 	docker-compose -f docker-compose.appstore.yml pull && docker-compose -f docker-compose.appstore.yml up --remove-orphans
+
+#compose.appstore-tycho: run appstore and tycho with docker-compose
+compose.appstore-tycho: clone.tycho
+	echo "Setup .env first ex: cp .env.example .env"
+	docker-compose -f docker-compose.appstore-tycho.yml pull && docker-compose -f docker-compose.appstore-tycho.yml up --remove-orphans
 
 #compose.ui: run the ui project with docker-compose
 compose.ui:
@@ -75,6 +84,9 @@ clean:
 	rm -rf build
 	rm -rf node_modules
 
+#clean.tycho: remove tycho
+clean.tycho:
+	rm -rf tycho
 #all: clean the project, test and create artifacts
 all: clean install.npm lint test build
 
@@ -83,3 +95,11 @@ reinstall: clean install.npm build.npm
 
 #ci: orchestrates the steps to be ran for continous integration
 ci: clean install.ci lint test build
+
+#clone.tycho: clone develop branch of tycho
+clone.tycho:
+	echo "Cloning tycho from branch: ${TYCHO_BRANCH}";
+	if [ -d $(TYCHO_PATH) ]; then \
+		echo $(TYCHO_PATH); \
+	else git clone https://github.com/helxplatform/tycho.git --branch $(TYCHO_BRANCH); \
+	fi
