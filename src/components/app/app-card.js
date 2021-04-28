@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components'
 import { Button } from '../button'
 import { Card } from '../card'
@@ -81,17 +81,17 @@ const Spec = styled.span`
   flex-direction: column;
   align-items: center;
 `
-const SpecContainer = styled.div`
+const SpecContainer = styled.div(({ theme }) => `
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 0px;
-  margin: 8px;
+  padding: ${theme.spacing.small} 0px;
   width: 100%;
-`
+  height: 45px;
+`)
 const SpecDefaultText = styled.span`
-  padding-right: 10vw;
+  width: 500px;
 `
 
 const SpecMinMax = styled.span`
@@ -101,6 +101,7 @@ const SpecMinMax = styled.span`
 const SliderMinMaxContainer = styled.span`
   display: flex;
   align-items: center;
+  width: 500px;
 `
 
 const bytePower = (unit_type) => {
@@ -196,9 +197,9 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         </Card.Body>
         <ConfigSlider visible={flipped}>
           <div className="specs">
-            <SpecContainer><SpecName>CPU</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.cpus} {minimum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentCpu}</b><Slider type="range" min={minimum_resources.cpus} max={maximum_resources.cpus} step="1" value={currentCpu} onChange={(e) => setCpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.cpus} {maximum_resources.cpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
-            <SpecContainer><SpecName>GPU</SpecName>{minimum_resources.gpus === maximum_resources.gpus ? <SpecDefaultText>Default Setting: {minimum_resources.gpus} Core</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.gpus} {minimum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax><Spec><b>{currentGpu}</b><Slider type="range" min={minimum_resources.gpus} max={maximum_resources.gpus} step="1" value={currentGpu} onChange={(e) => setGpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.gpus} {maximum_resources.gpus > 1 ? 'Cores' : 'Core'}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
-            <SpecContainer><SpecName>Memory</SpecName><SliderMinMaxContainer><SpecMinMax>Min: {formatMemory(minimum_resources.memory)}</SpecMinMax><Spec><b>{formatBytes(currentMemory, 2)}</b><Slider type="range" min={toBytes(minimum_resources.memory)} max={toBytes(maximum_resources.memory)} step={toBytes("0.25G")} value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {formatMemory(maximum_resources.memory)}</SpecMinMax></SliderMinMaxContainer></SpecContainer>
+            <SpecContainer><SpecName>CPU</SpecName>{minimum_resources.cpus === maximum_resources.cpus ? <SpecDefaultText>Locked: {minimum_resources.cpus} Core{minimum_resources.cpus > 1 ? 's' : ''}</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.cpus} Core{minimum_resources.cpus > 1 ? 's' : ''}</SpecMinMax><Spec><b>{currentCpu}</b><Slider type="range" min={minimum_resources.cpus} max={maximum_resources.cpus} step="1" value={currentCpu} onChange={(e) => setCpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.cpus} Core{maximum_resources.cpus > 1 ? 's' : ''}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
+            <SpecContainer><SpecName>GPU</SpecName>{minimum_resources.gpus === maximum_resources.gpus ? <SpecDefaultText>Locked: {minimum_resources.gpus} Core{minimum_resources.gpus > 1 ? 's' : ''}</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {minimum_resources.gpus} Core{minimum_resources.gpus > 1 ? 's' : ''}</SpecMinMax><Spec><b>{currentGpu}</b><Slider type="range" min={minimum_resources.gpus} max={maximum_resources.gpus} step="1" value={currentGpu} onChange={(e) => setGpu(e.target.value)} /></Spec><SpecMinMax>Max: {maximum_resources.gpus} Core{maximum_resources.gpus > 1 ? 's' : ''}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
+            <SpecContainer><SpecName>Memory</SpecName>{minimum_resources.memory === maximum_resources.memory ? <SpecDefaultText>Locked: {formatMemory(minimum_resources.memory)}</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {formatMemory(minimum_resources.memory)}</SpecMinMax><Spec><b>{formatBytes(currentMemory, 2)}</b><Slider type="range" min={toBytes(minimum_resources.memory)} max={toBytes(maximum_resources.memory)} step={toBytes("0.25G")} value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {formatMemory(maximum_resources.memory)}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
           </div>
           <div className="actions">
             <Button small variant="success" onClick={() => { appLauncher(); toggleConfig(); }} style={{ width: '150px' }}>
