@@ -9,10 +9,8 @@ const GridContainer = styled.div`
   grid-template-columns: auto;
   justify-content: space-around;
   @media screen and (min-width: 992px) {
-    grid-template-columns: auto auto;
-}
-@media screen and (min-width: 992px) {
-    grid-template-columns: auto auto;
+    grid-template-columns: repeat(2, auto);
+    grid-gap: 2vw;
 }
 `
 
@@ -20,7 +18,7 @@ const AppContainer = styled.div(({ theme }) => `
   width: 90vw;
   margin: ${theme.spacing.medium};
   @media screen and (min-width: 992px) {
-    width: 40vw;
+    min-width: 20%;
     max-width: 600px;
 }
 `)
