@@ -39,6 +39,7 @@ const ConfigSlider = styled(Card.Body)(({ theme, visible }) => `
   background-color: ${visible ? theme.color.black : theme.color.grey.dark};
   transition: transform 250ms, background-color 750ms;
   color: ${theme.color.white};
+  overflow: scroll;
   & * {
     font-family: monospace;
     font-size: 16px;
@@ -73,36 +74,49 @@ const AppInfo = styled.div`
 `
 
 const SpecName = styled.span`
-  width: 5vw;
+  width: 80px;
 `
 
-const Spec = styled.span`
+const Spec = styled.span(({ theme }) => `
   display: flex;
   flex-direction: column;
   align-items: center;
-`
+`)
 const SpecContainer = styled.div(({ theme }) => `
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: ${theme.spacing.small} 0px;
+  padding: ${theme.spacing.small};
   width: 100%;
   height: 45px;
 `)
 const SpecDefaultText = styled.span`
-  width: 500px;
+  width: 60vw;
+  @media screen and (min-width: 992px) {
+    width: 30vw;
+    max-width: 450px;
+}
 `
 
-const SpecMinMax = styled.span`
+const SpecMinMax = styled.div(({ theme }) => `
+width: 20vw;
+@media screen and (min-width: 992px) {
   width: 10vw;
-`
+  max-width: 150px;
+}
+`)
 
-const SliderMinMaxContainer = styled.span`
+const SliderMinMaxContainer = styled.span(({ theme }) => `
   display: flex;
   align-items: center;
-  width: 500px;
-`
+  justify-content: space-between;
+  width: 60vw;
+  @media screen and (min-width: 992px) {
+    width: 30vw;
+    max-width: 450px;
+}
+`)
 
 const bytePower = (unit_type) => {
   let ut = unit_type.toLowerCase()
