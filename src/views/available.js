@@ -6,13 +6,23 @@ import { AppCard } from '../components/app';
 
 const GridContainer = styled.div`
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto;
   justify-content: space-around;
+  @media screen and (min-width: 992px) {
+    grid-template-columns: auto auto;
+}
+@media screen and (min-width: 992px) {
+    grid-template-columns: auto auto;
+}
 `
 
 const AppContainer = styled.div(({ theme }) => `
-  width: 40vw;
+  width: 90vw;
   margin: ${theme.spacing.medium};
+  @media screen and (min-width: 992px) {
+    width: 40vw;
+    max-width: 600px;
+}
 `)
 
 const Status = styled.div`
