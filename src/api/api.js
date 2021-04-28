@@ -17,5 +17,5 @@ axios.interceptors.response.use(function (response) {
 export const logoutHandler = (helxAppstoreUrl) => {
     return axios.post(`${helxAppstoreUrl}/api/v1/users/logout/`)
         .then(r =>
-            global.window && (global.window.location.href = `${helxAppstoreUrl}/accounts/logout/`))
+            global.window && (global.window.location.href = `${helxAppstoreUrl}/frontend`))
 }
