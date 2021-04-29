@@ -6,7 +6,7 @@ import { Link } from '../link'
 import { Icon } from '../icon'
 import { Slider } from '../slider';
 import { Paragraph } from '../typography'
-import { CircleSpinner } from '../spinner/circle-spinner';
+import { LoadingSpinner } from '../spinner/loading-spinner';
 import { useApp } from '../../contexts/app-context';
 import { useEnvironment } from '../../contexts';
 import { useNotifications } from '@mwatson/react-notifications'
@@ -66,6 +66,7 @@ const ConfigSlider = styled(Card.Body)(({ theme, visible }) => `
 const ContainerFragment = styled(React.Fragment)`
   align-items: center;
   justify-content: center;
+  max-height: 24px;
 `
 
 const AppLogo = styled.img`
@@ -213,8 +214,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
             <SpecContainer><SpecName>Memory</SpecName>{minimum_resources.memory === maximum_resources.memory ? <SpecDefaultText>Locked: {formatMemory(minimum_resources.memory)}</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {formatMemory(minimum_resources.memory)}</SpecMinMax><Spec><b>{formatBytes(currentMemory, 2)}</b><Slider type="range" min={toBytes(minimum_resources.memory)} max={toBytes(maximum_resources.memory)} step={toBytes("0.25G")} value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {formatMemory(maximum_resources.memory)}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
           </div>
           <div className="actions">
-            <Button small variant="success" onClick={() => { appLauncher(); }} style={{ width: '150px' }}>
-              {isLaunching ? <ContainerFragment><CircleSpinner /></ContainerFragment>: <ContainerFragment><Icon icon="check" fill="#eee"></Icon>Confirm</ContainerFragment>}
+            <Button small variant="success" onClick={() => { appLauncher(); }} style={{ height: '40px', width: '150px' }}>
+              {isLaunching ? <ContainerFragment><LoadingSpinner color="white" /></ContainerFragment>: <ContainerFragment><Icon icon="check" fill="#eee"></Icon>Confirm</ContainerFragment>}
             </Button>
           </div>
         </ConfigSlider>
