@@ -22,7 +22,12 @@ export const Active = () => {
     const [instances, setInstances] = useState();
     const [refresh, setRefresh] = useState(false);
     const { addNotification } = useNotifications();
-    const { loadInstances, stopInstance } = useInstance();
+    const { loadInstances, stopInstance, updateInstance } = useInstance();
+    const [modalOpen, setModalOpen] = useState(false);
+    const [currentRecord, setCurrentRecord] = useState("");
+    const workspaceN = React.createRef();
+    const cpu = React.createRef();
+    const memory = React.createRef();
 
     useEffect(() => {
         const renderInstance = async () => {
@@ -53,6 +58,24 @@ export const Active = () => {
             stopInstanceHandler(this_app.sid);
         }
     }
+
+    //Update a running Instance.
+    const updateOne = async (event, record, theWorkSpace, theCpu, theMemory) => {
+        await updateInstance(record, theWorkSpace, theCpu, theMemory)
+            .then(res => {
+                if (res.data.status === "success") {
+                    addNotification({type: 'success', text: `Instance has been successfully updated ${record}`})
+                    setRefresh(!refresh);
+                };
+            }).catch(e => {
+                addNotification({ type: 'error', text: `Error occured when updating instance ${record.sid}` })
+            })
+    };
+
+    const handleModalOpen = (e, sid) => {
+        setCurrentRecord(sid);
+        setModalOpen(true);
+    };
 
     const column = [
         {
@@ -114,6 +137,59 @@ export const Active = () => {
                     </Fragment>
                 );
             },
+       }, {
+            key: "action",
+            text: "Action",
+            className: "action",
+            width: 100,
+            center: true,
+            sortable: false,
+            name: "Update",
+            cell: (record) => {
+                return (
+                    <Fragment>
+                        <button type="button" value="update" onClick={(e) => handleModalOpen(e, record.sid)}>Update</button>
+                        {modalOpen ?
+                            <Modal>
+                                <Modal.Content>
+                                    <Modal.FormGroup>
+                                        <Modal.FormButton style={{top: "20px"}} type="button" className="close" onClick={() => setModalOpen(false)}>&times;</Modal.FormButton>
+                                        <Modal.FormLabel>Workspace Name</Modal.FormLabel>
+                                        <Modal.FormInput
+                                            ref={workspaceN}
+                                            type="text"
+                                            name="workspace_name"
+                                            placeholder="work instance 1"
+                                        />
+                                        <Modal.FormLabel key="formKey">CPU in cores</Modal.FormLabel>
+                                        <Modal.FormInput
+                                            ref={cpu}
+                                            type="text"
+                                            name="cpu"
+                                            placeholder="1, 2...."
+                                        />
+                                        <Modal.FormLabel key="formKey">Memory in Mi</Modal.FormLabel>
+                                        <Modal.FormInput
+                                            ref={memory}
+                                            type="text"
+                                            name="memory"
+                                            placeholder="1000, 2500...."
+                                        />
+                                        <Modal.FormButton style={{bottom: "20px"}} type="submit" value="Submit" onClick={(e) => updateOne(
+                                            e,
+                                            currentRecord,
+                                            workspaceN.current.value,
+                                            cpu.current.value,
+                                            memory.current.value)
+                                        }>Apply</Modal.FormButton>
+                                    </Modal.FormGroup>
+                                </Modal.Content>
+                            </Modal>
+                            : <div></div>
+                        }
+                    </Fragment>
+                );
+                },
         },
     ]
 

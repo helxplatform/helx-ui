@@ -15,9 +15,18 @@ export const InstanceProvider = ({ children }) => {
         return axios.delete(`${helxAppstoreUrl}/api/v1/instances/${app_id}`);
     }
 
+    const updateInstance = (app_id, workspace, cpu, memory) => {
+        return axios.patch(`${helxAppstoreUrl}/api/v1/instances/${app_id}/`,{
+            cpu: `${cpu}`,
+            memory: `${memory}M`,
+            labels: {'app-name': `${workspace}`},
+            },
+            )
+    }
+
     return (
         <InstanceContext.Provider value={{
-            loadInstances, stopInstance
+            loadInstances, stopInstance, updateInstance
         }}>
             {children}
         </InstanceContext.Provider>

@@ -83,10 +83,8 @@ publish: publish.image
 clean:
 	rm -rf build
 	rm -rf node_modules
-
-#clean.tycho: remove tycho
-clean.tycho:
 	rm -rf tycho
+
 #all: clean the project, test and create artifacts
 all: clean install.npm lint test build
 
