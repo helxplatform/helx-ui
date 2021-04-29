@@ -4,7 +4,7 @@ import { Container } from '../components/layout'
 import { Title, Heading, Paragraph } from '../components/typography'
 import HeLxLogo from '../images/helx-logo-blue.svg';
 
-const HomeContainer = styled(Container)`
+const AboutContainer = styled(Container)`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -17,11 +17,11 @@ const HeLxIntro = styled.div`
   width: 80vw;
 `
 
-export const Home = () => {
+export const About = () => {
   return (
     <Container>
-      <Title>HeLx</Title>
-      <HomeContainer>
+      <Title>About HeLx</Title>
+      <AboutContainer>
         <HeLxIntro>
           The HeLx AppStore is the primary user experience component of the HeLx
           data science platform. Through the AppStore, users discover and interact
@@ -30,7 +30,7 @@ export const Home = () => {
           installation or other infrastructure concerns has broad reaching benefits
           and can be applied in many domains.
       </HeLxIntro>
-      </HomeContainer>
+      </AboutContainer>
     </Container>
   )
 }
