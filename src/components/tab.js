@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { navigate } from '@reach/router';
 
 export const Tab = styled.button`
-    font-size: 20px;
-    padding: 10px 60px;
+    font-size: 18px;
+    padding: 10px 20px;
+    width: 300px;
+    cursor: pointer;
     opacity: 0.6;
     background: white;
     border: 0;

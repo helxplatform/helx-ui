@@ -10,7 +10,7 @@ export const Search = () => {
   return (
     <Container>
       <Title hidden>HeLx</Title>
-
+      <br />
       <HelxSearch>
         <SearchForm />
         <SearchResults />

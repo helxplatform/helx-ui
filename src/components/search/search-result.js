@@ -91,7 +91,7 @@ export const Result = ({ index, result }) => {
       const vars = await fetchStudyVariable(result.id, query);
       const groupedIds = vars.reduce((acc, obj) => {
         let key = obj["collection_id"];
-        if(!acc[key]){
+        if (!acc[key]) {
           acc[key] = [];
         }
         acc[key].push({
@@ -105,7 +105,7 @@ export const Result = ({ index, result }) => {
       let tem_result = [];
       vars.reduce((acc, curr) => {
         const isFind = acc.find(item => item.collection_id === curr.collection_id);
-        if(!isFind){
+        if (!isFind) {
           let studyObj = {
             collection_id: curr.collection_id,
             collection_action: curr.collection_action,
@@ -121,8 +121,8 @@ export const Result = ({ index, result }) => {
     }
     getKgs();
     getVar();
-  }, [fetchKnowledgeGraphs, fetchStudyVariable, query, result.id])
-  
+  }, [query, result.id])
+
   return (
     <Wrapper selected={resultsSelected.has(result.id)}>
       <div className="details">
@@ -134,24 +134,24 @@ export const Result = ({ index, result }) => {
               <ResultBodyText><b>Description:</b> {result.description === '' ? "There is no description for this concept." : result.description}</ResultBodyText>
             </Card.Body>
           </Card>
-          {studyVariables.map(({ collection_id, collection_name, collection_link, variables }) => (
-              <Collapser key={`${result.name} ${collection_id}`} ariaId={'studies'} {...collapserStyles}
-                title={
-                  <CollapserHeader>
-                    <StudyName>
-                      <strong>Study</strong>:
-                      <Link to={collection_link} >{collection_name}</Link>
-                    </StudyName>
-                    <StudyAccession>
-                      <strong>Accession</strong>:
-                      <Link to={collection_link} >{collection_id.replace(/^TOPMED\.STUDY:/, '')}</Link>
-                    </StudyAccession>
-                  </CollapserHeader>
-                }
-              >
-                <VariablesList studyId={collection_id.replace(/^TOPMED\.STUDY:/, '')} variables={variables} />
-              </Collapser>
-            ))
+          {studyVariables.map(({ collection_id, collection_name, collection_action, variables }) => (
+            <Collapser key={`${result.name} ${collection_id}`} ariaId={'studies'} {...collapserStyles}
+              title={
+                <CollapserHeader>
+                  <StudyName>
+                    <strong>Study</strong>:
+                      <Link to={collection_action} >{collection_name}</Link>
+                  </StudyName>
+                  <StudyAccession>
+                    <strong>Accession</strong>:
+                      <Link to={collection_action} >{collection_id.replace(/^TOPMED\.STUDY:/, '')}</Link>
+                  </StudyAccession>
+                </CollapserHeader>
+              }
+            >
+              <VariablesList studyId={collection_id.replace(/^TOPMED\.STUDY:/, '')} variables={variables} />
+            </Collapser>
+          ))
           }
           {knowledgeGraphs.length > 0 && (
             <Collapser key={`${result.name} kg`} ariaId={`${result.name} kg`} {...collapserStyles} title={<CollapserHeader>Knowledge Graph</CollapserHeader>}>
