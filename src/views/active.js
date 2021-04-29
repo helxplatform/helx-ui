@@ -3,10 +3,10 @@ import styled, { useTheme } from 'styled-components'
 import { Button } from '../components/button'
 import { Container } from '../components/layout'
 import { Icon } from '../components/icon'
+import { LoadingSpinner } from '../components/spinner/loading-spinner';
 import { useInstance } from '../contexts/instance-context';
 import DataTable from 'react-data-table-component';
-import { useNotifications } from '@mwatson/react-notifications'
-import { LoadingSpinner } from '../components/loading-spinner'
+import { useNotifications } from '@mwatson/react-notifications';
 
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;

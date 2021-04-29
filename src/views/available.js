@@ -3,7 +3,7 @@ import styled, { useTheme } from 'styled-components'
 import { Container } from '../components/layout'
 import { useApp } from '../contexts/app-context';
 import { AppCard } from '../components/app';
-import { LoadingSpinner } from '../components/loading-spinner';
+import { LoadingSpinner } from '../components/spinner/loading-spinner';
 
 const GridContainer = styled.div`
   display: grid;
