@@ -1,11 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 import { Button } from '../components/button'
 import { Container } from '../components/layout'
 import { Icon } from '../components/icon'
 import { useInstance } from '../contexts/instance-context';
 import DataTable from 'react-data-table-component';
 import { useNotifications } from '@mwatson/react-notifications'
+import { LoadingSpinner } from '../components/loading-spinner'
 
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;
@@ -19,13 +20,16 @@ const Status = styled.div`
 `
 
 export const Active = () => {
+    const theme = useTheme()
     const [instances, setInstances] = useState();
     const [refresh, setRefresh] = useState(false);
+    const [isLoading, setLoading] = useState(false);
     const { addNotification } = useNotifications();
     const { loadInstances, stopInstance } = useInstance();
 
     useEffect(() => {
         const renderInstance = async () => {
+            setLoading(true);
             await loadInstances()
                 .then(r => {
                     setInstances(r.data);
@@ -33,6 +37,7 @@ export const Active = () => {
                 .catch(e => {
                     setInstances([])
                 })
+            setLoading(false);
         }
         renderInstance();
     }, [refresh])
@@ -49,9 +54,11 @@ export const Active = () => {
     }
 
     const stopAllInstanceHandler = async () => {
+        setLoading(true);
         for await (let this_app of instances) {
             stopInstanceHandler(this_app.sid);
         }
+        setLoading(false);
     }
 
     const column = [
@@ -119,7 +126,8 @@ export const Active = () => {
 
     return (
         <Container>
-            { instances === undefined ? <div></div> : (instances.length > 0 ? <DataTable columns={column} data={instances} /> : <Status>No instances running</Status>)}
+            { isLoading ? <LoadingSpinner style={{ margin: theme.spacing.extraLarge }} /> :
+                (instances === undefined ? <div></div> : (instances.length > 0 ? <DataTable columns={column} data={instances} /> : <Status>No instances running</Status>))}
         </Container>
     )
 }
