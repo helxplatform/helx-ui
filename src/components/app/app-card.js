@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import styled, { useTheme } from 'styled-components'
 import { Button } from '../button'
 import { Card } from '../card'
@@ -62,12 +62,6 @@ const ConfigSlider = styled(Card.Body)(({ theme, visible }) => `
   }
 
 `)
-
-const ContainerFragment = styled(React.Fragment)`
-  align-items: center;
-  justify-content: center;
-  max-height: 24px;
-`
 
 const AppLogo = styled.img`
   width: 120px;
@@ -215,7 +209,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
           </div>
           <div className="actions">
             <Button small variant="success" onClick={() => { appLauncher(); }} style={{ height: '40px', width: '150px' }}>
-              {isLaunching ? <ContainerFragment><LoadingSpinner color="white" /></ContainerFragment>: <ContainerFragment><Icon icon="check" fill="#eee"></Icon>Confirm</ContainerFragment>}
+              {isLaunching ? <LoadingSpinner color="white" /> : <Fragment><Icon icon="check" fill="#eee"></Icon>Confirm</Fragment>}
             </Button>
           </div>
         </ConfigSlider>
