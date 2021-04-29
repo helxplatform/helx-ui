@@ -6,6 +6,7 @@ import { Icon } from '../components/icon'
 import { useInstance } from '../contexts/instance-context';
 import DataTable from 'react-data-table-component';
 import { useNotifications } from '@mwatson/react-notifications'
+import {Modal} from "../components/modal/Modal";
 
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;
@@ -81,6 +82,11 @@ export const Active = () => {
         {
             name: 'App Name',
             selector: 'name',
+            sortable: true
+        },
+        {
+            name: 'WorkSpace Name',
+            selector: 'workspace_name',
             sortable: true
         },
         {
