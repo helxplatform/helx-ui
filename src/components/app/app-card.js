@@ -6,6 +6,7 @@ import { Link } from '../link'
 import { Icon } from '../icon'
 import { Slider } from '../slider';
 import { Paragraph } from '../typography'
+import { CircleSpinner } from '../spinner/circle-spinner';
 import { useApp } from '../../contexts/app-context';
 import { useEnvironment } from '../../contexts';
 import { useNotifications } from '@mwatson/react-notifications'
@@ -61,6 +62,11 @@ const ConfigSlider = styled(Card.Body)(({ theme, visible }) => `
   }
 
 `)
+
+const ContainerFragment = styled(React.Fragment)`
+  align-items: center;
+  justify-content: center;
+`
 
 const AppLogo = styled.img`
   width: 120px;
@@ -160,8 +166,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
   const theme = useTheme()
   const { addNotification } = useNotifications();
   const { launchApp } = useApp();
-  const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
   const [flipped, setFlipped] = useState(false)
+  const [isLaunching, setLaunching] = useState(false);
   const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
   const [currentCpu, setCpu] = useState(validateLocalstorageValue('cpu', app_id, minimum_resources.cpus, maximum_resources.cpus));
   const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpus, maximum_resources.gpus));
@@ -169,8 +175,9 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
   const toggleConfig = event => setFlipped(!flipped)
 
   //app can be launched here using axios to hit the /start endpoint
-  const appLauncher = () => {
-    launchApp(app_id, currentCpu, currentGpu, formatBytes(currentMemory))
+  const appLauncher = async () => {
+    setLaunching(true);
+    await launchApp(app_id, currentCpu, currentGpu, formatBytes(currentMemory))
       .then(res => {
         addNotification({ type: 'success', text: 'Launching app successful.' })
       }).catch(e => {
@@ -179,6 +186,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     localStorage.setItem(`${app_id}-cpu`, currentCpu);
     localStorage.setItem(`${app_id}-gpu`, currentGpu);
     localStorage.setItem(`${app_id}-memory`, currentMemory);
+    setLaunching(false);
+    toggleConfig();
   }
 
   const getLogoUrl = (app_id) => {
@@ -204,9 +213,9 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
             <SpecContainer><SpecName>Memory</SpecName>{minimum_resources.memory === maximum_resources.memory ? <SpecDefaultText>Locked: {formatMemory(minimum_resources.memory)}</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {formatMemory(minimum_resources.memory)}</SpecMinMax><Spec><b>{formatBytes(currentMemory, 2)}</b><Slider type="range" min={toBytes(minimum_resources.memory)} max={toBytes(maximum_resources.memory)} step={toBytes("0.25G")} value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {formatMemory(maximum_resources.memory)}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
           </div>
           <div className="actions">
-            <Button small variant="success" onClick={() => { appLauncher(); toggleConfig(); }} style={{ width: '150px' }}>
-              <Icon icon="check" fill="#eee" /> Confirm
-              </Button>
+            <Button small variant="success" onClick={() => { appLauncher(); }} style={{ width: '150px' }}>
+              {isLaunching ? <ContainerFragment><CircleSpinner /></ContainerFragment>: <ContainerFragment><Icon icon="check" fill="#eee"></Icon>Confirm</ContainerFragment>}
+            </Button>
           </div>
         </ConfigSlider>
       </Relative>
