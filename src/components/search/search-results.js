@@ -4,7 +4,7 @@ import { useHelxSearch } from './search-context'
 import { useAuth } from '../../contexts'
 import { useNotifications } from '../notifications';
 import { Paragraph } from '../typography'
-import { LoadingSpinner } from '../loading-spinner'
+import { LoadingSpinner } from '../spinner/loading-spinner'
 import { Result } from './search-result'
 import { PaginationTray } from './search-pagination-tray'
 import { Link } from '../link'
