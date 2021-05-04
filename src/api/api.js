@@ -9,7 +9,7 @@ axios.interceptors.response.use(function (response) {
     return response;
 }, function (error) {
     if (error.response.status === 403) {
-        window.location.href = window.location.origin + '/frontend'
+        window.location.href = window.location.origin + '/helx/login'
     }
     return Promise.reject(error)
 })
@@ -17,5 +17,5 @@ axios.interceptors.response.use(function (response) {
 export const logoutHandler = (helxAppstoreUrl) => {
     return axios.post(`${helxAppstoreUrl}/api/v1/users/logout/`)
         .then(r =>
-            global.window && (global.window.location.href = `${helxAppstoreUrl}/frontend`))
+            global.window && (global.window.location.href = `${helxAppstoreUrl}/helx`))
 }

@@ -2,7 +2,7 @@ VERSION_FILE := ./package.json
 VERSION      := $(shell node -p "require('./package.json').version")
 DOCKER_ORG   := helxplatform
 DOCKER_TAG   := helx-ui:${VERSION}
-BUILD_PATH   := ./build/helx
+BUILD_PATH   := ./build/frontend
 
 .DEFAULT_GOAL = help
 

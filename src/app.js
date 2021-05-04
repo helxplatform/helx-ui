@@ -30,12 +30,12 @@ const App = () => {
                 <LocationProvider>
                   <Layout>
                     <Router>
-                      <About path="/frontend/react/about" />
-                      <Workspaces path="/frontend/react/workspaces" />
-                      <Account path="/frontend/react/account" />
-                      <Search path="/frontend/react" />
-                      <Search path="/frontend/react/search/*" />
-                      <Branding path="/frontend/react/branding" />
+                      <About path="/helx/about" />
+                      <Workspaces path="/helx/workspaces" />
+                      <Account path="/helx/account" />
+                      <Search path="/helx" />
+                      <Search path="/helx/search/*" />
+                      <Branding path="/helx/branding" />
                       <NotFound default />
                     </Router>
                   </Layout>
