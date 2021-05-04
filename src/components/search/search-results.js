@@ -4,7 +4,7 @@ import { useHelxSearch } from './search-context'
 import { useAuth } from '../../contexts'
 import { useNotifications } from '../notifications';
 import { Paragraph } from '../typography'
-import { LoadingSpinner } from '../loading-spinner'
+import { LoadingSpinner } from '../spinner/loading-spinner'
 import { Result } from './search-result'
 import { PaginationTray } from './search-pagination-tray'
 import { Link } from '../link'
@@ -126,7 +126,7 @@ export const SearchResults = () => {
   const MemoizedActions = useMemo(() => (
     <Fragment>
       <Tooltip tip="Shareable link" placement="top">
-        <Link to={ `/frontend/react/search?q=${ query }&p=${ currentPage }` } onClick={ShowShareableLink} style={{ display: 'inline-flex', alignItems: 'center', color: theme.color.primary.dark }}>
+        <Link to={ `/helx/search?q=${ query }&p=${ currentPage }` } onClick={ShowShareableLink} style={{ display: 'inline-flex', alignItems: 'center', color: theme.color.primary.dark }}>
           <Icon icon="link" fill={ theme.color.primary.dark } size={ 24 } style={{ padding: '0 4px 0 0' }} />
         </Link>
       </Tooltip>
