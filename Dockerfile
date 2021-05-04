@@ -18,7 +18,7 @@ RUN make clean install.npm lint test build.npm
 FROM nginx:latest
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /src/build/ /usr/share/nginx/static/
-RUN mv /usr/share/nginx/static/helx/index.html /usr/share/nginx/html/
+RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
