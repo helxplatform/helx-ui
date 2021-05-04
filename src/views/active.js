@@ -67,7 +67,7 @@ export const Active = () => {
                 if (res.data.status === "success") {
                     addNotification({type: 'success', text: `Instance has been successfully updated ${record}`})
                     setRefresh(!refresh);
-                };
+                }
             }).catch(e => {
                 addNotification({ type: 'error', text: `Error occured when updating instance ${record.sid}` })
             })
@@ -76,6 +76,23 @@ export const Active = () => {
     const handleModalOpen = (e, sid) => {
         setCurrentRecord(sid);
         setModalOpen(true);
+    };
+
+    const validateResources = (e) => {
+        const name = e.target.name;
+        const value = parseInt(e.target.value);
+        if (name === "cpu") {
+            if (value < 1 || value > 8) {
+                cpu.current.value = "";
+                addNotification({ type: 'error', text: 'CPU cannot exceed 8 cores.' })
+            }
+        }
+        if (name === "memory") {
+            if (value < 1 || value > 64000) {
+                memory.current.value = "";
+                addNotification({ type: 'error', text: 'Memory cannot exceed 64000 Mi.'})
+            }
+        }
     };
 
     const column = [
@@ -166,6 +183,7 @@ export const Active = () => {
                                             type="text"
                                             name="workspace_name"
                                             placeholder="work instance 1"
+                                            value={workspaceN.current}
                                         />
                                         <Modal.FormLabel key="formKey">CPU in cores</Modal.FormLabel>
                                         <Modal.FormInput
@@ -173,6 +191,8 @@ export const Active = () => {
                                             type="text"
                                             name="cpu"
                                             placeholder="1, 2...."
+                                            value={cpu.current}
+                                            onChange={(e) => validateResources(e)}
                                         />
                                         <Modal.FormLabel key="formKey">Memory in Mi</Modal.FormLabel>
                                         <Modal.FormInput
@@ -180,6 +200,8 @@ export const Active = () => {
                                             type="text"
                                             name="memory"
                                             placeholder="1000, 2500...."
+                                            value={memory.current}
+                                            onChange={(e) => validateResources(e)}
                                         />
                                         <Modal.FormButton style={{bottom: "20px"}} type="submit" value="Submit" onClick={(e) => updateOne(
                                             e,
