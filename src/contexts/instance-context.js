@@ -16,12 +16,17 @@ export const InstanceProvider = ({ children }) => {
     }
 
     const updateInstance = (app_id, workspace, cpu, memory) => {
-        return axios.patch(`${helxAppstoreUrl}/api/v1/instances/${app_id}/`,{
-            cpu: `${cpu}`,
-            memory: `${memory}M`,
-            labels: {'app-name': `${workspace}`},
-            },
-            )
+        const data = {}
+        if (cpu.length>0) {
+            data["cpu"] = `${cpu}`;
+        }
+        if (memory.length>0) {
+            data["memory"] = `${memory}M`;
+        }
+        if (workspace.length>0) {
+            data["labels"] = {"app-name": `${workspace}`};
+        }
+        return axios.patch(`${helxAppstoreUrl}/api/v1/instances/${app_id}/`, data)
     }
 
     return (

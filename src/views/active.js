@@ -182,7 +182,7 @@ export const Active = () => {
                                             ref={workspaceN}
                                             type="text"
                                             name="workspace_name"
-                                            placeholder="work instance 1"
+                                            placeholder="work instance 1 (Optional)"
                                             value={workspaceN.current}
                                         />
                                         <Modal.FormLabel key="formKey">CPU in cores</Modal.FormLabel>
@@ -190,7 +190,7 @@ export const Active = () => {
                                             ref={cpu}
                                             type="text"
                                             name="cpu"
-                                            placeholder="1, 2...."
+                                            placeholder="1, 2... (Optional)"
                                             value={cpu.current}
                                             onChange={(e) => validateResources(e)}
                                         />
@@ -199,7 +199,7 @@ export const Active = () => {
                                             ref={memory}
                                             type="text"
                                             name="memory"
-                                            placeholder="1000, 2500...."
+                                            placeholder="1000, 2500... (Optional)"
                                             value={memory.current}
                                             onChange={(e) => validateResources(e)}
                                         />
