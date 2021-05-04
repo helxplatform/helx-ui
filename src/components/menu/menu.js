@@ -41,7 +41,7 @@ export const Menu = ({ items }) => {
   return (
     <Wrapper>
       { items.map(item => <MenuItem to={ item.path } key={ item.text }>{ item.text }</MenuItem>) }
-      <MenuItem to="/frontend/react/account">
+      <MenuItem to="/helx/account">
         { auth.user ? <Icon icon="userCircle" fill={ theme.color.grey.main } size={ 24 }/> : 'LOGIN' }
       </MenuItem>
       <HeLxSearchBar />

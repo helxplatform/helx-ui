@@ -7,7 +7,7 @@ export const NotFound = () => {
   return (
     <Container>
       <Title>Page not found</Title>
-      <Paragraph>Please try searching or go to <Link to='/frontend/react'>HeLx homepage</Link>.</Paragraph>
+      <Paragraph>Please try searching or go to <Link to='/helx'>HeLx homepage</Link>.</Paragraph>
     </Container>
   )
 }
