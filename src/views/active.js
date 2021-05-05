@@ -82,13 +82,13 @@ export const Active = () => {
         const name = e.target.name;
         const value = parseInt(e.target.value);
         if (name === "cpu") {
-            if (value < 1 || value > 8) {
+            if (value < 1 || value > 8 || !(/^\d+$/.test(e.target.value))) {
                 cpu.current.value = "";
                 addNotification({ type: 'error', text: 'CPU cannot exceed 8 cores.' })
             }
         }
         if (name === "memory") {
-            if (value < 1 || value > 64000) {
+            if (value < 1 || value > 64000 || !(/^\d+$/.test(e.target.value))) {
                 memory.current.value = "";
                 addNotification({ type: 'error', text: 'Memory cannot exceed 64000 Mi.'})
             }
