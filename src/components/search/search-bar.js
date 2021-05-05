@@ -46,7 +46,7 @@ export const HeLxSearchBar = () => {
     // navigate to search page once enter is pressed
     const onKeyDown = (event) => {
         if (event.keyCode === 13) {
-            navigate(`/helx/search?q=${searchTerm}&p=1`)
+            navigate(`/helx/workspaces/search?q=${searchTerm}&p=1`)
             setSearchTerm('')
         }
     }
