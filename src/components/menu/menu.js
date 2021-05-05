@@ -4,7 +4,6 @@ import styled, { useTheme } from 'styled-components'
 import { Link } from '../link'
 import { useAuth } from '../../contexts'
 import { Icon } from '../icon'
-import { HeLxSearchBar } from '../search/';
 
 const Wrapper = styled.nav`
   display: flex;
@@ -44,7 +43,6 @@ export const Menu = ({ items }) => {
       <MenuItem to="/helx/account">
         { auth.user ? <Icon icon="userCircle" fill={ theme.color.grey.main } size={ 24 }/> : 'LOGIN' }
       </MenuItem>
-      <HeLxSearchBar />
     </Wrapper>
   )
 }
