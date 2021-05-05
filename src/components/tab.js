@@ -17,6 +17,8 @@ export const Tab = styled.button`
     border-bottom: 2px solid black;
     opacity: 1;
   `}
+    :hover {
+        opacity: 1;
     }
 `
 
