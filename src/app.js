@@ -6,14 +6,13 @@ import { LocationProvider, Router } from '@reach/router'
 import { AuthProvider, EnvironmentProvider, InstanceProvider } from './contexts'
 import {
   About,
-  Apps,
-  Workspaces,
+  Active,
+  Available,
   Search,
   Account,
   Branding,
   NotFound
 } from './views'
-import { Available } from './views/available'
 import { AppProvider } from './contexts/app-context'
 import { Notifications } from '@mwatson/react-notifications';
 import '@mwatson/react-notifications/dist/index.css';
@@ -31,10 +30,11 @@ const App = () => {
                   <Layout>
                     <Router>
                       <About path="/helx/about" />
-                      <Workspaces path="/helx/workspaces" />
                       <Account path="/helx/account" />
-                      <Search path="/helx" />
-                      <Search path="/helx/search/*" />
+                      <Active path="/helx/workspaces/active" />
+                      <Available path="/helx/workspaces/available" />
+                      <Search path="/helx/workspaces" />
+                      <Search path="/helx/workspaces/search/*" />
                       <Branding path="/helx/branding" />
                       <NotFound default />
                     </Router>
