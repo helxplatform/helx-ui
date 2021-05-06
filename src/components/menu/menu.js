@@ -58,14 +58,14 @@ export const Menu = ({ items }) => {
   useEffect(() => {
     const paths = window.location.pathname.split('/');
     // NOTE: Edges cases are handled here: if pathname matches '/helx/', '/helx',
-    // 'Workspaces' menu item will be selected.
-    const currPath = paths.length <= 3 ? 'workspaces' : paths[2];
+    // 'Semantic Search' menu item will be selected.
+    const currPath = (paths.length < 3 || (paths.length === 3 && paths[2] === '') ? 'search' : paths[2]);
     menuHandler(currPath);
   }, [])
 
   return (
     <Wrapper>
-      { items.map(item => <MenuItem id={`menu-${item.text}`} to={item.path} key={item.text} onClick={() => menuHandler(item.text)}>{item.text}</MenuItem>)}
+      { items.map(item => <MenuItem id={`menu-${item.value}`} to={item.path} key={item.text} onClick={() => menuHandler(item.value)}>{item.text}</MenuItem>)}
       <MenuItem id={'menu-account'} to="/helx/account" onClick={() => menuHandler('account')}>
         {auth.user ? <Icon icon="userCircle" fill={theme.color.grey.main} size={24} /> : 'LOGIN'}
       </MenuItem>

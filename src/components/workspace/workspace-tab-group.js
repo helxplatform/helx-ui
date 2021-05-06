@@ -12,7 +12,6 @@ export const WorkSpaceTabGroup = (props) => {
 
     return (
         <TabGroup>
-            <Tab active={tab === 'search'} onClick={() => tabClickHandler('search')}>Semantic Search</Tab>
             <Tab active={tab === 'available'} onClick={() => tabClickHandler('available')}>Available</Tab>
             <Tab active={tab === 'active'} onClick={() => tabClickHandler('active')}>Active</Tab>
         </TabGroup>

@@ -32,10 +32,10 @@ const App = () => {
                       <About path="/helx/about" />
                       <Account path="/helx/account" />
                       <Active path="/helx/workspaces/active" />
+                      <Available path="/helx/workspaces" />
                       <Available path="/helx/workspaces/available" />
                       <Search path="/helx" />
-                      <Search path="/helx/workspaces" />
-                      <Search path="/helx/workspaces/search/*" />
+                      <Search path="/helx/search/*" />
                       <Branding path="/helx/branding" />
                       <NotFound default />
                     </Router>

@@ -9,7 +9,6 @@ export const Search = () => {
   
   return (
     <Container>
-      <WorkSpaceTabGroup tab="search" />
       <HelxSearch>
         <SearchForm />
         <SearchResults />
