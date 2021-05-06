@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { dbGapLink } from '../../utils/dbgap-links'
+import { SearchResultLink } from './search-result-link';
 
 const Wrapper = styled.div`
     flex-direction: column;
@@ -9,13 +9,8 @@ const Wrapper = styled.div`
     overflow-y: auto;
     padding: 1rem;
 `
-
-const VariableLink = styled.a.attrs(props => ({ target: '_blank', rel: 'noopener noreferrer', href: props.to }))`
-    display: block;
-`
-
 const List = styled.ul`
-    padding: 0 1rem;
+padding: 0 1rem;
 `
 
 const ListItem = styled.li``
@@ -27,8 +22,8 @@ export const VariablesList = ({ studyId, variables }) => {
             <List>
                 {
                     variables.map(variable => (
-                        <ListItem key={ variable.id }>
-                            <VariableLink to={variable.e_link}>{variable.id}: {variable.id}</VariableLink>
+                        <ListItem key={variable.id}>
+                            <SearchResultLink to={variable.e_link}>{variable.id}: {variable.id}</SearchResultLink>
                         </ListItem>
                     ))
                 }

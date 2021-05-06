@@ -2,16 +2,14 @@ import React, { Fragment, useEffect, useState, useMemo } from 'react'
 import styled, { css, useTheme } from 'styled-components'
 import { useHelxSearch } from './search-context'
 import { useAuth } from '../../contexts'
-import { useNotifications } from '../notifications';
+import { useNotifications } from '@mwatson/react-notifications';
 import { Paragraph } from '../typography'
 import { LoadingSpinner } from '../spinner/loading-spinner'
 import { Result } from './search-result'
 import { PaginationTray } from './search-pagination-tray'
 import { Link } from '../link'
 import { Icon } from '../icon'
-import { IconButton } from '../button'
 import { Tooltip } from '../tooltip'
-import { navigate } from '@reach/router';
 
 const Wrapper = styled.div``
 
