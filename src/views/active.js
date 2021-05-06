@@ -36,7 +36,8 @@ export const Active = () => {
                     setInstances(r.data);
                 })
                 .catch(e => {
-                    setInstances([])
+                    setInstances([]);
+                    addNotification({ type: 'error', text: `An error has occurred while loading instances.` })
                 })
             setLoading(false);
         }
@@ -50,7 +51,7 @@ export const Active = () => {
                 addNotification({ type: 'info', text: `Instance ${app_id} is stopped.` })
             })
             .catch(e => {
-                addNotification({ type: 'error', text: `Error occurs when stopping instance ${app_id}.` })
+                addNotification({ type: 'error', text: `An error has occurred while stopping instance ${app_id}.` })
             })
     }
 
