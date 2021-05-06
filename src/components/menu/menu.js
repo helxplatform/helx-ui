@@ -57,7 +57,9 @@ export const Menu = ({ items }) => {
   // set active menu area on each render
   useEffect(() => {
     const paths = window.location.pathname.split('/');
-    const currPath = paths.length === 2 ? 'workspaces' : paths[2];
+    // NOTE: Edges cases are handled here: if pathname matches '/helx/', '/helx',
+    // 'Workspaces' menu item will be selected.
+    const currPath = paths.length <= 3 ? 'workspaces' : paths[2];
     menuHandler(currPath);
   }, [])
 
