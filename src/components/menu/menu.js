@@ -56,7 +56,8 @@ export const Menu = ({ items }) => {
 
   // set active menu area on each render
   useEffect(() => {
-    const currPath = window.location.pathname.split('/')[2];
+    const paths = window.location.pathname.split('/');
+    const currPath = paths.length === 2 ? 'workspaces' : paths[2];
     menuHandler(currPath);
   }, [])
 
