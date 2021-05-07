@@ -17,6 +17,8 @@ export const Tab = styled.button`
     border-bottom: 2px solid black;
     opacity: 1;
   `}
+    :hover {
+        opacity: 1;
     }
 `
 
@@ -24,4 +26,5 @@ export const TabGroup = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 15px;
 `

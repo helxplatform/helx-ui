@@ -3,6 +3,8 @@ import styled, { useTheme } from 'styled-components'
 import { Container } from '../components/layout'
 import { useApp } from '../contexts/app-context';
 import { AppCard } from '../components/app';
+import { WorkSpaceTabGroup } from '../components/workspace/workspace-tab-group';
+import { useNotifications } from '@mwatson/react-notifications';
 import { LoadingSpinner } from '../components/spinner/loading-spinner';
 
 const GridContainer = styled.div`
@@ -32,6 +34,7 @@ const Status = styled.div`
 export const Available = () => {
     const theme = useTheme();
     const [apps, setApps] = useState();
+    const { addNotification } = useNotifications();
     const [isLoading, setLoading] = useState(false);
     const { loadApps } = useApp();
 
@@ -43,6 +46,7 @@ export const Available = () => {
                     setApps(r.data);
                 })
                 .catch(e => {
+                    addNotification({ type: 'error', text: `An error has occurred while loading apps.` })
                     setApps({})
                 })
             setLoading(false);
@@ -52,6 +56,7 @@ export const Available = () => {
 
     return (
         <Container>
+            <WorkSpaceTabGroup tab="available" />
             { isLoading ? <LoadingSpinner style={{ margin: theme.spacing.extraLarge }} /> :
                 (apps !== undefined ? (Object.keys(apps).length !== 0 ?
                     <GridContainer>{Object.keys(apps).sort().map(appKey => <AppContainer><AppCard key={appKey} {...apps[appKey]} /></AppContainer>)}</GridContainer> : <Status>No apps available</Status>) : <div></div>)}

@@ -14,5 +14,5 @@ export const Link = ({ to, children, ...props }) => {
   const externalUrlMatch = externalUrlPattern.exec(to)
   const mailtoMatch = mailtoPattern.exec(to)
   const LinkComponent = externalUrlMatch || mailtoMatch ? ExternalLink : ReactLink
-  return <LinkComponent to={ to } { ...props }>{ children }</LinkComponent>
+  return <LinkComponent to={to} {...props}>{children}</LinkComponent>
 }

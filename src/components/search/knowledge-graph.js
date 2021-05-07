@@ -1,5 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
+import { kgLink } from '../../utils'
 import styled from 'styled-components'
+import { SearchResultLink } from './search-result-link'
 
 const InteractionsGrid = styled.div`
     display: grid;
@@ -39,8 +41,9 @@ const Edge = styled.span`
 `
 
 const PublicationLink = styled.a.attrs(props => (
-    { target: '_blank', rel: 'noopener noreferrer', href: `https://pubmed.ncbi.nlm.nih.gov/${ props.pmid }`
-}))`
+    {
+        target: '_blank', rel: 'noopener noreferrer', href: `https://pubmed.ncbi.nlm.nih.gov/${props.pmid}`
+    }))`
     margin: 0 0.1rem;
     &::before { content: "["; }
     &::after { content: "]"; }
@@ -49,7 +52,7 @@ const PublicationLink = styled.a.attrs(props => (
 
 const KnowledgeGraph = ({ graph }) => {
     const [interactions, setInteractions] = useState([])
-    
+
     useEffect(() => {
         if (graph) {
             graph.nodes.forEach(sourceNode => {
@@ -57,26 +60,26 @@ const KnowledgeGraph = ({ graph }) => {
                 if (outgoingEdge) {
                     const targetNode = graph.nodes.find(node => node.id === outgoingEdge.target_id)
                     let newInteraction = { source: { name: sourceNode.name, id: sourceNode.id }, type: outgoingEdge.type, target: { name: targetNode.name, id: targetNode.id }, publications: outgoingEdge.publications }
-                    setInteractions(interactions => [ ...interactions, newInteraction])
+                    setInteractions(interactions => [...interactions, newInteraction])
                 }
             })
         }
     }, [graph])
 
     return interactions.map((interaction, i) => (
-        <Fragment key={ i }>
-            <div className="source-label">{ interaction.source.name } ({ interaction.source.id })</div>
+        <Fragment key={i}>
+            <div className="source-label"><SearchResultLink to={kgLink.get_curie_purl(interaction.source.id)}>{interaction.source.name}</SearchResultLink></div>
             <div />
-            <div className="target-label">{ interaction.target.name } ({ interaction.target.id })</div>
-            <div className="source-node"><br/><Node /></div>
+            <div className="target-label"><SearchResultLink to={kgLink.get_curie_purl(interaction.target.id)}>{interaction.target.name}</SearchResultLink></div>
+            <div className="source-node"><br /><Node /></div>
             <div className="type-edge">
                 <Edge>
-                { interaction.type }
+                    {interaction.type}
                 &nbsp;
-                { interaction.publications.map((publication, i) => <PublicationLink key={ `${ interaction.source }-pub-${ i + 1 }` } pmid={ publication.replace(/^PMID:/, '') }>{ i + 1 }</PublicationLink>) }
+                {interaction.publications.map((publication, i) => <PublicationLink key={`${interaction.source}-pub-${i + 1}`} pmid={publication.replace(/^PMID:/, '')}>{i + 1}</PublicationLink>)}
                 </Edge>
             </div>
-            <div className="target"><br/><Node /></div>
+            <div className="target"><br /><Node /></div>
         </Fragment>
     ))
 }
@@ -94,10 +97,10 @@ export const KnowledgeGraphs = ({ graphs }) => {
                 <div className="column-title">Ontological Term (ID)</div>
                 <div className="column-title">Interaction Type [publication link(s)]</div>
                 <div className="column-title">Linked Term (ID)</div>
-                { graphs.map(graph => <KnowledgeGraph graph={ graph } />) }
+                { graphs.map(graph => <KnowledgeGraph graph={graph} />)}
             </InteractionsGrid>
         )
     }
-    
+
     return <NoKnowledgeGraphsMessage />
 }

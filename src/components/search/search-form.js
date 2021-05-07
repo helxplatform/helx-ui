@@ -11,7 +11,6 @@ const SearchBarContainer = styled(Container)`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 0;
 `
 
 const SearchBarInputGroup = styled(InputGroup)`

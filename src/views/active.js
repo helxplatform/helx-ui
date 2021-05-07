@@ -6,6 +6,7 @@ import { Icon } from '../components/icon'
 import { LoadingSpinner } from '../components/spinner/loading-spinner';
 import { useInstance } from '../contexts/instance-context';
 import DataTable from 'react-data-table-component';
+import { WorkSpaceTabGroup } from '../components/workspace/workspace-tab-group';
 import { useNotifications } from '@mwatson/react-notifications';
 
 const StopButton = styled(Button)(({ theme }) => `
@@ -35,7 +36,8 @@ export const Active = () => {
                     setInstances(r.data);
                 })
                 .catch(e => {
-                    setInstances([])
+                    setInstances([]);
+                    addNotification({ type: 'error', text: `An error has occurred while loading instances.` })
                 })
             setLoading(false);
         }
@@ -49,7 +51,7 @@ export const Active = () => {
                 addNotification({ type: 'info', text: `Instance ${app_id} is stopped.` })
             })
             .catch(e => {
-                addNotification({ type: 'error', text: `Error occurs when stopping instance ${app_id}.` })
+                addNotification({ type: 'error', text: `An error has occurred while stopping instance ${app_id}.` })
             })
     }
 
@@ -126,6 +128,7 @@ export const Active = () => {
 
     return (
         <Container>
+            <WorkSpaceTabGroup tab="active" />
             { isLoading ? <LoadingSpinner style={{ margin: theme.spacing.extraLarge }} /> :
                 (instances === undefined ? <div></div> : (instances.length > 0 ? <DataTable columns={column} data={instances} /> : <Status>No instances running</Status>))}
         </Container>
