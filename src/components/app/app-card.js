@@ -176,7 +176,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
       .then(res => {
         addNotification({ type: 'success', text: 'Launching app successful.' })
       }).catch(e => {
-        addNotification({ type: 'error', text: 'Error occurs when launching apps. Please try again!' })
+        addNotification({ type: 'error', text: 'An error has occurred while launching apps. Please try again!' })
       })
     localStorage.setItem(`${app_id}-cpu`, currentCpu);
     localStorage.setItem(`${app_id}-gpu`, currentGpu);

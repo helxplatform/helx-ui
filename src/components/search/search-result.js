@@ -3,10 +3,9 @@ import PropTypes from 'prop-types'
 import { useHelxSearch } from './search-context';
 import styled, { css } from 'styled-components'
 import { Card } from '../card';
-import { useNotifications } from '../notifications'
 import { KnowledgeGraphs } from './knowledge-graph';
 import { Collapser } from '../collapser';
-import { Link } from '../link';
+import { SearchResultLink } from './search-result-link';
 import { VariablesList } from './study-variables-list';
 
 const Wrapper = styled.article(({ theme, selected }) => css`
@@ -53,10 +52,11 @@ const collapserStyles = {
     backgroundColor: '#eee',
     borderWidth: '1px 0',
     borderStyle: 'solid',
-    borderColor: 'var(--color-lightgrey)',
+    borderColor: 'var(--color-lightgrey)'
   },
   bodyStyle: {
     backgroundColor: '#ddd',
+    fontSize: '133%'
   }
 }
 
@@ -79,7 +79,6 @@ const ResultBodyText = styled.p`
 
 export const Result = ({ index, result }) => {
   const { query, fetchKnowledgeGraphs, fetchStudyVariable, resultsSelected, doSelect } = useHelxSearch();
-  const { addNotification } = useNotifications()
   const [knowledgeGraphs, setKnowledgeGraphs] = useState([]);
   const [studyVariables, setStudyVariables] = useState([]);
   useEffect(() => {
@@ -140,11 +139,11 @@ export const Result = ({ index, result }) => {
                 <CollapserHeader>
                   <StudyName>
                     <strong>Study</strong>:
-                      <Link to={collection_action} >{collection_name}</Link>
+                      <SearchResultLink to={collection_action} >{collection_name}</SearchResultLink>
                   </StudyName>
                   <StudyAccession>
                     <strong>Accession</strong>:
-                      <Link to={collection_action} >{collection_id.replace(/^TOPMED\.STUDY:/, '')}</Link>
+                      <SearchResultLink to={collection_action} >{collection_id.replace(/^TOPMED\.STUDY:/, '')}</SearchResultLink>
                   </StudyAccession>
                 </CollapserHeader>
               }
