@@ -82,4 +82,4 @@ all: clean install.npm lint test build
 reinstall: clean install.npm build.npm
 
 #ci: orchestrates the steps to be ran for continous integration
-ci: clean install.ci lint test build
+ci: clean install.ci lint test build.image
