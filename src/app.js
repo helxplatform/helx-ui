@@ -8,6 +8,7 @@ import {
   About,
   Active,
   Available,
+  Contact,
   Search,
   Account,
   Branding,
@@ -31,6 +32,7 @@ const App = () => {
                     <Router>
                       <About path="/helx/about" />
                       <Account path="/helx/account" />
+                      <Contact path="/helx/contact" />
                       <Active path="/helx/workspaces/active" />
                       <Available path="/helx/workspaces" />
                       <Available path="/helx/workspaces/available" />
