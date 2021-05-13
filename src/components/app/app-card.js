@@ -133,6 +133,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
   //app can be launched here using axios to hit the /start endpoint
   const appLauncher = async () => {
     setLaunching(true);
+    // NOTE: Memory is converted to MB when posting an instance
     await launchApp(app_id, currentCpu, currentGpu, bytesToMegabytes(currentMemory))
       .then(res => {
         addNotification({ type: 'success', text: 'Launching app successful.' })

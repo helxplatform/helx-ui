@@ -107,6 +107,7 @@ export const Active = () => {
         },
         {
             name: 'Memory',
+            // Note: Memory in the response does not contain unit, but it matches the one when we post them (MB by default).
             selector: (row) => { return formatMemory(row.memory + 'M') },
             sortable: true
         }, {
