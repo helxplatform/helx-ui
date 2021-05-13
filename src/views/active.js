@@ -97,12 +97,12 @@ export const Active = () => {
         },
         {
             name: 'CPU',
-            selector: (row) => { return row.cpus / 1000 },
+            selector: (row) => { return row.cpus / 1000 + ' Core' + (row.cpus / 1000 > '1' ? 's' : '') },
             sortable: true
         },
         {
             name: 'GPU',
-            selector: (row) => { return row.gpus / 1000 },
+            selector: (row) => { return row.gpus / 1000 + ' Core' + (row.gpus / 1000 > '1' ? 's' : '') },
             sortable: true
         },
         {
