@@ -8,7 +8,7 @@ import { Slider } from '../slider';
 import { Paragraph } from '../typography'
 import { LoadingSpinner } from '../spinner/loading-spinner';
 import { useApp } from '../../contexts/app-context';
-import { useEnvironment } from '../../contexts';
+import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
 import { useNotifications } from '@mwatson/react-notifications'
 
 const AppHeader = styled.div(({ theme }) => `
@@ -107,45 +107,6 @@ const SliderMinMaxContainer = styled.span(({ theme }) => `
   flex-grow: 1;
 `)
 
-const bytePower = (unit_type) => {
-  let ut = unit_type.toLowerCase()
-  const power = {
-    'k': 3,
-    'm': 6,
-    'g': 9,
-    't': 12,
-    'p': 15,
-    'e': 18,
-    'z': 21,
-    'y': 24,
-  }
-
-  return power[ut];
-}
-
-const toBytes = (config) => {
-  let units = config.substring(0, config.length - 1);
-  let power_value = bytePower(config[config.length - 1])
-  return units * Math.pow(10, power_value);
-}
-
-// convert bytes to human readable unit type
-const formatBytes = (bytes, decimals) => {
-  const k = 1000;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const parsed = parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
-  return parsed;
-}
-
-const formatMemory = (mb, decimals = 2) => {
-  let bytes = toBytes(mb);
-  return formatBytes(bytes, decimals);
-}
-
-
 // each app config value from localstorage will be validated here
 const validateLocalstorageValue = (config, app_id, min, max) => {
   let prev = localStorage.getItem(`${app_id}-${config}`);
@@ -172,7 +133,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
   //app can be launched here using axios to hit the /start endpoint
   const appLauncher = async () => {
     setLaunching(true);
-    await launchApp(app_id, currentCpu, currentGpu, formatBytes(currentMemory))
+    await launchApp(app_id, currentCpu, currentGpu, bytesToMegabytes(currentMemory))
       .then(res => {
         addNotification({ type: 'success', text: 'Launching app successful.' })
       }).catch(e => {

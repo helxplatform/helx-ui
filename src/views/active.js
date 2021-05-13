@@ -8,6 +8,7 @@ import { useInstance } from '../contexts/instance-context';
 import DataTable from 'react-data-table-component';
 import { WorkSpaceTabGroup } from '../components/workspace/workspace-tab-group';
 import { useNotifications } from '@mwatson/react-notifications';
+import { formatMemory } from '../utils/memory-converter';
 
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;
@@ -67,7 +68,8 @@ export const Active = () => {
         {
             name: 'App Name',
             selector: 'name',
-            sortable: true
+            sortable: true,
+            grow: 2
         },
         {
             key: "action",
@@ -90,21 +92,22 @@ export const Active = () => {
         {
             name: 'Creation Time',
             selector: 'creation_time',
-            sortable: true
+            sortable: true,
+            grow: 2
         },
         {
             name: 'CPU',
-            selector: 'cpus',
+            selector: (row) => { return row.cpus / 1000 },
             sortable: true
         },
         {
             name: 'GPU',
-            selector: 'gpus',
+            selector: (row) => { return row.gpus / 1000 },
             sortable: true
         },
         {
             name: 'Memory',
-            selector: 'memory',
+            selector: (row) => { return formatMemory(row.memory + 'M') },
             sortable: true
         }, {
             key: "action",
