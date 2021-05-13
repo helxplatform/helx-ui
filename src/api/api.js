@@ -19,3 +19,11 @@ export const logoutHandler = (helxAppstoreUrl) => {
         .then(r =>
             global.window && (global.window.location.href = `${helxAppstoreUrl}/helx`))
 }
+
+export const userHandler = (helxAppstoreUrl) => {
+    return axios.get(`${helxAppstoreUrl}/api/v1/users/`)
+}
+
+export const contextHandler = (helxAppstoreUrl) => {
+    return axios.get(`${helxAppstoreUrl}/api/v1/context/`)
+}

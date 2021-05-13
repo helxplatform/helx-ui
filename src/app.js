@@ -17,6 +17,7 @@ import {
 import { AppProvider } from './contexts/app-context'
 import { Notifications } from '@mwatson/react-notifications';
 import '@mwatson/react-notifications/dist/index.css';
+import { SessionTimeout } from './components/timeout/timeout';
 
 
 const App = () => {
@@ -29,18 +30,20 @@ const App = () => {
               <ThemeProvider theme={theme}>
                 <LocationProvider>
                   <Layout>
-                    <Router>
-                      <About path="/helx/about" />
-                      <Account path="/helx/account" />
-                      <Contact path="/helx/contact" />
-                      <Active path="/helx/workspaces/active" />
-                      <Available path="/helx/workspaces" />
-                      <Available path="/helx/workspaces/available" />
-                      <Search path="/helx" />
-                      <Search path="/helx/search/*" />
-                      <Branding path="/helx/branding" />
-                      <NotFound default />
-                    </Router>
+                    <SessionTimeout>
+                      <Router>
+                        <About path="/helx/about" />
+                        <Account path="/helx/account" />
+                        <Contact path="/helx/contact" />
+                        <Active path="/helx/workspaces/active" />
+                        <Available path="/helx/workspaces" />
+                        <Available path="/helx/workspaces/available" />
+                        <Search path="/helx" />
+                        <Search path="/helx/search/*" />
+                        <Branding path="/helx/branding" />
+                        <NotFound default />
+                      </Router>
+                    </SessionTimeout>
                   </Layout>
                 </LocationProvider>
               </ThemeProvider>
