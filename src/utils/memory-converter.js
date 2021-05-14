@@ -21,7 +21,7 @@ export const toBytes = (config) => {
 }
 
 export const bytesToMegabytes = (bytes) => {
-    return 1000 ^ 2 * bytes;
+    return parseFloat((bytes / Math.pow(1000, 2)).toFixed(2)) + 'M';
 }
 
 // convert bytes to human readable unit type
