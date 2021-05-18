@@ -2,16 +2,14 @@ import React, { Fragment, useEffect, useState, useMemo } from 'react'
 import styled, { css, useTheme } from 'styled-components'
 import { useHelxSearch } from './search-context'
 import { useAuth } from '../../contexts'
-import { useNotifications } from '../notifications';
+import { useNotifications } from '@mwatson/react-notifications';
 import { Paragraph } from '../typography'
-import { LoadingSpinner } from '../loading-spinner'
+import { LoadingSpinner } from '../spinner/loading-spinner'
 import { Result } from './search-result'
 import { PaginationTray } from './search-pagination-tray'
 import { Link } from '../link'
 import { Icon } from '../icon'
-import { IconButton } from '../button'
 import { Tooltip } from '../tooltip'
-import { navigate } from '@reach/router';
 
 const Wrapper = styled.div``
 
@@ -126,7 +124,7 @@ export const SearchResults = () => {
   const MemoizedActions = useMemo(() => (
     <Fragment>
       <Tooltip tip="Shareable link" placement="top">
-        <Link to={ `/frontend/react/search?q=${ query }&p=${ currentPage }` } onClick={ShowShareableLink} style={{ display: 'inline-flex', alignItems: 'center', color: theme.color.primary.dark }}>
+        <Link to={ `/helx/search?q=${ query }&p=${ currentPage }` } onClick={ShowShareableLink} style={{ display: 'inline-flex', alignItems: 'center', color: theme.color.primary.dark }}>
           <Icon icon="link" fill={ theme.color.primary.dark } size={ 24 } style={{ padding: '0 4px 0 0' }} />
         </Link>
       </Tooltip>

@@ -6,14 +6,14 @@ import { LocationProvider, Router } from '@reach/router'
 import { AuthProvider, EnvironmentProvider, InstanceProvider } from './contexts'
 import {
   About,
-  Apps,
-  Workspaces,
+  Active,
+  Available,
+  Contact,
   Search,
   Account,
   Branding,
   NotFound
 } from './views'
-import { Available } from './views/available'
 import { AppProvider } from './contexts/app-context'
 import { Notifications } from '@mwatson/react-notifications';
 import '@mwatson/react-notifications/dist/index.css';
@@ -30,12 +30,15 @@ const App = () => {
                 <LocationProvider>
                   <Layout>
                     <Router>
-                      <About path="/frontend/react/about" />
-                      <Workspaces path="/frontend/react/workspaces" />
-                      <Account path="/frontend/react/account" />
-                      <Search path="/frontend/react" />
-                      <Search path="/frontend/react/search/*" />
-                      <Branding path="/frontend/react/branding" />
+                      <About path="/helx/about" />
+                      <Account path="/helx/account" />
+                      <Contact path="/helx/contact" />
+                      <Active path="/helx/workspaces/active" />
+                      <Available path="/helx/workspaces" />
+                      <Available path="/helx/workspaces/available" />
+                      <Search path="/helx" />
+                      <Search path="/helx/search/*" />
+                      <Branding path="/helx/branding" />
                       <NotFound default />
                     </Router>
                   </Layout>

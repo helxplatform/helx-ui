@@ -1,12 +1,15 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 import { Button } from '../components/button'
 import { Container } from '../components/layout'
 import { Icon } from '../components/icon'
+import { LoadingSpinner } from '../components/spinner/loading-spinner';
 import { useInstance } from '../contexts/instance-context';
 import DataTable from 'react-data-table-component';
-import { useNotifications } from '@mwatson/react-notifications'
 import {Modal} from "../components/modal/Modal";
+import { WorkSpaceTabGroup } from '../components/workspace/workspace-tab-group';
+import { useNotifications } from '@mwatson/react-notifications';
+import { formatMemory } from '../utils/memory-converter';
 
 const StopButton = styled(Button)(({ theme }) => `
     background-color: #ff0000;
@@ -20,8 +23,10 @@ const Status = styled.div`
 `
 
 export const Active = () => {
+    const theme = useTheme()
     const [instances, setInstances] = useState();
     const [refresh, setRefresh] = useState(false);
+    const [isLoading, setLoading] = useState(false);
     const { addNotification } = useNotifications();
     const { loadInstances, stopInstance, updateInstance } = useInstance();
     const [modalOpen, setModalOpen] = useState(false);
@@ -32,13 +37,16 @@ export const Active = () => {
 
     useEffect(() => {
         const renderInstance = async () => {
+            setLoading(true);
             await loadInstances()
                 .then(r => {
                     setInstances(r.data);
                 })
                 .catch(e => {
-                    setInstances([])
+                    setInstances([]);
+                    addNotification({ type: 'error', text: `An error has occurred while loading instances.` })
                 })
+            setLoading(false);
         }
         renderInstance();
     }, [refresh])
@@ -50,14 +58,16 @@ export const Active = () => {
                 addNotification({ type: 'info', text: `Instance ${app_id} is stopped.` })
             })
             .catch(e => {
-                addNotification({ type: 'error', text: `Error occurs when stopping instance ${app_id}.` })
+                addNotification({ type: 'error', text: `An error has occurred while stopping instance ${app_id}.` })
             })
     }
 
     const stopAllInstanceHandler = async () => {
+        setLoading(true);
         for await (let this_app of instances) {
             stopInstanceHandler(this_app.sid);
         }
+        setLoading(false);
     }
 
     //Update a running Instance.
@@ -99,7 +109,8 @@ export const Active = () => {
         {
             name: 'App Name',
             selector: 'name',
-            sortable: true
+            sortable: true,
+            grow: 2
         },
         {
             name: 'WorkSpace Name',
@@ -127,21 +138,23 @@ export const Active = () => {
         {
             name: 'Creation Time',
             selector: 'creation_time',
-            sortable: true
+            sortable: true,
+            grow: 2
         },
         {
             name: 'CPU',
-            selector: 'cpus',
+            selector: (row) => { return row.cpus / 1000 + ' Core' + (row.cpus / 1000 > '1' ? 's' : '') },
             sortable: true
         },
         {
             name: 'GPU',
-            selector: 'gpus',
+            selector: (row) => { return row.gpus / 1000 + ' Core' + (row.gpus / 1000 > '1' ? 's' : '') },
             sortable: true
         },
         {
             name: 'Memory',
-            selector: 'memory',
+            // Note: Memory in the response does not contain unit, but it matches the one when we post them (MB by default).
+            selector: (row) => { return row.memory + ' GB' },
             sortable: true
         }, {
             key: "action",
@@ -223,7 +236,9 @@ export const Active = () => {
 
     return (
         <Container>
-            { instances === undefined ? <div></div> : (instances.length > 0 ? <DataTable columns={column} data={instances} /> : <Status>No instances running</Status>)}
+            <WorkSpaceTabGroup tab="active" />
+            { isLoading ? <LoadingSpinner style={{ margin: theme.spacing.extraLarge }} /> :
+                (instances === undefined ? <div></div> : (instances.length > 0 ? <DataTable columns={column} data={instances} /> : <Status>No instances running</Status>))}
         </Container>
     )
 }

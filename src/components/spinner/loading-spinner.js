@@ -6,7 +6,7 @@ const Wrapper = styled.div(({ theme }) => css`
   display: flex;
   justify-content: center;
   margin: 2rem;
-  animation: ${ theme.animation.fadeIn };
+  animation: ${theme.animation.fadeIn};
 `)
 
 const revolve = keyframes`
@@ -26,7 +26,7 @@ const revolve = keyframes`
 
 const Orb = styled.circle`
   transform-origin: center center;
-  animation-name: ${ revolve };
+  animation-name: ${revolve};
   animation-duration: 1000ms;
   animation-iteration-count: infinite;
   animation-direction: normal;
@@ -40,12 +40,12 @@ export const LoadingSpinner = ({ color, ...rest }) => {
   const fill = color ? color : theme.color.primary.main
   return (
     <Wrapper>
-      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" fill={ color }
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" fill={color}
         x="0px" y="0px" width="60px" height="60px" viewBox="0 0 60 60"
-        { ...rest }
+        {...rest}
       >
-        <Orb cx="30" cy="20" r="3" fill={ fill } />
-        <Orb cx="30" cy="40" r="3" fill={ fill } />
+        <Orb cx="30" cy="20" r="3" fill={fill} />
+        <Orb cx="30" cy="40" r="3" fill={fill} />
       </svg>
     </Wrapper>
   )

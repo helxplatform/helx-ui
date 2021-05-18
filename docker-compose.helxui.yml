@@ -3,6 +3,9 @@ version: "3"
 services:
   helx-ui:
     restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: helxplatform/helx-ui:0.1.0
     env_file:
       .env

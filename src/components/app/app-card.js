@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import styled, { useTheme } from 'styled-components'
 import { Button } from '../button'
 import { Card } from '../card'
@@ -6,8 +6,9 @@ import { Link } from '../link'
 import { Icon } from '../icon'
 import { Slider } from '../slider';
 import { Paragraph } from '../typography'
+import { LoadingSpinner } from '../spinner/loading-spinner';
 import { useApp } from '../../contexts/app-context';
-import { useEnvironment } from '../../contexts';
+import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
 import { useNotifications } from '@mwatson/react-notifications'
 
 const AppHeader = styled.div(({ theme }) => `
@@ -106,45 +107,6 @@ const SliderMinMaxContainer = styled.span(({ theme }) => `
   flex-grow: 1;
 `)
 
-const bytePower = (unit_type) => {
-  let ut = unit_type.toLowerCase()
-  const power = {
-    'k': 3,
-    'm': 6,
-    'g': 9,
-    't': 12,
-    'p': 15,
-    'e': 18,
-    'z': 21,
-    'y': 24,
-  }
-
-  return power[ut];
-}
-
-const toBytes = (config) => {
-  let units = config.substring(0, config.length - 1);
-  let power_value = bytePower(config[config.length - 1])
-  return units * Math.pow(10, power_value);
-}
-
-// convert bytes to human readable unit type
-const formatBytes = (bytes, decimals) => {
-  const k = 1000;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const parsed = parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
-  return parsed;
-}
-
-const formatMemory = (mb, decimals = 2) => {
-  let bytes = toBytes(mb);
-  return formatBytes(bytes, decimals);
-}
-
-
 // each app config value from localstorage will be validated here
 const validateLocalstorageValue = (config, app_id, min, max) => {
   let prev = localStorage.getItem(`${app_id}-${config}`);
@@ -160,8 +122,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
   const theme = useTheme()
   const { addNotification } = useNotifications();
   const { launchApp } = useApp();
-  const { helxAppstoreCsrfToken, helxAppstoreUrl } = useEnvironment();
   const [flipped, setFlipped] = useState(false)
+  const [isLaunching, setLaunching] = useState(false);
   const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
   const [currentCpu, setCpu] = useState(validateLocalstorageValue('cpu', app_id, minimum_resources.cpus, maximum_resources.cpus));
   const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpus, maximum_resources.gpus));
@@ -169,16 +131,20 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
   const toggleConfig = event => setFlipped(!flipped)
 
   //app can be launched here using axios to hit the /start endpoint
-  const appLauncher = () => {
-    launchApp(app_id, currentCpu, currentGpu, formatBytes(currentMemory))
+  const appLauncher = async () => {
+    setLaunching(true);
+    // NOTE: Memory is converted to MB when posting an instance
+    await launchApp(app_id, currentCpu, currentGpu, bytesToMegabytes(currentMemory))
       .then(res => {
         addNotification({ type: 'success', text: 'Launching app successful.' })
       }).catch(e => {
-        addNotification({ type: 'error', text: 'Error occurs when launching apps. Please try again!' })
+        addNotification({ type: 'error', text: 'An error has occurred while launching apps. Please try again!' })
       })
     localStorage.setItem(`${app_id}-cpu`, currentCpu);
     localStorage.setItem(`${app_id}-gpu`, currentGpu);
     localStorage.setItem(`${app_id}-memory`, currentMemory);
+    setLaunching(false);
+    toggleConfig();
   }
 
   const getLogoUrl = (app_id) => {
@@ -204,9 +170,9 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
             <SpecContainer><SpecName>Memory</SpecName>{minimum_resources.memory === maximum_resources.memory ? <SpecDefaultText>Locked: {formatMemory(minimum_resources.memory)}</SpecDefaultText> : <SliderMinMaxContainer><SpecMinMax>Min: {formatMemory(minimum_resources.memory)}</SpecMinMax><Spec><b>{formatBytes(currentMemory, 2)}</b><Slider type="range" min={toBytes(minimum_resources.memory)} max={toBytes(maximum_resources.memory)} step={toBytes("0.25G")} value={currentMemory} onChange={(e) => setMemory(e.target.value)} /></Spec><SpecMinMax>Max: {formatMemory(maximum_resources.memory)}</SpecMinMax></SliderMinMaxContainer>}</SpecContainer>
           </div>
           <div className="actions">
-            <Button small variant="success" onClick={() => { appLauncher(); toggleConfig(); }} style={{ width: '150px' }}>
-              <Icon icon="check" fill="#eee" /> Confirm
-              </Button>
+            <Button small variant="success" onClick={() => { appLauncher(); }} style={{ height: '40px', width: '150px' }}>
+              {isLaunching ? <LoadingSpinner color="white" /> : <Fragment><Icon icon="check" fill="#eee"></Icon>Confirm</Fragment>}
+            </Button>
           </div>
         </ConfigSlider>
       </Relative>

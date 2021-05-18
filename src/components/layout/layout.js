@@ -110,7 +110,7 @@ export const Layout = ({ children }) => {
     <Wrapper>
       <Header compact={scrollPosition > 150 ? 1 : 0}>
         {context !== undefined ? 
-        <Brand to="/frontend/react">
+        <Brand to="/helx">
           <BrandImage src={'' + helxAppstoreUrl + context.logo_url} alt="Go Home" />
         </Brand>
         : <span />}

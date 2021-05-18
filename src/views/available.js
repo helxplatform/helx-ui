@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 import { Container } from '../components/layout'
 import { useApp } from '../contexts/app-context';
 import { AppCard } from '../components/app';
+import { WorkSpaceTabGroup } from '../components/workspace/workspace-tab-group';
+import { useNotifications } from '@mwatson/react-notifications';
+import { LoadingSpinner } from '../components/spinner/loading-spinner';
 
 const GridContainer = styled.div`
   display: grid;
@@ -29,26 +32,34 @@ const Status = styled.div`
 `
 
 export const Available = () => {
+    const theme = useTheme();
     const [apps, setApps] = useState();
+    const { addNotification } = useNotifications();
+    const [isLoading, setLoading] = useState(false);
     const { loadApps } = useApp();
 
     useEffect(() => {
         const renderApp = async () => {
+            setLoading(true)
             await loadApps()
                 .then(r => {
                     setApps(r.data);
                 })
                 .catch(e => {
+                    addNotification({ type: 'error', text: `An error has occurred while loading apps.` })
                     setApps({})
                 })
+            setLoading(false);
         }
         renderApp();
     }, [])
 
     return (
         <Container>
-            {apps !== undefined ? (Object.keys(apps).length !== 0 ?
-                <GridContainer>{Object.keys(apps).sort().map(appKey => <AppContainer><AppCard key={appKey} {...apps[appKey]} /></AppContainer>)}</GridContainer> : <Status>No apps available</Status>) : <div></div>}
+            <WorkSpaceTabGroup tab="available" />
+            { isLoading ? <LoadingSpinner style={{ margin: theme.spacing.extraLarge }} /> :
+                (apps !== undefined ? (Object.keys(apps).length !== 0 ?
+                    <GridContainer>{Object.keys(apps).sort().map(appKey => <AppContainer><AppCard key={appKey} {...apps[appKey]} /></AppContainer>)}</GridContainer> : <Status>No apps available</Status>) : <div></div>)}
         </Container>
     )
 }
