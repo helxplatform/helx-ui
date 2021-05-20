@@ -85,7 +85,7 @@ const BrandText = styled.div`
 `
 
 const BrandImage = styled.img`
-  width: 10vw;
+  max-height: 100px;
   object-fit: scale-down;
 `
 
