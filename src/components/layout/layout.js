@@ -33,7 +33,7 @@ const Brand = styled(Link)(({ theme }) => `
   justify-content: center;
   align-items: center;
   text-decoration: none;
-  padding: ${theme.spacing.medium};
+  padding: ${theme.spacing.xs};
   color: ${theme.color.primary.dark};
   & > img {
     margin: 0;
@@ -85,7 +85,7 @@ const BrandText = styled.div`
 `
 
 const BrandImage = styled.img`
-  max-height: 100px;
+  max-height: 70px;
   object-fit: scale-down;
 `
 
