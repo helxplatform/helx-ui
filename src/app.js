@@ -2,11 +2,11 @@ import { LocationProvider, Router } from '@reach/router'
 import { AuthProvider, EnvironmentProvider } from './contexts'
 import {
   AboutView,
+  AvailableView,
   ContactView,
   DocumentationView,
   NotFoundView,
   SemanticSearchView,
-  WorkspacesView,
 } from './views'
 import { Layout } from './components/layout'
 
@@ -19,7 +19,8 @@ export const App = () => {
             <Router>
               <AboutView path="/" />
               <AboutView path="/about" />
-              <WorkspacesView path="/workspaces" />
+              <AvailableView path="/workspaces" />
+              <AvailableView path="/workspaces/available" />
               <DocumentationView path="/documentation" />
               <ContactView path="/contact" />
               <SemanticSearchView path="/search" />
