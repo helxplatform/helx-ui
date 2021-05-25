@@ -1,0 +1,166 @@
+{
+  "api": "Tycho",
+  "version": "0.0.1",
+  "metadata": {
+    "id": "helx-app-registry",
+    "name": "HeLx Application Registry",
+    "author": "HeLx Dev",
+    "description": "An alpha metadata registry for HeLx applications."
+  },
+  "repositories": {
+    "catalyst_apps": {
+      "description": "Main repository for Catalyst Apps and Tools",
+      "url": "https://github.com/helxplatform/app-support-prototype/raw/develop/dockstore-yaml-proposals"
+    }
+  },
+  "contexts": {
+    "common": {
+      "name": "HeLx Common App Registry",
+      "apps": {
+        "cloud-top": {
+          "name": "Cloud Top",
+          "spec": "${catalyst_apps}/cloud-top/docker-compose.yaml",
+          "icon": "${catalyst_apps}/cloud-top/icon.png",
+          "description": "CloudTop is a cloud native, browser accessible Linux desktop.",
+          "details": "A Ubuntu graphical desktop environment for experimenting with native applications in the cloud.",
+          "docs": "https://helxplatform.github.io/cloudtop-docs/",
+          "services": {
+            "cloud-top": 8080
+          }
+        },
+        "jupyter-ds": {
+          "name": "Jupyter Data Science",
+          "description": "Jupyter DataScience - A Jupyter notebook for exploring and visualizing data.",
+          "details": "Includes R, Julia, and Python.",
+          "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
+          "services": {
+            "jupyter-ds": "8888"
+          }
+        }
+      }
+    },
+    "braini": {
+      "extends": [
+        "common",
+        "blackbalsam"
+      ],
+      "name": "BRAIN-I App Registry",
+      "apps": {
+        "imagej": {
+          "name": "ImageJ Viewer",
+          "description": "Imagej is an image processor developed at NIH/LOCI.",
+          "details": "can display, edit, analyze, process, save and print 8-bit, 16-bit and 32-bit images. It can read many image formats.",
+          "docs": "https://imagej.nih.gov/ij/",
+          "services": {
+            "imagej": 8080
+          }
+        },
+        "napari": {
+          "name": "Napari Image Viewer",
+          "description": "Napari is a fast, interactive, multi-dimensional image viewer.",
+          "details": "It enables browsing, annotating, and analyzing large multi-dimensional images.",
+          "docs": "https://napari.org/",
+          "services": {
+            "napari": 8080
+          }
+        }
+      }
+    },
+    "catalyst": {
+      "extends": [
+        "common"
+      ],
+      "name": "BioData Catalyst App Registry",
+      "apps": {
+        "dicom-cloudtop": {
+          "name": "DICOM Viewer",
+          "description": "OHIF is a framework for building medical imaging web applications.",
+          "details": "Uses the OrthaNC DICOM service for indexing image data.",
+          "docs": "https://ohif.org/",
+          "services": {
+            "dicom-cloudtop": 8080
+          }
+        },
+        "autoencoder-notebook": {
+          "name": "Autoencoder Notebook",
+          "description": "need description.",
+          "details": "need details.",
+          "docs": "http://we.need.autoencoder.docs/doc.html",
+          "services": {
+            "jupyter": 8888
+          }
+        },
+        "hail": {
+          "name": "Hail / Jupyter Workspace",
+          "description": "A notebook computing interface to a large single node Hail genomics workspace.",
+          "details": "Insantiates Apache Spark on a single cloud node for small to medium scale exploration.",
+          "docs": "https://github.com/helxplatform/helx-hail",
+          "services": {
+            "hail": 8000
+          }
+        }
+      }
+    },
+    "scidas": {
+      "extends": [
+        "common",
+        "blackbalsam"
+      ],
+      "name": "SciDAS App Registry",
+      "apps": {
+        "nextflow": {
+          "name": "Nextflow API",
+          "description": "Nextflow - A scalable workflow computational pipeline workspace.",
+          "details": "Orchestrate Docker containers into reproducible workflows.",
+          "docs": "https://github.com/SciDAS/nextflow-api",
+          "services": {
+            "nextflow": 8080
+          }
+        },
+        "gsforge": {
+          "name": "GSForge",
+          "description": "GSForge is a Python package that assists researchers in the selection of gene sets with potential association to an experimental condition or phenotypic trait.\n",
+          "details": "Offers new potential hypotheses for gene-trait causality.",
+          "docs": "https://systemsgenetics.github.io/GSForge/",
+          "services": {
+            "jupyter": 8888
+          }
+        }
+      }
+    },
+    "blackbalsam": {
+      "extends": [
+        "common"
+      ],
+      "name": "RENCI Blackbalsam Registry",
+      "apps": {
+        "blackbalsam": {
+          "name": "Blackbalsam",
+          "description": "An A.I., visualization, and parallel computing environment.",
+          "details": "A.I.(Tensorflow,Keras,PyTorch,Gensim) Vis(Plotly,Bokeh,Seaborn) Compute(Spark).",
+          "docs": "https://github.com/stevencox/blackbalsam",
+          "serviceAccount": "spark",
+          "services": {
+            "blackbalsam": 8888
+          }
+        },
+        "hail": {
+          "name": "Hail",
+          "description": "Hail is an open-source, general-purpose, Python-based data analysis library.",
+          "details": "It provides additional data types and methods for working with genomic data.",
+          "docs": "https://hail.is/",
+          "services": {
+            "hail": 8000
+          }
+        }
+      }
+    },
+    "restartr": {
+      "extends": [
+        "common",
+        "blackbalsam"
+      ],
+      "name": "UNC Restarting Research"
+    }
+  }
+}
