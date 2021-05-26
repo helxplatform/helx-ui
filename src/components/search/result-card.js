@@ -33,8 +33,8 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
         </Space>
       ),
     },
-    'vars': {
-      title: `Variables (${ studyVariables.length })`,
+    'studies': {
+      title: `Studies (${ studyVariables.length })`,
       content: (
         <Space direction="vertical" className="tab-content">
           <List
