@@ -67,7 +67,7 @@ export const HelxSearch = ({ children }) => {
         }
         const response = await axios.post(`${helxSearchUrl}/search`, params)
 
-        if (response.status === 200 && response.data.status === 'success' && response.data.result && response.data.result.hits) {
+        if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.hits) {
           const hits = response.data.result.hits.hits.map(r => r._source)
           setResults(hits)
           setTotalResults(response.data.result.total_items)
@@ -89,34 +89,38 @@ export const HelxSearch = ({ children }) => {
   }, [totalResults])
 
   const fetchKnowledgeGraphs = async (tag_id) => {
-    const knowledgeGraphs = await axios.post(`${helxSearchUrl}/search_kg`, {
-      index: 'kg_index',
-      unique_id: tag_id,
-      query: query,
-      size: 100,
-    }).then(response => {
-      return response.data.result.hits.hits
-    })
-      .catch(error => {
-        console.error(error)
-        return []
+    try {
+      const { data } =  await axios.post(`${helxSearchUrl}/search_kg`, {
+        index: 'kg_index',
+        unique_id: tag_id,
+        query: query,
+        size: 100,
       })
-    return knowledgeGraphs.map(graph => graph._source.knowledge_graph.knowledge_graph)
+      if (!data || data.result.total_items === 0) {
+        return []
+      }
+      return data.result.hits.hits.map(graph => graph._source.knowledge_graph.knowledge_graph)
+    } catch (error) {
+      console.error(error)
+    }
   }
 
-  const fetchStudyVariable = async (_id, _query) => {
-    const studyVariables = await axios.post(`${helxSearchUrl}/search_var`, {
-      concept: _id,
-      index: 'variables_index',
-      query: _query,
-      size: 1000
-    }).then(response => {
-      return response.data.result.hits.hits
-    }).catch(error => {
+  const fetchStudyVariables = async (_id, _query) => {
+    try {
+      const { data } = await axios.post(`${helxSearchUrl}/search_var`, {
+        concept: _id,
+        index: 'variables_index',
+        query: _query,
+        size: 1000
+      })
+      if (!data?.result?.hits?.hits) {
+        return []
+      }
+      return data.result.hits.hits.map(studyVar => studyVar._source);
+      // return []
+    } catch (error) {
       console.error(error)
-      return []
-    })
-    return studyVariables.map(studyVar => studyVar._source);
+    }
   }
 
   const doSearch = queryString => {
@@ -155,7 +159,7 @@ export const HelxSearch = ({ children }) => {
 
   return (
     <HelxSearchContext.Provider value={{
-      query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariable, inputRef,
+      query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
       error, isLoadingResults,
       results, totalResults,
       selectedView, setSelectedView, doSelect, resultsSelected, clearSelect,

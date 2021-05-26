@@ -1,8 +1,6 @@
 import React, { Fragment, useState, useMemo } from 'react'
-import { PaginationTray, useHelxSearch } from './'
-import { SearchResultCard } from './result-card'
-import { SearchResultModal } from './result-modal'
 import { notification, Spin, Tooltip, Typography } from 'antd'
+import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from './'
 import { Link } from '../link'
 import {
   LinkOutlined as LinkIcon,

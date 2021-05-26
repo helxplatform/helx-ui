@@ -3,8 +3,8 @@
   display: block;
   margin: 0 auto;
   background-color: crimson;
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   border: 2px solid #000;
   box-sizing: content-box;
@@ -12,14 +12,18 @@
 }
 
 .edge {
-  position: relative;
+  position:               relative;
   border-bottom: 1px dashed crimson;
   color: #666;
   font-size: 80%;
   display: block;
-  height: 20px;
+  height: 22px;
   margin: 0;
   width: 200%;
-  transform: translate(-25%, 8px);
+  transform: translate(-25%, -15px);
   z-index: 1;
+}
+
+.source-label, .target-label {
+  font-size: 80%;
 }
