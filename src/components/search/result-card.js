@@ -47,7 +47,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
                     title={ <span>Study: <Link to={variable.collection_action}>{variable.collection_name}</Link></span> }
                     description={<span>Accession: <Link to={variable.collection_action}>{variable.collection_id.replace(/^TOPMED\.STUDY:/, '')}</Link></span>}
                   />
-                  <Text>{ variable.variables.length } variables</Text>
+                  <Text>{ variable.variables.length } variable{ variable.variables.length === 1 ? '' : 's' }</Text>
                 </List.Item>
                 <br/>
               </Fragment>
@@ -58,16 +58,16 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
     },
     'kgs': {
       title: 'Knowledge Graphs',
-      content: (
+      content: graphs.length > 0 ? (
         <Space direction="vertical" className="tab-content">
           <KnowledgeGraphs graphs={graphs} />
         </Space>
-      ),
+      ) : null,
     },
   }
 
-  const tabList = Object.keys(tabs).map(key => ({ key, tab: tabs[key].title }))
-  const tabContents = Object.keys(tabs).reduce((obj, key) => ({ ...obj, [key]: tabs[key].content }), {})
+  const tabList = Object.keys(tabs).map(key => tabs[key].content ? ({ key, tab: tabs[key].title }) : null).filter(tab => tab !== null)
+  const tabContents = Object.keys(tabs).reduce((obj, key) => tabs[key].content ? ({ ...obj, [key]: tabs[key].content }) : obj, {})
 
   useEffect(() => {
     const getKgs = async () => {
