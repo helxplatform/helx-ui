@@ -34,7 +34,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       ),
     },
     'vars': {
-      title: 'Variables',
+      title: `Variables (${ studyVariables.length })`,
       content: (
         <Space direction="vertical" className="tab-content">
           <List
@@ -57,7 +57,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       ),
     },
     'kgs': {
-      title: 'Knowledge Graphs',
+      title: `Knowledge Graphs (${ graphs.length })`,
       content: graphs.length > 0 ? (
         <Space direction="vertical" className="tab-content">
           <KnowledgeGraphs graphs={graphs} />
