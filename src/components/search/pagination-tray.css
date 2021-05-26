@@ -1,0 +1,14 @@
+.pagination-tray {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.pagination-link {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+}
+
+.ellipsis-icon {
+  padding: 0.5rem;
+}

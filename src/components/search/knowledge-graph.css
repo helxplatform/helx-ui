@@ -1,0 +1,25 @@
+.node {
+  position: relative;
+  display: block;
+  margin: 0 auto;
+  background-color: crimson;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  box-sizing: content-box;
+  z-index: 2;
+}
+
+.edge {
+  position: relative;
+  border-bottom: 1px dashed crimson;
+  color: #666;
+  font-size: 80%;
+  display: block;
+  height: 20px;
+  margin: 0;
+  width: 200%;
+  transform: translate(-25%, 8px);
+  z-index: 1;
+}

@@ -1,0 +1,8 @@
+.search-form {
+  display: flex;
+  gap: 1rem;
+}
+
+.ant-form-item:first-child {
+  flex: 1;
+}

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
 import { navigate } from '@reach/router'
 import { useHelxSearch } from './'
 import { Pagination, Space } from 'antd'
+import './pagination-tray.css'
 
 export const PaginationTray = () => {
   const { query, totalResults, currentPage } = useHelxSearch()

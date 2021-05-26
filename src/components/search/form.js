@@ -1,10 +1,10 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Form, Input } from 'antd'
 import { useHelxSearch } from './'
-import './search.css'
+import './form.css'
 
 export const SearchForm = () => {
-  const { query, doSearch, inputRef, launchApp, resultSelected } = useHelxSearch()
+  const { query, doSearch, inputRef } = useHelxSearch()
   const [searchTerm, setSearchTerm] = useState(query)
 
   const handleChangeQuery = event => setSearchTerm(event.target.value)
