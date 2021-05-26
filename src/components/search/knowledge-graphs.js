@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { kgLink } from '../../utils'
 import { Link } from '../link'
-import './knowledge-graph.css'
+import './knowledge-graphs.css'
 
 const KnowledgeGraph = ({ graph }) => {
   const [interactions, setInteractions] = useState([])
@@ -20,25 +20,19 @@ const KnowledgeGraph = ({ graph }) => {
   }, [graph])
 
   return interactions.map((interaction, i) => (
-    <Fragment key={i}>
+    <Fragment key={ `kg-${i}` }>
       <div className="source-label"><Link to={kgLink.get_curie_purl(interaction.source.id)}>{interaction.source.name}</Link></div>
       <div />
       <div className="target-label"><Link to={kgLink.get_curie_purl(interaction.target.id)}>{interaction.target.name}</Link></div>
-      <div className="source-node"><br /><span className="node" /></div>
+
+      <div className="source-node"><span className="node" /></div>
       <div className="type-edge">
         <span className="edge">
           {interaction.type}
-          &nbsp;
-          {
-            interaction.publications.map((publication, i) => (
-              <Fragment>
-                [<Link key={`${interaction.source}-pub-${i + 1}`} pmid={publication.replace(/^PMID:/, '')}>{i + 1}</Link>]
-              </Fragment>
-            ))
-          }
+          {interaction.publications.map((publication, i) => <Fragment>[<Link key={`${interaction.source}-pub-${i + 1}`} pmid={publication.replace(/^PMID:/, '')}>{i + 1}</Link>]</Fragment>)}
         </span>
       </div>
-      <div className="target"><br /><span className="node" /></div>
+      <div className="target-node"><span className="node" /></div>
     </Fragment>
   ))
 }
@@ -53,9 +47,9 @@ export const KnowledgeGraphs = ({ graphs }) => {
   if (graphs.length) {
     return (
       <div className="interactions-grid">
-        <div className="column-title">Ontological Term (ID)</div>
-        <div className="column-title">Interaction Type [publication link(s)]</div>
-        <div className="column-title">Linked Term (ID)</div>
+        <div className="column-title">Ontological Term)</div>
+        <div className="column-title">Interaction Type</div>
+        <div className="column-title">Linked Term</div>
         { graphs.map(graph => <KnowledgeGraph graph={graph} />)}
       </div>
     )

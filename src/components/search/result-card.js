@@ -2,19 +2,21 @@ import { Fragment, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useHelxSearch } from './context'
 import { Card, List, Space, Typography } from 'antd'
+import { Link } from '../link'
 import {
   ExpandOutlined as ViewIcon,
   FolderAddOutlined as AddIcon,
   ExperimentOutlined as LaunchIcon,
 } from '@ant-design/icons'
-import { KnowledgeGraphs } from './knowledge-graph'
+import { KnowledgeGraphs, VariablesList } from './'
 
 const { Meta } = Card
 const { Text } = Typography
 
 export const SearchResultCard = ({ index, result, openModalHandler }) => {
-  const { query, fetchKnowledgeGraphs } = useHelxSearch()
-  const [knowledgeGraphs, setKnowledgeGraphs] = useState([])
+  const { query, fetchKnowledgeGraphs, fetchStudyVariables } = useHelxSearch()
+  const [graphs, setGraphs] = useState([])
+  const [studyVariables, setStudyVariables] = useState([])
   const [currentTab, setCurrentTab] = useState('overview')
 
   const tabs = {
@@ -25,7 +27,6 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
           <Space direction="vertical" align="start">
             <Text className="id" strong>{result.id}</Text>
             <Text className="type">{result.type}</Text>
-            <br/>
             <Meta description={result.description} className="description"/>
           </Space>
           <br />
@@ -38,8 +39,19 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
         <Space direction="vertical" className="tab-content">
           <List
             className="variables-list"
-            dataSource={ ['var1', 'var2', 'var3', 'var4', 'var5'] }
-            renderItem={ variable => <List.Item>{variable}</List.Item>}
+            dataSource={studyVariables}
+            renderItem={variable => (
+              <Fragment>
+                <List.Item>
+                  <List.Item.Meta
+                    title={ <span>Study: <Link to={variable.collection_action}>{variable.collection_name}</Link></span> }
+                    description={<span>Accession: <Link to={variable.collection_action}>{variable.collection_id.replace(/^TOPMED\.STUDY:/, '')}</Link></span>}
+                  />
+                  <Text>{ variable.variables.length } variables</Text>
+                </List.Item>
+                <br/>
+              </Fragment>
+            )}
           />
         </Space>
       ),
@@ -48,10 +60,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       title: 'Knowledge Graphs',
       content: (
         <Space direction="vertical" className="tab-content">
-          <Text>KGs</Text>
-          {
-            knowledgeGraphs.length > 0 && <KnowledgeGraphs graphs={knowledgeGraphs} />
-          }
+          <KnowledgeGraphs graphs={graphs} />
         </Space>
       ),
     },
@@ -63,15 +72,49 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
   useEffect(() => {
     const getKgs = async () => {
       const kgs = await fetchKnowledgeGraphs(result.id)
-      setKnowledgeGraphs(kgs)
+      setGraphs(kgs)
     }
+    const getVars = async () => {
+      const vars = await fetchStudyVariables(result.id, query);
+      const groupedIds = vars.reduce((acc, obj) => {
+        let key = obj["collection_id"];
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key].push({
+          id: obj.element_id,
+          name: obj.element_name,
+          description: obj.element_desc,
+          e_link: obj.element_action
+        })
+        return acc;
+      }, {})
+      let tem_result = [];
+      vars.reduce((acc, curr) => {
+        const isFind = acc.find(item => item.collection_id === curr.collection_id);
+        if (!isFind) {
+          let studyObj = {
+            collection_id: curr.collection_id,
+            collection_action: curr.collection_action,
+            collection_name: curr.collection_name,
+            variables: groupedIds[curr.collection_id]
+          }
+          tem_result.push(studyObj);
+          acc.push(curr);
+        }
+        return acc;
+      }, [])
+      setStudyVariables(tem_result);
+    }
+
     getKgs()
-  }, [fetchKnowledgeGraphs, query, result.id])
+    getVars()
+  }, [fetchKnowledgeGraphs, fetchStudyVariables, query, result.id])
+
   return (
     <Fragment>
       <Card
         className="result-card"
-        title={ '' }
         tabList={tabList}
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
