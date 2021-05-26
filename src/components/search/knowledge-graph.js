@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { kgLink } from '../../utils'
 import { Link } from '../link'
-import './search.css'
+import './knowledge-graph.css'
 
 const KnowledgeGraph = ({ graph }) => {
   const [interactions, setInteractions] = useState([])

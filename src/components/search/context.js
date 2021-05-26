@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import axios from 'axios'
 import { useNavigate } from '@reach/router'
 import { useAuth, useEnvironment } from '../../contexts'
+import './search.css'
 
 //
 
@@ -14,11 +15,6 @@ const PER_PAGE = 20
 
 //
 
-const PAGINATION_RADIUS = {
-  mobile: 1,
-  desktop: 5,
-}
-
 export const HelxSearch = ({ children }) => {
   const { helxSearchUrl } = useEnvironment()
   const [query, setQuery] = useState('')
@@ -29,7 +25,6 @@ export const HelxSearch = ({ children }) => {
   const [totalResults, setTotalResults] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
-  const [paginationRadius, setPaginationRadius] = useState(PAGINATION_RADIUS.mobile)
   const [selectedView, setSelectedView] = useState(false);
 
   const auth = useAuth()
@@ -55,7 +50,7 @@ export const HelxSearch = ({ children }) => {
     const queryParams = new URLSearchParams(window.location.search)
     setQuery(queryParams.get('q') || '')
     setCurrentPage(+queryParams.get('p') || 1)
-  }, [window.location.search])
+  }, [])
 
   useEffect(() => {
     // close selected view when loading new search
@@ -165,7 +160,7 @@ export const HelxSearch = ({ children }) => {
       results, totalResults,
       selectedView, setSelectedView, doSelect, resultsSelected, clearSelect,
       launchApp,
-      currentPage, setCurrentPage, perPage: PER_PAGE, pageCount, paginationRadius,
+      currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
     }}>
       { children}
     </HelxSearchContext.Provider>

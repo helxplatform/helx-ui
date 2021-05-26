@@ -166,7 +166,7 @@ export const kgLink = {
         const splitCurrie = curie.split(':')
         const prefix = splitCurrie[0]
         const suffix = splitCurrie[1]
-        var matchedPrefix = Object.keys(biolink_lookup).find(k => k == prefix)
+        var matchedPrefix = Object.keys(biolink_lookup).find(k => k === prefix)
         if (matchedPrefix) {
             return biolink_lookup[prefix] + suffix
         } else {

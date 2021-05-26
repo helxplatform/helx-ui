@@ -1,9 +1,7 @@
-import { Layout as AntLayout , Menu, Typography } from 'antd'
+import { Layout as AntLayout, Menu } from 'antd'
 import { Link } from '@reach/router'
-import { Breadcrumbs } from './'
 
 const { Header, Content, Footer } = AntLayout
-const { Title } = Typography
 
 export const Layout = ({ children }) => {
   return (

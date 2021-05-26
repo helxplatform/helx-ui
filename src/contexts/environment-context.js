@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import axios from 'axios';
-import { useRegistry } from '../hooks'
 
 export const EnvironmentContext = createContext({})
 
@@ -32,7 +30,6 @@ const commonContext = {
 
 export const EnvironmentProvider = ({ children }) => {
   const [context, setContext] = useState();
-  const relativeHost = window.location.origin;
 
   // update the context on initial render
   const loadContext = async () => {

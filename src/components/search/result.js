@@ -8,7 +8,7 @@ import { VariablesList } from './variables-list';
 const { Panel } = Collapse
 
 export const SearchResult = ({ index, result }) => {
-  const { query, fetchKnowledgeGraphs, fetchStudyVariable, resultsSelected, doSelect } = useHelxSearch();
+  const { query, fetchKnowledgeGraphs, fetchStudyVariable, resultsSelected } = useHelxSearch();
   const [knowledgeGraphs, setKnowledgeGraphs] = useState([]);
   const [studyVariables, setStudyVariables] = useState([]);
   useEffect(() => {
@@ -50,7 +50,7 @@ export const SearchResult = ({ index, result }) => {
     }
     getKgs();
     getVar();
-  }, [query, result.id])
+  }, [fetchKnowledgeGraphs, fetchStudyVariable, result.id, query])
 
   return (
     <div selected={resultsSelected.has(result.id)}>

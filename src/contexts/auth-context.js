@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import axios from 'axios';
-import { useEnvironment } from './environment-context';
+import React, { createContext, useContext, useState } from 'react'
 
 const HISTORY_SIZE = 10
 
@@ -32,8 +30,6 @@ let initialUser = {
 
 
 export const AuthProvider = ({ children }) => {
-  const environment = useEnvironment();
-  const helxAppstoreUrl = environment.helxAppstoreUrl;
   const [user, setUser] = useState(initialUser);
 
   // logout link can be put here
