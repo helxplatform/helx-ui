@@ -61,6 +61,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       content: graphs.length > 0 ? (
         <Space direction="vertical" className="tab-content">
           <KnowledgeGraphs graphs={graphs} />
+          <br/>
         </Space>
       ) : null,
     },
