@@ -25,7 +25,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       content: (
         <Space direction="vertical" className="tab-content">
           <Space direction="vertical" align="start">
-            <Text className="id" strong>{result.id}</Text>
+            <Text className="id" strong>{result.name}</Text>
             <Text className="type">{result.type}</Text>
             <Meta description={result.description} className="description"/>
           </Space>
