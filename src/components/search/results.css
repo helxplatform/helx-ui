@@ -31,7 +31,13 @@
   overflow: hidden;
   position: relative;
   overflow-y: auto;
-  scrollbar-width: thin;
+  scrollbar-width: thin; /* firefox only */
+  scrollbar-color: transparent transparent; /* firefox only */
+  transition: scrollbar-color 250ms; /* firefox only */
+}
+
+.results .grid .result-card .ant-card-body:hover {
+  scrollbar-color: #00000022 transparent; /* firefox only */
 }
 
 .results .grid .result-card .ant-card-body:hover::after {
