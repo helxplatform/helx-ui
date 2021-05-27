@@ -8,11 +8,11 @@ export const Layout = ({ children }) => {
     <AntLayout className="layout">
       <Header>
         <Menu theme="dark" mode="horizontal">
-          <Menu.Item key="about"><Link to="/about">About</Link></Menu.Item>
-          <Menu.Item key="workspaces"><Link to="/workspaces">Workspaces</Link></Menu.Item>
-          <Menu.Item key="semantic-search"><Link to="/search">Semantic Search</Link></Menu.Item>
-          <Menu.Item key="documentation"><Link to="/documentation">Documentation</Link></Menu.Item>
-          <Menu.Item key="contact"><Link to="/contact">Contact</Link></Menu.Item>
+          <Menu.Item key="about"><Link to="/helx/about">About</Link></Menu.Item>
+          <Menu.Item key="workspaces"><Link to="/helx/workspaces">Workspaces</Link></Menu.Item>
+          <Menu.Item key="semantic-search"><Link to="/helx/search">Semantic Search</Link></Menu.Item>
+          <Menu.Item key="documentation"><Link to="/helx/documentation">Documentation</Link></Menu.Item>
+          <Menu.Item key="contact"><Link to="/helx/contact">Contact</Link></Menu.Item>
         </Menu>
       </Header>
       <Content>
