@@ -1,0 +1,22 @@
+.app_content {
+    height: 150px;
+    padding: 10px 0px;
+}
+
+.app_logo_container {
+    display: flex;
+    justify-content: center;
+}
+
+.app_logo{
+    width: 150px;
+    height: 150px;
+    object-fit: scale-down;
+    padding: 8px;
+}
+
+.launch_control{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
