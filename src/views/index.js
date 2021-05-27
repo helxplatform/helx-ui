@@ -1,4 +1,3 @@
-export * from './about'
 export * from './contact'
 export * from './documentation'
 export * from './not-found'

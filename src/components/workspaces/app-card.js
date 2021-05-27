@@ -95,7 +95,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                 </Row>
                 <Row align="middle">
                     <Col span={4}>GPU</Col>
-                    {minimum_resources.gpus === maximum_resources.gpus ? <Col span={12}><Typography>Locked: {formatMemory(minimum_resources.memory)}</Typography></Col> :
+                    {minimum_resources.gpus === maximum_resources.gpus ? <Col span={12}><Typography>Locked: {minimum_resources.gpus} Core{minimum_resources.gpus > 1 ? 's' : ''}</Typography></Col> :
                         <Fragment>
                             <Col span={12}>
                                 <Slider
@@ -119,7 +119,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                 </Row>
                 <Row align="middle">
                     <Col span={4}>Memory</Col>
-                    {minimum_resources.memory === maximum_resources.memory ? <Col span={12}><Typography>Locked: {minimum_resources.gpus} Core{minimum_resources.gpus > 1 ? 's' : ''}</Typography></Col> :
+                    {minimum_resources.memory === maximum_resources.memory ? <Col span={12}><Typography>Locked: {formatMemory(minimum_resources.memory)}G</Typography></Col> :
                         <Fragment>
                             <Col span={12}>
                                 <Slider

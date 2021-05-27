@@ -20,3 +20,10 @@
     justify-content: space-around;
     align-items: center;
 }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-rows: auto, 200px;
+    gap: 20px;
+}

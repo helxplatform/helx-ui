@@ -28,7 +28,7 @@ export const SearchResults = () => {
     <div className="header">
       <Text>{ totalResults } results for "{ query }" ({ pageCount } page{ pageCount > 1 && 's' })</Text>
       <Tooltip title="Shareable link" placement="left">
-        <Link to={ `/search?q=${ query }&p=${ currentPage }` } onClick={NotifyLinkCopied}><LinkIcon /></Link>
+        <Link to={ `/helx/search?q=${ query }&p=${ currentPage }` } onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
     </div>
   ), [currentPage, pageCount, totalResults, query])

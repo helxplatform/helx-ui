@@ -4,11 +4,19 @@ import { AppCard } from '../../components/workspaces'
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group'
 import { useApp } from '../../contexts/app-context'
 import { openNotificationWithIcon } from '../../components/notifications';
+import { Breadcrumbs } from '../../components/layout'
+import '../../components/workspaces/app-card.css'
+
 
 export const AvailableView = () => {
     const [apps, setApps] = useState();
     const { loadApps } = useApp();
     const [isLoading, setLoading] = useState(false);
+    const breadcrumbs = [
+        { text: 'Home', path: '/helx' },
+        { text: 'Workspaces', path: '/helx/workspaces' },
+        { text: 'Available', path: '/helx/workspaces/available' },
+    ]
 
     useEffect(() => {
         const renderApp = async () => {
@@ -28,12 +36,13 @@ export const AvailableView = () => {
 
     return (
         <Layout>
+            <Breadcrumbs crumbs={breadcrumbs} />
             <NavigationTabGroup currentKey="available" />
             {isLoading ?
                 <Spin size="large" /> :
                 (apps != undefined ?
                     (Object.keys(apps).length !== 0 ?
-                        <Row justify="space-around" wrap="true">{Object.keys(apps).sort().map(appKey => <Col span={4}><AppCard key={appKey} {...apps[appKey]} /></Col>)}</Row>
+                        <div className="grid">{Object.keys(apps).sort().map(appKey => <Col><AppCard key={appKey} {...apps[appKey]} /></Col>)}</div>
                         : <div>No Apps Available</div>)
                     : <div></div>)}
         </Layout>

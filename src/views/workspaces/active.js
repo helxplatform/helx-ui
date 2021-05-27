@@ -6,6 +6,7 @@ import { openNotificationWithIcon } from '../../components/notifications';
 import { useInstance } from '../../contexts/instance-context';
 import DataTable from 'react-data-table-component';
 import { Modal } from "../../components/modal/Modal";
+import { Breadcrumbs } from '../../components/layout'
 import { formatMemory } from '../../utils/memory-converter';
 
 export const ActiveView = () => {
@@ -18,6 +19,11 @@ export const ActiveView = () => {
     const workspaceN = React.createRef();
     const cpu = React.createRef();
     const memory = React.createRef();
+    const breadcrumbs = [
+        { text: 'Home', path: '/helx' },
+        { text: 'Workspaces', path: '/helx/workspaces' },
+        { text: 'Active', path: '/helx/workspaces/active' },
+    ]
 
     useEffect(() => {
         const renderInstance = async () => {
@@ -220,6 +226,7 @@ export const ActiveView = () => {
 
     return (
         <Layout>
+            <Breadcrumbs crumbs={breadcrumbs} />
             <NavigationTabGroup currentKey="active" />
             { isLoading ? <Spin /> :
                 (instances === undefined ?

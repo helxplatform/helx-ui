@@ -7,7 +7,7 @@ const { Title } = Typography
 
 export const SemanticSearchView = () => {
   const breadcrumbs = [
-    { text: 'Home', path: '/' },
+    { text: 'Home', path: '/helx' },
     { text: 'Semantic Search', path: '/search' },
   ]
 

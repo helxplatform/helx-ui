@@ -19,6 +19,7 @@ export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
   const [context, setContext] = useState();
+  const relativeHost = window.location.origin;
 
   // update the context on initial render
   const loadContext = async () => {

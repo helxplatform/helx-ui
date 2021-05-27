@@ -13,7 +13,7 @@ export const PaginationTray = () => {
         defaultPageSize={20}
         total={ totalResults }
         showTotal={total => `${ total } results`}
-        onChange={ (page, pageSize) => navigate(`/search?q=${ query }&p=${ page }`) }
+        onChange={ (page, pageSize) => navigate(`/helx/search?q=${ query }&p=${ page }`) }
         showSizeChanger={ false }
       />
     </Space>

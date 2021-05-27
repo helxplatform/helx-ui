@@ -1,0 +1,8 @@
+.brand_img {
+    max-height: 64px;
+    object-fit: scale-down;
+}
+
+.logout{
+    float: right;
+}
