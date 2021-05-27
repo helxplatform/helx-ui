@@ -1,39 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import axios from 'axios';
 
 export const EnvironmentContext = createContext({})
-
-const commonContext = {
-  "name": "HeLx Common App Registry",
-  "apps": {
-    "cloud-top": {
-      "name": "Cloud Top",
-      "spec": "${catalyst_apps}/cloud-top/docker-compose.yaml",
-      "icon": "${catalyst_apps}/cloud-top/icon.png",
-      "description": "CloudTop is a cloud native, browser accessible Linux desktop.",
-      "details": "A Ubuntu graphical desktop environment for experimenting with native applications in the cloud.",
-      "docs": "https://helxplatform.github.io/cloudtop-docs/",
-      "services": {
-        "cloud-top": 8080
-      }
-    },
-    "jupyter-ds": {
-      "name": "Jupyter Data Science",
-      "description": "Jupyter DataScience - A Jupyter notebook for exploring and visualizing data.",
-      "details": "Includes R, Julia, and Python.",
-      "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook",
-      "services": {
-        "jupyter-ds": "8888"
-      }
-    }
-  }
-}
 
 export const EnvironmentProvider = ({ children }) => {
   const [context, setContext] = useState();
 
   // update the context on initial render
   const loadContext = async () => {
-    setContext(commonContext);
+    const context_response = await axios({
+      method: 'GET',
+      url: `${relativeHost}/api/v1/context`
+    })
+    setContext(context_response.data);
   }
 
   // load csrf token from getCookie
@@ -62,7 +41,7 @@ export const EnvironmentProvider = ({ children }) => {
       helxSearchUrl: process.env.REACT_APP_HELX_SEARCH_URL,
       helxAppstoreUrl: window.location.origin,
       context: context,
-      helxAppstoreCsrfToken: csrfToken,
+      helxAppstoreCsrfToken: csrfToken
     }}>
       { children}
     </EnvironmentContext.Provider>

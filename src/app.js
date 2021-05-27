@@ -18,7 +18,6 @@ export const App = () => {
         <InstanceProvider>
           <Layout>
             <Router basepath="/helx">
-              <AboutView path="/" />
               <AboutView path="/about" />
               <AvailableView path="/workspaces" />
               <AvailableView path="/workspaces/available" />
