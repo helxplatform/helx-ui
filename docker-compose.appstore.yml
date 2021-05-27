@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  appstore:
+    image: helxplatform/appstore:develop-latest
+    volumes:
+      - $HOME/.kube/config:/home/appstore/.kube/config
+      - $HOME/.minikube/:$HOME/.minikube/
+      - ./build/frontend/index.html:/usr/src/inst-mgmt/appstore/frontend/templates/frontend/index.html
+      - ./build/frontend/:/usr/src/inst-mgmt/appstore/frontend/static/frontend
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
