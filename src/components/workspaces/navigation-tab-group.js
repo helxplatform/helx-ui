@@ -9,7 +9,11 @@ export const NavigationTabGroup = (props) => {
     }
 
     return (
-        <Tabs defaultActiveKey={props.currentKey} onChange={(key) => navigateHandler(key)}>
+        <Tabs
+            size="large"
+            style={{ alignItems: 'center', justifyContent: 'center' }}
+            defaultActiveKey={props.currentKey}
+            onChange={(key) => navigateHandler(key)}>
             <TabPane tab="Available" key="available" />
             <TabPane tab="Active" key="active" />
         </Tabs>
