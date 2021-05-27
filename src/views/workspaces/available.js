@@ -1,8 +1,9 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Card, Avatar, Grid, Layout, Spin } from 'antd';
-import { useApp } from '../../contexts/app-context';
-
-const { Meta } = Card;
+import React, { Fragment, useEffect, useState } from 'react'
+import { Layout, Col, Row, Spin } from 'antd'
+import { AppCard } from '../../components/workspaces'
+import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group'
+import { useApp } from '../../contexts/app-context'
+import { openNotificationWithIcon } from '../../components/notifications';
 
 export const AvailableView = () => {
     const [apps, setApps] = useState();
@@ -18,6 +19,7 @@ export const AvailableView = () => {
                 })
                 .catch(e => {
                     setApps({})
+                    openNotificationWithIcon('error', 'Error', 'An error has occurred while loading apps.')
                 })
             setLoading(false);
         }
@@ -25,8 +27,15 @@ export const AvailableView = () => {
     }, [])
 
     return (
-        <Fragment>
-            {isLoading ? <Spin size="large" /> : (apps != undefined ? (Object.keys(apps).length !== 0 ? <Grid>{Object.keys(apps).sort().map(appKey => <Meta>test</Meta>)}</Grid> : <div>No Apps Available</div>) : <div></div>)}
-        </Fragment>
+        <Layout>
+            <NavigationTabGroup currentKey="available" />
+            {isLoading ?
+                <Spin size="large" /> :
+                (apps != undefined ?
+                    (Object.keys(apps).length !== 0 ?
+                        <Row justify="space-around" wrap="true">{Object.keys(apps).sort().map(appKey => <Col span={4}><AppCard key={appKey} {...apps[appKey]} /></Col>)}</Row>
+                        : <div>No Apps Available</div>)
+                    : <div></div>)}
+        </Layout>
     )
 }
