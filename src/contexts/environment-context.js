@@ -1,6 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import axios from 'axios';
 
+// Setup global csrf token
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
+axios.defaults.xsrfCookieName = 'csrftoken';
+
+// Setup global interceptor to redirect and handle 403 unauth issue 
+axios.interceptors.response.use(function (response) {
+  return response;
+}, function (error) {
+  if (error.response.status === 403) {
+    window.location.href = window.location.origin + '/helx/login'
+  }
+  return Promise.reject(error)
+})
+
 export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
@@ -15,25 +29,8 @@ export const EnvironmentProvider = ({ children }) => {
     setContext(context_response.data);
   }
 
-  // load csrf token from getCookie
-  const loadCsrfToken = () => {
-    if (document.cookie && document.cookie !== '') {
-      let cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        let trimmedCookies = cookies[i].trim();
-        if (trimmedCookies.substring(0, 10) === 'csrftoken=') {
-          setCsrfToken(trimmedCookies.substring(10))
-        }
-      }
-    }
-  }
-
-  // store csrf token
-  const [csrfToken, setCsrfToken] = useState();
-
   useEffect(() => {
     loadContext();
-    loadCsrfToken();
   }, [])
 
   return (
@@ -41,7 +38,6 @@ export const EnvironmentProvider = ({ children }) => {
       helxSearchUrl: process.env.REACT_APP_HELX_SEARCH_URL,
       helxAppstoreUrl: window.location.origin,
       context: context,
-      helxAppstoreCsrfToken: csrfToken
     }}>
       { children}
     </EnvironmentContext.Provider>
