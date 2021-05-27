@@ -1,7 +1,8 @@
 import { LocationProvider, Router } from '@reach/router'
-import { AuthProvider, EnvironmentProvider } from './contexts'
+import { AppProvider, EnvironmentProvider, InstanceProvider } from './contexts'
 import {
   AboutView,
+  ActiveView,
   AvailableView,
   ContactView,
   DocumentationView,
@@ -13,22 +14,23 @@ import { Layout } from './components/layout'
 export const App = () => {
   return (
     <EnvironmentProvider>
-      <AuthProvider>
-        <LocationProvider>
+      <AppProvider>
+        <InstanceProvider>
           <Layout>
-            <Router>
+            <Router basepath="/helx">
               <AboutView path="/" />
               <AboutView path="/about" />
               <AvailableView path="/workspaces" />
               <AvailableView path="/workspaces/available" />
+              <ActiveView path="/workspaces/active" />
               <DocumentationView path="/documentation" />
               <ContactView path="/contact" />
               <SemanticSearchView path="/search" />
               <NotFoundView default />
             </Router>
           </Layout>
-        </LocationProvider>
-      </AuthProvider>
-    </EnvironmentProvider>
+        </InstanceProvider>
+      </AppProvider>
+    </EnvironmentProvider >
   )
 }
