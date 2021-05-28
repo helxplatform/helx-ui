@@ -4,10 +4,10 @@ import { Breadcrumbs } from '../components/layout'
 
 const { Title } = Typography
 
-export const ContactView = () => {
+export const HelpView = () => {
   const breadcrumbs = [
     { text: 'Home', path: '/helx' },
-    { text: 'Contact', path: '/contact' },
+    { text: 'Help', path: '/help' },
   ]
 
   return (
@@ -15,6 +15,8 @@ export const ContactView = () => {
       <Breadcrumbs crumbs={breadcrumbs} />
       <Title level={1}>Get in touch</Title>
         <Typography>For support or any help, please reach out to helx@lists.renci.org.</Typography>
+        <Title level={1}>Documentation</Title>
+        <Typography>Learn more, take a look at our <a href="https://helx.gitbook.io/helx-documentation/" target="_blank">docs</a>.</Typography>
     </Fragment>
   )
 }

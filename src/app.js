@@ -3,8 +3,7 @@ import { AppProvider, EnvironmentProvider, InstanceProvider } from './contexts'
 import {
   ActiveView,
   AvailableView,
-  ContactView,
-  DocumentationView,
+  HelpView,
   NotFoundView,
   SemanticSearchView,
 } from './views'
@@ -20,8 +19,7 @@ export const App = () => {
               <AvailableView path="/workspaces" />
               <AvailableView path="/workspaces/available" />
               <ActiveView path="/workspaces/active" />
-              <DocumentationView path="/documentation" />
-              <ContactView path="/contact" />
+              <HelpView path="/help" />
               <SemanticSearchView path="/" />
               <SemanticSearchView path="/search" />
               <NotFoundView default />
