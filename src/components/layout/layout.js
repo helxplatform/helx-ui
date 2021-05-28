@@ -10,7 +10,7 @@ const { Header, Content, Footer } = AntLayout
 const menu = [
   { key: 'semantic-search', title: 'Semantic Search', path: '/helx/search' },
   { key: 'workspaces', title: 'Workspaces', path: '/helx/workspaces' },
-  { key: 'help', title: 'Help', path: '/helx/help' }
+  { key: 'support', title: 'Support', path: '/helx/support' }
 ]
 
 

@@ -5,6 +5,7 @@
 
 .logout{
     float: right;
+    text-decoration: none;
 }
 
 .menu-toggle{

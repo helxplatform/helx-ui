@@ -73,7 +73,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                     <Col span={4}>CPU</Col>
                     {minimum_resources.cpus === maximum_resources.cpus ? <Col span={12}><Typography>Locked: {minimum_resources.cpus} Core{minimum_resources.cpus > 1 ? 's' : ''}</Typography></Col> :
                         <Fragment>
-                            <Col span={12}>
+                            <Col span={16}>
                                 <Slider
                                     min={parseInt(minimum_resources.cpus)}
                                     max={parseInt(maximum_resources.cpus)}
@@ -82,22 +82,13 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                                     step={1}
                                 />
                             </Col>
-                            <Col span={4}>
-                                <InputNumber
-                                    min={parseInt(minimum_resources.cpus)}
-                                    max={parseInt(maximum_resources.cpus)}
-                                    style={{ margin: '0 16px' }}
-                                    value={currentCpu}
-                                    onChange={(value) => setCpu(value)}
-                                />
-                            </Col>
                         </Fragment>}
                 </Row>
                 <Row align="middle">
                     <Col span={4}>GPU</Col>
                     {minimum_resources.gpus === maximum_resources.gpus ? <Col span={12}><Typography>Locked: {minimum_resources.gpus} Core{minimum_resources.gpus > 1 ? 's' : ''}</Typography></Col> :
                         <Fragment>
-                            <Col span={12}>
+                            <Col span={16}>
                                 <Slider
                                     min={parseInt(minimum_resources.gpus)}
                                     max={parseInt(maximum_resources.gpus)}
@@ -106,22 +97,13 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                                     step={1}
                                 />
                             </Col>
-                            <Col span={4}>
-                                <InputNumber
-                                    min={parseInt(minimum_resources.gpus)}
-                                    max={parseInt(maximum_resources.gpus)}
-                                    style={{ margin: '0 16px' }}
-                                    value={currentGpu}
-                                    onChange={(value) => setGpu(value)}
-                                />
-                            </Col>
                         </Fragment>}
                 </Row>
                 <Row align="middle">
                     <Col span={4}>Memory</Col>
                     {minimum_resources.memory === maximum_resources.memory ? <Col span={12}><Typography>Locked: {formatMemory(minimum_resources.memory)}G</Typography></Col> :
                         <Fragment>
-                            <Col span={12}>
+                            <Col span={16}>
                                 <Slider
                                     min={parseInt(toBytes(minimum_resources.memory))}
                                     max={parseInt(toBytes(maximum_resources.memory))}
@@ -129,16 +111,6 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                                     value={typeof currentMemory === 'number' ? currentMemory : 0}
                                     step={toBytes("0.25G")}
                                     tipFormatter={memoryFormatter}
-                                />
-                            </Col>
-                            <Col span={4}>
-                                <InputNumber
-                                    min={parseInt(toBytes(minimum_resources.memory))}
-                                    max={parseInt(toBytes(maximum_resources.memory))}
-                                    style={{ margin: '0 16px' }}
-                                    value={currentMemory}
-                                    onChange={(value) => setMemory(value)}
-                                    formatter={memoryFormatter}
                                 />
                             </Col>
                         </Fragment>}

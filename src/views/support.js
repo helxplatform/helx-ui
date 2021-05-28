@@ -4,7 +4,7 @@ import { Breadcrumbs } from '../components/layout'
 
 const { Title } = Typography
 
-export const HelpView = () => {
+export const SupportView = () => {
   const breadcrumbs = [
     { text: 'Home', path: '/helx' },
     { text: 'Help', path: '/help' },
