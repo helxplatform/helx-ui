@@ -12,7 +12,7 @@ export const AppProvider = ({ children }) => {
             app_id: app_id,
             cpus: cpu,
             memory: memory,
-            gpu: gpu
+            gpus: gpu
         };
         return axios.post(`${helxAppstoreUrl}/api/v1/instances/`, params);
     }
