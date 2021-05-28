@@ -49,7 +49,7 @@ export const HelxSearch = ({ children }) => {
     const queryParams = new URLSearchParams(window.location.search)
     setQuery(queryParams.get('q') || '')
     setCurrentPage(+queryParams.get('p') || 1)
-  }, [])
+  }, [window.location.search])
 
   useEffect(() => {
     // close selected view when loading new search
@@ -65,7 +65,6 @@ export const HelxSearch = ({ children }) => {
           size: PER_PAGE,
         }
         const response = await axios.post(`${helxSearchUrl}/search`, params)
-
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.hits) {
           const hits = response.data.result.hits.hits.map(r => r._source)
           setResults(hits)
