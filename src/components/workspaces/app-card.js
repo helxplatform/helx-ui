@@ -67,7 +67,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                 <img className="app_logo" src={'' + getLogoUrl(app_id)} />
             </div>
             {flipped ? <div className="app_content">
-                <Typography>App Configuration</Typography>
+                <Typography>Resource Configuration</Typography>
                 <br />
                 <Row align="middle">
                     <Col span={4}>CPU</Col>
