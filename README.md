@@ -1,70 +1,139 @@
-# Getting Started with Create React App
+# HeLx UI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a [React](reactjs.org/) app created with [create-react-app](https://create-react-app.dev/).
 
-## Available Scripts
+## Development
 
-In the project directory, you can run:
+For local React development you can get started with:
 
-### `yarn start`
+```bash
+make start
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Appstore backend
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+To use the `appstore` as a local backend you will need to have minikube installed
+and optionally `docker-compose`. For simple setups `docker-compose` is enough to
+run the appstore and provide endpoints for development. For more advance capabilities
+it is helpful to run the appstore in minikube with port forwarding so that service
+endpoints will start and stop services in your local minikube environment.
 
-### `yarn test`
+### Appstore docker-compose
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Make sure you have minikube installed then:
 
-### `yarn build`
+```bash
+cp .env.example .env
+make dev
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Optionally
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+vim .env
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This cannot launch apps due to running in stub mode, but will allow login (with
+Django admin, see details below for social login) and serve up some stubbed data.
 
-### `yarn eject`
+### Appstore local kubernetes
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Using a local kubernetes environment (kind, minikube, k3) you can install the
+`appstore` helm chart as detailed [here](https://github.com/helxplatform/appstore/tree/alexander/react-build/appstore#development-environment-with-kubernetes)
+and port forward so that the appstore endpoints are available to your local
+network space.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+kubectl port-forward service/helx-nginx 8080:80
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Navigate to endpoints at `http://localhost:8080/`.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+With this setup appstore and tycho will use your local cluster enabling full
+interaction with launched app instances.
 
-## Learn More
+## Environment Variables
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### React
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+See `.env.example` for the most up to date variables. Copy/move `.env.example`
+to `.env` for local `npm run` and `docker-compose` detection.
 
-### Code Splitting
+- `REACT_APP_CONTEXT`: common | braini | catalyst | scidas | blackbalsam | restartr
+- `REACT_APP_HELX_SEARCH_API_KEY`: API_KEY (not needed as of this writing)
+- `REACT_APP_HELX_SEARCH_URL`: semantic search deployment to hit when executing search
+- `REACT_APP_HELX_APPSTORE_URL`: host/path the app will used to get backend data
+- `BUILD_PATH`: Environment variable used by `create-react-app` to determine
+the react build output path
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Appstore
 
-### Analyzing the Bundle Size
+The following variables control the appstore backend configuration. Defaults are
+provided in `env.sample` with the exception of github login variables. These are
+a minimum set that should provide ease of use and functionality for frontend
+development without needing to understand all appstore environment variables
+and configuration.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- `WHITELIST_REDIRECT`: prevents Django from performing a redirect for unauthorized
+(not unauthenticated) users and instead raises a 403 that React can handle.
+- `DEV_PHASE`: defaults to `stub` providing sample data and doesn't rely on Tycho
+talking to Kubernetes
+- `DEBUG`: handles how Django routes/raises on error and the amount of detail provided
+- `ALLOW_DJANGO_LOGIN`: toggle Django login as a provider, doesn't impact admin login
+- `OAUTH_PROVIDERS`: list of oauth login providers
+- `GITHUB_NAME`: app name you configured for your github oauth app
+- `GITHUB_CLIENT_ID`: github generated client id
+- `GITHUB_SECRET`: github generated client secret
+- `AUTHORIZED_USERS`: your primary github email
+- `NAMESPACE`: optional, not required in stub mode, most likely `default` for
+local dev. This is the kubernetes namespace Tycho will start services in.
 
-### Making a Progressive Web App
+For more details on the appstore variables please see the appstore [README](https://github.com/helxplatform/appstore/tree/develop/appstore#app-development).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Appstore login configuration
 
-### Advanced Configuration
+Out of the box the `admin` account is configured and available for use. For
+some dev this login may be enough to test changes or validate an update, but
+for testing a more standard user login view/flow you will want to use one
+of the social login options.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The following steps describe setting up github social login for use with the
+appstore backend. This is probably the easiest login provider to setup for local
+testing.
 
-### Deployment
+- Login to GitHub
+- Setup a GitHub OAuth [app](https://docs.github.com/en/developers/apps/creating-an-oauth-app)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+> You can use 127.0.0.1, localhost or 0.0.0.0 here, but it needs to match the
+> address you use locally these are not interchangeable. Mixing them will raise
+> a callback error in the login flow.
 
-### `yarn build` fails to minify
+- Copy `.env.example` to `.env`
+- Add your app name, secret and id to the GITHUB_* variables
+- Add your github email to `AUTHORIZED_USERS` so that your user can login, and
+your user will be authorized to access appstore resources.
+- If you have already started appstore restart it
+  - If running in `docker-compose` you shouldn't need to do anything more that restart
+  - If running appstore locally you will need to remove the generated sqlite database
+and makes sure to rerun the `start` command or use the `manageauthorizedusers` command.
+- appstore login should now be configured to support github social authentication
+and your user has been added as an authorized user.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+For more details please reference the devops [README](https://github.com/helxplatform/devops/tree/develop#configure-environment-variables-for-helx-deployment)
+and check the section on OAuth login.
+
+## Production build configuration
+
+For local development the app talks to the appstore as a separate entity. In an
+appstore deployment environment the appstore facilitates serving the frontend.
+The main impact this has on the frontend repo is the `homepage` field in
+`package.json` and `BUILD_PATH` in `.env`. Both of these are used to configure
+build settings with react and webpack.
+
+[Controlling asset reference path](https://create-react-app.dev/docs/deployment/#building-for-relative-paths)
+[React configuration variables](https://create-react-app.dev/docs/advanced-configuration/)
+
+In `appstore` the frontend app is served from a `static/frontend` directory,
+not the server root as react assumes by default. While these settings assist in
+deploying the frontend app they can be used in the frontend repo along with
+`make start` without requiring additional configuration in this project.
