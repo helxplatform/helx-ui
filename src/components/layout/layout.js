@@ -1,10 +1,19 @@
-import { Layout as AntLayout, Button, Menu } from 'antd'
+import { Layout as AntLayout, Button, Menu, Drawer } from 'antd'
 import { Link } from '@reach/router'
 import { useEnvironment } from '../../contexts/environment-context';
 import { logoutHandler } from '../../api/';
+import { MobileMenu } from './menu';
 import './layout.css';
 
 const { Header, Content, Footer } = AntLayout
+
+const menu = [
+  { key: 'semantic-search', title: 'Semantic Search', path: '/helx/search' },
+  { key: 'workspaces', title: 'Workspaces', path: '/helx/workspaces' },
+  { key: 'help', title: 'Help', path: '/helx/help' }
+]
+
+
 
 export const Layout = ({ children }) => {
   const { helxAppstoreUrl, context } = useEnvironment()
@@ -13,13 +22,11 @@ export const Layout = ({ children }) => {
     <AntLayout className="layout">
       <Header style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>
         {context !== undefined ? <Link to="/helx"><img className="brand_img" src={'' + helxAppstoreUrl + context.logo_url} alt="Go Home"></img></Link> : <span />}
-        <Menu style={{ position: 'absolute', right: '2px'}} theme="light" mode="horizontal">
-          <Menu.Item key="semantic-search"><Link to="/helx/search">Semantic Search</Link></Menu.Item>
-          <Menu.Item key="workspaces"><Link to="/helx/workspaces">Workspaces</Link></Menu.Item>
-          <Menu.Item key="documentation"><Link to="/helx/documentation">Documentation</Link></Menu.Item>
-          <Menu.Item key="contact"><Link to="/helx/contact">Contact</Link></Menu.Item>
+        <Menu className="menu-toggle" style={{ position: 'absolute', right: '2px' }} theme="light" mode="horizontal">
+          {menu.map(m => <Menu.Item key={m.key}><Link to={m.path}>{m.title}</Link></Menu.Item>)}
           <Menu.Item key="logout" className="logout"><Button onClick={() => logoutHandler()}>LOG OUT</Button></Menu.Item>
         </Menu>
+        <MobileMenu menu={menu} />
       </Header>
       <Content>
         {children}
