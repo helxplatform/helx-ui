@@ -5,7 +5,7 @@ import {
   AvailableView,
   SupportView,
   NotFoundView,
-  SemanticSearchView,
+  SearchView,
 } from './views'
 import { Layout } from './components/layout'
 
@@ -20,8 +20,8 @@ export const App = () => {
               <AvailableView path="/workspaces/available" />
               <ActiveView path="/workspaces/active" />
               <SupportView path="/support" />
-              <SemanticSearchView path="/" />
-              <SemanticSearchView path="/search" />
+              <SearchView path="/" />
+              <SearchView path="/search" />
               <NotFoundView default />
             </Router>
           </Layout>

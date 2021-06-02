@@ -8,7 +8,7 @@ import './layout.css';
 const { Header, Content, Footer } = AntLayout
 
 const menu = [
-  { key: 'semantic-search', title: 'Semantic Search', path: '/helx/search' },
+  { key: 'search', title: 'Search', path: '/helx/search' },
   { key: 'workspaces', title: 'Workspaces', path: '/helx/workspaces' },
   { key: 'support', title: 'Support', path: '/helx/support' }
 ]
