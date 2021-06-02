@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
-import { Button, Card, Spin, Slider, InputNumber, Col, Typography, Row } from 'antd';
+import { Button, Card, Spin, Slider, Col, Typography, Row } from 'antd';
 import { useApp } from '../../contexts/app-context';
 import { Link } from '@reach/router';
-import { CloseOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
+import { CloseOutlined, SettingOutlined } from '@ant-design/icons';
 import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
 import { openNotificationWithIcon } from '../notifications'
 import './app-card.css';
@@ -64,7 +64,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
             ]}
         >
             <div className="app_logo_container">
-                <img className="app_logo" src={'' + getLogoUrl(app_id)} />
+                <img className="app_logo" src={'' + getLogoUrl(app_id)} alt="" />
             </div>
             {flipped ? <div className="app_content">
                 <Typography>Resource Configuration</Typography>

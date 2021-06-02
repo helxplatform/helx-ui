@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import axios from 'axios'
-import { useNavigate } from '@reach/router'
+import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment } from '../../contexts'
 import './search.css'
 
@@ -26,6 +26,7 @@ export const HelxSearch = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const [selectedView, setSelectedView] = useState(false);
+  const location = useLocation()
 
   const inputRef = useRef()
   const navigate = useNavigate()
@@ -49,7 +50,7 @@ export const HelxSearch = ({ children }) => {
     const queryParams = new URLSearchParams(window.location.search)
     setQuery(queryParams.get('q') || '')
     setCurrentPage(+queryParams.get('p') || 1)
-  }, [window.location.search])
+  }, [location.search])
 
   useEffect(() => {
     // close selected view when loading new search

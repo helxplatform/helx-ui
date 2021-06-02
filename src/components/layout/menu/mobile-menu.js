@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import { Button, Drawer, Menu } from 'antd'
 import { MenuOutlined } from '@ant-design/icons'
 import { logoutHandler } from '../../../api/'
@@ -18,7 +18,7 @@ export const MobileMenu = ({menu}) => {
                 onClose={() => setVisible(false)}
                 visible={visible}
             >
-                <Menu mode="vertical" mode="inline">
+                <Menu mode="vertical">
                     {menu.map(m => <Menu.Item key={m.key}><Link to={m.path}>{m.title}</Link></Menu.Item>)}
                     <Menu.Item key="logout" className="logout"><Button onClick={() => logoutHandler()}>LOG OUT</Button></Menu.Item>
                 </Menu>
