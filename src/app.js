@@ -1,4 +1,4 @@
-import { LocationProvider, Router } from '@reach/router'
+import { Router } from '@reach/router'
 import { AppProvider, EnvironmentProvider, InstanceProvider } from './contexts'
 import {
   ActiveView,

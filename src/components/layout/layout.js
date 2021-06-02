@@ -1,4 +1,4 @@
-import { Layout as AntLayout, Button, Menu, Drawer } from 'antd'
+import { Layout as AntLayout, Button, Menu } from 'antd'
 import { Link } from '@reach/router'
 import { useEnvironment } from '../../contexts/environment-context';
 import { logoutHandler } from '../../api/';

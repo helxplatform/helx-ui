@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Layout, Spin, Typography } from 'antd';
+import { Button, Layout, Spin } from 'antd';
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
@@ -7,7 +7,6 @@ import { useInstance } from '../../contexts/instance-context';
 import DataTable from 'react-data-table-component';
 import { Modal } from "../../components/modal/Modal";
 import { Breadcrumbs } from '../../components/layout'
-import { formatMemory } from '../../utils/memory-converter';
 
 export const ActiveView = () => {
     const [instances, setInstances] = useState();
@@ -39,7 +38,7 @@ export const ActiveView = () => {
             setLoading(false);
         }
         renderInstance();
-    }, [refresh])
+    }, [loadInstances, refresh])
 
     const stopInstanceHandler = async (app_id, name) => {
         await stopInstance(app_id)

@@ -21,18 +21,17 @@ export const EnvironmentProvider = ({ children }) => {
   const [context, setContext] = useState();
   const relativeHost = window.location.origin;
 
-  // update the context on initial render
-  const loadContext = async () => {
-    const context_response = await axios({
-      method: 'GET',
-      url: `${relativeHost}/api/v1/context`
-    })
-    setContext(context_response.data);
-  }
-
   useEffect(() => {
+    // update the context on initial render
+    const loadContext = async () => {
+      const context_response = await axios({
+        method: 'GET',
+        url: `${relativeHost}/api/v1/context`
+      })
+      setContext(context_response.data);
+    }
     loadContext();
-  }, [])
+  }, [relativeHost])
 
   return (
     <EnvironmentContext.Provider value={{

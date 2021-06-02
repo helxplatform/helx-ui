@@ -1,5 +1,5 @@
-import React, { Fragment, useEffect, useState } from 'react'
-import { Layout, Col, Row, Spin } from 'antd'
+import React, { useEffect, useState } from 'react'
+import { Layout, Col, Spin } from 'antd'
 import { AppCard } from '../../components/workspaces'
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group'
 import { useApp } from '../../contexts/app-context'
@@ -32,7 +32,7 @@ export const AvailableView = () => {
             setLoading(false);
         }
         renderApp();
-    }, [])
+    }, [loadApps])
 
     return (
         <Layout>
@@ -40,7 +40,7 @@ export const AvailableView = () => {
             <NavigationTabGroup currentKey="available" />
             {isLoading ?
                 <Spin size="large" /> :
-                (apps != undefined ?
+                (apps !== undefined ?
                     (Object.keys(apps).length !== 0 ?
                         <div className="grid">{Object.keys(apps).sort().map(appKey => <Col><AppCard key={appKey} {...apps[appKey]} /></Col>)}</div>
                         : <div>No Apps Available</div>)
