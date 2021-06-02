@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import { Button, Card, Spin, Slider, Col, Typography, Row } from 'antd';
 import { useApp } from '../../contexts/app-context';
 import { Link } from '@reach/router';
-import { CloseOutlined, SettingOutlined } from '@ant-design/icons';
+import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
 import { openNotificationWithIcon } from '../notifications'
 import './app-card.css';
@@ -22,13 +22,11 @@ const validateLocalstorageValue = (config, app_id, min, max) => {
 
 export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
     const { launchApp } = useApp();
-    const [flipped, setFlipped] = useState(false)
+    const [launchTab, setLaunchTab] = useState(true)
     const [isLaunching, setLaunching] = useState(false);
     const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
     const [currentCpu, setCpu] = useState(validateLocalstorageValue('cpu', app_id, minimum_resources.cpus, maximum_resources.cpus));
     const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpus, maximum_resources.gpus));
-
-    const toggleConfig = event => setFlipped(!flipped)
 
     const memoryFormatter = (value) => {
         return formatBytes(value, 2);
@@ -57,23 +55,26 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
 
     return (
         <Card
-            style={{ width: '400px', height: '400px' }}
+            style={{ width: '400px', height: '450px' }}
             actions={[
-                flipped ? (isLaunching ? <Spin /> : <div className="launch_control"><Button size="small" onClick={appLauncher}>Launch</Button><CloseOutlined key="ellipsis" onClick={toggleConfig} /></div>) :
-                    <SettingOutlined key='setting' onClick={toggleConfig} />
+                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Button icon={<RocketOutlined />} onClick={appLauncher}>Launch</Button><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>More</Button></div>) :
+                    <Button icon={<SettingOutlined />} key='setting' onClick={() => setLaunchTab(true)}>Configuration</Button>
             ]}
         >
             <div className="app_logo_container">
                 <img className="app_logo" src={'' + getLogoUrl(app_id)} alt="" />
             </div>
-            {flipped ? <div className="app_content">
-                <Typography>Resource Configuration</Typography>
+            {launchTab ? <div className="app_content">
+                <Meta
+                    title={name}
+                    description={description}
+                />
                 <br />
                 <Row align="middle">
                     <Col span={4}>CPU</Col>
                     {minimum_resources.cpus === maximum_resources.cpus ? <Col span={12}><Typography>Locked: {minimum_resources.cpus} Core{minimum_resources.cpus > 1 ? 's' : ''}</Typography></Col> :
                         <Fragment>
-                            <Col span={16}>
+                            <Col span={14}>
                                 <Slider
                                     min={parseInt(minimum_resources.cpus)}
                                     max={parseInt(maximum_resources.cpus)}
@@ -82,13 +83,16 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                                     step={1}
                                 />
                             </Col>
+                            <Col className="app_config_value" span={6}>
+                                {currentCpu} Core{currentCpu > 1 ? 's' : ''}
+                            </Col>
                         </Fragment>}
                 </Row>
                 <Row align="middle">
                     <Col span={4}>GPU</Col>
                     {minimum_resources.gpus === maximum_resources.gpus ? <Col span={12}><Typography>Locked: {minimum_resources.gpus} Core{minimum_resources.gpus > 1 ? 's' : ''}</Typography></Col> :
                         <Fragment>
-                            <Col span={16}>
+                            <Col span={14}>
                                 <Slider
                                     min={parseInt(minimum_resources.gpus)}
                                     max={parseInt(maximum_resources.gpus)}
@@ -97,13 +101,16 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                                     step={1}
                                 />
                             </Col>
+                            <Col className="app_config_value" span={6}>
+                                {currentGpu} Core{currentGpu > 1 ? 's' : ''}
+                            </Col>
                         </Fragment>}
                 </Row>
                 <Row align="middle">
                     <Col span={4}>Memory</Col>
                     {minimum_resources.memory === maximum_resources.memory ? <Col span={12}><Typography>Locked: {formatMemory(minimum_resources.memory)}G</Typography></Col> :
                         <Fragment>
-                            <Col span={16}>
+                            <Col span={14}>
                                 <Slider
                                     min={parseInt(toBytes(minimum_resources.memory))}
                                     max={parseInt(toBytes(maximum_resources.memory))}
@@ -113,14 +120,17 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                                     tipFormatter={memoryFormatter}
                                 />
                             </Col>
+                            <Col className="app_config_value" span={6}>
+                                {formatBytes(currentMemory, 2)}
+                            </Col>
                         </Fragment>}
                 </Row>
             </div> : <div>
                 <div className="app_content">
-                    <Meta
+                    {/* <Meta
                         title={name}
                         description={description}
-                    />
+                    /> */}
                     <br />
                     <Typography>{detail}</Typography>
                     <Link to={docs}>About {name}</Link></div></div>}
