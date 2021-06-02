@@ -7,6 +7,7 @@ import { useInstance } from '../../contexts/instance-context';
 import DataTable from 'react-data-table-component';
 import { Modal } from "../../components/modal/Modal";
 import { Breadcrumbs } from '../../components/layout'
+import TimeAgo from 'timeago-react';
 
 export const ActiveView = () => {
     const [instances, setInstances] = useState();
@@ -102,7 +103,7 @@ export const ActiveView = () => {
             grow: 2
         },
         {
-            name: 'WorkSpace Name',
+            name: 'Workspace',
             selector: 'workspace_name',
             sortable: true
         },
@@ -128,7 +129,14 @@ export const ActiveView = () => {
             name: 'Creation Time',
             selector: 'creation_time',
             sortable: true,
-            grow: 2
+            grow: 2,
+            cell: (record) => {
+                return(
+                    <Fragment>
+                        <TimeAgo datetime={record.creation_time} />
+                    </Fragment>
+                )
+            }
         },
         {
             name: 'CPU',
