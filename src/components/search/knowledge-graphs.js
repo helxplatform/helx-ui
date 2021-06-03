@@ -32,8 +32,8 @@ const KnowledgeGraph = ({ graph }) => {
           &nbsp;
           {
             interaction.publications.map((publication, i) => (
-              <Fragment>
-                [<Link key={`${interaction.source}-pub-${i + 1}`} to={ `https://pubmed.ncbi.nlm.nih.gov/${ publication.replace(/^PMID:/, '') }`}>{i + 1}</Link>]
+              <Fragment key={`${interaction.source}-pub-${i + 1}`}>
+                [<Link to={ `https://pubmed.ncbi.nlm.nih.gov/${ publication.replace(/^PMID:/, '') }`}>{i + 1}</Link>]
               </Fragment>
             ))
           }
