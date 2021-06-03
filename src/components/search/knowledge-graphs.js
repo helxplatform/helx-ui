@@ -29,7 +29,14 @@ const KnowledgeGraph = ({ graph }) => {
       <div className="type-edge">
         <span className="edge">
           {interaction.type}
-          {interaction.publications.map((publication, i) => <Fragment>[<Link key={`${interaction.source}-pub-${i + 1}`} pmid={publication.replace(/^PMID:/, '')}>{i + 1}</Link>]</Fragment>)}
+          &nbsp;
+          {
+            interaction.publications.map((publication, i) => (
+              <Fragment key={`${interaction.source}-pub-${i + 1}`}>
+                [<Link to={ `https://pubmed.ncbi.nlm.nih.gov/${ publication.replace(/^PMID:/, '') }`}>{i + 1}</Link>]
+              </Fragment>
+            ))
+          }
         </span>
       </div>
       <div className="target-node"><span className="node" /></div>
