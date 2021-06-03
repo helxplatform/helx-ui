@@ -32,7 +32,6 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         return formatBytes(value, 2);
     }
 
-
     //app can be launched here using axios to hit the /start endpoint
     const appLauncher = async () => {
         setLaunching(true);
@@ -40,6 +39,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         await launchApp(app_id, currentCpu, currentGpu, bytesToMegabytes(currentMemory))
             .then(res => {
                 openNotificationWithIcon('success', 'Success', `${name} launched.`)
+                window.open(`${window.location.origin}/connect/?url=${res.data.url}&name=${res.data.name}&icon=https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${res.data.app_id}/icon.png`, "_blank")
             }).catch(e => {
                 openNotificationWithIcon('error', 'Error', `Failed to launch ${name}.`)
             })
@@ -57,7 +57,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         <Card
             style={{ width: '400px', height: '450px' }}
             actions={[
-                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Button icon={<RocketOutlined />} onClick={appLauncher}>Launch</Button><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>More</Button></div>) :
+                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Button icon={<RocketOutlined />} onClick={appLauncher}>Launch</Button><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>About</Button></div>) :
                     <Button icon={<SettingOutlined />} key='setting' onClick={() => setLaunchTab(true)}>Configuration</Button>
             ]}
         >
