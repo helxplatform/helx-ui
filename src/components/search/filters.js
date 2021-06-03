@@ -9,7 +9,7 @@ export const Filters = () => {
   const handleChangeFilters = value => setFilters(value)
 
   return (
-    <Radio.Group value={ filers } onChange={ () => console.log('.') }>
+    <Radio.Group value={ filters } onChange={ () => console.log('.') }>
       <Radio.Button value="small">Small</Radio.Button>
       <Radio.Button value="default">Default</Radio.Button>
       <Radio.Button value="large">Large</Radio.Button>
