@@ -24,7 +24,7 @@ export const Layout = ({ children }) => {
         {context !== undefined ? <Link to="/helx"><img className="brand_img" src={'' + helxAppstoreUrl + context.logo_url} alt="Go Home"></img></Link> : <span />}
         <Menu className="menu-toggle" style={{ position: 'absolute', right: '2px' }} theme="light" mode="horizontal">
           {menu.map(m => <Menu.Item key={m.key}><Link to={m.path}>{m.title}</Link></Menu.Item>)}
-          <Menu.Item key="logout" className="logout"><Button onClick={() => logoutHandler()}>LOG OUT</Button></Menu.Item>
+          <Menu.Item key="logout" className="logout"><Button onClick={() => logoutHandler(helxAppstoreUrl)}>LOG OUT</Button></Menu.Item>
         </Menu>
         <MobileMenu menu={menu} />
       </Header>
