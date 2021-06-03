@@ -129,7 +129,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <TimeAgo datetime={record.creation_time} />
+                        <TimeAgo datetime={record} />
                     </Fragment>
                 )
             }
@@ -153,7 +153,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={() => stopInstanceHandler(record.sid)}>
+                        <button onClick={() => stopInstanceHandler(record.sid, record.name)}>
                             <DeleteOutlined />
                         </button>
                     </Fragment>
