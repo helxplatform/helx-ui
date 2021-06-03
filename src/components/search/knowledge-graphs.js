@@ -19,22 +19,32 @@ const KnowledgeGraph = ({ graph }) => {
     }
   }, [graph])
 
-  return interactions.map((interaction, i) => (
-    <Fragment key={ `kg-${i}` }>
-      <div className="source-label"><Link to={kgLink.get_curie_purl(interaction.source.id)}>{interaction.source.name}</Link></div>
-      <div />
-      <div className="target-label"><Link to={kgLink.get_curie_purl(interaction.target.id)}>{interaction.target.name}</Link></div>
+  return interactions.map((interaction, i) => {
+    console.log(interaction)
+    return (
+      <Fragment key={ `kg-${i}` }>
+        <div className="source-label"><Link to={kgLink.get_curie_purl(interaction.source.id)}>{interaction.source.name}</Link></div>
+        <div />
+        <div className="target-label"><Link to={kgLink.get_curie_purl(interaction.target.id)}>{interaction.target.name}</Link></div>
 
-      <div className="source-node"><span className="node" /></div>
-      <div className="type-edge">
-        <span className="edge">
-          {interaction.type}
-          {interaction.publications.map((publication, i) => <Fragment>[<Link key={`${interaction.source}-pub-${i + 1}`} pmid={publication.replace(/^PMID:/, '')}>{i + 1}</Link>]</Fragment>)}
-        </span>
-      </div>
-      <div className="target-node"><span className="node" /></div>
-    </Fragment>
-  ))
+        <div className="source-node"><span className="node" /></div>
+        <div className="type-edge">
+          <span className="edge">
+            {interaction.type}
+            &nbsp;
+            {
+              interaction.publications.map((publication, i) => (
+                <Fragment>
+                  [<Link key={`${interaction.source}-pub-${i + 1}`} to={ `https://pubmed.ncbi.nlm.nih.gov/${ publication.replace(/^PMID:/, '') }`}>{i + 1}</Link>]
+                </Fragment>
+              ))
+            }
+          </span>
+        </div>
+        <div className="target-node"><span className="node" /></div>
+      </Fragment>
+    )
+  })
 }
 
 const NoKnowledgeGraphsMessage = () => {
