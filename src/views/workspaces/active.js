@@ -1,19 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Layout, Spin, Typography } from 'antd';
+import { Button, Layout, Table, Typography, Spin } from 'antd';
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
 import { useInstance } from '../../contexts/instance-context';
-import DataTable from 'react-data-table-component';
 import { Modal } from "../../components/modal/Modal";
 import { Breadcrumbs } from '../../components/layout'
-import { formatMemory } from '../../utils/memory-converter';
+import TimeAgo from 'timeago-react';
 
 export const ActiveView = () => {
     const [instances, setInstances] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
-    const { loadInstances, stopInstance, updateInstance } = useInstance();
+    const { loadInstances, stopInstance, updateInstance, checkInstance } = useInstance();
     const [modalOpen, setModalOpen] = useState(false);
     const [currentRecord, setCurrentRecord] = useState("");
     const workspaceN = React.createRef();
@@ -30,7 +29,11 @@ export const ActiveView = () => {
             setLoading(true);
             await loadInstances()
                 .then(r => {
-                    setInstances(r.data);
+                    let fetchInstance = r.data;
+                    for (let i = 0; i < fetchInstance.length; i++) {
+                        fetchInstance[i]['connect'] = `${window.location.origin}/connect/?url=${r.data[i].url}&name=${r.data[i].name}&icon=https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${r.data[i].aid}/icon.png`
+                    }
+                    setInstances(fetchInstance);
                 })
                 .catch(e => {
                     setInstances([]);
@@ -39,7 +42,7 @@ export const ActiveView = () => {
             setLoading(false);
         }
         renderInstance();
-    }, [refresh])
+    }, [loadInstances, refresh])
 
     const stopInstanceHandler = async (app_id, name) => {
         await stopInstance(app_id)
@@ -95,83 +98,72 @@ export const ActiveView = () => {
         };
     }
 
-    const column = [
+    const columns = [
         {
-            name: 'App Name',
-            selector: 'name',
-            sortable: true,
-            grow: 2
+            title: 'App Name',
+            dataIndex: 'name',
+            key: 'name',
         },
         {
-            name: 'WorkSpace Name',
-            selector: 'workspace_name',
-            sortable: true
+            title: 'Workspace',
+            dataIndex: 'workspace_name',
+            key: 'workspace',
         },
         {
-            key: "action",
-            text: "Action",
-            className: "action",
-            width: 100,
-            center: true,
-            sortable: false,
-            name: 'Connect',
-            cell: (record) => {
+            title: 'Connect',
+            key: 'action',
+            align: 'center',
+            render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={() => window.open(record.url, "_blank")}>
+                        <button onClick={() => window.open(record.connect, "_blank")}>
                             <RightCircleOutlined />
                         </button>
                     </Fragment>
-                );
-            },
+                )
+            }
         },
         {
-            name: 'Creation Time',
-            selector: 'creation_time',
-            sortable: true,
-            grow: 2
-        },
-        {
-            name: 'CPU',
-            selector: (row) => { return row.cpus / 1000 + ' Core' + (row.cpus / 1000 > '1' ? 's' : '') },
-            sortable: true
-        },
-        {
-            name: 'GPU',
-            selector: (row) => { return row.gpus / 1000 + ' Core' + (row.gpus / 1000 > '1' ? 's' : '') },
-            sortable: true
-        },
-        {
-            name: 'Memory',
-            // Note: Memory in the response does not contain unit, but it matches the one when we post them (MB by default).
-            selector: (row) => { return row.memory + ' GB' },
-            sortable: true
-        }, {
-            key: "action",
-            text: "Action",
-            className: "action",
-            width: 100,
-            center: true,
-            sortable: false,
-            name: <Button type="primary" danger onClick={stopAllInstanceHandler}>Stop All</Button>,
-            cell: (record) => {
+            title: 'Creation Time',
+            dataIndex: 'creation_time',
+            render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={() => stopInstanceHandler(record.sid)}>
+                        <TimeAgo datetime={record} />
+                    </Fragment>
+                )
+            }
+        },
+        {
+            title: 'CPU',
+            render: (record) => { return record.cpus / 1000 + ' Core' + (record.cpus / 1000 > '1' ? 's' : '') },
+        },
+        {
+            title: 'GPU',
+            render: (record) => { return record.gpus / 1000 + ' Core' + (record.gpus / 1000 > '1' ? 's' : '') },
+        },
+        {
+            title: 'Memory',
+            // Note: Memory in the response does not contain unit, but it matches the one when we post them (MB by default).
+            render: (record) => { return record.memory + ' GB' },
+        },
+        {
+            title: <Button type="primary" danger onClick={stopAllInstanceHandler}>Stop All</Button>,
+            align: 'center',
+            render: (record) => {
+                return (
+                    <Fragment>
+                        <button onClick={() => stopInstanceHandler(record.sid, record.name)}>
                             <DeleteOutlined />
                         </button>
                     </Fragment>
                 );
-            },
-        }, {
-            key: "action",
-            text: "Action",
-            className: "action",
-            width: 100,
-            center: true,
-            sortable: false,
-            name: "Update",
-            cell: (record) => {
+            }
+        },
+        {
+            title: 'Update',
+            align: 'center',
+            render: (record) => {
                 return (
                     <Fragment>
                         <button type="button" value="update" onClick={(e) => handleModalOpen(e, record.sid)}>Update</button>
@@ -219,9 +211,9 @@ export const ActiveView = () => {
                             : <div></div>
                         }
                     </Fragment>
-                );
-            },
-        },
+                )
+            }
+        }
     ]
 
     return (
@@ -232,7 +224,7 @@ export const ActiveView = () => {
                 (instances === undefined ?
                     <div></div> :
                     (instances.length > 0 ?
-                        <DataTable columns={column} data={instances} /> : <div>No instances running</div>))}
+                        <Table columns={columns} dataSource={instances} /> : <div style={{ textAlign: 'center' }}>No instances running</div>))}
         </Layout>
     )
 }

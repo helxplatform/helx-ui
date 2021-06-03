@@ -5,28 +5,30 @@ import {
   AvailableView,
   SupportView,
   NotFoundView,
-  SemanticSearchView,
+  SearchView,
 } from './views'
 import { Layout } from './components/layout'
 
 export const App = () => {
   return (
     <EnvironmentProvider>
-      <AppProvider>
-        <InstanceProvider>
-          <Layout>
-            <Router basepath="/helx">
-              <AvailableView path="/workspaces" />
-              <AvailableView path="/workspaces/available" />
-              <ActiveView path="/workspaces/active" />
-              <SupportView path="/support" />
-              <SemanticSearchView path="/" />
-              <SemanticSearchView path="/search" />
-              <NotFoundView default />
-            </Router>
-          </Layout>
-        </InstanceProvider>
-      </AppProvider>
+      <LocationProvider>
+        <AppProvider>
+          <InstanceProvider>
+            <Layout>
+              <Router basepath="/helx">
+                <AvailableView path="/workspaces" />
+                <AvailableView path="/workspaces/available" />
+                <ActiveView path="/workspaces/active" />
+                <SupportView path="/support" />
+                <SearchView path="/" />
+                <SearchView path="/search" />
+                <NotFoundView default />
+              </Router>
+            </Layout>
+          </InstanceProvider>
+        </AppProvider>
+      </LocationProvider>
     </EnvironmentProvider >
   )
 }

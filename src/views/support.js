@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { Layout, Typography } from 'antd'
+import { Typography } from 'antd'
 import { Breadcrumbs } from '../components/layout'
 
 const { Title } = Typography
@@ -16,7 +16,7 @@ export const SupportView = () => {
       <Title level={1}>Get in touch</Title>
         <Typography>For support or any help, please reach out to helx@lists.renci.org.</Typography>
         <Title level={1}>Documentation</Title>
-        <Typography>Learn more, take a look at our <a href="https://helx.gitbook.io/helx-documentation/" target="_blank">docs</a>.</Typography>
+        <Typography>Learn more, take a look at our <a href="https://helx.gitbook.io/helx-documentation/" target="_blank" rel="noopener noreferrer">docs</a>.</Typography>
     </Fragment>
   )
 }

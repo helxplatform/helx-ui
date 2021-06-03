@@ -1,6 +1,10 @@
 .app_content {
-    height: 150px;
+    height: 200px;
     padding: 10px 0px;
+}
+
+.app_config_value {
+    padding: 2px;
 }
 
 .app_logo_container {

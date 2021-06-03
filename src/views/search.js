@@ -1,14 +1,21 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import { HelxSearch, SearchForm, SearchResults } from '../components/search'
+import { useScrollPosition } from '../hooks'
 import { Typography } from 'antd'
 import { Breadcrumbs } from '../components/layout'
 
 const { Title } = Typography
 
-export const SemanticSearchView = () => {
+export const SearchView = () => {
+  const scrollPosition = useScrollPosition()
+
+  useEffect(() => {
+    console.log(scrollPosition)
+  }, [scrollPosition])
+
   const breadcrumbs = [
     { text: 'Home', path: '/helx' },
-    { text: 'Semantic Search', path: '/search' },
+    { text: 'Search', path: '/search' },
   ]
 
   return (
@@ -16,7 +23,7 @@ export const SemanticSearchView = () => {
       
       <Breadcrumbs crumbs={ breadcrumbs } />
 
-      <Title level={ 1 }>Semantic Search</Title>
+      <Title level={ 1 }>Search</Title>
       
       <HelxSearch>
         <SearchForm />

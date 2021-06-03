@@ -8,7 +8,7 @@ import {
   FolderAddOutlined as AddIcon,
   ExperimentOutlined as LaunchIcon,
 } from '@ant-design/icons'
-import { KnowledgeGraphs, VariablesList } from './'
+import { KnowledgeGraphs } from './'
 
 const { Meta } = Card
 const { Text } = Typography
