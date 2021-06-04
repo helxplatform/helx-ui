@@ -34,7 +34,7 @@ export const SearchForm = () => {
         />
       </Form.Item>
       <Form.Item>
-        <Button>Search</Button>
+        <Button htmlType="submit">Search</Button>
       </Form.Item>
     </Form>
   )
