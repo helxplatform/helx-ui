@@ -45,9 +45,10 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
               <Fragment>
                 <List.Item>
                   <List.Item.Meta
-                    title={ <span>Study: <Link to={variable.collection_action}>{variable.collection_name}</Link></span> }
+                    className="studies-list-item"
+                    title={ <span className="studies-list-item__title">Study: <Link to={variable.collection_action}>{variable.collection_name}</Link></span> }
                     description={
-                      <div className="studies-list-item">
+                      <div className="studies-list-item__description">
                         <Text>Accession: <Link to={variable.collection_action}>{variable.collection_id.replace(/^TOPMED\.STUDY:/, '')}</Link></Text>
                         <Text>{ variable.variables.length } variable{ variable.variables.length === 1 ? '' : 's' }</Text>
                       </div>
