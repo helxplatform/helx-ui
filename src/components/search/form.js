@@ -26,6 +26,7 @@ export const SearchForm = () => {
     <Form onFinish={ () => doSearch(searchTerm) } className="search-form">
       <Form.Item>
         <Input
+          autoFocus
           ref={inputRef}
           placeholder="Search for biomedical concept"
           value={searchTerm}
