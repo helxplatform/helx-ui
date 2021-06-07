@@ -72,12 +72,9 @@ test: lint
 test.interactive:
 	npm run test
 
-#publish.image: push container image to docker hub
-publish.image:
-	docker image push $(DOCKER_ORG)/$(DOCKER_TAG)
-
 #publish: push all artifacts to registries
-publish: publish.image
+publish: build.image
+	docker image push $(DOCKER_ORG)/$(DOCKER_TAG)
 
 #clean: remove build artifacts and project dependencies
 clean:
