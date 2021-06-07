@@ -27,7 +27,7 @@ export const SearchForm = () => {
       <Form.Item>
         <Input
           ref={inputRef}
-          placeholder="Search for biomedical concept"
+          placeholder="Enter search term"
           value={searchTerm}
           onChange={handleChangeQuery}
           onKeyDown={handleKeyDown}
