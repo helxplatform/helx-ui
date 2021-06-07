@@ -70,6 +70,7 @@ export const HelxSearch = ({ children }) => {
           const hits = response.data.result.hits.hits.map(r => r._source)
           setResults(hits)
           setTotalResults(response.data.result.total_items)
+          setIsLoadingResults(false)
         } else {
           setResults([])
           setTotalResults(0)
@@ -77,8 +78,8 @@ export const HelxSearch = ({ children }) => {
       } catch (error) {
         console.log(error)
         setError({ message: 'An error occurred!' })
+        setIsLoadingResults(false)
       }
-      setIsLoadingResults(false)
     }
     fetchResults()
   }, [query, currentPage, helxSearchUrl, setResults, setError])
