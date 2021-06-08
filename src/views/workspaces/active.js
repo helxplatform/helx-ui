@@ -36,6 +36,7 @@ export const ActiveView = () => {
                     setInstances(fetchInstance);
                 })
                 .catch(e => {
+                    // setInstances([{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"6-6-2021 21:18:11","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"6-6-2021 21:18:11","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"time","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"time","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"time","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"}])
                     setInstances([]);
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading instances.')
                 })
@@ -129,7 +130,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <TimeAgo datetime={record} />
+                        <TimeAgo datetime={new Date(record+' UTC')} opts={{ relativeDate: new Date().toUTCString()}}/>
                     </Fragment>
                 )
             }
