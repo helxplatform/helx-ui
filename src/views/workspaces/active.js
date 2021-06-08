@@ -103,29 +103,13 @@ export const ActiveView = () => {
     };
 
     const handleModalOpen = (record) => {
+        // load current instance resources
         setWorkspace(record.workspace_name);
         setCpu(record.cpus / 1000);
         setGpu(record.gpus / 1000);
         setMemory(toBytes(record.memory + 'G'));
         setModalOpen(true);
     };
-
-    const validateResources = (e) => {
-        const name = e.target.name;
-        const value = parseInt(e.target.value);
-        if (name === "cpu") {
-            if (value < 1 || value > 8 || !(/^\d+$/.test(e.target.value))) {
-                cpu.current.value = "";
-                openNotificationWithIcon('error', 'Error', `CPU cannot exceed 8 cores.`)
-            }
-        }
-        if (name === "memory") {
-            if (value < 1 || value > 64000 || !(/^\d+$/.test(e.target.value))) {
-                memory.current.value = "";
-                openNotificationWithIcon('error', 'Error', `Memory cannot exceed 64000 Mi.`)
-            }
-        };
-    }
 
     const columns = [
         {
