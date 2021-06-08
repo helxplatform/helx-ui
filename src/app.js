@@ -8,6 +8,7 @@ import {
   SearchView,
 } from './views'
 import { Layout } from './components/layout'
+import {SplashScreenView} from "./views/workspaces/splash-screen";
 
 export const App = () => {
   return (
@@ -21,6 +22,7 @@ export const App = () => {
                 <AvailableView path="/workspaces/available" />
                 <ActiveView path="/workspaces/active" />
                 <SupportView path="/support" />
+                <SplashScreenView path="/workspaces/connect/:app_name/:app_url/:app_icon" />
                 <SearchView path="/" />
                 <SearchView path="/search" />
                 <NotFoundView default />

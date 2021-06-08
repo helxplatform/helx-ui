@@ -98,6 +98,14 @@ export const ActiveView = () => {
         };
     }
 
+     const splashScreen = (e, app_url, app_name) => {
+        const host = window.location.host
+        const protocol = window.location.protocol
+        const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_name}/icon.png`
+        const url = `${protocol}//${host}/helx/workspaces/connect/${app_name}/${encodeURIComponent(app_url)}/${encodeURIComponent(app_icon)}`
+        window.open(url)
+    }
+
     const columns = [
         {
             title: 'App Name',
@@ -116,7 +124,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={() => window.open(record.connect, "_blank")}>
+                        <button onClick={(e) => splashScreen(e, record.url, record.aid)}>
                             <RightCircleOutlined />
                         </button>
                     </Fragment>
