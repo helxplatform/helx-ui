@@ -39,7 +39,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         await launchApp(app_id, currentCpu, currentGpu, bytesToMegabytes(currentMemory))
             .then(res => {
                 openNotificationWithIcon('success', 'Success', `${name} launched.`)
-                window.open(`${window.location.origin}/connect/?url=${res.data.url}&name=${res.data.name}&icon=https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${res.data.app_id}/icon.png`, "_blank")
+                window.open(`${window.location.origin}/helx/workspaces/connect/${res.data.app_id}/${encodeURIComponent(res.data.url)}/${encodeURIComponent(`https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${res.data.app_id}/icon.png`)}`, "_blank")
             }).catch(e => {
                 openNotificationWithIcon('error', 'Error', `Failed to launch ${name}.`)
             })

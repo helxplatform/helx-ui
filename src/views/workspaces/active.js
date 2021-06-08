@@ -111,6 +111,31 @@ export const ActiveView = () => {
         setModalOpen(true);
     };
 
+    const validateResources = (e) => {
+        const name = e.target.name;
+        const value = parseInt(e.target.value);
+        if (name === "cpu") {
+            if (value < 1 || value > 8 || !(/^\d+$/.test(e.target.value))) {
+                cpu.current.value = "";
+                openNotificationWithIcon('error', 'Error', `CPU cannot exceed 8 cores.`)
+            }
+        }
+        if (name === "memory") {
+            if (value < 1 || value > 64000 || !(/^\d+$/.test(e.target.value))) {
+                memory.current.value = "";
+                openNotificationWithIcon('error', 'Error', `Memory cannot exceed 64000 Mi.`)
+            }
+        };
+    }
+
+     const splashScreen = (e, app_url, app_name) => {
+        const host = window.location.host
+        const protocol = window.location.protocol
+        const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_name}/icon.png`
+        const url = `${protocol}//${host}/helx/workspaces/connect/${app_name}/${encodeURIComponent(app_url)}/${encodeURIComponent(app_icon)}`
+        window.open(url)
+    }
+
     const columns = [
         {
             title: 'App Name',
@@ -129,7 +154,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={() => window.open(record.connect, "_blank")}>
+                        <button onClick={(e) => splashScreen(e, record.url, record.aid)}>
                             <RightCircleOutlined />
                         </button>
                     </Fragment>
