@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react'
+import React, {createContext, useContext, useState} from 'react'
 import axios from 'axios';
 import { useEnvironment } from './environment-context';
 
@@ -6,6 +6,21 @@ export const InstanceContext = createContext({});
 
 export const InstanceProvider = ({ children }) => {
     const { helxAppstoreUrl } = useEnvironment();
+    const [ openedTabs, setTabs ] = useState([]);
+
+    const addOrDeleteInstanceTab = (action, app_id, tabIns = undefined) => {
+        if (action === "add") {
+            setTabs(prev => prev.concat(tabIns));
+        }
+        if (action === "close") {
+            openedTabs.map((item) => {
+                if (item.name.split("-")[0] === `${app_id}`) {
+                    item.close();
+                };
+            });
+            setTabs(prev => prev.filter(tab => tab.name.split("-")[0] != `${app_id}`));
+        };
+    };
 
     const loadInstances = () => {
         return axios.get(`${helxAppstoreUrl}/api/v1/instances`)
@@ -31,7 +46,7 @@ export const InstanceProvider = ({ children }) => {
 
     return (
         <InstanceContext.Provider value={{
-            loadInstances, stopInstance, updateInstance
+            loadInstances, stopInstance, updateInstance, addOrDeleteInstanceTab
         }}>
             {children}
         </InstanceContext.Provider>
