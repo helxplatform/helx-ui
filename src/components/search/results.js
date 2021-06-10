@@ -33,20 +33,20 @@ export const SearchResults = () => {
     </div>
   ), [currentPage, pageCount, totalResults, query])
 
+  if (isLoadingResults) {
+    return <Spin />
+  }
+
   return (
     <Fragment>
 
-      { isLoadingResults && <Spin /> }
-
-      { !isLoadingResults && error && <span>{ error.message }</span> }
+      { error && <span>{ error.message }</span> }
 
       {
-        query && !isLoadingResults && !error.message && (
+        query && !error.message && (
           <div className="results">
             { results.length >= 1 && MemoizedResultsHeader }
 
-            { results.length === 0 && <div>Your search <b>{query}</b> did not match any documents.</div> }
-            
             <div className="grid">
               {
                 results.map((result, i) => {
