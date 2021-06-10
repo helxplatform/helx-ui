@@ -40,12 +40,10 @@ export const ActiveView = () => {
             setLoading(true);
             await loadInstances()
                 .then(r => {
-                    // setInstances([{ "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "6645e9724f8649b896619969c41bd276", "fqsid": "jupyter-ds-6645e9724f8649b896619969c41bd276", "workspace_name": "jupyter-ds", "creation_time": "6-8-2021 14:54:0", "cpus": 2000.0, "gpus": 0, "memory": "11.0", "url": "https://heal-dev.blackbalsam-cluster.edc.renci.org/private/jupyter-ds/connectbo/6645e9724f8649b896619969c41bd276/", "status": "ready" }, { "name": "Octave", "docs": "https://www.gnu.org/software/octave", "aid": "octave", "sid": "08233bffc946442494f3162f7656dab3", "fqsid": "octave-08233bffc946442494f3162f7656dab3", "workspace_name": "octave", "creation_time": "6-8-2021 14:54:8", "cpus": 3000.0, "gpus": 0, "memory": "49.75", "url": "https://heal-dev.blackbalsam-cluster.edc.renci.org/private/octave/connectbo/08233bffc946442494f3162f7656dab3/", "status": "ready" }])
                     setInstances(r.data);
                 })
                 .catch(e => {
-                    setInstances([{ "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "6-6-2021 21:18:11", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }, { "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "6-6-2021 21:18:11", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }, { "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "time", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }, { "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "time", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }, { "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "time", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }])
-                    //setInstances([]);
+                    setInstances([]);
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading instances.')
                 })
             setLoading(false);
@@ -58,7 +56,6 @@ export const ActiveView = () => {
                     setApps(r.data)
                 })
                 .catch(e => {
-                    // setApps({ "filebrowser": { "name": "File Browser", "app_id": "filebrowser", "description": "File Browser - a utility for browsing files through a web interface", "detail": "File Browser provides a web interface for browsing files in a cloud environment.", "docs": "https://filebrowser.org/", "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/filebrowser/docker-compose.yaml", "minimum_resources": { "cpus": "1", "gpus": 0, "memory": "4000M" }, "maximum_resources": { "cpus": "8", "gpus": 0, "memory": "64000M" } }, "jupyter-ds": { "name": "Jupyter Data Science", "app_id": "jupyter-ds", "description": "Jupyter DataScience - A Jupyter notebook for exploring and visualizing data.", "detail": "Includes R, Julia, and Python.", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/jupyter-ds/docker-compose.yaml", "minimum_resources": { "cpus": "1", "gpus": 0, "memory": "4000M" }, "maximum_resources": { "cpus": "8", "gpus": 0, "memory": "64000M" } }, "octave": { "name": "Octave", "app_id": "octave", "description": "A scientific programming language largely compatible with MATLAB.", "detail": "GNU Octave is a high-level language, primarily intended for numerical computations.", "docs": "https://www.gnu.org/software/octave", "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/octave/docker-compose.yaml", "minimum_resources": { "cpus": "1", "gpus": 0, "memory": "4000M" }, "maximum_resources": { "cpus": "8", "gpus": 0, "memory": "64000M" } } })
                     setApps({});
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
                 })
@@ -111,23 +108,6 @@ export const ActiveView = () => {
         setMemory(toBytes(record.memory + 'G'));
         setModalOpen(true);
     };
-
-    const validateResources = (e) => {
-        const name = e.target.name;
-        const value = parseInt(e.target.value);
-        if (name === "cpu") {
-            if (value < 1 || value > 8 || !(/^\d+$/.test(e.target.value))) {
-                cpu.current.value = "";
-                openNotificationWithIcon('error', 'Error', `CPU cannot exceed 8 cores.`)
-            }
-        }
-        if (name === "memory") {
-            if (value < 1 || value > 64000 || !(/^\d+$/.test(e.target.value))) {
-                memory.current.value = "";
-                openNotificationWithIcon('error', 'Error', `Memory cannot exceed 64000 Mi.`)
-            }
-        };
-    }
 
     const splashScreen = (e, app_url, app_name, sid, app_displayName) => {
         const host = window.location.host
