@@ -6,7 +6,8 @@ import { openNotificationWithIcon } from '../../components/notifications';
 import { useApp, useInstance } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
-import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
+import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
+import { updateTabName } from '../../utils/update-tab-name';
 
 const memoryFormatter = (value) => {
     return formatBytes(value, 2);
@@ -26,9 +27,6 @@ export const ActiveView = () => {
     const [cpu, setCpu] = useState();
     const [gpu, setGpu] = useState();
     const [memory, setMemory] = useState();
-    // const workspaceN = React.createRef();
-    // const cpu = React.createRef();
-    // const memory = React.createRef();
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
         { text: 'Workspaces', path: '/helx/workspaces' },
@@ -87,7 +85,7 @@ export const ActiveView = () => {
     //Update a running Instance.
     const updateOne = async (record, theWorkSpace, theCpu, theMemory) => {
         setUpdating(true);
-        await updateInstance(record, theWorkSpace, theCpu, theMemory)
+        await updateInstance(record.sid, theWorkSpace, theCpu, theMemory)
             .then(res => {
                 if (res.data.status === "success") {
                     setUpdating(false);
@@ -116,13 +114,7 @@ export const ActiveView = () => {
         const url = `${protocol}//${host}/helx/workspaces/connect/${app_name}/${encodeURIComponent(app_url)}/${encodeURIComponent(app_icon)}`
         const connect_tab_ref = `${sid}-tab`
         const connect_tab = window.open(url, connect_tab_ref);
-
-        // This will replace the original react title name with the new app name.
-        const updateTabName = (newWindow, newTitle) => {
-            if (newWindow.document) setTimeout(() => {newWindow.document.title = newTitle}, 100);
-            else setTimeout(updateTabName, 100);
-        }
-        updateTabName(connect_tab,app_displayName)
+        updateTabName(connect_tab, app_displayName)
         addOrDeleteInstanceTab("add", sid, connect_tab);
     }
 
@@ -201,6 +193,10 @@ export const ActiveView = () => {
                                 title="Update Instance"
                                 visible={modalOpen}
                                 confirmLoading={isUpdating}
+                                footer={[
+                                    <Button key="cancel" onClick={() => { setModalOpen(false); setUpdating(false); }}>Cancel</Button>,
+                                    <Button key="ok" onClick={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
+                                ]}
                                 onOk={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}
                                 onCancel={() => setModalOpen(false)}
                             >
