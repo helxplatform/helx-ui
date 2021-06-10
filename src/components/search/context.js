@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment } from '../../contexts'
@@ -86,7 +86,7 @@ export const HelxSearch = ({ children }) => {
     setPageCount(Math.ceil(totalResults / PER_PAGE))
   }, [totalResults])
 
-  const fetchKnowledgeGraphs = async (tag_id) => {
+  const fetchKnowledgeGraphs = useCallback(async (tag_id) => {
     try {
       const { data } =  await axios.post(`${helxSearchUrl}/search_kg`, {
         index: 'kg_index',
@@ -101,9 +101,9 @@ export const HelxSearch = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }
+  }, [results])
 
-  const fetchStudyVariables = async (_id, _query) => {
+  const fetchStudyVariables = useCallback(async (_id, _query) => {
     try {
       const { data } = await axios.post(`${helxSearchUrl}/search_var`, {
         concept: _id,
@@ -119,7 +119,7 @@ export const HelxSearch = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }
+  }, [results])
 
   const doSearch = queryString => {
     const trimmedQuery = queryString.trim()
