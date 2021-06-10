@@ -1,4 +1,4 @@
-import { Layout as AntLayout, Button, Menu } from 'antd'
+import { Layout as AntLayout, Button, Menu, Space } from 'antd'
 import { useLocation, Link } from '@reach/router'
 import { useEnvironment } from '../../contexts/environment-context';
 import { logoutHandler } from '../../api/';
@@ -25,7 +25,7 @@ export const Layout = ({ children }) => {
         {context !== undefined ? <Link to="/helx"><img className="brand_img" src={'' + helxAppstoreUrl + context.logo_url} alt="Go Home"></img></Link> : <span />}
         <Menu className="menu-toggle" style={{ position: 'absolute', right: '2px' }} theme="light" mode="horizontal" selectedKeys={[location.pathname]}>
           {menu.map(m => <Menu.Item key={m.key}><Link to={m.path}>{m.title}</Link></Menu.Item>)}
-          <Menu.Item key="logout" className="logout"><Button onClick={() => logoutHandler(helxAppstoreUrl)}>LOG OUT</Button></Menu.Item>
+          <Button type="primary" ghost className="logout-button" onClick={() => logoutHandler(helxAppstoreUrl)}>LOG OUT</Button>
         </Menu>
         <MobileMenu menu={menu} />
       </Header>

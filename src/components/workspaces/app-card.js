@@ -6,6 +6,8 @@ import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design
 import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
 import { openNotificationWithIcon } from '../notifications'
 import './app-card.css';
+import { useInstance } from "../../contexts";
+import { updateTabName } from '../../utils/update-tab-name';
 
 const { Meta } = Card;
 
@@ -24,6 +26,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     const { launchApp } = useApp();
     const [launchTab, setLaunchTab] = useState(true)
     const [isLaunching, setLaunching] = useState(false);
+    const { addOrDeleteInstanceTab } = useInstance();
     const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
     const [currentCpu, setCpu] = useState(validateLocalstorageValue('cpu', app_id, minimum_resources.cpus, maximum_resources.cpus));
     const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpus, maximum_resources.gpus));
@@ -38,8 +41,12 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         // NOTE: Memory is converted to MB when posting an instance
         await launchApp(app_id, currentCpu, currentGpu, bytesToMegabytes(currentMemory))
             .then(res => {
+                const sid = res.data.url.split("/")[6];
                 openNotificationWithIcon('success', 'Success', `${name} launched.`)
-                window.open(`${window.location.origin}/connect/?url=${res.data.url}&name=${res.data.name}&icon=https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${res.data.app_id}/icon.png`, "_blank")
+                const connect_tab_ref = `${sid}-tab`
+                const connect_tab = window.open(`${window.location.origin}/helx/workspaces/connect/${res.data.app_id}/${encodeURIComponent(res.data.url)}/${encodeURIComponent(`https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${res.data.app_id}/icon.png`)}`, connect_tab_ref);
+                updateTabName(connect_tab, name)
+                addOrDeleteInstanceTab("add", res.data.app_id, connect_tab);
             }).catch(e => {
                 openNotificationWithIcon('error', 'Error', `Failed to launch ${name}.`)
             })

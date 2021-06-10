@@ -26,15 +26,17 @@ export const SearchForm = () => {
     <Form onFinish={ () => doSearch(searchTerm) } className="search-form">
       <Form.Item>
         <Input
+          allowClear
+          autoFocus
           ref={inputRef}
-          placeholder="Search for biomedical concept"
+          placeholder="Enter search term"
           value={searchTerm}
           onChange={handleChangeQuery}
           onKeyDown={handleKeyDown}
         />
       </Form.Item>
       <Form.Item>
-        <Button>Search</Button>
+        <Button htmlType="submit">Search</Button>
       </Form.Item>
     </Form>
   )

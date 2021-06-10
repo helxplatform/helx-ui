@@ -1,23 +1,32 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Layout, Table, Typography, Spin } from 'antd';
+import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row } from 'antd';
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
-import { useInstance } from '../../contexts/instance-context';
-import { Modal } from "../../components/modal/Modal";
+import { useApp, useInstance } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
+import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
+import { updateTabName } from '../../utils/update-tab-name';
+
+const memoryFormatter = (value) => {
+    return formatBytes(value, 2);
+}
 
 export const ActiveView = () => {
     const [instances, setInstances] = useState();
+    const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
-    const { loadInstances, stopInstance, updateInstance, checkInstance } = useInstance();
+    const { loadApps } = useApp();
+    const { loadInstances, stopInstance, updateInstance, checkInstance, addOrDeleteInstanceTab } = useInstance();
     const [modalOpen, setModalOpen] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState("");
-    const workspaceN = React.createRef();
-    const cpu = React.createRef();
-    const memory = React.createRef();
+
+    const [isUpdating, setUpdating] = useState(false);
+    const [workspace, setWorkspace] = useState();
+    const [cpu, setCpu] = useState();
+    const [gpu, setGpu] = useState();
+    const [memory, setMemory] = useState();
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
         { text: 'Workspaces', path: '/helx/workspaces' },
@@ -29,11 +38,7 @@ export const ActiveView = () => {
             setLoading(true);
             await loadInstances()
                 .then(r => {
-                    let fetchInstance = r.data;
-                    for (let i = 0; i < fetchInstance.length; i++) {
-                        fetchInstance[i]['connect'] = `${window.location.origin}/connect/?url=${r.data[i].url}&name=${r.data[i].name}&icon=https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${r.data[i].aid}/icon.png`
-                    }
-                    setInstances(fetchInstance);
+                    setInstances(r.data);
                 })
                 .catch(e => {
                     setInstances([]);
@@ -41,10 +46,24 @@ export const ActiveView = () => {
                 })
             setLoading(false);
         }
+
+        // load all app configuration for input validation
+        const loadAppsConfig = async () => {
+            await loadApps()
+                .then(r => {
+                    setApps(r.data)
+                })
+                .catch(e => {
+                    setApps({});
+                    openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
+                })
+        }
         renderInstance();
+        loadAppsConfig();
     }, [loadInstances, refresh])
 
     const stopInstanceHandler = async (app_id, name) => {
+        addOrDeleteInstanceTab("close", app_id);
         await stopInstance(app_id)
             .then(r => {
                 setRefresh(!refresh);
@@ -64,38 +83,43 @@ export const ActiveView = () => {
     }
 
     //Update a running Instance.
-    const updateOne = async (event, record, theWorkSpace, theCpu, theMemory) => {
-        await updateInstance(record, theWorkSpace, theCpu, theMemory)
+    const updateOne = async (record, _workspace, _cpu, _gpu, _memory) => {
+        setUpdating(true);
+        await updateInstance(record.sid, _workspace, _cpu, _gpu, _memory)
             .then(res => {
                 if (res.data.status === "success") {
+                    setUpdating(false);
                     openNotificationWithIcon('success', 'Success', `Instance has been successfully updated ${record.name}.`)
                     setRefresh(!refresh);
                 }
+                else {
+                    setUpdating(false);
+                    openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${record.name}.`)
+                }
             }).catch(e => {
+                setUpdating(false);
                 openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${record.name}.`)
             })
     };
 
-    const handleModalOpen = (e, sid) => {
-        setCurrentRecord(sid);
+    const handleModalOpen = (record) => {
+        // load current instance resources
+        setWorkspace(record.workspace_name);
+        setCpu(record.cpus / 1000);
+        setGpu(record.gpus / 1000);
+        setMemory(toBytes(record.memory + 'G'));
         setModalOpen(true);
     };
 
-    const validateResources = (e) => {
-        const name = e.target.name;
-        const value = parseInt(e.target.value);
-        if (name === "cpu") {
-            if (value < 1 || value > 8 || !(/^\d+$/.test(e.target.value))) {
-                cpu.current.value = "";
-                openNotificationWithIcon('error', 'Error', `CPU cannot exceed 8 cores.`)
-            }
-        }
-        if (name === "memory") {
-            if (value < 1 || value > 64000 || !(/^\d+$/.test(e.target.value))) {
-                memory.current.value = "";
-                openNotificationWithIcon('error', 'Error', `Memory cannot exceed 64000 Mi.`)
-            }
-        };
+    const splashScreen = (e, app_url, app_name, sid, app_displayName) => {
+        const host = window.location.host
+        const protocol = window.location.protocol
+        const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_name}/icon.png`
+        const url = `${protocol}//${host}/helx/workspaces/connect/${app_name}/${encodeURIComponent(app_url)}/${encodeURIComponent(app_icon)}`
+        const connect_tab_ref = `${sid}-tab`
+        const connect_tab = window.open(url, connect_tab_ref);
+        updateTabName(connect_tab, app_displayName)
+        addOrDeleteInstanceTab("add", sid, connect_tab);
     }
 
     const columns = [
@@ -116,7 +140,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={() => window.open(record.connect, "_blank")}>
+                        <button onClick={(e) => splashScreen(e, record.url, record.aid, record.sid, record.name)}>
                             <RightCircleOutlined />
                         </button>
                     </Fragment>
@@ -129,7 +153,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <TimeAgo datetime={record} />
+                        <TimeAgo datetime={new Date(record + ' UTC')} opts={{ relativeDate: new Date().toUTCString() }} />
                     </Fragment>
                 )
             }
@@ -164,49 +188,49 @@ export const ActiveView = () => {
             title: 'Update',
             align: 'center',
             render: (record) => {
+
                 return (
                     <Fragment>
-                        <button type="button" value="update" onClick={(e) => handleModalOpen(e, record.sid)}>Update</button>
+                        <button type="button" value="update" onClick={() => handleModalOpen(record)}>Update</button>
                         {modalOpen ?
-                            <Modal>
-                                <Modal.Content>
-                                    <Modal.FormGroup>
-                                        <Modal.FormButton style={{ top: "20px" }} type="button" className="close" onClick={() => setModalOpen(false)}>&times;</Modal.FormButton>
-                                        <Modal.FormLabel>Workspace Name</Modal.FormLabel>
-                                        <Modal.FormInput
-                                            ref={workspaceN}
-                                            type="text"
-                                            name="workspace_name"
-                                            placeholder="work instance 1 (Optional)"
-                                            value={workspaceN.current}
-                                        />
-                                        <Modal.FormLabel key="formKey">CPU in cores</Modal.FormLabel>
-                                        <Modal.FormInput
-                                            ref={cpu}
-                                            type="text"
-                                            name="cpu"
-                                            placeholder="1, 2... (Optional)"
-                                            value={cpu.current}
-                                            onChange={(e) => validateResources(e)}
-                                        />
-                                        <Modal.FormLabel key="formKey">Memory in Mi</Modal.FormLabel>
-                                        <Modal.FormInput
-                                            ref={memory}
-                                            type="text"
-                                            name="memory"
-                                            placeholder="1000, 2500... (Optional)"
-                                            value={memory.current}
-                                            onChange={(e) => validateResources(e)}
-                                        />
-                                        <Modal.FormButton style={{ bottom: "20px" }} type="submit" value="Submit" onClick={(e) => updateOne(
-                                            e,
-                                            currentRecord,
-                                            workspaceN.current.value,
-                                            cpu.current.value,
-                                            memory.current.value)
-                                        }>Apply</Modal.FormButton>
-                                    </Modal.FormGroup>
-                                </Modal.Content>
+                            <Modal
+                                title="Update Instance"
+                                visible={modalOpen}
+                                confirmLoading={isUpdating}
+                                footer={[
+                                    <Button key="cancel" onClick={() => { setModalOpen(false); setUpdating(false); }}>Cancel</Button>,
+                                    <Button key="ok" onClick={() => updateOne(record, workspace, cpu, gpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
+                                ]}
+                                onOk={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}
+                                onCancel={() => setModalOpen(false)}
+                            >
+                                <Form>
+                                    <Form.Item label="Workspace"><Input value={workspace} onChange={(e) => setWorkspace(e.target.value)} /></Form.Item>
+                                    <Form.Item>
+                                        <Row align="middle">
+                                            <Col span={3}>CPU</Col>
+                                            {apps[record.aid].minimum_resources.cpus === apps[record.aid].maximum_resources.cpus ?
+                                                <Col>Locked: {record.cpus} Core{record.cpus > 1 ? 's' : ''}</Col> :
+                                                <Fragment><Col span={16}><Slider min={parseInt(apps[record.aid].minimum_resources.cpus)} max={parseInt(apps[record.aid].maximum_resources.cpus)} value={cpu} onChange={(value) => { setCpu(value) }} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{cpu} Core{cpu > 1 ? 's' : ''}</Typography></Col></Fragment>}
+                                        </Row>
+                                    </Form.Item>
+                                    <Form.Item>
+                                        <Row align="middle">
+                                            <Col span={3}>GPU</Col>
+                                            {apps[record.aid].minimum_resources.gpus === apps[record.aid].maximum_resources.gpus ?
+                                                <Col>Locked: {record.gpus} Core{record.gpus > 1 ? 's' : ''}</Col> :
+                                                <Fragment><Col span={16}><Slider min={parseInt(apps[record.aid].minimum_resources.gpus)} max={parseInt(apps[record.aid].maximum_resources.gpus)} value={gpu} onChange={(value) => { setGpu(value) }} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{gpu} Core{gpu > 1 ? 's' : ''}</Typography></Col></Fragment>}
+                                        </Row>
+                                    </Form.Item>
+                                    <Form.Item>
+                                        <Row align="middle">
+                                            <Col span={3}>Memory</Col>
+                                            {apps[record.aid].minimum_resources.memory === apps[record.aid].maximum_resources.memory ?
+                                                <Col>Locked: {record.memory}</Col> :
+                                                <Fragment><Col span={16}><Slider min={parseInt(toBytes(apps[record.aid].minimum_resources.memory))} max={parseInt(toBytes(apps[record.aid].maximum_resources.memory))} value={parseInt(memory)} step={toBytes("0.25G")} onChange={(value) => { setMemory(value) }} tipFormatter={memoryFormatter} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{formatBytes(memory, 2)}</Typography></Col></Fragment>}
+                                        </Row>
+                                    </Form.Item>
+                                </Form>
                             </Modal>
                             : <div></div>
                         }
