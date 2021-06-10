@@ -30,13 +30,16 @@ export const InstanceProvider = ({ children }) => {
         return axios.delete(`${helxAppstoreUrl}/api/v1/instances/${app_id}`);
     }
 
-    const updateInstance = (app_id, workspace, cpu, memory) => {
+    const updateInstance = (app_id, workspace, cpu, gpu, memory) => {
         const data = {}
         if (cpu.length > 0) {
             data["cpu"] = `${cpu}`;
         }
+        if (gpu.length > 0) {
+            data["gpu"] = `${gpu}`;
+        }
         if (memory.length > 0) {
-            data["memory"] = `${memory}M`;
+            data["memory"] = `${memory}`;
         }
         if (workspace.length > 0) {
             data["labels"] = { "app-name": `${workspace}` };
