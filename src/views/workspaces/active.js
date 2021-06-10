@@ -44,8 +44,8 @@ export const ActiveView = () => {
                     setInstances(r.data);
                 })
                 .catch(e => {
-                    // setInstances([{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"6-6-2021 21:18:11","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"6-6-2021 21:18:11","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"time","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"time","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"time","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"}])
-                    setInstances([]);
+                    setInstances([{ "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "6-6-2021 21:18:11", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }, { "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "6-6-2021 21:18:11", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }, { "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "time", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }, { "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "time", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }, { "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4", "fqsid": "jupyter-ds", "workspace_name": "", "creation_time": "time", "cpus": 0.0, "gpus": 0, "memory": "0.0", "url": "https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/", "status": "ready" }])
+                    //setInstances([]);
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading instances.')
                 })
             setLoading(false);
@@ -129,14 +129,20 @@ export const ActiveView = () => {
         };
     }
 
-    const splashScreen = (e, app_url, app_name, sid) => {
+    const splashScreen = (e, app_url, app_name, sid, app_displayName) => {
         const host = window.location.host
         const protocol = window.location.protocol
         const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_name}/icon.png`
         const url = `${protocol}//${host}/helx/workspaces/connect/${app_name}/${encodeURIComponent(app_url)}/${encodeURIComponent(app_icon)}`
         const connect_tab_ref = `${sid}-tab`
         const connect_tab = window.open(url, connect_tab_ref);
-        connect_tab.document.title = app_name;
+
+        // This will replace the original react title name with the new app name.
+        const updateTabName = (newWindow, newTitle) => {
+            if (newWindow.document) setTimeout(() => {newWindow.document.title = newTitle}, 100);
+            else setTimeout(updateTabName, 100);
+        }
+        updateTabName(connect_tab,app_displayName)
         addOrDeleteInstanceTab("add", sid, connect_tab);
     }
 
@@ -158,7 +164,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={(e) => splashScreen(e, record.url, record.aid, record.sid)}>
+                        <button onClick={(e) => splashScreen(e, record.url, record.aid, record.sid, record.name)}>
                             <RightCircleOutlined />
                         </button>
                     </Fragment>
