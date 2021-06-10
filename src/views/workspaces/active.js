@@ -6,7 +6,8 @@ import { openNotificationWithIcon } from '../../components/notifications';
 import { useApp, useInstance } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
-import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
+import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
+import { updateTabName } from '../../utils/update-tab-name';
 
 const memoryFormatter = (value) => {
     return formatBytes(value, 2);
@@ -17,8 +18,8 @@ export const ActiveView = () => {
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
-    const { loadInstances, stopInstance, updateInstance, checkInstance } = useInstance();
     const { loadApps } = useApp();
+    const { loadInstances, stopInstance, updateInstance, checkInstance, addOrDeleteInstanceTab } = useInstance();
     const [modalOpen, setModalOpen] = useState(false);
 
     const [isUpdating, setUpdating] = useState(false);
@@ -26,9 +27,6 @@ export const ActiveView = () => {
     const [cpu, setCpu] = useState();
     const [gpu, setGpu] = useState();
     const [memory, setMemory] = useState();
-    // const workspaceN = React.createRef();
-    // const cpu = React.createRef();
-    // const memory = React.createRef();
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
         { text: 'Workspaces', path: '/helx/workspaces' },
@@ -40,11 +38,9 @@ export const ActiveView = () => {
             setLoading(true);
             await loadInstances()
                 .then(r => {
-                    // setInstances([{ "name": "Jupyter Data Science", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "aid": "jupyter-ds", "sid": "6645e9724f8649b896619969c41bd276", "fqsid": "jupyter-ds-6645e9724f8649b896619969c41bd276", "workspace_name": "jupyter-ds", "creation_time": "6-8-2021 14:54:0", "cpus": 2000.0, "gpus": 0, "memory": "11.0", "url": "https://heal-dev.blackbalsam-cluster.edc.renci.org/private/jupyter-ds/connectbo/6645e9724f8649b896619969c41bd276/", "status": "ready" }, { "name": "Octave", "docs": "https://www.gnu.org/software/octave", "aid": "octave", "sid": "08233bffc946442494f3162f7656dab3", "fqsid": "octave-08233bffc946442494f3162f7656dab3", "workspace_name": "octave", "creation_time": "6-8-2021 14:54:8", "cpus": 3000.0, "gpus": 0, "memory": "49.75", "url": "https://heal-dev.blackbalsam-cluster.edc.renci.org/private/octave/connectbo/08233bffc946442494f3162f7656dab3/", "status": "ready" }])
                     setInstances(r.data);
                 })
                 .catch(e => {
-                    // setInstances([{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"6-6-2021 21:18:11","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"6-6-2021 21:18:11","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"time","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"time","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"},{"name":"Jupyter Data Science","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","aid":"jupyter-ds","sid":"2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4","fqsid":"jupyter-ds","workspace_name":"","creation_time":"time","cpus":0.0,"gpus":0,"memory":"0.0","url":"https://localhost:8000/private/jupyter-ds/admin/2e3e2bf8-d521-41ec-9cd9-49ae51efe2d4/","status":"ready"}])
                     setInstances([]);
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading instances.')
                 })
@@ -58,7 +54,6 @@ export const ActiveView = () => {
                     setApps(r.data)
                 })
                 .catch(e => {
-                    // setApps({ "filebrowser": { "name": "File Browser", "app_id": "filebrowser", "description": "File Browser - a utility for browsing files through a web interface", "detail": "File Browser provides a web interface for browsing files in a cloud environment.", "docs": "https://filebrowser.org/", "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/filebrowser/docker-compose.yaml", "minimum_resources": { "cpus": "1", "gpus": 0, "memory": "4000M" }, "maximum_resources": { "cpus": "8", "gpus": 0, "memory": "64000M" } }, "jupyter-ds": { "name": "Jupyter Data Science", "app_id": "jupyter-ds", "description": "Jupyter DataScience - A Jupyter notebook for exploring and visualizing data.", "detail": "Includes R, Julia, and Python.", "docs": "https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook", "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/jupyter-ds/docker-compose.yaml", "minimum_resources": { "cpus": "1", "gpus": 0, "memory": "4000M" }, "maximum_resources": { "cpus": "8", "gpus": 0, "memory": "64000M" } }, "octave": { "name": "Octave", "app_id": "octave", "description": "A scientific programming language largely compatible with MATLAB.", "detail": "GNU Octave is a high-level language, primarily intended for numerical computations.", "docs": "https://www.gnu.org/software/octave", "spec": "https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/octave/docker-compose.yaml", "minimum_resources": { "cpus": "1", "gpus": 0, "memory": "4000M" }, "maximum_resources": { "cpus": "8", "gpus": 0, "memory": "64000M" } } })
                     setApps({});
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
                 })
@@ -68,6 +63,7 @@ export const ActiveView = () => {
     }, [loadInstances, refresh])
 
     const stopInstanceHandler = async (app_id, name) => {
+        addOrDeleteInstanceTab("close", app_id);
         await stopInstance(app_id)
             .then(r => {
                 setRefresh(!refresh);
@@ -89,7 +85,7 @@ export const ActiveView = () => {
     //Update a running Instance.
     const updateOne = async (record, theWorkSpace, theCpu, theMemory) => {
         setUpdating(true);
-        await updateInstance(record, theWorkSpace, theCpu, theMemory)
+        await updateInstance(record.sid, theWorkSpace, theCpu, theMemory)
             .then(res => {
                 if (res.data.status === "success") {
                     setUpdating(false);
@@ -111,6 +107,17 @@ export const ActiveView = () => {
         setModalOpen(true);
     };
 
+    const splashScreen = (e, app_url, app_name, sid, app_displayName) => {
+        const host = window.location.host
+        const protocol = window.location.protocol
+        const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_name}/icon.png`
+        const url = `${protocol}//${host}/helx/workspaces/connect/${app_name}/${encodeURIComponent(app_url)}/${encodeURIComponent(app_icon)}`
+        const connect_tab_ref = `${sid}-tab`
+        const connect_tab = window.open(url, connect_tab_ref);
+        updateTabName(connect_tab, app_displayName)
+        addOrDeleteInstanceTab("add", sid, connect_tab);
+    }
+
     const columns = [
         {
             title: 'App Name',
@@ -129,7 +136,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={() => window.open(record.connect, "_blank")}>
+                        <button onClick={(e) => splashScreen(e, record.url, record.aid, record.sid, record.name)}>
                             <RightCircleOutlined />
                         </button>
                     </Fragment>
@@ -142,7 +149,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <TimeAgo datetime={new Date(record+' UTC')} opts={{ relativeDate: new Date().toUTCString()}}/>
+                        <TimeAgo datetime={new Date(record + ' UTC')} opts={{ relativeDate: new Date().toUTCString() }} />
                     </Fragment>
                 )
             }
@@ -186,6 +193,10 @@ export const ActiveView = () => {
                                 title="Update Instance"
                                 visible={modalOpen}
                                 confirmLoading={isUpdating}
+                                footer={[
+                                    <Button key="cancel" onClick={() => { setModalOpen(false); setUpdating(false); }}>Cancel</Button>,
+                                    <Button key="ok" onClick={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
+                                ]}
                                 onOk={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}
                                 onCancel={() => setModalOpen(false)}
                             >
