@@ -129,13 +129,14 @@ export const ActiveView = () => {
         };
     }
 
-     const splashScreen = (e, app_url, app_name, sid) => {
+    const splashScreen = (e, app_url, app_name, sid) => {
         const host = window.location.host
         const protocol = window.location.protocol
         const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_name}/icon.png`
         const url = `${protocol}//${host}/helx/workspaces/connect/${app_name}/${encodeURIComponent(app_url)}/${encodeURIComponent(app_icon)}`
-        const connect_tab_ref = `${sid}-${Math.floor(Math.random() * 100000)}-tab`
+        const connect_tab_ref = `${sid}-tab`
         const connect_tab = window.open(url, connect_tab_ref);
+        connect_tab.document.title = app_name;
         addOrDeleteInstanceTab("add", sid, connect_tab);
     }
 
@@ -170,7 +171,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <TimeAgo datetime={new Date(record+' UTC')} opts={{ relativeDate: new Date().toUTCString()}}/>
+                        <TimeAgo datetime={new Date(record + ' UTC')} opts={{ relativeDate: new Date().toUTCString() }} />
                     </Fragment>
                 )
             }
