@@ -199,7 +199,7 @@ export const ActiveView = () => {
                                 confirmLoading={isUpdating}
                                 footer={[
                                     <Button key="cancel" onClick={() => { setModalOpen(false); setUpdating(false); }}>Cancel</Button>,
-                                    <Button key="ok" onClick={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
+                                    <Button key="ok" onClick={() => updateOne(record, workspace, cpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
                                 ]}
                                 onOk={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}
                                 onCancel={() => setModalOpen(false)}
