@@ -117,7 +117,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
 
     getKgs()
     getVars()
-  }, [query, result.id])
+  }, [fetchKnowledgeGraphs, fetchStudyVariables, query, result.id])
 
   return (
     <Fragment>
