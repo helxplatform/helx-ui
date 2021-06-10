@@ -92,6 +92,10 @@ export const ActiveView = () => {
                     openNotificationWithIcon('success', 'Success', `Instance has been successfully updated ${record.name}.`)
                     setRefresh(!refresh);
                 }
+                else {
+                    setUpdating(false);
+                    openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${record.name}.`)
+                }
             }).catch(e => {
                 setUpdating(false);
                 openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${record.name}.`)

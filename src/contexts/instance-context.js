@@ -36,7 +36,7 @@ export const InstanceProvider = ({ children }) => {
             data["cpu"] = `${cpu}`;
         }
         if (memory.length > 0) {
-            data["memory"] = `${memory}M`;
+            data["memory"] = `${memory}`;
         }
         if (workspace.length > 0) {
             data["labels"] = { "app-name": `${workspace}` };
