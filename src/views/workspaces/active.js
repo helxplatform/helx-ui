@@ -23,6 +23,7 @@ export const ActiveView = () => {
     const [modalOpen, setModalOpen] = useState(false);
 
     const [isUpdating, setUpdating] = useState(false);
+    const [currentRecord, setCurrentRecord] = useState();
     const [workspace, setWorkspace] = useState();
     const [cpu, setCpu] = useState();
     const [gpu, setGpu] = useState();
@@ -85,18 +86,21 @@ export const ActiveView = () => {
     //Update a running Instance.
     const updateOne = async (record, _workspace, _cpu, _gpu, _memory) => {
         setUpdating(true);
-        await updateInstance(record.sid, _workspace, _cpu, _gpu, _memory)
+        await updateInstance(currentRecord.sid, _workspace, _cpu, _gpu, _memory)
             .then(res => {
                 if (res.data.status === "success") {
+                    setModalOpen(false);
                     setUpdating(false);
                     openNotificationWithIcon('success', 'Success', `Instance has been successfully updated ${record.name}.`)
                     setRefresh(!refresh);
                 }
                 else {
+                    setModalOpen(false);
                     setUpdating(false);
                     openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${record.name}.`)
                 }
             }).catch(e => {
+                setModalOpen(false);
                 setUpdating(false);
                 openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${record.name}.`)
             })
@@ -104,6 +108,7 @@ export const ActiveView = () => {
 
     const handleModalOpen = (record) => {
         // load current instance resources
+        setCurrentRecord(record);
         setWorkspace(record.workspace_name);
         setCpu(record.cpus / 1000);
         setGpu(record.gpus / 1000);

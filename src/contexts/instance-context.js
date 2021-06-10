@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState} from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import axios from 'axios';
 import { useEnvironment } from './environment-context';
 
@@ -6,7 +6,7 @@ export const InstanceContext = createContext({});
 
 export const InstanceProvider = ({ children }) => {
     const { helxAppstoreUrl } = useEnvironment();
-    const [ openedTabs, setTabs ] = useState([]);
+    const [openedTabs, setTabs] = useState([]);
 
     const addOrDeleteInstanceTab = (action, app_id, tabIns = undefined) => {
         if (action === "add") {
@@ -32,12 +32,8 @@ export const InstanceProvider = ({ children }) => {
 
     const updateInstance = (app_id, workspace, cpu, gpu, memory) => {
         const data = {}
-        if (cpu.length > 0) {
-            data["cpu"] = `${cpu}`;
-        }
-        if (gpu.length > 0) {
-            data["gpu"] = `${gpu}`;
-        }
+        data["cpu"] = `${cpu}`;
+        data["gpu"] = `${gpu}`;
         if (memory.length > 0) {
             data["memory"] = `${memory}`;
         }
