@@ -83,9 +83,9 @@ export const ActiveView = () => {
     }
 
     //Update a running Instance.
-    const updateOne = async (record, theWorkSpace, theCpu, theMemory) => {
+    const updateOne = async (record, _workspace, _cpu, _gpu, _memory) => {
         setUpdating(true);
-        await updateInstance(record.sid, theWorkSpace, theCpu, theMemory)
+        await updateInstance(record.sid, _workspace, _cpu, _gpu, _memory)
             .then(res => {
                 if (res.data.status === "success") {
                     setUpdating(false);
@@ -199,7 +199,7 @@ export const ActiveView = () => {
                                 confirmLoading={isUpdating}
                                 footer={[
                                     <Button key="cancel" onClick={() => { setModalOpen(false); setUpdating(false); }}>Cancel</Button>,
-                                    <Button key="ok" onClick={() => updateOne(record, workspace, cpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
+                                    <Button key="ok" onClick={() => updateOne(record, workspace, cpu, gpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
                                 ]}
                                 onOk={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}
                                 onCancel={() => setModalOpen(false)}
