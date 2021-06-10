@@ -48,7 +48,6 @@ export const SearchResults = () => {
             { results.length === 0 && <div>Your search <b>{query}</b> did not match any documents.</div> }
             
             <div className="grid">
-              {console.log(results)}
               {
                 results.map((result, i) => {
                   const index = (currentPage - 1) * perPage + i + 1
