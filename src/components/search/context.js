@@ -21,11 +21,9 @@ export const HelxSearch = ({ children }) => {
   const [isLoadingResults, setIsLoadingResults] = useState(false);
   const [error, setError] = useState({})
   const [results, setResults] = useState([])
-  const [resultsSelected, setResultsSelected] = useState(new Map());
   const [totalResults, setTotalResults] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
-  const [selectedView, setSelectedView] = useState(false);
   const location = useLocation()
 
   const inputRef = useRef()
@@ -53,12 +51,9 @@ export const HelxSearch = ({ children }) => {
   }, [location.search])
 
   useEffect(() => {
-    // close selected view when loading new search
-    setSelectedView(false);
     const fetchResults = async () => {
       setIsLoadingResults(true)
       try {
-        // dug api
         const params = {
           index: 'concepts_index',
           query: query,
@@ -74,6 +69,7 @@ export const HelxSearch = ({ children }) => {
         } else {
           setResults([])
           setTotalResults(0)
+          setIsLoadingResults(false)
         }
       } catch (error) {
         console.log(error)
@@ -81,7 +77,9 @@ export const HelxSearch = ({ children }) => {
         setIsLoadingResults(false)
       }
     }
-    fetchResults()
+    if (query) {
+      fetchResults()
+    }
   }, [query, currentPage, helxSearchUrl, setResults, setError])
 
   useEffect(() => {
@@ -132,37 +130,12 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
-  // This function will handle all checked items and store them in a state array,
-  // along with update and remove each items. Each checkbox action will invoke this function
-  const doSelect = newSelect => {
-    let newSet = new Map(resultsSelected);
-    if (!newSet.has(newSelect.id)) {
-      newSet.set(newSelect.id, newSelect);
-    }
-    else {
-      newSet.delete(newSelect.id)
-    }
-    setResultsSelected(newSet);
-  }
-
-  // clear all selected history
-
-  const clearSelect = () => {
-    setResultsSelected(new Map());
-    setSelectedView(false);
-  }
-
-  const launchApp = () => {
-    console.log(resultsSelected);
-  }
 
   return (
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
       error, isLoadingResults,
       results, totalResults,
-      selectedView, setSelectedView, doSelect, resultsSelected, clearSelect,
-      launchApp,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
     }}>
       { children}
