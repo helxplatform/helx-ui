@@ -61,7 +61,7 @@ export const ActiveView = () => {
         }
         renderInstance();
         loadAppsConfig();
-    }, [loadInstances, refresh])
+    }, [refresh])
 
     const stopInstanceHandler = async (app_id, name) => {
         addOrDeleteInstanceTab("close", app_id);
@@ -84,15 +84,16 @@ export const ActiveView = () => {
     }
 
     //Update a running Instance.
-    const updateOne = async (record, _workspace, _cpu, _gpu, _memory) => {
+    const updateOne = async (_workspace, _cpu, _gpu, _memory) => {
         setUpdating(true);
         await updateInstance(currentRecord.sid, _workspace, _cpu, _gpu, _memory)
             .then(res => {
                 if (res.data.status === "success") {
                     setModalOpen(false);
                     setUpdating(false);
-                    openNotificationWithIcon('success', 'Success', `${record.name} has been successfully updated.`)
+                    openNotificationWithIcon('success', 'Success', `${record.name} will be restarted.`)
                     setRefresh(!refresh);
+                    splashScreen(currentRecord.url, currentRecord.aid, currentRecord.sid, currentRecord.name);
                 }
                 else {
                     setModalOpen(false);
@@ -116,7 +117,7 @@ export const ActiveView = () => {
         setModalOpen(true);
     };
 
-    const splashScreen = (e, app_url, app_name, sid, app_displayName) => {
+    const splashScreen = (app_url, app_name, sid, app_displayName) => {
         const host = window.location.host
         const protocol = window.location.protocol
         const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_name}/icon.png`
@@ -145,7 +146,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={(e) => splashScreen(e, record.url, record.aid, record.sid, record.name)}>
+                        <button onClick={() => splashScreen(record.url, record.aid, record.sid, record.name)}>
                             <RightCircleOutlined />
                         </button>
                     </Fragment>
@@ -204,7 +205,7 @@ export const ActiveView = () => {
                                 confirmLoading={isUpdating}
                                 footer={[
                                     <Button key="cancel" onClick={() => { setModalOpen(false); setUpdating(false); }}>Cancel</Button>,
-                                    <Button key="ok" onClick={() => updateOne(record, workspace, cpu, gpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
+                                    <Button key="ok" onClick={() => updateOne(workspace, cpu, gpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
                                 ]}
                                 onOk={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}
                                 onCancel={() => setModalOpen(false)}
@@ -249,7 +250,7 @@ export const ActiveView = () => {
         <Layout>
             <Breadcrumbs crumbs={breadcrumbs} />
             <NavigationTabGroup currentKey="active" />
-            { isLoading ? <Spin /> :
+            {isLoading ? <Spin /> :
                 (instances === undefined ?
                     <div></div> :
                     (instances.length > 0 ?
