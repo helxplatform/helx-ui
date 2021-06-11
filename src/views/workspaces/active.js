@@ -91,19 +91,19 @@ export const ActiveView = () => {
                 if (res.data.status === "success") {
                     setModalOpen(false);
                     setUpdating(false);
-                    openNotificationWithIcon('success', 'Success', `${record.name} will be restarted.`)
+                    openNotificationWithIcon('success', 'Success', `${currentRecord.name} will be restarted.`)
                     setRefresh(!refresh);
                     splashScreen(currentRecord.url, currentRecord.aid, currentRecord.sid, currentRecord.name);
                 }
                 else {
                     setModalOpen(false);
                     setUpdating(false);
-                    openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${record.name}.`)
+                    openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
                 }
             }).catch(e => {
                 setModalOpen(false);
                 setUpdating(false);
-                openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${record.name}.`)
+                openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
             })
     };
 
