@@ -91,7 +91,7 @@ export const ActiveView = () => {
                 if (res.data.status === "success") {
                     setModalOpen(false);
                     setUpdating(false);
-                    openNotificationWithIcon('success', 'Success', `Instance has been successfully updated ${record.name}.`)
+                    openNotificationWithIcon('success', 'Success', `${record.name} has been successfully updated.`)
                     setRefresh(!refresh);
                 }
                 else {
