@@ -34,7 +34,7 @@ export const SearchResults = () => {
   ), [currentPage, pageCount, totalResults, query])
 
   if (isLoadingResults) {
-    return <Spin />
+    return <Spin style={{ display: 'block', margin: '4rem' }} />
   }
 
   return (
