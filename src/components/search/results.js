@@ -34,7 +34,7 @@ export const SearchResults = () => {
   ), [currentPage, pageCount, totalResults, query])
 
   if (isLoadingResults) {
-    return <Spin />
+    return <Spin style={{ display: 'block', margin: '4rem' }} />
   }
 
   return (
@@ -68,7 +68,7 @@ export const SearchResults = () => {
 
       <br/><br/>
 
-      <PaginationTray />
+      { pageCount > 1 && <PaginationTray /> }
 
       <SearchResultModal
         result={modalResult}
