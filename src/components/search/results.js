@@ -68,7 +68,7 @@ export const SearchResults = () => {
 
       <br/><br/>
 
-      <PaginationTray />
+      { pageCount > 1 && <PaginationTray /> }
 
       <SearchResultModal
         result={modalResult}
