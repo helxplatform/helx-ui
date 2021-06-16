@@ -1,6 +1,20 @@
 .search-form {
   display: flex;
   gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1080px;
+  margin: auto !important;
+  transition:  min-height 500ms ease-out;
+}
+
+.search-form.with-results {
+  min-height: 0;
+}
+
+.search-form.without-results {
+  min-height: 20rem;
 }
 
 .ant-form-item:first-child {

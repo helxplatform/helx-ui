@@ -1,4 +1,4 @@
-.studies-list-item {
+.studies-list-item__description {
   display: flex;
   justify-content: space-between;
 }

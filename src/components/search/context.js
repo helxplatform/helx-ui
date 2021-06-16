@@ -138,7 +138,7 @@ export const HelxSearch = ({ children }) => {
       results, totalResults,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
     }}>
-      { children}
+      { children }
     </HelxSearchContext.Provider>
   )
 }
