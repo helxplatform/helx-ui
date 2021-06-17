@@ -1,7 +1,7 @@
 import { Fragment, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useHelxSearch } from './context'
-import { Card, List, Space, Typography } from 'antd'
+import { Card, List, Space, Tag, Typography } from 'antd'
 import { Link } from '../link'
 import {
   ExpandOutlined as ViewIcon,
@@ -12,13 +12,20 @@ import { KnowledgeGraphs } from './'
 import './result-card.css'
 
 const { Meta } = Card
+const { CheckableTag: CheckableFacet } = Tag
 const { Text } = Typography
 
 export const SearchResultCard = ({ index, result, openModalHandler }) => {
-  const { query, fetchKnowledgeGraphs, fetchStudyVariables } = useHelxSearch()
+  const { query, facets, fetchKnowledgeGraphs, fetchStudyVariables } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studyVariables, setStudyVariables] = useState([])
   const [currentTab, setCurrentTab] = useState('overview')
+  const [currentFacet, setCurrentFacet] = useState()
+
+  const handleSelectFacet = (facet, checked) => {
+    console.log(facet, checked)
+    setCurrentFacet(facet)
+  }
 
   const tabs = {
     'overview': {
@@ -38,6 +45,11 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       title: `Studies (${ studyVariables.length })`,
       content: (
         <Space direction="vertical" className="tab-content">
+          <Space direction="horizontal" size="small">
+            {
+              facets.map(facet => <CheckableFacet key={ `search-facet-${ facet }` } checked={ currentFacet === facet } onChange={ checked => handleSelectFacet(facet, checked) }>{ facet }</CheckableFacet>)
+            }
+          </Space>
           <List
             className="variables-list"
             dataSource={studyVariables}
