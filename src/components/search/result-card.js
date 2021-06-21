@@ -20,12 +20,10 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
   const [graphs, setGraphs] = useState([])
   const [studyVariables, setStudyVariables] = useState([])
   const [currentTab, setCurrentTab] = useState('overview')
+  const [facets, setFacets] = useState([])
   const [currentFacet, setCurrentFacet] = useState()
 
-  const handleSelectFacet = (facet, checked) => {
-    console.log(facet, checked)
-    setCurrentFacet(facet)
-  }
+  const handleSelectFacet = (facet, checked) => setCurrentFacet(facet)
 
   const tabs = {
     'overview': {
@@ -44,30 +42,14 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
     'studies': {
       title: `Studies (${ studyVariables.length })`,
       content: (
-        <Space direction="vertical" className="tab-content">
-          <List
-            className="variables-list"
-            dataSource={studyVariables}
-            renderItem={variable => (
-              <Fragment>
-                <List.Item>
-                  <List.Item.Meta
-                    className="studies-list-item"
-                    title={ <span className="studies-list-item__title">Study: <Link to={variable.collection_action}>{variable.collection_name}</Link></span> }
-                    description={
-                      <div className="studies-list-item__description">
-                        <Text>Accession: <Link to={variable.collection_action}>{variable.collection_id.replace(/^TOPMED\.STUDY:/, '')}</Link></Text>
-                        <Text>{ variable.variables.length } variable{ variable.variables.length === 1 ? '' : 's' }</Text>
-                      </div>
-                    }
-                  />
-                  
-                </List.Item>
-                <br/>
-              </Fragment>
-            )}
-          />
-        </Space>
+        <Fragment>
+          <Space direction="horizontal" size="small">
+            {
+              facets.map(facet => <CheckableFacet key={ `search-facet-${ facet }` } checked={ currentFacet === facet } onChange={ checked => handleSelectFacet(facet, checked) }>{ facet }</CheckableFacet>)
+            }
+          </Space>
+          <pre style={{ fontSize: '66%', backgroundColor: '#ccc' }}>{ JSON.stringify(studyVariables[currentFacet], null, 2) }</pre>
+        </Fragment>
       ),
     },
     'kgs': {
@@ -90,39 +72,15 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       setGraphs(kgs)
     }
     const getVars = async () => {
-      const vars = await fetchStudyVariables(result.id, query);
-      const facets = Object.keys(vars.result)
-      console.log(vars)
-      console.log(facets)
-      const groupedIds = vars.reduce((acc, obj) => {
-        let key = obj["collection_id"];
-        if (!acc[key]) {
-          acc[key] = [];
-        }
-        acc[key].push({
-          id: obj.element_id,
-          name: obj.element_name,
-          description: obj.element_desc,
-          e_link: obj.element_action
-        })
-        return acc;
-      }, {})
-      let tem_result = [];
-      vars.reduce((acc, curr) => {
-        const isFind = acc.find(item => item.collection_id === curr.collection_id);
-        if (!isFind) {
-          let studyObj = {
-            collection_id: curr.collection_id,
-            collection_action: curr.collection_action,
-            collection_name: curr.collection_name,
-            variables: groupedIds[curr.collection_id]
-          }
-          tem_result.push(studyObj);
-          acc.push(curr);
-        }
-        return acc;
-      }, [])
-      setStudyVariables(tem_result);
+      const { result: data } = await fetchStudyVariables(result.id, query);
+      if (!data) {
+        setStudyVariables([])
+      }
+      setFacets(Object.keys(data))
+      setCurrentFacet(Object.keys(data)[0])
+      console.log(Object.keys(data))
+      console.log(data)
+      setStudyVariables(data)
     }
 
     getKgs()
