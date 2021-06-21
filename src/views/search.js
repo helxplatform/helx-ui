@@ -9,10 +9,6 @@ const { Title } = Typography
 export const SearchView = () => {
   const scrollPosition = useScrollPosition()
 
-  useEffect(() => {
-    console.log(scrollPosition)
-  }, [scrollPosition])
-
   const breadcrumbs = [
     { text: 'Home', path: '/helx' },
     { text: 'Search', path: '/search' },
