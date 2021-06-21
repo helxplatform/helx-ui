@@ -16,7 +16,7 @@ const { CheckableTag: CheckableFacet } = Tag
 const { Text } = Typography
 
 export const SearchResultCard = ({ index, result, openModalHandler }) => {
-  const { query, facets, fetchKnowledgeGraphs, fetchStudyVariables } = useHelxSearch()
+  const { query, fetchKnowledgeGraphs, fetchStudyVariables } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studyVariables, setStudyVariables] = useState([])
   const [currentTab, setCurrentTab] = useState('overview')
@@ -45,11 +45,6 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       title: `Studies (${ studyVariables.length })`,
       content: (
         <Space direction="vertical" className="tab-content">
-          <Space direction="horizontal" size="small">
-            {
-              facets.map(facet => <CheckableFacet key={ `search-facet-${ facet }` } checked={ currentFacet === facet } onChange={ checked => handleSelectFacet(facet, checked) }>{ facet }</CheckableFacet>)
-            }
-          </Space>
           <List
             className="variables-list"
             dataSource={studyVariables}
@@ -96,6 +91,9 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
     }
     const getVars = async () => {
       const vars = await fetchStudyVariables(result.id, query);
+      const facets = Object.keys(vars.result)
+      console.log(vars)
+      console.log(facets)
       const groupedIds = vars.reduce((acc, obj) => {
         let key = obj["collection_id"];
         if (!acc[key]) {
