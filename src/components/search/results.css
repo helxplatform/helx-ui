@@ -15,6 +15,7 @@
 
 .results .results-list {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   grid-template-rows: auto, 200px;
   gap: 20px;
 }
