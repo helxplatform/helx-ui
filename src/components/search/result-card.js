@@ -29,14 +29,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
     'overview': {
       title: 'Overview',
       content: (
-        <Space direction="vertical" className="tab-content">
-          <Space direction="vertical" align="start">
-            <Text className="id" strong>{result.name}</Text>
-            <Text className="type">{result.type}</Text>
-            <Meta description={result.description} className="description"/>
-          </Space>
-          <br />
-        </Space>
+        <Meta description={result.description} className="description"/>
       ),
     },
     'studies': {
@@ -48,7 +41,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
               facets.map(facet => <CheckableFacet key={ `search-facet-${ facet }` } checked={ currentFacet === facet } onChange={ checked => handleSelectFacet(facet, checked) }>{ facet }</CheckableFacet>)
             }
           </Space>
-          <pre style={{ fontSize: '66%', backgroundColor: '#ccc' }}>{ JSON.stringify(studyVariables[currentFacet], null, 2) }</pre>
+          <pre style={{ fontSize: '66%', backgroundColor: '#ccc', scrollbarWidth: 'thin' }}>{ JSON.stringify(studyVariables[currentFacet], null, 2) }</pre>
         </Fragment>
       ),
     },
@@ -91,7 +84,9 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
     <Fragment>
       <Card
         className="result-card"
+        title={`${result.name} (${result.type})`}
         tabList={tabList}
+        tabProps={{size: 'small'}}
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
         actions={[
