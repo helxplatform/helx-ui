@@ -77,27 +77,26 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                     description={description}
                 />
                 <br />
-                <Row align="middle">
+                {minimum_resources.cpus === maximum_resources.cpus ? '' : <Row align="middle">
                     <Col span={4}>CPU</Col>
-                    {minimum_resources.cpus === maximum_resources.cpus ? <Col span={12}><Typography>Locked: {minimum_resources.cpus} Core{minimum_resources.cpus > 1 ? 's' : ''}</Typography></Col> :
-                        <Fragment>
-                            <Col span={14}>
-                                <Slider
-                                    min={parseInt(minimum_resources.cpus)}
-                                    max={parseInt(maximum_resources.cpus)}
-                                    onChange={(value) => { setCpu(value) }}
-                                    value={typeof currentCpu === 'number' ? currentCpu : 0}
-                                    step={1}
-                                />
-                            </Col>
-                            <Col className="app_config_value" span={6}>
-                                {currentCpu} Core{currentCpu > 1 ? 's' : ''}
-                            </Col>
-                        </Fragment>}
-                </Row>
-                <Row align="middle">
-                    <Col span={4}>GPU</Col>
-                    {minimum_resources.gpus === maximum_resources.gpus ? <Col span={12}><Typography>Locked: {minimum_resources.gpus} Core{minimum_resources.gpus > 1 ? 's' : ''}</Typography></Col> :
+                    <Fragment>
+                        <Col span={14}>
+                            <Slider
+                                min={parseInt(minimum_resources.cpus)}
+                                max={parseInt(maximum_resources.cpus)}
+                                onChange={(value) => { setCpu(value) }}
+                                value={typeof currentCpu === 'number' ? currentCpu : 0}
+                                step={1}
+                            />
+                        </Col>
+                        <Col className="app_config_value" span={6}>
+                            {currentCpu} Core{currentCpu > 1 ? 's' : ''}
+                        </Col>
+                    </Fragment>
+                </Row>}
+                {minimum_resources.gpus === maximum_resources.gpus ? '' :
+                    <Row align="middle">
+                        <Col span={4}>GPU</Col>
                         <Fragment>
                             <Col span={14}>
                                 <Slider
@@ -111,33 +110,29 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                             <Col className="app_config_value" span={6}>
                                 {currentGpu} Core{currentGpu > 1 ? 's' : ''}
                             </Col>
-                        </Fragment>}
-                </Row>
-                <Row align="middle">
+                        </Fragment>
+                    </Row>}
+                {minimum_resources.memory === maximum_resources.memory ? '' : <Row align="middle">
                     <Col span={4}>Memory</Col>
-                    {minimum_resources.memory === maximum_resources.memory ? <Col span={12}><Typography>Locked: {formatMemory(minimum_resources.memory)}G</Typography></Col> :
-                        <Fragment>
-                            <Col span={14}>
-                                <Slider
-                                    min={parseInt(toBytes(minimum_resources.memory))}
-                                    max={parseInt(toBytes(maximum_resources.memory))}
-                                    onChange={(value) => { setMemory(value) }}
-                                    value={typeof currentMemory === 'number' ? currentMemory : 0}
-                                    step={toBytes("0.25G")}
-                                    tipFormatter={memoryFormatter}
-                                />
-                            </Col>
-                            <Col className="app_config_value" span={6}>
-                                {formatBytes(currentMemory, 2)}
-                            </Col>
-                        </Fragment>}
+                    <Fragment>
+                        <Col span={14}>
+                            <Slider
+                                min={parseInt(toBytes(minimum_resources.memory))}
+                                max={parseInt(toBytes(maximum_resources.memory))}
+                                onChange={(value) => { setMemory(value) }}
+                                value={typeof currentMemory === 'number' ? currentMemory : 0}
+                                step={toBytes("0.25G")}
+                                tipFormatter={memoryFormatter}
+                            />
+                        </Col>
+                        <Col className="app_config_value" span={6}>
+                            {formatBytes(currentMemory, 2)}
+                        </Col>
+                    </Fragment>
                 </Row>
+                }
             </div> : <div>
                 <div className="app_content">
-                    {/* <Meta
-                        title={name}
-                        description={description}
-                    /> */}
                     <br />
                     <Typography>{detail}</Typography>
                     <Link to={docs}>About {name}</Link></div></div>}
