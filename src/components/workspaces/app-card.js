@@ -6,7 +6,7 @@ import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design
 import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
 import { openNotificationWithIcon } from '../notifications'
 import './app-card.css';
-import { useInstance } from "../../contexts";
+import { useActivity, useInstance } from "../../contexts";
 import { updateTabName } from '../../utils/update-tab-name';
 
 const { Meta } = Card;
@@ -24,6 +24,7 @@ const validateLocalstorageValue = (config, app_id, min, max) => {
 
 export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
     const { launchApp } = useApp();
+    const { addActivity } = useActivity();
     const [launchTab, setLaunchTab] = useState(true)
     const [isLaunching, setLaunching] = useState(false);
     const { addOrDeleteInstanceTab } = useInstance();
@@ -43,12 +44,14 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
             .then(res => {
                 const sid = res.data.url.split("/")[6];
                 openNotificationWithIcon('success', 'Success', `${name} launched.`)
+                addActivity(['success', new Date(), `${name} launched.`])
                 const connect_tab_ref = `${sid}-tab`
                 const connect_tab = window.open(`${window.location.origin}/helx/workspaces/connect/${res.data.app_id}/${encodeURIComponent(res.data.url)}/${encodeURIComponent(`https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${res.data.app_id}/icon.png`)}`, connect_tab_ref);
                 updateTabName(connect_tab, name)
                 addOrDeleteInstanceTab("add", res.data.app_id, connect_tab);
             }).catch(e => {
                 openNotificationWithIcon('error', 'Error', `Failed to launch ${name}.`)
+                addActivity(['error', new Date(), `Failed to launch ${name}.`])
             })
         localStorage.setItem(`${app_id}-cpu`, currentCpu);
         localStorage.setItem(`${app_id}-gpu`, currentGpu);
