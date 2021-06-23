@@ -212,30 +212,27 @@ export const ActiveView = () => {
                             >
                                 <Form>
                                     <Form.Item label="Workspace"><Input value={workspace} onChange={(e) => setWorkspace(e.target.value)} /></Form.Item>
-                                    <Form.Item>
-                                        <Row align="middle">
-                                            <Col span={3}>CPU</Col>
-                                            {apps[record.aid].minimum_resources.cpus === apps[record.aid].maximum_resources.cpus ?
-                                                <Col>Locked: {record.cpus} Core{record.cpus > 1 ? 's' : ''}</Col> :
-                                                <Fragment><Col span={16}><Slider min={parseInt(apps[record.aid].minimum_resources.cpus)} max={parseInt(apps[record.aid].maximum_resources.cpus)} value={cpu} onChange={(value) => { setCpu(value) }} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{cpu} Core{cpu > 1 ? 's' : ''}</Typography></Col></Fragment>}
-                                        </Row>
-                                    </Form.Item>
-                                    <Form.Item>
-                                        <Row align="middle">
-                                            <Col span={3}>GPU</Col>
-                                            {apps[record.aid].minimum_resources.gpus === apps[record.aid].maximum_resources.gpus ?
-                                                <Col>Locked: {record.gpus} Core{record.gpus > 1 ? 's' : ''}</Col> :
-                                                <Fragment><Col span={16}><Slider min={parseInt(apps[record.aid].minimum_resources.gpus)} max={parseInt(apps[record.aid].maximum_resources.gpus)} value={gpu} onChange={(value) => { setGpu(value) }} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{gpu} Core{gpu > 1 ? 's' : ''}</Typography></Col></Fragment>}
-                                        </Row>
-                                    </Form.Item>
-                                    <Form.Item>
-                                        <Row align="middle">
-                                            <Col span={3}>Memory</Col>
-                                            {apps[record.aid].minimum_resources.memory === apps[record.aid].maximum_resources.memory ?
-                                                <Col>Locked: {record.memory}</Col> :
-                                                <Fragment><Col span={16}><Slider min={parseInt(toBytes(apps[record.aid].minimum_resources.memory))} max={parseInt(toBytes(apps[record.aid].maximum_resources.memory))} value={parseInt(memory)} step={toBytes("0.25G")} onChange={(value) => { setMemory(value) }} tipFormatter={memoryFormatter} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{formatBytes(memory, 2)}</Typography></Col></Fragment>}
-                                        </Row>
-                                    </Form.Item>
+                                    {apps[record.aid].minimum_resources.cpus === apps[record.aid].maximum_resources.cpus ?
+                                        '' : <Form.Item>
+                                            <Row align="middle">
+                                                <Col span={3}>CPU</Col>
+                                                <Fragment><Col span={16}><Slider min={parseInt(apps[record.aid].minimum_resources.cpus)} max={parseInt(apps[record.aid].maximum_resources.cpus)} value={cpu} onChange={(value) => { setCpu(value) }} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{cpu} Core{cpu > 1 ? 's' : ''}</Typography></Col></Fragment>
+                                            </Row>
+                                        </Form.Item>}
+                                    {apps[record.aid].minimum_resources.gpus === apps[record.aid].maximum_resources.gpus ?
+                                        '' :
+                                        <Form.Item>
+                                            <Row align="middle">
+                                                <Col span={3}>GPU</Col><Fragment><Col span={16}><Slider min={parseInt(apps[record.aid].minimum_resources.gpus)} max={parseInt(apps[record.aid].maximum_resources.gpus)} value={gpu} onChange={(value) => { setGpu(value) }} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{gpu} Core{gpu > 1 ? 's' : ''}</Typography></Col></Fragment>
+                                            </Row>
+                                        </Form.Item>}
+                                    {apps[record.aid].minimum_resources.memory === apps[record.aid].maximum_resources.memory ?
+                                        '' :
+                                        <Form.Item>
+                                            <Row align="middle">
+                                                <Col span={3}>Memory</Col><Fragment><Col span={16}><Slider min={parseInt(toBytes(apps[record.aid].minimum_resources.memory))} max={parseInt(toBytes(apps[record.aid].maximum_resources.memory))} value={parseInt(memory)} step={toBytes("0.25G")} onChange={(value) => { setMemory(value) }} tipFormatter={memoryFormatter} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{formatBytes(memory, 2)}</Typography></Col></Fragment>
+                                            </Row>
+                                        </Form.Item>}
                                 </Form>
                             </Modal>
                             : <div></div>
