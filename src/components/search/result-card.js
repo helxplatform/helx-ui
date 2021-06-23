@@ -33,12 +33,19 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       ),
     },
     'studies': {
-      title: `Studies (${ studyVariables.length })`,
+      title: `Studies`,
       content: (
         <Fragment>
           <Space direction="horizontal" size="small">
             {
-              facets.map(facet => <CheckableFacet key={ `search-facet-${ facet }` } checked={ currentFacet === facet } onChange={ checked => handleSelectFacet(facet, checked) }>{ facet }</CheckableFacet>)
+              facets.map(facet => studyVariables[facet] && (
+                <CheckableFacet
+                  key={ `search-facet-${ facet }` }
+                  checked={ currentFacet === facet }
+                  onChange={ checked => handleSelectFacet(facet, checked) }
+                  children={ `${ facet } (${studyVariables[facet].length})` }
+                />
+              ))
             }
           </Space>
           <pre style={{ fontSize: '66%', backgroundColor: '#ccc', scrollbarWidth: 'thin' }}>{ JSON.stringify(studyVariables[currentFacet], null, 2) }</pre>
