@@ -3,7 +3,7 @@ import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spi
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
-import { useApp, useInstance } from '../../contexts';
+import { useActivity, useApp, useInstance } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
@@ -18,10 +18,10 @@ export const ActiveView = () => {
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const { addActivity } = useActivity();
     const { loadApps } = useApp();
     const { loadInstances, stopInstance, updateInstance, checkInstance, addOrDeleteInstanceTab } = useInstance();
     const [modalOpen, setModalOpen] = useState(false);
-
     const [isUpdating, setUpdating] = useState(false);
     const [currentRecord, setCurrentRecord] = useState();
     const [workspace, setWorkspace] = useState();
@@ -68,9 +68,11 @@ export const ActiveView = () => {
         await stopInstance(app_id)
             .then(r => {
                 setRefresh(!refresh);
-                openNotificationWithIcon('success', 'Success', `${name} instance is stopped.`)
+                addActivity(['success', new Date(), `${name} is stopped.`])
+                openNotificationWithIcon('success', 'Success', `${name} is stopped.`)
             })
             .catch(e => {
+                addActivity(['error', new Date(), `An error has occurred while stopping ${name}.`])
                 openNotificationWithIcon('error', 'Error', `An error has occurred while stopping ${name}.`)
             })
     }
@@ -91,18 +93,21 @@ export const ActiveView = () => {
                 if (res.data.status === "success") {
                     setModalOpen(false);
                     setUpdating(false);
-                    openNotificationWithIcon('success', 'Success', `${currentRecord.name} will be restarted.`)
+                    openNotificationWithIcon('success', 'Success', `${currentRecord.name} is updated and will be restarted.`)
+                    addActivity(['success', new Date(), `${currentRecord.name} is updated and will be restarted.`])
                     setRefresh(!refresh);
                     splashScreen(currentRecord.url, currentRecord.aid, currentRecord.sid, currentRecord.name);
                 }
                 else {
                     setModalOpen(false);
                     setUpdating(false);
+                    addActivity(['success', new Date(), `Error occured when updating instance ${currentRecord.name}.`])
                     openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
                 }
             }).catch(e => {
                 setModalOpen(false);
                 setUpdating(false);
+                addActivity(['success', new Date(), `Error occured when updating instance ${currentRecord.name}.`])
                 openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
             })
     };
