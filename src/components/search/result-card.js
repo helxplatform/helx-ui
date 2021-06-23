@@ -21,16 +21,16 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
   const [studyVariables, setStudyVariables] = useState([])
   const [currentTab, setCurrentTab] = useState('overview')
   const [facets, setFacets] = useState([])
-  const [currentFacets, setCurrentFacets] = useState([])
+  const [selectedFacets, setSelectedFacets] = useState([])
 
   const handleSelectFacet = (facet, checked) => {
-    const newSelection = new Set(currentFacets)
+    const newSelection = new Set(selectedFacets)
     if (newSelection.has(facet)) {
       newSelection.delete(facet)
     } else {
       newSelection.add(facet)
     }
-    setCurrentFacets([...newSelection])
+    setSelectedFacets([...newSelection])
   }
 
   const tabs = {
@@ -43,23 +43,40 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
     'studies': {
       title: `Studies`,
       content: (
-        <Fragment>
+        <Space direction="vertical" style={{ width: '100%' }}>
           <Space direction="horizontal" size="small">
             {
               facets.map(facet => studyVariables[facet] && (
                 <CheckableFacet
-                  key={ `${ result.name }-search-facet-${ facet }` }
-                  checked={ currentFacets.includes(facet) }
+                  key={ `search-facet-${ facet }` }
+                  checked={ selectedFacets.includes(facet) }
                   onChange={ checked => handleSelectFacet(facet, checked) }
                   children={ `${ facet } (${studyVariables[facet].length})` }
                 />
               ))
             }
           </Space>
-          {
-            currentFacets && <pre style={{ fontSize: '66%', backgroundColor: '#ccc', scrollbarWidth: 'thin' }}>{ JSON.stringify(currentFacets.reduce((vars, facet) => [...vars, ...studyVariables[facet]], []), null, 2) }</pre>
-          }
-        </Fragment>
+          <List
+            className="studies-list"
+            dataSource={
+              Object.keys(studyVariables)
+                .filter(facet => selectedFacets.includes(facet))
+                .reduce((arr, facet) => [...arr, ...studyVariables[facet]], [])
+                .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
+            }
+            renderItem={ item => (
+              <List.Item>
+                <div className="studies-list-item">
+                  <Text className="study-name">
+                    { item.c_name }{ ` ` }
+                    (<Link to={ item.c_link }>{ item.c_id }</Link>)
+                  </Text>
+                  <Text className="variables-count">{ item.elements.length } variables</Text>
+                </div>
+              </List.Item>
+            ) }
+          />
+        </Space>
       ),
     },
     'kgs': {
@@ -87,9 +104,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
         setStudyVariables([])
       }
       setFacets(Object.keys(data))
-      setCurrentFacets(Object.keys(data))
-      console.log(Object.keys(data))
-      console.log(data)
+      setSelectedFacets(Object.keys(data))
       setStudyVariables(data)
     }
 
