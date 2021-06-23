@@ -21,9 +21,17 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
   const [studyVariables, setStudyVariables] = useState([])
   const [currentTab, setCurrentTab] = useState('overview')
   const [facets, setFacets] = useState([])
-  const [currentFacet, setCurrentFacet] = useState()
+  const [currentFacets, setCurrentFacets] = useState([])
 
-  const handleSelectFacet = (facet, checked) => setCurrentFacet(facet)
+  const handleSelectFacet = (facet, checked) => {
+    const newSelection = new Set(currentFacets)
+    if (newSelection.has(facet)) {
+      newSelection.delete(facet)
+    } else {
+      newSelection.add(facet)
+    }
+    setCurrentFacets([...newSelection])
+  }
 
   const tabs = {
     'overview': {
@@ -40,15 +48,17 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
             {
               facets.map(facet => studyVariables[facet] && (
                 <CheckableFacet
-                  key={ `search-facet-${ facet }` }
-                  checked={ currentFacet === facet }
+                  key={ `${ result.name }-search-facet-${ facet }` }
+                  checked={ currentFacets.includes(facet) }
                   onChange={ checked => handleSelectFacet(facet, checked) }
                   children={ `${ facet } (${studyVariables[facet].length})` }
                 />
               ))
             }
           </Space>
-          <pre style={{ fontSize: '66%', backgroundColor: '#ccc', scrollbarWidth: 'thin' }}>{ JSON.stringify(studyVariables[currentFacet], null, 2) }</pre>
+          {
+            currentFacets && <pre style={{ fontSize: '66%', backgroundColor: '#ccc', scrollbarWidth: 'thin' }}>{ JSON.stringify(currentFacets.reduce((vars, facet) => [...vars, ...studyVariables[facet]], []), null, 2) }</pre>
+          }
         </Fragment>
       ),
     },
@@ -77,7 +87,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
         setStudyVariables([])
       }
       setFacets(Object.keys(data))
-      setCurrentFacet(Object.keys(data)[0])
+      setCurrentFacets(Object.keys(data))
       console.log(Object.keys(data))
       console.log(data)
       setStudyVariables(data)
