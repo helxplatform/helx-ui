@@ -43,18 +43,16 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         await launchApp(app_id, currentCpu, currentGpu, bytesToMegabytes(currentMemory))
             .then(res => {
                 const sid = res.data.url.split("/")[6];
-                //openNotificationWithIcon('success', 'Success', `${name} is launching.`)
                 let newActivity = {
                     'sid': sid,
                     'app_name': name,
-                    'status': 'pending',
+                    'status': 'processing',
                     'timestamp': new Date(),
                     'message': `${name} is launching.`
                 }
                 addActivity(newActivity)
                 pollingInstance(app_id, sid, res.data.url, name);
             }).catch(e => {
-                //openNotificationWithIcon('error', 'Error', `Failed to launch ${name}.`)
                 let newActivity = {
                     'sid': 'none',
                     'app_name': name,

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Badge, Button, Drawer, Tag } from 'antd';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { useActivity } from '../../contexts';
+import { CheckCircleOutlined, CloseCircleOutlined, LeftOutlined, SyncOutlined } from '@ant-design/icons';
+import { useActivity, useInstance } from '../../contexts';
 import TimeAgo from 'timeago-react';
 import './side-panel.css';
 
 export const SidePanel = () => {
     const { activity } = useActivity();
+    const { addOrDeleteInstanceTab } = useInstance();
     const [visible, setVisible] = useState(false);
     const [lastSeenCounts, setLastSeenCounts] = useState(0);
 
@@ -18,6 +19,12 @@ export const SidePanel = () => {
     const closeSidePanel = () => {
         setLastSeenCounts(activity.length);
         setVisible(false)
+    }
+
+    const openApp = (sid, app_id, url) => {
+        const connect_tab_ref = `${sid}-tab`
+        const connect_tab = window.open(`${url}`, connect_tab_ref);
+        addOrDeleteInstanceTab("add", app_id, connect_tab);
     }
 
     return (
@@ -35,9 +42,9 @@ export const SidePanel = () => {
             >
                 {activity.length !== 0 ? activity.map(this_activity =>
                     <div>
-                        <Tag color={this_activity['status'] === 'pending' ? 'processing' : this_activity['status']}>{this_activity['status']}</Tag>
+                        <Tag icon={this_activity['status'] === 'processing' ? <SyncOutlined spin /> : (this_activity['status'] === 'success' ? <CheckCircleOutlined /> : <CloseCircleOutlined />)} color={this_activity['status']}>{this_activity['status']}</Tag>
                         <span><TimeAgo datetime={this_activity['timestamp']} /></span>
-                        <div>{this_activity['message']}</div>
+                        <div>{this_activity['url'] ? <span><a onClick={() => openApp(this_activity['sid'], this_activity['app_id'], this_activity['url'])}>{this_activity['app_name']}</a> is up and ready for use.</span> : this_activity['message']}</div>
                         <hr />
                     </div>
                 ) : <span>No activity</span>
