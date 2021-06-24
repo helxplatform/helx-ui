@@ -71,7 +71,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
                     { item.c_name }{ ` ` }
                     (<Link to={ item.c_link }>{ item.c_id }</Link>)
                   </Text>
-                  <Text className="variables-count">{ item.elements.length } variables</Text>
+                  <Text className="variables-count">{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
                 </div>
               </List.Item>
             ) }
