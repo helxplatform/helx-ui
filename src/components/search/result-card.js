@@ -121,11 +121,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
         tabProps={{size: 'small'}}
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
-        actions={[
-          <AddIcon />,
-          <LaunchIcon />,
-          <ViewIcon onClick={ openModalHandler } />,
-        ]}
+        extra={ <ViewIcon onClick={ openModalHandler } /> }
       >
         { tabContents[currentTab] }
       </Card>
