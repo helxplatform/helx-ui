@@ -12,11 +12,19 @@ export const ActivityProvider = ({ children }) => {
         setActivityArray(newActivityArray)
     }
 
-    return(
+    const updateActivity = new_activity => {
+        let filteredArray = [...activityArray];
+        filteredArray = activityArray.filter(value => { return value['sid'] !== new_activity['sid'] })
+        filteredArray.unshift(new_activity);
+        setActivityArray(filteredArray)
+    }
+
+    return (
         <ActivityContext.Provider
             value={{
                 activity: activityArray,
-                addActivity: addActivity
+                addActivity: addActivity,
+                updateActivity: updateActivity
             }}>
             {children}
         </ActivityContext.Provider>
