@@ -6,16 +6,26 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 0 1rem 0;
+  gap: 1rem;
 }
 
-.results .grid {
+.results .header span:first-child {
+  flex: 1;
+}
+
+.results .results-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   grid-template-rows: auto, 200px;
   gap: 20px;
 }
 
-.results .grid .result-card {
+.results .results-list.list {
+  grid-template-columns: 1fr;
+}
+.results .results-list.grid {
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+.results .results-list .result-card {
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05));
   transition: filter 250ms;
   overflow: hidden;
@@ -25,7 +35,7 @@
   filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.1));
 }
 
-.results .grid .result-card .ant-card-body {
+.results .results-list .result-card .ant-card-body {
   min-height: 200px;
   max-height: 200px;
   overflow: hidden;
@@ -36,15 +46,15 @@
   transition: scrollbar-color 250ms; /* firefox only */
 }
 
-.results .grid .result-card .ant-card-body:hover {
+.results .results-list .result-card .ant-card-body:hover {
   scrollbar-color: #00000022 transparent; /* firefox only */
 }
 
-.results .grid .result-card .ant-card-body:hover::after {
+.results .results-list .result-card .ant-card-body:hover::after {
   filter: opacity(0.0);
 }
 
-.results .grid .result-card .ant-card-body::after {
+.results .results-list .result-card .ant-card-body::after {
   position: fixed;
   content: "";
   left: 0;

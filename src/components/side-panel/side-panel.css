@@ -1,0 +1,11 @@
+.side-panel-open {
+    display: flex;
+    position: absolute;
+    right: 0px;
+    top: 50%;
+}
+
+.side-panel-close {
+    margin-left: -10px;
+    color: red;
+}
