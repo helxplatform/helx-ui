@@ -17,7 +17,7 @@ const LIST = 'LIST'
 export const SearchResults = () => {
   const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error } = useHelxSearch()
   const [modalResult, setModalResult] = useState(null)
-  const [layout, setLayout] = useState(LIST)
+  const [layout, setLayout] = useState(GRID)
 
   const modalVisibility = useMemo(() => modalResult !== null, [modalResult])
   const handleCloseModal = () => setModalResult(null)
