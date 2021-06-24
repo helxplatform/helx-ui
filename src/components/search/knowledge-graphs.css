@@ -2,26 +2,33 @@
   position: relative;
   display: block;
   margin: 0 auto;
-  background-color: crimson;
+  background-color: salmon;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid #000;
+  border: 1px solid #333;
   box-sizing: content-box;
   z-index: 2;
 }
 
 .edge {
-  position:               relative;
-  border-bottom: 1px dashed crimson;
   color: #666;
   font-size: 80%;
-  display: block;
-  height: 22px;
-  margin: 0;
+  display: flex;
+  flex-direction: column;
   width: 200%;
   transform: translate(-25%, -15px);
+}
+.edge-type {
+  position: relative;
+  border-bottom: 2px dotted salmon;
+  height: 22px;
+  margin: 0;
   z-index: 1;
+}
+.edge-label {
+}
+.edge-references {
 }
 
 .source-label, .target-label {
