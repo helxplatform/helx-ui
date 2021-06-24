@@ -1,19 +1,23 @@
 import React, { Fragment, useState, useMemo } from 'react'
-import { notification, Spin, Tooltip, Typography } from 'antd'
+import { Radio, notification, Spin, Tooltip, Typography } from 'antd'
 import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from './'
 import { Link } from '../link'
 import {
   LinkOutlined as LinkIcon,
-  // TableOutlined as GridViewIcon,
-  // UnorderedListOutlined as ListViewIcon,
+  TableOutlined as GridViewIcon,
+  UnorderedListOutlined as ListViewIcon,
 } from '@ant-design/icons'
 import './results.css'
 
 const { Text } = Typography
 
+const GRID = 'GRID'
+const LIST = 'LIST'
+
 export const SearchResults = () => {
   const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error } = useHelxSearch()
   const [modalResult, setModalResult] = useState(null)
+  const [layout, setLayout] = useState(LIST)
 
   const modalVisibility = useMemo(() => modalResult !== null, [modalResult])
   const handleCloseModal = () => setModalResult(null)
@@ -24,14 +28,23 @@ export const SearchResults = () => {
     navigator.clipboard.writeText(window.location.href)
   }
 
+  const handleChangeLayout = event => {
+    console.log(event.target.value)
+    setLayout(event.target.value)
+  }
+
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
       <Text>{ totalResults } results for "{ query }" ({ pageCount } page{ pageCount > 1 && 's' })</Text>
       <Tooltip title="Shareable link" placement="left">
         <Link to={ `/helx/search?q=${ query }&p=${ currentPage }` } onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
+      <Radio.Group value={ layout } onChange={ handleChangeLayout }>
+        <Radio.Button value={ GRID }><GridViewIcon /></Radio.Button>
+        <Radio.Button value={ LIST }><ListViewIcon /></Radio.Button>
+      </Radio.Group>
     </div>
-  ), [currentPage, pageCount, totalResults, query])
+  ), [currentPage, layout, pageCount, totalResults, query])
 
   if (isLoadingResults) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
@@ -47,7 +60,7 @@ export const SearchResults = () => {
           <div className="results">
             { results.length >= 1 && MemoizedResultsHeader }
 
-            <div className="grid">
+            <div className={ layout === GRID ? 'results-list grid' : 'results-list list' }>
               {
                 results.map((result, i) => {
                   const index = (currentPage - 1) * perPage + i + 1
