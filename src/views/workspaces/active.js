@@ -107,11 +107,11 @@ export const ActiveView = () => {
                 if (res.data.status === "success") {
                     setModalOpen(false);
                     setUpdating(false);
-                    openNotificationWithIcon('success', 'Success', `${currentRecord.name} is updated and will be restarted.`)
+                    // openNotificationWithIcon('success', 'Success', `${currentRecord.name} is updated and will be restarted.`)
                     let newActivity = {
                         'sid': currentRecord.sid,
                         'app_name': currentRecord.name,
-                        'status': 'pending',
+                        'status': 'processing',
                         'timestamp': new Date(),
                         'message': `${currentRecord.name} is launching.`
                     }
@@ -274,6 +274,9 @@ export const ActiveView = () => {
                                                 <Col span={3}>Memory</Col><Fragment><Col span={16}><Slider min={parseInt(toBytes(apps[record.aid].minimum_resources.memory))} max={parseInt(toBytes(apps[record.aid].maximum_resources.memory))} value={parseInt(memory)} step={toBytes("0.25G")} onChange={(value) => { setMemory(value) }} tipFormatter={memoryFormatter} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{formatBytes(memory, 2)}</Typography></Col></Fragment>
                                             </Row>
                                         </Form.Item>}
+                                        <Form.Item>
+                                            <Typography>The app will be restarted before applying. </Typography>
+                                        </Form.Item>
                                 </Form>
                             </Modal>
                             : <div></div>
