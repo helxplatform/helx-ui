@@ -35,14 +35,16 @@ export const SearchResults = () => {
 
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
-      <Text>{ totalResults } results for "{ query }" ({ pageCount } page{ pageCount > 1 && 's' })</Text>
-      <Tooltip title="Shareable link" placement="left">
+      <Text>{ totalResults } results for "{ query }" ({ pageCount } page{ pageCount > 1 && 's' })</Text> 
+      <Tooltip title="Shareable link" placement="top">
         <Link to={ `/helx/search?q=${ query }&p=${ currentPage }` } onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
-      <Radio.Group value={ layout } onChange={ handleChangeLayout }>
-        <Radio.Button value={ GRID }><GridViewIcon /></Radio.Button>
-        <Radio.Button value={ LIST }><ListViewIcon /></Radio.Button>
-      </Radio.Group>
+      <Tooltip title="Toggle Layout" placement="top">
+        <Radio.Group value={ layout } onChange={ handleChangeLayout }>
+          <Radio.Button value={ GRID }><GridViewIcon /></Radio.Button>
+          <Radio.Button value={ LIST }><ListViewIcon /></Radio.Button>
+        </Radio.Group>
+      </Tooltip>
     </div>
   ), [currentPage, layout, pageCount, totalResults, query])
 
