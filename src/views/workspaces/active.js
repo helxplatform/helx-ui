@@ -3,7 +3,7 @@ import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spi
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
-import { useApp, useInstance } from '../../contexts';
+import { useActivity, useApp, useInstance } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
@@ -18,10 +18,10 @@ export const ActiveView = () => {
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const { addActivity } = useActivity();
     const { loadApps } = useApp();
-    const { loadInstances, stopInstance, updateInstance, checkInstance, addOrDeleteInstanceTab } = useInstance();
+    const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab } = useInstance();
     const [modalOpen, setModalOpen] = useState(false);
-
     const [isUpdating, setUpdating] = useState(false);
     const [currentRecord, setCurrentRecord] = useState();
     const [workspace, setWorkspace] = useState();
@@ -68,10 +68,26 @@ export const ActiveView = () => {
         await stopInstance(app_id)
             .then(r => {
                 setRefresh(!refresh);
-                openNotificationWithIcon('success', 'Success', `${name} instance is stopped.`)
+                let newActivity = {
+                    'sid': 'none',
+                    'app_name': name,
+                    'status': 'success',
+                    'timestamp': new Date(),
+                    'message': `${name} is stopped.`
+                }
+                addActivity(newActivity)
+                // openNotificationWithIcon('success', 'Success', `${name} is stopped.`)
             })
             .catch(e => {
-                openNotificationWithIcon('error', 'Error', `An error has occurred while stopping ${name}.`)
+                let newActivity = {
+                    'sid': 'none',
+                    'app_name': name,
+                    'status': 'error',
+                    'timestamp': new Date(),
+                    'message': `An error has occurred while stopping ${name}.`
+                }
+                addActivity(newActivity)
+                // openNotificationWithIcon('error', 'Error', `An error has occurred while stopping ${name}.`)
             })
     }
 
@@ -91,19 +107,44 @@ export const ActiveView = () => {
                 if (res.data.status === "success") {
                     setModalOpen(false);
                     setUpdating(false);
-                    openNotificationWithIcon('success', 'Success', `${currentRecord.name} will be restarted.`)
+                    // openNotificationWithIcon('success', 'Success', `${currentRecord.name} is updated and will be restarted.`)
+                    let newActivity = {
+                        'sid': currentRecord.sid,
+                        'app_name': currentRecord.name,
+                        'status': 'processing',
+                        'timestamp': new Date(),
+                        'message': `${currentRecord.name} is launching.`
+                    }
+                    addActivity(newActivity)
+                    pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
                     setRefresh(!refresh);
-                    splashScreen(currentRecord.url, currentRecord.aid, currentRecord.sid, currentRecord.name);
+                    //splashScreen(currentRecord.url, currentRecord.aid, currentRecord.sid, currentRecord.name);
                 }
                 else {
                     setModalOpen(false);
                     setUpdating(false);
-                    openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
+                    let newActivity = {
+                        'sid': 'none',
+                        'app_name': currentRecord.name,
+                        'status': 'error',
+                        'timestamp': new Date(),
+                        'message': `Error occured when updating instance ${currentRecord.name}.`
+                    }
+                    addActivity(newActivity)
+                    // openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
                 }
             }).catch(e => {
                 setModalOpen(false);
                 setUpdating(false);
-                openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
+                let newActivity = {
+                    'sid': 'none',
+                    'app_name': currentRecord.name,
+                    'status': 'error',
+                    'timestamp': new Date(),
+                    'message': `Error occured when updating instance ${currentRecord.name}.`
+                }
+                addActivity(newActivity)
+                // openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
             })
     };
 
@@ -233,6 +274,9 @@ export const ActiveView = () => {
                                                 <Col span={3}>Memory</Col><Fragment><Col span={16}><Slider min={parseInt(toBytes(apps[record.aid].minimum_resources.memory))} max={parseInt(toBytes(apps[record.aid].maximum_resources.memory))} value={parseInt(memory)} step={toBytes("0.25G")} onChange={(value) => { setMemory(value) }} tipFormatter={memoryFormatter} /></Col><Col style={{ paddingLeft: '10px' }} span={5}><Typography>{formatBytes(memory, 2)}</Typography></Col></Fragment>
                                             </Row>
                                         </Form.Item>}
+                                        <Form.Item>
+                                            <Typography>The app will be restarted before applying. </Typography>
+                                        </Form.Item>
                                 </Form>
                             </Modal>
                             : <div></div>
