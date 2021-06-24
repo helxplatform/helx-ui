@@ -20,7 +20,7 @@ export const ActiveView = () => {
     const [isLoading, setLoading] = useState(false);
     const { addActivity } = useActivity();
     const { loadApps } = useApp();
-    const { loadInstances, stopInstance, updateInstance, checkInstance, addOrDeleteInstanceTab } = useInstance();
+    const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab } = useInstance();
     const [modalOpen, setModalOpen] = useState(false);
     const [isUpdating, setUpdating] = useState(false);
     const [currentRecord, setCurrentRecord] = useState();
@@ -68,12 +68,26 @@ export const ActiveView = () => {
         await stopInstance(app_id)
             .then(r => {
                 setRefresh(!refresh);
-                addActivity(['success', new Date(), `${name} is stopped.`])
-                openNotificationWithIcon('success', 'Success', `${name} is stopped.`)
+                let newActivity = {
+                    'sid': 'none',
+                    'app_name': name,
+                    'status': 'success',
+                    'timestamp': new Date(),
+                    'message': `${name} is stopped.`
+                }
+                addActivity(newActivity)
+                // openNotificationWithIcon('success', 'Success', `${name} is stopped.`)
             })
             .catch(e => {
-                addActivity(['error', new Date(), `An error has occurred while stopping ${name}.`])
-                openNotificationWithIcon('error', 'Error', `An error has occurred while stopping ${name}.`)
+                let newActivity = {
+                    'sid': 'none',
+                    'app_name': name,
+                    'status': 'error',
+                    'timestamp': new Date(),
+                    'message': `An error has occurred while stopping ${name}.`
+                }
+                addActivity(newActivity)
+                // openNotificationWithIcon('error', 'Error', `An error has occurred while stopping ${name}.`)
             })
     }
 
@@ -94,21 +108,43 @@ export const ActiveView = () => {
                     setModalOpen(false);
                     setUpdating(false);
                     openNotificationWithIcon('success', 'Success', `${currentRecord.name} is updated and will be restarted.`)
-                    addActivity(['success', new Date(), `${currentRecord.name} is updated and will be restarted.`])
+                    let newActivity = {
+                        'sid': currentRecord.sid,
+                        'app_name': currentRecord.name,
+                        'status': 'pending',
+                        'timestamp': new Date(),
+                        'message': `${currentRecord.name} is launching.`
+                    }
+                    addActivity(newActivity)
+                    pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
                     setRefresh(!refresh);
-                    splashScreen(currentRecord.url, currentRecord.aid, currentRecord.sid, currentRecord.name);
+                    //splashScreen(currentRecord.url, currentRecord.aid, currentRecord.sid, currentRecord.name);
                 }
                 else {
                     setModalOpen(false);
                     setUpdating(false);
-                    addActivity(['success', new Date(), `Error occured when updating instance ${currentRecord.name}.`])
-                    openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
+                    let newActivity = {
+                        'sid': 'none',
+                        'app_name': currentRecord.name,
+                        'status': 'error',
+                        'timestamp': new Date(),
+                        'message': `Error occured when updating instance ${currentRecord.name}.`
+                    }
+                    addActivity(newActivity)
+                    // openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
                 }
             }).catch(e => {
                 setModalOpen(false);
                 setUpdating(false);
-                addActivity(['success', new Date(), `Error occured when updating instance ${currentRecord.name}.`])
-                openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
+                let newActivity = {
+                    'sid': 'none',
+                    'app_name': currentRecord.name,
+                    'status': 'error',
+                    'timestamp': new Date(),
+                    'message': `Error occured when updating instance ${currentRecord.name}.`
+                }
+                addActivity(newActivity)
+                // openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
             })
     };
 
