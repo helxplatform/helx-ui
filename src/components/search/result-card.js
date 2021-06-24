@@ -3,11 +3,7 @@ import PropTypes from 'prop-types'
 import { useHelxSearch } from './context'
 import { Card, List, Space, Tag, Typography } from 'antd'
 import { Link } from '../link'
-import {
-  ExpandOutlined as ViewIcon,
-  FolderAddOutlined as AddIcon,
-  ExperimentOutlined as LaunchIcon,
-} from '@ant-design/icons'
+import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
 import { KnowledgeGraphs } from './'
 import './result-card.css'
 
