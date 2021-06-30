@@ -21,7 +21,7 @@ const renderSearchModule = () => {
 }
 
 const renderWorkspacesModule = () => {
-  if (process.env.REACT_APP_ENABLE_WORKSPACES === 'true') {
+  if (process.env.REACT_APP_WORKSPACES_ENABLED === 'true') {
     return <Fragment>
       <AvailableView path="/workspaces" />
       <AvailableView path="/workspaces/available" />
@@ -32,8 +32,8 @@ const renderWorkspacesModule = () => {
 }
 
 const routeHomepage = () => {
-  if (process.env.REACT_APP_ENABLE_SEMANTIC_SEARCH === 'false'){
-    if(process.env.REACT_APP_ENABLE_WORKSPACES === 'true'){
+  if (process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED === 'false'){
+    if(process.env.REACT_APP_WORKSPACES_ENABLED === 'true'){
       return <AvailableView path="/" />
     }
     else{

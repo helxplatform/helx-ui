@@ -37,8 +37,8 @@ export const EnvironmentProvider = ({ children }) => {
     <EnvironmentContext.Provider value={{
       helxSearchUrl: process.env.REACT_APP_HELX_SEARCH_URL,
       helxAppstoreUrl: window.location.origin,
-      enableSearch: process.env.REACT_APP_ENABLE_SEMANTIC_SEARCH,
-      enableWorkspaces: process.env.REACT_APP_ENABLE_WORKSPACES,
+      searchEnabled: process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED,
+      workspacesEnabled: process.env.REACT_APP_WORKSPACES_ENABLED,
       context: context,
     }}>
       { children}

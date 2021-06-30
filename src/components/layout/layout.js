@@ -9,12 +9,12 @@ import './layout.css';
 const { Header, Content, Footer } = AntLayout
 
 export const Layout = ({ children }) => {
-  const { helxAppstoreUrl, enableSearch, enableWorkspaces, context } = useEnvironment()
+  const { helxAppstoreUrl, searchEnabled, workspacesEnabled, context } = useEnvironment()
   const location = useLocation();
   const menu = [];
 
-  if (enableSearch === 'true') menu.push({ key: '/helx/search', title: 'Search', path: '/helx/search' });
-  if (enableWorkspaces === 'true') menu.push({ key: '/helx/workspaces', title: 'Workspaces', path: '/helx/workspaces' });
+  if (searchEnabled === 'true') menu.push({ key: '/helx/search', title: 'Search', path: '/helx/search' });
+  if (workspacesEnabled === 'true') menu.push({ key: '/helx/workspaces', title: 'Workspaces', path: '/helx/workspaces' });
   menu.push({ key: '/helx/support', title: 'Support', path: '/helx/support' })
 
 
