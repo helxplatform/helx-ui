@@ -29,7 +29,7 @@ export const SidePanel = () => {
 
     return (
         <div className="side-panel-open">
-            {!visible && (<Button onClick={openSidePanel}><Badge count={activity.length - lastSeenCounts}><LeftOutlined style={{ paddingRight: activity.length - lastSeenCounts === 0 ? '0px' : '10px' }} /></Badge></Button>)}
+            {!visible && (<Button onClick={openSidePanel}><Badge count={(activity.length - lastSeenCounts) ? activity.length - lastSeenCounts : ''}><LeftOutlined style={{ paddingRight: activity.length - lastSeenCounts === 0 ? '0px' : '10px' }} /></Badge></Button>)}
             <Drawer
                 title="Activity Monitor"
                 placement="right"
