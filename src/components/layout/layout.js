@@ -8,17 +8,16 @@ import './layout.css';
 
 const { Header, Content, Footer } = AntLayout
 
-const menu = [
-  { key: '/helx/search', title: 'Search', path: '/helx/search' },
-  { key: '/helx/workspaces', title: 'Workspaces', path: '/helx/workspaces' },
-  { key: '/helx/support', title: 'Support', path: '/helx/support' }
-]
-
-
-
 export const Layout = ({ children }) => {
-  const { helxAppstoreUrl, context } = useEnvironment()
+  const { helxAppstoreUrl, searchEnabled, workspacesEnabled, context } = useEnvironment()
   const location = useLocation();
+  const menu = [];
+
+  if (searchEnabled === 'true') menu.push({ key: '/helx/search', title: 'Search', path: '/helx/search' });
+  if (workspacesEnabled === 'true') menu.push({ key: '/helx/workspaces', title: 'Workspaces', path: '/helx/workspaces' });
+  menu.push({ key: '/helx/support', title: 'Support', path: '/helx/support' })
+
+
 
   return (
     <AntLayout className="layout">
