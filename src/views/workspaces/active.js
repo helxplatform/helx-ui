@@ -100,9 +100,23 @@ export const ActiveView = () => {
 
     const stopAllInstanceHandler = async () => {
         setIsStoppingAll(true);
-        for await (let this_app of instances) {
-            stopInstanceHandler(this_app.sid, this_app.name);
+        for (let this_app of instances) {
+            addOrDeleteInstanceTab("close", this_app.app_id);
+            await stopInstance(this_app.app_id)
+                .then(r => {
+                })
+                .catch(e => {
+                    let newActivity = {
+                        'sid': 'none',
+                        'app_name': this_app.name,
+                        'status': 'error',
+                        'timestamp': new Date(),
+                        'message': `An error has occurred while stopping ${this_app.name}.`
+                    }
+                    addActivity(newActivity)
+                })
         }
+        setRefresh(!refresh)
         setStopAllModalVisibility(false);
         setIsStoppingAll(false);
     }
