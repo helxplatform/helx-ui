@@ -39,7 +39,7 @@ export const SidePanel = () => {
                 mask={true}
                 maskClosable={true}
                 maskStyle={{ animation: 'none', opacity: 0 }}
-                style={{ marginTop: '64px' }}
+                style={{ marginTop: '66px' }}
                 width={'300px'}
                 onClose={closeSidePanel}
             >
