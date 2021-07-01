@@ -9,7 +9,6 @@ import {
   SearchView,
 } from './views'
 import { Layout } from './components/layout'
-import { SplashScreenView } from "./views/workspaces/splash-screen";
 
 const renderSearchModule = () => {
   if (process.env.REACT_APP_ENABLE_SEMANTIC_SEARCH === 'true') {
@@ -26,7 +25,6 @@ const renderWorkspacesModule = () => {
       <AvailableView path="/workspaces" />
       <AvailableView path="/workspaces/available" />
       <ActiveView path="/workspaces/active" />
-      <SplashScreenView path="/workspaces/connect/:app_name/:app_url/:app_icon" />
     </Fragment>
   }
 }

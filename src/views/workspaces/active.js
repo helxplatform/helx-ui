@@ -99,6 +99,18 @@ export const ActiveView = () => {
         setLoading(false);
     }
 
+    const connectInstance = (aid, sid, url, name) => {
+        let newActivity = {
+            'sid': sid,
+            'app_name': name,
+            'status': 'processing',
+            'timestamp': new Date(),
+            'message': `${name} is launching.`
+        }
+        addActivity(newActivity)
+        pollingInstance(aid, sid, url, name)
+    }
+
     //Update a running Instance.
     const updateOne = async (_workspace, _cpu, _gpu, _memory) => {
         setUpdating(true);
@@ -158,17 +170,6 @@ export const ActiveView = () => {
         setModalOpen(true);
     };
 
-    const splashScreen = (app_url, app_name, sid, app_displayName) => {
-        const host = window.location.host
-        const protocol = window.location.protocol
-        const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_name}/icon.png`
-        const url = `${protocol}//${host}/helx/workspaces/connect/${app_name}/${encodeURIComponent(app_url)}/${encodeURIComponent(app_icon)}`
-        const connect_tab_ref = `${sid}-tab`
-        const connect_tab = window.open(url, connect_tab_ref);
-        updateTabName(connect_tab, app_displayName)
-        addOrDeleteInstanceTab("add", sid, connect_tab);
-    }
-
     const columns = [
         {
             title: 'App Name',
@@ -187,7 +188,7 @@ export const ActiveView = () => {
             render: (record) => {
                 return (
                     <Fragment>
-                        <button onClick={() => splashScreen(record.url, record.aid, record.sid, record.name)}>
+                        <button onClick={() => connectInstance(record.aid, record.sid, record.url, record.name)}>
                             <RightCircleOutlined />
                         </button>
                     </Fragment>
