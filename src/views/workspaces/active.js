@@ -246,7 +246,7 @@ export const ActiveView = () => {
                                 confirmLoading={isUpdating}
                                 footer={[
                                     <Button key="cancel" onClick={() => { setModalOpen(false); setUpdating(false); }}>Cancel</Button>,
-                                    <Button key="ok" onClick={() => updateOne(workspace, cpu, gpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'OK'}</Button>
+                                    <Button key="ok" onClick={() => updateOne(workspace, cpu, gpu, bytesToMegabytes(memory))}>{isUpdating ? <Spin /> : 'Update'}</Button>
                                 ]}
                                 onOk={() => updateOne(record, cpu, gpu, bytesToMegabytes(memory))}
                                 onCancel={() => setModalOpen(false)}
@@ -275,7 +275,7 @@ export const ActiveView = () => {
                                             </Row>
                                         </Form.Item>}
                                         <Form.Item>
-                                            <Typography>The app will be restarted before applying. </Typography>
+                                            <Typography>Updating will restart the application. </Typography>
                                         </Form.Item>
                                 </Form>
                             </Modal>
