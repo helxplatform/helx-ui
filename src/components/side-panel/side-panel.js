@@ -35,7 +35,10 @@ export const SidePanel = () => {
                 placement="right"
                 closable={true}
                 visible={visible}
-                mask={false}
+                keyboard={true}
+                mask={true}
+                maskClosable={true}
+                maskStyle={{ animation: 'none', opacity: 0 }}
                 style={{ marginTop: '64px' }}
                 width={'300px'}
                 onClose={closeSidePanel}
