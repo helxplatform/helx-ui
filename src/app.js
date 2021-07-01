@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { LocationProvider, Router } from '@reach/router'
 import { ActivityProvider, AppProvider, EnvironmentProvider, InstanceProvider } from './contexts'
 import {
@@ -8,7 +9,36 @@ import {
   SearchView,
 } from './views'
 import { Layout } from './components/layout'
-import { SplashScreenView } from "./views/workspaces/splash-screen";
+
+const renderSearchModule = () => {
+  if (process.env.REACT_APP_ENABLE_SEMANTIC_SEARCH === 'true') {
+    return <Fragment>
+      <SearchView path="/" />
+      <SearchView path="/search" />
+    </Fragment>
+  }
+}
+
+const renderWorkspacesModule = () => {
+  if (process.env.REACT_APP_WORKSPACES_ENABLED === 'true') {
+    return <Fragment>
+      <AvailableView path="/workspaces" />
+      <AvailableView path="/workspaces/available" />
+      <ActiveView path="/workspaces/active" />
+    </Fragment>
+  }
+}
+
+const routeHomepage = () => {
+  if (process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED === 'false'){
+    if(process.env.REACT_APP_WORKSPACES_ENABLED === 'true'){
+      return <AvailableView path="/" />
+    }
+    else{
+      return <SupportView path="/" />
+    }
+  }
+}
 
 export const App = () => {
   return (
@@ -19,13 +49,10 @@ export const App = () => {
             <InstanceProvider>
               <Layout>
                 <Router basepath="/helx">
-                  <AvailableView path="/workspaces" />
-                  <AvailableView path="/workspaces/available" />
-                  <ActiveView path="/workspaces/active" />
                   <SupportView path="/support" />
-                  <SplashScreenView path="/workspaces/connect/:app_name/:app_url/:app_icon" />
-                  <SearchView path="/" />
-                  <SearchView path="/search" />
+                  {renderSearchModule()}
+                  {renderWorkspacesModule()}
+                  {routeHomepage()}
                   <NotFoundView default />
                 </Router>
               </Layout>
