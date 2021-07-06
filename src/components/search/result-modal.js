@@ -17,7 +17,7 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       title: 'Overview',
       content: (
         <Space direction="vertical">
-          <Title level={ 3 }>Overview</Title>
+          <Title level={ 4 }>Overview</Title>
           <Text>{ result.description }</Text>
         </Space>
       ),
@@ -26,7 +26,7 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       title: `Studies`,
       content: (
         <Space direction="vertical">
-          <Title level={ 3 }>Studies</Title>
+          <Title level={ 4 }>Studies</Title>
        </Space>
       ),
     },
@@ -34,7 +34,7 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       title: `Knowledge Graphs`,
       content: (
         <Space direction="vertical">
-          <Title level={ 3 }>Knowledge Graphs</Title>
+          <Title level={ 4 }>Knowledge Graphs</Title>
         </Space>
       ),
     },
