@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Divider, List, Menu, Modal, Space, Typography } from 'antd'
+import { KnowledgeGraphs } from './'
 import './result-modal.css'
 
-const { Paragraph, Text } = Typography
+const { Paragraph, Text, Title } = Typography
 
 export const SearchResultModal = ({ result, visible, closeHandler }) => {
   const [currentTab, setCurrentTab] = useState('overview')
@@ -16,6 +17,7 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       title: 'Overview',
       content: (
         <Space direction="vertical">
+          <Title level={ 3 }>Overview</Title>
           <Text>{ result.description }</Text>
         </Space>
       ),
@@ -24,15 +26,35 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       title: `Studies`,
       content: (
         <Space direction="vertical">
-          Studies
-        </Space>
+          <Title level={ 3 }>Studies</Title>
+          <List
+            className="studies-list"
+            dataSource={
+              Object.keys(studyVariables)
+                .filter(facet => selectedFacets.includes(facet))
+                .reduce((arr, facet) => [...arr, ...studyVariables[facet]], [])
+                .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
+            }
+            renderItem={ item => (
+              <List.Item>
+                <div className="studies-list-item">
+                  <Text className="study-name">
+                    { item.c_name }{ ` ` }
+                    (<Link to={ item.c_link }>{ item.c_id }</Link>)
+                  </Text>
+                  <Text className="variables-count">{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
+                </div>
+              </List.Item>
+            ) }
+          />
+       </Space>
       ),
     },
     'kgs': {
       title: `Knowledge Graphs`,
       content: (
         <Space direction="vertical">
-          Knowledge Graphs
+          <Title level={ 3 }>Knowledge Graphs</Title>
         </Space>
       ),
     },
