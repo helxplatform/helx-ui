@@ -76,7 +76,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       ),
     },
     'kgs': {
-      title: `Knowledge Graphs (${ graphs.length })`,
+      title: `Knowledge Graphs`,
       content: graphs.length > 0 ? (
         <Space direction="vertical" className="tab-content">
           <KnowledgeGraphs graphs={graphs} />
