@@ -12,6 +12,14 @@ export const useHelxSearch = () => useContext(HelxSearchContext)
 //
 
 const PER_PAGE = 20
+const tempSearchFacets = [
+  'ALL',
+  'Biolink',
+  'CDE',
+  'Harmonized',
+  'LOINC',
+  'PhenX',
+].sort((f, g) => f.toLowerCase() < g.toLowerCase() ? -1 : 1)
 
 //
 
@@ -111,10 +119,10 @@ export const HelxSearch = ({ children }) => {
         query: _query,
         size: 1000
       })
-      if (!data?.result?.hits?.hits) {
+      if (!data) {
         return []
       }
-      return data.result.hits.hits.map(studyVar => studyVar._source);
+      return data
       // return []
     } catch (error) {
       console.error(error)
@@ -137,6 +145,7 @@ export const HelxSearch = ({ children }) => {
       error, isLoadingResults,
       results, totalResults,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
+      facets: tempSearchFacets,
     }}>
       { children }
     </HelxSearchContext.Provider>
