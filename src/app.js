@@ -11,11 +11,8 @@ import {
 import { Layout } from './components/layout'
 
 const renderSearchModule = () => {
-  if (process.env.REACT_APP_ENABLE_SEMANTIC_SEARCH === 'true') {
-    return <Fragment>
-      <SearchView path="/" />
-      <SearchView path="/search" />
-    </Fragment>
+  if (process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED === 'true') {
+    return <SearchView path="/search" />
   }
 }
 
@@ -30,13 +27,16 @@ const renderWorkspacesModule = () => {
 }
 
 const routeHomepage = () => {
-  if (process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED === 'false'){
-    if(process.env.REACT_APP_WORKSPACES_ENABLED === 'true'){
+  if (process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED === 'false') {
+    if (process.env.REACT_APP_WORKSPACES_ENABLED === 'true') {
       return <AvailableView path="/" />
     }
-    else{
+    else {
       return <SupportView path="/" />
     }
+  }
+  else {
+    return <SearchView path="/" />
   }
 }
 
