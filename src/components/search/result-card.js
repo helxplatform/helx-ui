@@ -118,6 +118,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
         extra={ <ViewIcon onClick={ openModalHandler } /> }
+        actions={ [<br />] }
       >
         { tabContents[currentTab] }
       </Card>
