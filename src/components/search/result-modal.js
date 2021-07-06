@@ -27,26 +27,6 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       content: (
         <Space direction="vertical">
           <Title level={ 3 }>Studies</Title>
-          <List
-            className="studies-list"
-            dataSource={
-              Object.keys(studyVariables)
-                .filter(facet => selectedFacets.includes(facet))
-                .reduce((arr, facet) => [...arr, ...studyVariables[facet]], [])
-                .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
-            }
-            renderItem={ item => (
-              <List.Item>
-                <div className="studies-list-item">
-                  <Text className="study-name">
-                    { item.c_name }{ ` ` }
-                    (<Link to={ item.c_link }>{ item.c_id }</Link>)
-                  </Text>
-                  <Text className="variables-count">{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
-                </div>
-              </List.Item>
-            ) }
-          />
        </Space>
       ),
     },
