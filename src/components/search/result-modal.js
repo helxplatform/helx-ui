@@ -38,11 +38,6 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
     },
   }
 
-  const tabList = Object.keys(tabs).map(key => tabs[key].content ? ({ key, tab: tabs[key].title }) : null).filter(tab => tab !== null)
-  const tabContents = Object.keys(tabs).reduce((obj, key) => tabs[key].content ? ({ ...obj, [key]: tabs[key].content }) : obj, {})
-
-  const handleSelectMenuItem = key => setCurrentTab(key)
-
   return (
     <Modal
       title={ `${ result.name } (${ result.type })` }
