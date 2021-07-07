@@ -42,12 +42,13 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
 
   return (
     <Modal
+      centered
       title={ `${ result.name } (${ result.type })` }
       visible={ visible }
       onOk={ closeHandler }
       onCancel={ closeHandler }
       width={ 800 }
-      bodyStyle={{ padding: `0` }}
+      bodyStyle={{ padding: `0`, minHeight: `50vh` }}
     >
       <Space direction="horizontal" align="start">
         <Menu
