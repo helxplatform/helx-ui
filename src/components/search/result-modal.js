@@ -45,10 +45,11 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       title={ `${ result.name } (${ result.type })` }
       visible={ visible }
       onOk={ closeHandler }
+      okText="Close"
       onCancel={ closeHandler }
       width={ 800 }
       bodyStyle={{ padding: `0`, minHeight: `50vh` }}
-      footer={ null }
+      cancelButtonProps={{ hidden: true }}
     >
       <Space direction="horizontal" align="start">
         <Menu
