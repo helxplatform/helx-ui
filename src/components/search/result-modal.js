@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { Divider, List, Menu, Modal, Space, Typography } from 'antd'
-import { KnowledgeGraphs } from './'
+import { Menu, Modal, Space, Typography } from 'antd'
 import './result-modal.css'
 
-const { Paragraph, Text, Title } = Typography
+const { Text, Title } = Typography
 
 export const SearchResultModal = ({ result, visible, closeHandler }) => {
   const [currentTab, setCurrentTab] = useState('overview')

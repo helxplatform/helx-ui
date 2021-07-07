@@ -19,7 +19,6 @@ export const SearchResults = () => {
   const [modalResult, setModalResult] = useState(null)
   const [layout, setLayout] = useState(GRID)
 
-  const modalVisibility = useMemo(() => modalResult !== null, [modalResult])
   const handleCloseModal = () => setModalResult(null)
   const handleOpenModal = result => event => setModalResult(result)
 
@@ -28,10 +27,7 @@ export const SearchResults = () => {
     navigator.clipboard.writeText(window.location.href)
   }
 
-  const handleChangeLayout = event => {
-    console.log(event.target.value)
-    setLayout(event.target.value)
-  }
+  const handleChangeLayout = event => setLayout(event.target.value)
 
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
@@ -68,10 +64,10 @@ export const SearchResults = () => {
                   const index = (currentPage - 1) * perPage + i + 1
                   return (
                     <SearchResultCard
-                      key={`${query}_result_${index}`}
-                      index={index}
-                      result={result}
-                      openModalHandler={handleOpenModal(result)}
+                      key={ `${query}_result_${index}` }
+                      index={ index }
+                      result={ result }
+                      openModalHandler={ handleOpenModal(result) }
                     />
                   )
                 })
@@ -86,9 +82,9 @@ export const SearchResults = () => {
       { pageCount > 1 && <PaginationTray /> }
 
       <SearchResultModal
-        result={modalResult}
-        visible={modalVisibility}
-        closeHandler={handleCloseModal}
+        result={ modalResult }
+        visible={ modalResult !== null}
+        closeHandler={ handleCloseModal }
       />
 
     </Fragment>
