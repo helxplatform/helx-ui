@@ -4,6 +4,9 @@ import { Link } from '../../link'
 import { Card, List, Space, Tag, Typography } from 'antd'
 import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
 import { KnowledgeGraphs, useHelxSearch } from '../'
+import { OverviewTab } from './overview-tab'
+import { StudiesTab } from './studies-tab'
+import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
 import './result-card.css'
 
 const { Meta } = Card
@@ -11,101 +14,16 @@ const { CheckableTag: CheckableFacet } = Tag
 const { Text } = Typography
 
 export const SearchResultCard = ({ index, result, openModalHandler }) => {
-  const { query, fetchKnowledgeGraphs, fetchStudyVariables } = useHelxSearch()
-  const [graphs, setGraphs] = useState([])
-  const [studyVariables, setStudyVariables] = useState([])
   const [currentTab, setCurrentTab] = useState('overview')
-  const [facets, setFacets] = useState([])
-  const [selectedFacets, setSelectedFacets] = useState([])
-
-  const handleSelectFacet = (facet, checked) => {
-    const newSelection = new Set(selectedFacets)
-    if (newSelection.has(facet)) {
-      newSelection.delete(facet)
-    } else {
-      newSelection.add(facet)
-    }
-    setSelectedFacets([...newSelection])
-  }
 
   const tabs = {
-    'overview': {
-      title: 'Overview',
-      content: (
-        <Meta description={result.description} className="description"/>
-      ),
-    },
-    'studies': {
-      title: `Studies`,
-      content: (
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Space direction="horizontal" size="small">
-            {
-              facets.map(facet => studyVariables[facet] && (
-                <CheckableFacet
-                  key={ `search-facet-${ facet }` }
-                  checked={ selectedFacets.includes(facet) }
-                  onChange={ checked => handleSelectFacet(facet, checked) }
-                  children={ `${ facet } (${studyVariables[facet].length})` }
-                />
-              ))
-            }
-          </Space>
-          <List
-            className="studies-list"
-            dataSource={
-              Object.keys(studyVariables)
-                .filter(facet => selectedFacets.includes(facet))
-                .reduce((arr, facet) => [...arr, ...studyVariables[facet]], [])
-                .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
-            }
-            renderItem={ item => (
-              <List.Item>
-                <div className="studies-list-item">
-                  <Text className="study-name">
-                    { item.c_name }{ ` ` }
-                    (<Link to={ item.c_link }>{ item.c_id }</Link>)
-                  </Text>
-                  <Text className="variables-count">{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
-                </div>
-              </List.Item>
-            ) }
-          />
-        </Space>
-      ),
-    },
-    'kgs': {
-      title: `Knowledge Graphs`,
-      content: graphs.length > 0 ? (
-        <Space direction="vertical" className="tab-content">
-          <KnowledgeGraphs graphs={graphs} />
-          <br/>
-        </Space>
-      ) : null,
-    },
+    'overview': { title: 'Overview',         content: <OverviewTab result={ result } /> },
+    'studies':  { title: `Studies`,          content: <StudiesTab result={ result } /> },
+    'kgs':      { title: `Knowledge Graphs`, content: <KnowledgeGraphsTab result={ result } /> },
   }
 
   const tabList = Object.keys(tabs).map(key => tabs[key].content ? ({ key, tab: tabs[key].title }) : null).filter(tab => tab !== null)
   const tabContents = Object.keys(tabs).reduce((obj, key) => tabs[key].content ? ({ ...obj, [key]: tabs[key].content }) : obj, {})
-
-  useEffect(() => {
-    const getKgs = async () => {
-      const kgs = await fetchKnowledgeGraphs(result.id)
-      setGraphs(kgs)
-    }
-    const getVars = async () => {
-      const { result: data } = await fetchStudyVariables(result.id, query);
-      if (!data) {
-        setStudyVariables([])
-      }
-      setFacets(Object.keys(data))
-      setSelectedFacets(Object.keys(data))
-      setStudyVariables(data)
-    }
-
-    getKgs()
-    getVars()
-  }, [fetchKnowledgeGraphs, fetchStudyVariables, query, result.id])
 
   return (
     <Fragment>
