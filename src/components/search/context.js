@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment } from '../../contexts'
 import './search.css'
+import { SearchResultModal } from './'
 
 //
 
@@ -37,6 +38,7 @@ export const HelxSearch = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
+  const [selectedResult, setSelectedResult] = useState(null)
 
   const inputRef = useRef()
   const navigate = useNavigate()
@@ -166,8 +168,14 @@ export const HelxSearch = ({ children }) => {
       results, totalResults,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
+      selectedResult, setSelectedResult,
     }}>
       { children }
+      <SearchResultModal
+        result={ selectedResult }
+        visible={ selectedResult !== null}
+        closeHandler={ () => setSelectedResult(null) }
+      />
     </HelxSearchContext.Provider>
   )
 }

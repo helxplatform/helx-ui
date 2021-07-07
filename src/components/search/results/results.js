@@ -15,12 +15,8 @@ const GRID = 'GRID'
 const LIST = 'LIST'
 
 export const SearchResults = () => {
-  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error } = useHelxSearch()
-  const [modalResult, setModalResult] = useState(null)
+  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult } = useHelxSearch()
   const [layout, setLayout] = useState(GRID)
-
-  const handleCloseModal = () => setModalResult(null)
-  const handleOpenModal = result => event => setModalResult(result)
 
   const NotifyLinkCopied = () => {
     notification.open({ key: 'key', message: 'Link copied to clipboard'})
@@ -67,7 +63,7 @@ export const SearchResults = () => {
                       key={ `${query}_result_${index}` }
                       index={ index }
                       result={ result }
-                      openModalHandler={ handleOpenModal(result) }
+                      openModalHandler={ () => setSelectedResult(result) }
                     />
                   )
                 })
@@ -80,12 +76,6 @@ export const SearchResults = () => {
       <br/><br/>
 
       { pageCount > 1 && <PaginationTray /> }
-
-      <SearchResultModal
-        result={ modalResult }
-        visible={ modalResult !== null}
-        closeHandler={ handleCloseModal }
-      />
 
     </Fragment>
   )
