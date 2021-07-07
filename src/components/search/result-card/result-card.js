@@ -1,10 +1,9 @@
 import { Fragment, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { useHelxSearch } from './context'
+import { Link } from '../../link'
 import { Card, List, Space, Tag, Typography } from 'antd'
-import { Link } from '../link'
 import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
-import { KnowledgeGraphs } from './'
+import { KnowledgeGraphs, useHelxSearch } from '../'
 import './result-card.css'
 
 const { Meta } = Card
