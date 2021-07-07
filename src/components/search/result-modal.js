@@ -49,6 +49,7 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       onCancel={ closeHandler }
       width={ 800 }
       bodyStyle={{ padding: `0`, minHeight: `50vh` }}
+      footer={ null }
     >
       <Space direction="horizontal" align="start">
         <Menu
