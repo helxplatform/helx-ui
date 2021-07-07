@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Form, Input } from 'antd'
-import { useHelxSearch } from './'
+import { useHelxSearch } from '../'
 import './form.css'
 
 export const SearchForm = () => {

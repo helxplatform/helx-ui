@@ -1,6 +1,6 @@
 import { navigate } from '@reach/router'
-import { useHelxSearch } from './'
 import { Pagination, Space } from 'antd'
+import { useHelxSearch } from '../'
 import './pagination-tray.css'
 
 export const PaginationTray = () => {

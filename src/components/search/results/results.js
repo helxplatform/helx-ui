@@ -1,12 +1,12 @@
 import React, { Fragment, useState, useMemo } from 'react'
+import { Link } from '../../link'
 import { Radio, notification, Spin, Tooltip, Typography } from 'antd'
-import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from './'
-import { Link } from '../link'
 import {
   LinkOutlined as LinkIcon,
   TableOutlined as GridViewIcon,
   UnorderedListOutlined as ListViewIcon,
 } from '@ant-design/icons'
+import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from '../'
 import './results.css'
 
 const { Text } = Typography

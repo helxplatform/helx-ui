@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { kgLink } from '../../utils'
-import { Link } from '../link'
+import { kgLink } from '../../../utils'
+import { Link } from '../../link'
 import './knowledge-graphs.css'
 
 const KnowledgeGraph = ({ graph }) => {
