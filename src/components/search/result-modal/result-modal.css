@@ -1,4 +1,8 @@
 .modal-content-container {
   padding: 1rem;
-  min-height:  400px;
+  max-height: 600px;
+  overflow-y:  auto;
+  scrollbar-width: thin; /* firefox only */
+  scrollbar-color: #00000022 transparent; /* firefox only */
+  transition: scrollbar-color 250ms; /* firefox only */
 }
