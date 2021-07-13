@@ -23,6 +23,10 @@ const tempSearchFacets = [
 
 //
 
+const validateResult = result => {
+  return result.description.trim() && result.name.trim()
+}
+
 export const HelxSearch = ({ children }) => {
   const { helxSearchUrl } = useEnvironment()
   const [query, setQuery] = useState('')
@@ -58,6 +62,15 @@ export const HelxSearch = ({ children }) => {
     setCurrentPage(+queryParams.get('p') || 1)
   }, [location.search])
 
+  const validationReducer = (buckets, hit) => {
+    const valid = validateResult(hit)
+    if (valid) {
+      return { valid: [...buckets.valid, hit], invalid: buckets.invalid }
+    } else {
+      return { valid: buckets.valid, invalid: [...buckets.invalid, hit] }
+    }
+  }
+
   useEffect(() => {
     const fetchResults = async () => {
       setIsLoadingResults(true)
@@ -70,9 +83,16 @@ export const HelxSearch = ({ children }) => {
         }
         const response = await axios.post(`${helxSearchUrl}/search`, params)
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.hits) {
-          const hits = response.data.result.hits.hits.map(r => r._source)
-          setResults(hits)
-          setTotalResults(response.data.result.total_items)
+          const unsortedHits = response.data.result.hits.hits.map(r => r._source)
+          // gather invalid results: remove from rendered results and dump to console.
+          let hits = unsortedHits.reduce(validationReducer, { valid: [], invalid: [] })
+          if (hits.invalid.length) {
+            console.error(`The following ${ hits.invalid.length } invalid results ` + 
+              `were removed from the ${ hits.valid.length + hits.invalid.length } ` +
+              `results in the response.`, hits.invalid)
+          }
+          setResults(hits.valid)
+          setTotalResults(hits.valid.length)
           setIsLoadingResults(false)
         } else {
           setResults([])
