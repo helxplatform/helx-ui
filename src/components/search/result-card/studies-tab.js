@@ -25,18 +25,10 @@ export const StudiesTab = ({ result }) => {
 
   useEffect(() => {
     const getVars = async () => {
-      try {
-        const { result: data } = await fetchStudyVariables(result.id, query)
-        if (!data) {
-          setStudyVariables([])
-          throw new Error('An error occurred while fetching study variables.')
-        }
-        setFacets(Object.keys(data))
-        setSelectedFacets(Object.keys(data))
-        setStudyVariables(data)
-      } catch (error) {
-        console.error(error)
-      }
+      const { result: data } = await fetchStudyVariables(result.id, query)
+      setStudyVariables(data)
+      setFacets(Object.keys(data))
+      setSelectedFacets(Object.keys(data))
       setLoading(false)
     }
     getVars()

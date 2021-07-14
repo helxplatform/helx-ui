@@ -9,15 +9,8 @@ export const KnowledgeGraphsTab = ({ result }) => {
 
   useEffect(() => {
     const getKgs = async () => {
-      try {
-        const kgs = await fetchKnowledgeGraphs(result.id)
-        if (!kgs) {
-          throw new Error('An error occurredwhile fetching knowledge graphs.')
-        }
-        setGraphs(kgs)
-      } catch (error) {
-        console.error(error)
-      }
+      const kgs = await fetchKnowledgeGraphs(result.id)
+      setGraphs(kgs)
       setLoading(false)
     }
     getKgs()

@@ -15,23 +15,15 @@ const GRID = 'GRID'
 const LIST = 'LIST'
 
 export const SearchResults = () => {
-  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error } = useHelxSearch()
-  const [modalResult, setModalResult] = useState(null)
+  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult } = useHelxSearch()
   const [layout, setLayout] = useState(GRID)
-
-  const modalVisibility = useMemo(() => modalResult !== null, [modalResult])
-  const handleCloseModal = () => setModalResult(null)
-  const handleOpenModal = result => event => setModalResult(result)
 
   const NotifyLinkCopied = () => {
     notification.open({ key: 'key', message: 'Link copied to clipboard'})
     navigator.clipboard.writeText(window.location.href)
   }
 
-  const handleChangeLayout = event => {
-    console.log(event.target.value)
-    setLayout(event.target.value)
-  }
+  const handleChangeLayout = event => setLayout(event.target.value)
 
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
@@ -68,10 +60,10 @@ export const SearchResults = () => {
                   const index = (currentPage - 1) * perPage + i + 1
                   return (
                     <SearchResultCard
-                      key={`${query}_result_${index}`}
-                      index={index}
-                      result={result}
-                      openModalHandler={handleOpenModal(result)}
+                      key={ `${query}_result_${index}` }
+                      index={ index }
+                      result={ result }
+                      openModalHandler={ () => setSelectedResult(result) }
                     />
                   )
                 })
@@ -84,12 +76,6 @@ export const SearchResults = () => {
       <br/><br/>
 
       { pageCount > 1 && <PaginationTray /> }
-
-      <SearchResultModal
-        result={modalResult}
-        visible={modalVisibility}
-        closeHandler={handleCloseModal}
-      />
 
     </Fragment>
   )
