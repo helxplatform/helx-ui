@@ -266,7 +266,7 @@ export const ActiveView = () => {
                             title='Stop Instance'
                             footer={[
                                 <Button key="stop" onClick={() => setStopModalVisibility(false)}>Cancel</Button>,
-                                <Button type="primary" key="stop" onClick={() => stopInstanceHandler(record.app_id, record.name)} danger>{isStopping ? <Spin /> : 'Stop'}</Button>
+                                <Button type="primary" key="stop" onClick={() => stopInstanceHandler(record.sid, record.name)} danger>{isStopping ? <Spin /> : 'Stop'}</Button>
                             ]}
                             onCancel={() => setStopModalVisibility(false)}
                         >
