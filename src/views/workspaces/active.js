@@ -67,10 +67,10 @@ export const ActiveView = () => {
         loadAppsConfig();
     }, [refresh])
 
-    const stopInstanceHandler = async (app_id, name) => {
+    const stopInstanceHandler = async (sid, name) => {
         setIsStopping(true);
-        addOrDeleteInstanceTab("close", app_id);
-        await stopInstance(app_id)
+        addOrDeleteInstanceTab("close", sid);
+        await stopInstance(sid)
             .then(r => {
                 setRefresh(!refresh)
                 let newActivity = {
@@ -99,8 +99,8 @@ export const ActiveView = () => {
     const stopAllInstanceHandler = async () => {
         setIsStoppingAll(true);
         for (let this_app of instances) {
-            addOrDeleteInstanceTab("close", this_app.app_id);
-            await stopInstance(this_app.app_id)
+            addOrDeleteInstanceTab("close", this_app.sid);
+            await stopInstance(this_app.sid)
                 .then(r => {
                 })
                 .catch(e => {
