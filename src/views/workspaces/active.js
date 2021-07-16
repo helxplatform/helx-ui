@@ -67,28 +67,28 @@ export const ActiveView = () => {
         loadAppsConfig();
     }, [refresh])
 
-    const stopInstanceHandler = async (sid, name) => {
+    const stopInstanceHandler = async () => {
         setIsStopping(true);
-        addOrDeleteInstanceTab("close", sid);
-        await stopInstance(sid)
+        addOrDeleteInstanceTab("close", currentRecord.sid);
+        await stopInstance(currentRecord.sid)
             .then(r => {
                 setRefresh(!refresh)
                 let newActivity = {
                     'sid': 'none',
-                    'app_name': name,
+                    'app_name': currentRecord.name,
                     'status': 'success',
                     'timestamp': new Date(),
-                    'message': `${name} is stopped.`
+                    'message': `${currentRecord.name} is stopped.`
                 }
                 addActivity(newActivity)
             })
             .catch(e => {
                 let newActivity = {
                     'sid': 'none',
-                    'app_name': name,
+                    'app_name': currentRecord.name,
                     'status': 'error',
                     'timestamp': new Date(),
-                    'message': `An error has occurred while stopping ${name}.`
+                    'message': `An error has occurred while stopping ${currentRecord.name}.`
                 }
                 addActivity(newActivity)
             })
@@ -266,7 +266,7 @@ export const ActiveView = () => {
                             title='Stop Instance'
                             footer={[
                                 <Button key="stop" onClick={() => setStopModalVisibility(false)}>Cancel</Button>,
-                                <Button type="primary" key="stop" onClick={() => stopInstanceHandler(record.sid, record.name)} danger>{isStopping ? <Spin /> : 'Stop'}</Button>
+                                <Button type="primary" key="stop" onClick={() => stopInstanceHandler()} danger>{isStopping ? <Spin /> : 'Stop'}</Button>
                             ]}
                             onCancel={() => setStopModalVisibility(false)}
                         >
