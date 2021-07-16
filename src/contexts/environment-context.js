@@ -19,6 +19,9 @@ export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
   const [context, setContext] = useState();
+  const [searchEnabled, setSearchEnabled] = useState();
+  const [searchUrl, setSearchUrl] = useState();
+  const [workspaceEnabled, setWorkspaceEnabled] = useState();
   const relativeHost = window.location.origin;
 
   useEffect(() => {
@@ -29,16 +32,19 @@ export const EnvironmentProvider = ({ children }) => {
         url: `${relativeHost}/api/v1/context`
       })
       setContext(context_response.data);
+      setSearchEnabled(context_response.data.REACT_APP_SEMANTIC_SEARCH_ENABLED);
+      setWorkspaceEnabled(context_response.data.REACT_APP_WORKSPACES_ENABLED);
+      setSearchUrl(context_response.data.REACT_APP_HELX_SEARCH_URL);
     }
     loadContext();
   }, [relativeHost])
 
   return (
     <EnvironmentContext.Provider value={{
-      helxSearchUrl: process.env.REACT_APP_HELX_SEARCH_URL,
+      helxSearchUrl: searchUrl,
       helxAppstoreUrl: window.location.origin,
-      searchEnabled: process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED,
-      workspacesEnabled: process.env.REACT_APP_WORKSPACES_ENABLED,
+      searchEnabled: searchEnabled,
+      workspacesEnabled: workspaceEnabled,
       context: context,
     }}>
       { children}
