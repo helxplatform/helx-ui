@@ -29,7 +29,7 @@ export const EnvironmentProvider = ({ children }) => {
     const loadContext = async () => {
       const context_response = await axios({
         method: 'GET',
-        url: `https://helx.zbo.blackbalsam-cluster.edc.renci.org/api/v1/context`
+        url: `${relativeHost}/api/v1/context`
       })
       setContext(context_response.data);
       setSearchEnabled(context_response.data.env.REACT_APP_SEMANTIC_SEARCH_ENABLED);
