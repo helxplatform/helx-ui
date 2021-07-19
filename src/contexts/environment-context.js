@@ -19,9 +19,9 @@ export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
   const [context, setContext] = useState();
-  const [searchEnabled, setSearchEnabled] = useState();
+  const [searchEnabled, setSearchEnabled] = useState('false');
   const [searchUrl, setSearchUrl] = useState();
-  const [workspaceEnabled, setWorkspaceEnabled] = useState();
+  const [workspaceEnabled, setWorkspaceEnabled] = useState('false');
   const relativeHost = window.location.origin;
 
   useEffect(() => {
@@ -29,12 +29,12 @@ export const EnvironmentProvider = ({ children }) => {
     const loadContext = async () => {
       const context_response = await axios({
         method: 'GET',
-        url: `${relativeHost}/api/v1/context`
+        url: `https://helx.zbo.blackbalsam-cluster.edc.renci.org/api/v1/context`
       })
       setContext(context_response.data);
-      setSearchEnabled(context_response.data.REACT_APP_SEMANTIC_SEARCH_ENABLED);
-      setWorkspaceEnabled(context_response.data.REACT_APP_WORKSPACES_ENABLED);
-      setSearchUrl(context_response.data.REACT_APP_HELX_SEARCH_URL);
+      setSearchEnabled(context_response.data.env.REACT_APP_SEMANTIC_SEARCH_ENABLED);
+      setWorkspaceEnabled(context_response.data.env.REACT_APP_WORKSPACES_ENABLED);
+      setSearchUrl(context_response.data.env.REACT_APP_HELX_SEARCH_URL);
     }
     loadContext();
   }, [relativeHost])
