@@ -6,7 +6,7 @@ import {
   TableOutlined as GridViewIcon,
   UnorderedListOutlined as ListViewIcon,
 } from '@ant-design/icons'
-import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from '../'
+import { PaginationTray, SearchResultCard, useHelxSearch } from '../'
 import './results.css'
 
 const { Text } = Typography

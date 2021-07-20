@@ -131,7 +131,7 @@ export const HelxSearch = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }, [helxSearchUrl, results])
+  }, [helxSearchUrl, query, results])
 
   const fetchStudyVariables = useCallback(async (_id, _query) => {
     try {
@@ -149,7 +149,7 @@ export const HelxSearch = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }, [helxSearchUrl, results])
+  }, [helxSearchUrl, query, results])
 
   const doSearch = queryString => {
     const trimmedQuery = queryString.trim()

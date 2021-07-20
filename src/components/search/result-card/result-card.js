@@ -1,17 +1,11 @@
-import { Fragment, useState, useEffect } from 'react'
+import { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from '../../link'
-import { Card, List, Space, Tag, Typography } from 'antd'
+import { Card, Tag, Typography } from 'antd'
 import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
-import { KnowledgeGraphs, useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
 import './result-card.css'
-
-const { Meta } = Card
-const { CheckableTag: CheckableFacet } = Tag
-const { Text } = Typography
 
 export const SearchResultCard = ({ index, result, openModalHandler }) => {
   const [currentTab, setCurrentTab] = useState('overview')

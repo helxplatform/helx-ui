@@ -2,7 +2,6 @@ import { LocationProvider, Router as ReachRouter } from '@reach/router'
 import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, useEnvironment } from './contexts'
 import { Layout } from './components/layout'
 import { NotFoundView } from './views'
-import { useEffect } from 'react'
 
 const ContextProviders = ({ children }) => {
   return (
@@ -32,7 +31,6 @@ const Router = () => {
 }
 
 export const App = () => {
-  const { routes } = useEnvironment();
   return (
     <ContextProviders>
       <Layout>

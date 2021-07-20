@@ -19,7 +19,6 @@ const OverviewTab = ({ result }) => {
 const StudiesTab = ({ studies }) => {
   const [facets, setFacets] = useState([])
   const [selectedFacets, setSelectedFacets] = useState([])
-  const [loading, setLoading] = useState(true)
 
   const handleSelectFacet = (facet, checked) => {
     const newSelection = new Set(selectedFacets)
