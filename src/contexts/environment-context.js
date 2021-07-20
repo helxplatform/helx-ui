@@ -18,26 +18,26 @@ axios.interceptors.response.use(function (response) {
 export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
-  const [context, setContext] = useState();
-  const [searchEnabled, setSearchEnabled] = useState('false');
-  const [searchUrl, setSearchUrl] = useState();
-  const [workspaceEnabled, setWorkspaceEnabled] = useState('false');
+  const [context, setContext] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')) : {});
+  const [searchEnabled, setSearchEnabled] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')).env.REACT_APP_SEMANTIC_SEARCH_ENABLED : 'false');
+  const [searchUrl, setSearchUrl] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')).env.REACT_APP_HELX_SEARCH_URL : '');
+  const [workspaceEnabled, setWorkspaceEnabled] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')).env.REACT_APP_WORKSPACES_ENABLED : 'false');
   const relativeHost = window.location.origin;
 
-  useEffect(() => {
-    // update the context on initial render
+  if (sessionStorage.getItem('context') === null) {
     const loadContext = async () => {
       const context_response = await axios({
         method: 'GET',
         url: `${relativeHost}/api/v1/context`
       })
+      sessionStorage.setItem('context', JSON.stringify(context_response.data))
       setContext(context_response.data);
       setSearchEnabled(context_response.data.env.REACT_APP_SEMANTIC_SEARCH_ENABLED);
       setWorkspaceEnabled(context_response.data.env.REACT_APP_WORKSPACES_ENABLED);
       setSearchUrl(context_response.data.env.REACT_APP_HELX_SEARCH_URL);
     }
     loadContext();
-  }, [relativeHost])
+  }
 
   return (
     <EnvironmentContext.Provider value={{
@@ -47,7 +47,7 @@ export const EnvironmentProvider = ({ children }) => {
       workspacesEnabled: workspaceEnabled,
       context: context,
     }}>
-      { children}
+      {children}
     </EnvironmentContext.Provider>
   )
 }
