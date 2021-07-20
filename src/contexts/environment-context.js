@@ -99,6 +99,7 @@ export const EnvironmentProvider = ({ children }) => {
 
   return (
     <EnvironmentContext.Provider value={{
+      helxSearchUrl: context.env.REACT_APP_HELX_SEARCH_URL,
       helxAppstoreUrl: window.location.origin,
       context: context,
       routes: availableRoutes,
