@@ -4,7 +4,7 @@ import {
   ActiveView,
   AvailableView,
   SupportView,
-  NotFoundView,
+  LoadingView,
   SearchView,
 } from '../views'
 
@@ -40,8 +40,8 @@ let devContext = {
 
 export const EnvironmentProvider = ({ children }) => {
   const relativeHost = window.location.origin;
-  const [availableRoutes, setAvailableRoutes] = useState(sessionStorage.getItem('routes') !== null ? JSON.parse(sessionStorage.getItem('routes')) : []);
-  const [context, setContext] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')) : {});
+  const [availableRoutes, setAvailableRoutes] = useState([]);
+  const [context, setContext] = useState({});
   const [isLoadingContext, setIsLoadingContext] = useState(true);
 
   const generateRoutes = (searchEnabled, workspaceEnabled) => {
@@ -75,29 +75,27 @@ export const EnvironmentProvider = ({ children }) => {
       url: `${relativeHost}/api/v1/context`
     })
     setContext(context_response.data);
-    // use sessionstorage to store context and routes
-    sessionStorage.setItem('context', JSON.stringify(context_response.data));
     setIsLoadingContext(false);
   }
 
   useEffect(() => {
     if (process.env.NODE_ENV !== 'production') {
       setContext(devContext);
-      sessionStorage.setItem('context', JSON.stringify(devContext));
+      setIsLoadingContext(false);
     }
     else {
-      if (sessionStorage.getItem('context') === null) loadContext();
+     loadContext();
     }
   }, [relativeHost])
 
   useEffect(() => {
     if (Object.keys(context).length !== 0) {
       const routes = generateRoutes(context["env"].REACT_APP_SEMANTIC_SEARCH_ENABLED, context["env"].REACT_APP_WORKSPACES_ENABLED);
-      console.log(routes)
       setAvailableRoutes(routes);
-      sessionStorage.setItem('routes', JSON.stringify(routes));
     }
   }, [context])
+
+  if(isLoadingContext) return <LoadingView />
 
   return (
     <EnvironmentContext.Provider value={{
