@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import axios from 'axios';
+import {
+  ActiveView,
+  AvailableView,
+  SupportView,
+  NotFoundView,
+  SearchView,
+} from '../views'
 
 // Setup global csrf token
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -17,35 +24,87 @@ axios.interceptors.response.use(function (response) {
 
 export const EnvironmentContext = createContext({})
 
-export const EnvironmentProvider = ({ children }) => {
-  const [context, setContext] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')) : {});
-  const [searchEnabled, setSearchEnabled] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')).env.REACT_APP_SEMANTIC_SEARCH_ENABLED : 'false');
-  const [searchUrl, setSearchUrl] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')).env.REACT_APP_HELX_SEARCH_URL : '');
-  const [workspaceEnabled, setWorkspaceEnabled] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')).env.REACT_APP_WORKSPACES_ENABLED : 'false');
-  const relativeHost = window.location.origin;
-
-  if (sessionStorage.getItem('context') === null) {
-    const loadContext = async () => {
-      const context_response = await axios({
-        method: 'GET',
-        url: `${relativeHost}/api/v1/context`
-      })
-      sessionStorage.setItem('context', JSON.stringify(context_response.data))
-      setContext(context_response.data);
-      setSearchEnabled(context_response.data.env.REACT_APP_SEMANTIC_SEARCH_ENABLED);
-      setWorkspaceEnabled(context_response.data.env.REACT_APP_WORKSPACES_ENABLED);
-      setSearchUrl(context_response.data.env.REACT_APP_HELX_SEARCH_URL);
-    }
-    loadContext();
+let devContext = {
+  "brand": "heal",
+  "title": "NIH HEAL Initiative",
+  "logo_url": "/static/images/heal/logo.png",
+  "color_scheme": { "primary": "#8a5a91", "secondary": "#505057" },
+  "links": null,
+  "capabilities": ["app", "search"],
+  "env": {
+    "REACT_APP_HELX_SEARCH_URL": process.env.REACT_APP_HELX_SEARCH_URL || 'https://helx.renci.org',
+    "REACT_APP_SEMANTIC_SEARCH_ENABLED": process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED || 'true',
+    "REACT_APP_WORKSPACES_ENABLED": process.env.REACT_APP_WORKSPACES_ENABLED || 'true'
   }
+}
+
+export const EnvironmentProvider = ({ children }) => {
+  const relativeHost = window.location.origin;
+  const [availableRoutes, setAvailableRoutes] = useState(sessionStorage.getItem('routes') !== null ? JSON.parse(sessionStorage.getItem('routes')) : []);
+  const [context, setContext] = useState(sessionStorage.getItem('context') !== null ? JSON.parse(sessionStorage.getItem('context')) : {});
+  const [isLoadingContext, setIsLoadingContext] = useState(true);
+
+  const generateRoutes = (searchEnabled, workspaceEnabled) => {
+    console.log("generate Routes")
+    const baseRoutes = [];
+    if (searchEnabled === 'true') {
+      // route homepage to search if search is enabled
+      baseRoutes.push({ path: '/', text: '', Component: SearchView })
+      baseRoutes.push({ path: '/search', text: 'Search', Component: SearchView })
+    }
+    if (workspaceEnabled === 'true') {
+      // route homepage to apps page if search is disabled
+      if (searchEnabled === 'false') {
+        baseRoutes.push({ path: '/', text: '', Component: AvailableView })
+      }
+      baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
+      baseRoutes.push({ path: '/workspaces/available', text: '', Component: AvailableView })
+      baseRoutes.push({ path: '/workspaces/active', text: '', Component: ActiveView })
+    }
+    if (searchEnabled === 'false' && workspaceEnabled === 'false') {
+      // route homepage to support page if both search and workspaces are disabled
+      baseRoutes.push({ path: '/', text: '', Component: SupportView })
+    }
+    baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
+    return baseRoutes;
+  }
+
+  const loadContext = async () => {
+    const context_response = await axios({
+      method: 'GET',
+      url: `${relativeHost}/api/v1/context`
+    })
+    setContext(context_response.data);
+    // use sessionstorage to store context and routes
+    sessionStorage.setItem('context', JSON.stringify(context_response.data));
+    setIsLoadingContext(false);
+  }
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') {
+      setContext(devContext);
+      sessionStorage.setItem('context', JSON.stringify(devContext));
+    }
+    else {
+      if (sessionStorage.getItem('context') === null) loadContext();
+    }
+  }, [relativeHost])
+
+  useEffect(() => {
+    if (Object.keys(context).length !== 0) {
+      const routes = generateRoutes(context["env"].REACT_APP_SEMANTIC_SEARCH_ENABLED, context["env"].REACT_APP_WORKSPACES_ENABLED);
+      console.log(routes)
+      setAvailableRoutes(routes);
+      sessionStorage.setItem('routes', JSON.stringify(routes));
+    }
+  }, [context])
 
   return (
     <EnvironmentContext.Provider value={{
-      helxSearchUrl: searchUrl,
       helxAppstoreUrl: window.location.origin,
-      searchEnabled: searchEnabled,
-      workspacesEnabled: workspaceEnabled,
       context: context,
+      routes: availableRoutes,
+      isLoadingContext
     }}>
       {children}
     </EnvironmentContext.Provider>
