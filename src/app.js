@@ -1,65 +1,43 @@
-import { Fragment } from 'react'
-import { LocationProvider, Router } from '@reach/router'
-import { ActivityProvider, AppProvider, EnvironmentProvider, InstanceProvider } from './contexts'
-import {
-  ActiveView,
-  AvailableView,
-  SupportView,
-  NotFoundView,
-  SearchView,
-} from './views'
+import { LocationProvider, Router as ReachRouter } from '@reach/router'
+import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, useEnvironment } from './contexts'
 import { Layout } from './components/layout'
+import { NotFoundView } from './views'
+import { useEffect } from 'react'
 
-const renderSearchModule = () => {
-  if (process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED === 'true') {
-    return <SearchView path="/search" />
-  }
-}
-
-const renderWorkspacesModule = () => {
-  if (process.env.REACT_APP_WORKSPACES_ENABLED === 'true') {
-    return <Fragment>
-      <AvailableView path="/workspaces" />
-      <AvailableView path="/workspaces/available" />
-      <ActiveView path="/workspaces/active" />
-    </Fragment>
-  }
-}
-
-const routeHomepage = () => {
-  if (process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED === 'false') {
-    if (process.env.REACT_APP_WORKSPACES_ENABLED === 'true') {
-      return <AvailableView path="/" />
-    }
-    else {
-      return <SupportView path="/" />
-    }
-  }
-  else {
-    return <SearchView path="/" />
-  }
-}
-
-export const App = () => {
+const ContextProviders = ({ children }) => {
   return (
     <EnvironmentProvider>
       <LocationProvider>
         <ActivityProvider>
           <AppProvider>
             <InstanceProvider>
-              <Layout>
-                <Router basepath="/helx">
-                  <SupportView path="/support" />
-                  {renderSearchModule()}
-                  {renderWorkspacesModule()}
-                  {routeHomepage()}
-                  <NotFoundView default />
-                </Router>
-              </Layout>
+              {children}
             </InstanceProvider>
           </AppProvider>
         </ActivityProvider>
       </LocationProvider>
     </EnvironmentProvider >
+  )
+}
+
+const Router = () => {
+  const { routes } = useEnvironment();
+  
+  return (
+    <ReachRouter basepath="/helx">
+      {routes !== undefined && routes.map(({ path, text, Component }) => <Component path={path}>{console.log(Component)}</Component>)}
+      <NotFoundView default />
+    </ReachRouter>
+  )
+}
+
+export const App = () => {
+  const { routes } = useEnvironment();
+  return (
+    <ContextProviders>
+      <Layout>
+        <Router />
+      </Layout>
+    </ContextProviders>
   )
 }

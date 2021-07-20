@@ -19,7 +19,7 @@ export const MobileMenu = ({menu}) => {
                 visible={visible}
             >
                 <Menu mode="vertical">
-                    {menu.map(m => <Menu.Item key={m.key}><Link to={m.path}>{m.title}</Link></Menu.Item>)}
+                    {menu.map(m => m['text'] !== '' && <Menu.Item key={m.text}><Link to={`/helx${m.path}`}>{m.text}</Link></Menu.Item>)}
                     <Menu.Item key="logout" className="logout"><Button onClick={() => logoutHandler()}>LOG OUT</Button></Menu.Item>
                 </Menu>
             </Drawer>

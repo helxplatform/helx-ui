@@ -9,7 +9,6 @@ WORKDIR /src
 # Copy in source files
 COPY . /src
 # Build app
-ENV REACT_APP_HELX_SEARCH_URL=https://helx.renci.org
 RUN make clean install.npm lint test build.npm
 
 ########################
