@@ -94,7 +94,7 @@ export const HelxSearch = ({ children }) => {
               `results in the response.`, hits.invalid)
           }
           setResults(hits.valid)
-          setTotalResults(hits.valid.length)
+          setTotalResults(response.data.result.total_items)
           setIsLoadingResults(false)
         } else {
           setResults([])
