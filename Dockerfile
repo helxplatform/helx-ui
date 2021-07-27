@@ -1,24 +1,17 @@
-###################
-# Build environment
-###################
-FROM node:14.16.1-alpine AS builder
-RUN apk add make
-# Create and set working directory
-RUN mkdir /src
-WORKDIR /src
-# Copy in source files
-COPY . /src
-# Build app
-ENV REACT_APP_HELX_SEARCH_URL=https://helx.renci.org
-RUN make clean install.npm lint test build.npm
+FROM node:14.16.1-alpine AS build
 
-########################
-# Production environment
-########################
-FROM nginx:latest
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /src/build/ /usr/share/nginx/static/
-RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
+# Copy and install requirements
+WORKDIR /usr/src/app
+COPY "package*.json" /usr/src/app/
+RUN npm ci --only=production
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+############
+
+FROM node:14.16.1-alpine
+ENV NODE_ENV production
+USER node
+WORKDIR /usr/src/app
+COPY --chown=node:node --from=build /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --chown=node:node . /usr/src/app
+
+CMD npm run start
