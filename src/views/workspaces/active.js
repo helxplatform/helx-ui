@@ -120,15 +120,11 @@ export const ActiveView = () => {
     }
 
     const connectInstance = (aid, sid, url, name) => {
-        let newActivity = {
-            'sid': sid,
-            'app_name': name,
-            'status': 'processing',
-            'timestamp': new Date(),
-            'message': `${name} is launching.`
-        }
-        addActivity(newActivity)
-        pollingInstance(aid, sid, url, name)
+        const app_url = `${window.location.origin}/helx/connect/${aid}/${encodeURIComponent(url)}`
+        const connect_tab_ref = `${sid}-tab`
+        const connect_tab = window.open(app_url, connect_tab_ref);
+        updateTabName(connect_tab, name)
+        addOrDeleteInstanceTab("add", sid, connect_tab);
     }
 
     //Update a running Instance.
