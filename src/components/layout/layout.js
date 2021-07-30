@@ -9,16 +9,20 @@ import './layout.css';
 const { Header, Content, Footer } = AntLayout
 
 export const Layout = ({ children }) => {
-  const { helxAppstoreUrl, routes, context } = useEnvironment()
+  const { helxAppstoreUrl, routes, context, basePath} = useEnvironment()
+  const baseLinkPath = process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'true' ? '/helx' : ''
   const location = useLocation();
 
   return (
     <AntLayout className="layout">
       <Header style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>
-        {context !== undefined ? <Link to="/helx"><img className="brand_img" src={'' + helxAppstoreUrl + context.logo_url} alt="Go Home"></img></Link> : <span />}
+        {context !== undefined ? <Link to={basePath}><img className="brand_img" src={'' + context.logo_url} alt={context.brand}></img></Link> : <span />}
         <Menu className="menu-toggle" style={{ position: 'absolute', right: '2px' }} theme="light" mode="horizontal" selectedKeys={[location.pathname]}>
-          {routes.map(m => m['text'] !== '' && <Menu.Item key={`/helx${m.path}`}><Link to={`/helx${m.path}`}>{m.text}</Link></Menu.Item>)}
-          <Button type="primary" ghost className="logout-button" onClick={() => logoutHandler(helxAppstoreUrl)}>LOG OUT</Button>
+          <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
+          <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
+          <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
+          {routes.map(m => m['text'] !== '' && <Menu.Item key={`/helx${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>)}
+          {process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'true' && <Button type="primary" ghost className="logout-button" onClick={() => logoutHandler(helxAppstoreUrl)}>LOG OUT</Button>}
         </Menu>
         <MobileMenu menu={routes} />
       </Header>

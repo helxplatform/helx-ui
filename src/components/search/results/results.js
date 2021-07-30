@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons'
 import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from '../'
 import './results.css'
+import { useEnvironment } from '../../../contexts'
 
 const { Text } = Typography
 
@@ -16,10 +17,11 @@ const LIST = 'LIST'
 
 export const SearchResults = () => {
   const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult } = useHelxSearch()
+  const { basePath } = useEnvironment()
   const [layout, setLayout] = useState(GRID)
 
   const NotifyLinkCopied = () => {
-    notification.open({ key: 'key', message: 'Link copied to clipboard'})
+    notification.open({ key: 'key', message: 'Link copied to clipboard' })
     navigator.clipboard.writeText(window.location.href)
   }
 
@@ -27,14 +29,14 @@ export const SearchResults = () => {
 
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
-      <Text>{ totalResults } results for "{ query }" ({ pageCount } page{ pageCount > 1 && 's' })</Text> 
+      <Text>{totalResults} results for "{query}" ({pageCount} page{pageCount > 1 && 's'})</Text>
       <Tooltip title="Shareable link" placement="top">
-        <Link to={ `/helx/search?q=${ query }&p=${ currentPage }` } onClick={NotifyLinkCopied}><LinkIcon /></Link>
+        <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
       <Tooltip title="Toggle Layout" placement="top">
-        <Radio.Group value={ layout } onChange={ handleChangeLayout }>
-          <Radio.Button value={ GRID }><GridViewIcon /></Radio.Button>
-          <Radio.Button value={ LIST }><ListViewIcon /></Radio.Button>
+        <Radio.Group value={layout} onChange={handleChangeLayout}>
+          <Radio.Button value={GRID}><GridViewIcon /></Radio.Button>
+          <Radio.Button value={LIST}><ListViewIcon /></Radio.Button>
         </Radio.Group>
       </Tooltip>
     </div>
