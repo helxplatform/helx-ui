@@ -9,7 +9,7 @@ import './layout.css';
 const { Header, Content, Footer } = AntLayout
 
 export const Layout = ({ children }) => {
-  const { helxAppstoreUrl, routes, context, basePath} = useEnvironment()
+  const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
   const baseLinkPath = process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'true' ? '/helx' : ''
   const location = useLocation();
 
@@ -28,7 +28,7 @@ export const Layout = ({ children }) => {
       </Header>
       <Content>
         {children}
-        <SidePanel />
+        {context.env.REACT_APP_WORKSPACES_ENABLED === 'true' && <SidePanel />}
       </Content>
       <Footer style={{ textAlign: 'center' }}>&copy; HeLx {new Date().getFullYear()}</Footer>
     </AntLayout>
