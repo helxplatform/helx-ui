@@ -29,7 +29,7 @@ const validateResult = result => {
 }
 
 export const HelxSearch = ({ children }) => {
-  const { helxSearchUrl } = useEnvironment()
+  const { helxSearchUrl, basePath } = useEnvironment()
   const [query, setQuery] = useState('')
   const [isLoadingResults, setIsLoadingResults] = useState(false);
   const [error, setError] = useState({})
@@ -156,7 +156,7 @@ export const HelxSearch = ({ children }) => {
     if (trimmedQuery !== '') {
       setQuery(trimmedQuery)
       setCurrentPage(1)
-      navigate(`/helx/search?q=${trimmedQuery}&p=1`)
+      navigate(`${basePath}search?q=${trimmedQuery}&p=1`)
     }
   }
 

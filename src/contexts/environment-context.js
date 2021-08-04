@@ -25,12 +25,11 @@ axios.interceptors.response.use(function (response) {
 export const EnvironmentContext = createContext({})
 
 let devContext = {
-  "brand": "heal",
+  "brand": process.env.REACT_APP_UI_BRAND_NAME || 'heal',
   "title": "NIH HEAL Initiative",
-  "logo_url": "/static/images/heal/logo.png",
+  "logo_url": process.env.REACT_APP_UI_BRAND_LOGO || 'https://github.com/helxplatform/appstore/blob/master/appstore/core/static/images/heal/logo.png?raw=true',
   "color_scheme": { "primary": "#8a5a91", "secondary": "#505057" },
   "links": null,
-  "capabilities": ["app", "search"],
   "env": {
     "REACT_APP_HELX_SEARCH_URL": process.env.REACT_APP_HELX_SEARCH_URL || 'https://helx.renci.org',
     "REACT_APP_SEMANTIC_SEARCH_ENABLED": process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED || 'true',
@@ -43,6 +42,7 @@ export const EnvironmentProvider = ({ children }) => {
   const [availableRoutes, setAvailableRoutes] = useState([]);
   const [context, setContext] = useState({});
   const [isLoadingContext, setIsLoadingContext] = useState(true);
+  const [basePath, setBasePath] = useState(process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'true' ? '/helx/' : '/');
 
   const generateRoutes = (searchEnabled, workspaceEnabled) => {
     console.log("generate Routes")
@@ -70,21 +70,22 @@ export const EnvironmentProvider = ({ children }) => {
   }
 
   const loadContext = async () => {
-    const context_response = await axios({
+    let context_response = await axios({
       method: 'GET',
       url: `${relativeHost}/api/v1/context`
     })
+    context_response.data.logo_url = window.location.origin + context_response.data.logo_url
     setContext(context_response.data);
     setIsLoadingContext(false);
   }
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production' || process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'false') {
       setContext(devContext);
       setIsLoadingContext(false);
     }
     else {
-     loadContext();
+      loadContext();
     }
   }, [relativeHost])
 
@@ -103,6 +104,7 @@ export const EnvironmentProvider = ({ children }) => {
       helxAppstoreUrl: window.location.origin,
       context: context,
       routes: availableRoutes,
+      basePath,
       isLoadingContext
     }}>
       {children}

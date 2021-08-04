@@ -22,9 +22,10 @@ const ContextProviders = ({ children }) => {
 
 const Router = () => {
   const { routes } = useEnvironment();
+  const baseRouterPath = process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'true' ? '/helx' : '/'
   
   return (
-    <ReachRouter basepath="/helx">
+    <ReachRouter basepath={baseRouterPath}>
       {routes !== undefined && routes.map(({ path, text, Component }) => <Component path={path}>{console.log(Component)}</Component>)}
       <NotFoundView default />
     </ReachRouter>
