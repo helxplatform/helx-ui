@@ -4,7 +4,10 @@ import { Spin } from "antd";
 import { useEffect, useState } from 'react';
 
 export const SplashScreenView = (props) => {
-    document.getElementById('helx-header').style.visibility="hidden";
+    const header = document.getElementById('helx-header');
+    const sidePanel = document.getElementById('helx-side-panel');
+    if(header !== null) header.style.visibility = "hidden";
+    if(sidePanel !== null) sidePanel.style.visibility = "hidden";
     const [statusCode, setStatusCode] = useState("404");
     const [loading, setLoading] = useState(true);
     const [count, setCount] = useState(0);
