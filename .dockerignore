@@ -1,7 +1,10 @@
 .dockerignore
 build
 node_modules
-npm-debug.log
+*.log
 Dockerfile
+docker-compose*.yml
+Jenkinsfile
+.env*
 .git
 .gitignore
