@@ -24,19 +24,6 @@ axios.interceptors.response.use(function (response) {
 
 export const EnvironmentContext = createContext({})
 
-// let devContext = {
-//   "brand": process.env.REACT_APP_UI_BRAND_NAME || 'heal',
-//   "title": "NIH HEAL Initiative",
-//   "logo_url": process.env.REACT_APP_UI_BRAND_LOGO || 'https://github.com/helxplatform/appstore/blob/master/appstore/core/static/images/heal/logo.png?raw=true',
-//   "color_scheme": { "primary": "#8a5a91", "secondary": "#505057" },
-//   "SEARCH_URL": "",
-//   "search_url": "https://helx.renci.org",
-//   "search_enabled": "true",
-//   "workspaces_enabled": "false"
-// }
-
-
-
 export const EnvironmentProvider = ({ children }) => {
   const relativeHost = window.location.origin;
   const [availableRoutes, setAvailableRoutes] = useState([]);
@@ -68,16 +55,6 @@ export const EnvironmentProvider = ({ children }) => {
     baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
     return baseRoutes;
   }
-
-  // const loadContext = async () => {
-  //   let context_response = await axios({
-  //     method: 'GET',
-  //     url: `${relativeHost}/api/v1/context`
-  //   })
-  //   context_response.data.logo_url = window.location.origin + context_response.data.logo_url
-  //   setContext(context_response.data);
-  //   setIsLoadingContext(false);
-  // }
 
   const loadEnvironmentContext = async () => {
     let response = await axios({
