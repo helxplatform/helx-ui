@@ -27,4 +27,4 @@ WORKDIR /usr/src/app
 COPY bin /usr/src/app/
 
 EXPOSE 80
-CMD ["./start.sh", "/usr/share/nginx/static/frontend/static/js/env.js"]
+CMD ["./start.sh", "/usr/share/nginx/static/frontend/static/js/env.json"]
