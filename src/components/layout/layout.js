@@ -10,7 +10,7 @@ const { Header, Content, Footer } = AntLayout
 
 export const Layout = ({ children }) => {
   const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
-  const baseLinkPath = process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'true' ? '/helx' : ''
+  const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
   const location = useLocation();
 
   return (
@@ -21,7 +21,7 @@ export const Layout = ({ children }) => {
           <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
           <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
           <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
-          {routes.map(m => m['text'] !== '' && <Menu.Item key={`/helx${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>)}
+          {routes.map(m => m['text'] !== '' && <Menu.Item key={`${baseLinkPath}${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>)}
           {process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'true' && <Button type="primary" ghost className="logout-button" onClick={() => logoutHandler(helxAppstoreUrl)}>LOG OUT</Button>}
         </Menu>
         <MobileMenu menu={routes} />
