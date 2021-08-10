@@ -6,6 +6,7 @@ import {
   SupportView,
   LoadingView,
   SearchView,
+  SplashScreenView
 } from '../views'
 
 // Setup global csrf token
@@ -60,6 +61,7 @@ export const EnvironmentProvider = ({ children }) => {
       baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
       baseRoutes.push({ path: '/workspaces/available', text: '', Component: AvailableView })
       baseRoutes.push({ path: '/workspaces/active', text: '', Component: ActiveView })
+      baseRoutes.push({ path: '/connect/:app_name/:app_url', text: '', Component: SplashScreenView })
     }
     if (searchEnabled === 'false' && workspaceEnabled === 'false') {
       // route homepage to support page if both search and workspaces are disabled
@@ -96,7 +98,7 @@ export const EnvironmentProvider = ({ children }) => {
     }
   }, [context])
 
-  if(isLoadingContext) return <LoadingView />
+  if (isLoadingContext) return <LoadingView />
 
   return (
     <EnvironmentContext.Provider value={{

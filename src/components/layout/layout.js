@@ -15,7 +15,7 @@ export const Layout = ({ children }) => {
 
   return (
     <AntLayout className="layout">
-      <Header style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>
+      <Header id="helx-header" style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>
         {context !== undefined ? <Link to={basePath}><img className="brand_img" src={'' + context.logo_url} alt={context.brand}></img></Link> : <span />}
         <Menu className="menu-toggle" style={{ position: 'absolute', right: '2px' }} theme="light" mode="horizontal" selectedKeys={[location.pathname]}>
           <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>

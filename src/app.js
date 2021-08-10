@@ -26,7 +26,7 @@ const Router = () => {
   
   return (
     <ReachRouter basepath={baseRouterPath}>
-      {routes !== undefined && routes.map(({ path, text, Component }) => <Component path={path}>{console.log(Component)}</Component>)}
+      {routes !== undefined && routes.map(({ path, text, Component }) => <Component path={path}></Component>)}
       <NotFoundView default />
     </ReachRouter>
   )
