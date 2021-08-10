@@ -17,9 +17,9 @@ export const SearchView = () => {
   return (
     <Fragment>
 
-      {context.env.REACT_APP_WORKSPACES_ENABLED === 'true' && <Breadcrumbs crumbs={breadcrumbs} />}
+      {context.workspaces_enabled === 'true' && <Breadcrumbs crumbs={breadcrumbs} />}
 
-      {context.env.REACT_APP_WORKSPACES_ENABLED === 'true' && <Title level={1}>Search</Title>}
+      {context.workspaces_enabled === 'true' && <Title level={1}>Search</Title>}
 
       <HelxSearch>
         <SearchForm />

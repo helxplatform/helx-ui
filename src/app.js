@@ -21,9 +21,9 @@ const ContextProviders = ({ children }) => {
 }
 
 const Router = () => {
-  const { routes } = useEnvironment();
-  const baseRouterPath = process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'true' ? '/helx' : '/'
-  
+  const { context, routes } = useEnvironment();
+  const baseRouterPath = context.workspaces_enabled === 'true' ? '/helx' : '/'
+
   return (
     <ReachRouter basepath={baseRouterPath}>
       {routes !== undefined && routes.map(({ path, text, Component }) => <Component path={path}></Component>)}
