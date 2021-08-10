@@ -28,7 +28,7 @@ export const Layout = ({ children }) => {
       </Header>
       <Content>
         {children}
-        {context.env.REACT_APP_WORKSPACES_ENABLED === 'true' && <SidePanel />}
+        {context.workspaces_enabled === 'true' && <SidePanel />}
       </Content>
       <Footer style={{ textAlign: 'center' }}>&copy; HeLx {new Date().getFullYear()}</Footer>
     </AntLayout>

@@ -30,11 +30,12 @@ let devContext = {
   "logo_url": process.env.REACT_APP_UI_BRAND_LOGO || 'https://github.com/helxplatform/appstore/blob/master/appstore/core/static/images/heal/logo.png?raw=true',
   "color_scheme": { "primary": "#8a5a91", "secondary": "#505057" },
   "links": null,
-  "env": {
-    "REACT_APP_HELX_SEARCH_URL": process.env.REACT_APP_HELX_SEARCH_URL || 'https://helx.renci.org',
-    "REACT_APP_SEMANTIC_SEARCH_ENABLED": process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED || 'true',
-    "REACT_APP_WORKSPACES_ENABLED": process.env.REACT_APP_WORKSPACES_ENABLED || 'true'
-  }
+  "WORKSPACES_ENABLED": "true",
+  "SEARCH_ENABLED": "true",
+  "SEARCH_URL": "",
+  "search_url": "https://helx.renci.org",
+  "search_enabled": "true",
+  "workspaces_enabled": "false"
 }
 
 export const EnvironmentProvider = ({ children }) => {
@@ -79,19 +80,24 @@ export const EnvironmentProvider = ({ children }) => {
     setIsLoadingContext(false);
   }
 
+  const loadEnvironmentContext = async () => {
+    let response = await axios({
+      method: 'GET',
+      url: `${relativeHost}/env.json`
+    })
+    let context = response.data;
+    console.log(context);
+    setContext(context);
+    setIsLoadingContext(false);
+  }
+
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'production' || process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'false') {
-      setContext(devContext);
-      setIsLoadingContext(false);
-    }
-    else {
-      loadContext();
-    }
+    loadEnvironmentContext()
   }, [relativeHost])
 
   useEffect(() => {
     if (Object.keys(context).length !== 0) {
-      const routes = generateRoutes(context["env"].REACT_APP_SEMANTIC_SEARCH_ENABLED, context["env"].REACT_APP_WORKSPACES_ENABLED);
+      const routes = generateRoutes(context.search_enabled, context.workspaces_enabled);
       setAvailableRoutes(routes);
     }
   }, [context])
@@ -100,7 +106,7 @@ export const EnvironmentProvider = ({ children }) => {
 
   return (
     <EnvironmentContext.Provider value={{
-      helxSearchUrl: context.env.REACT_APP_HELX_SEARCH_URL,
+      helxSearchUrl: context.search_url,
       helxAppstoreUrl: window.location.origin,
       context: context,
       routes: availableRoutes,
