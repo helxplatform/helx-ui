@@ -13,6 +13,10 @@ export const SupportView = () => {
   return (
     <Fragment>
       <Breadcrumbs crumbs={breadcrumbs} />
+      <Title level={1}>Community Support</Title>
+      <Typography>Your HeLx community has access to it's own Discourse, a community-driven forum that provides help and guidance to any HeLx question you may have. On Discourse, you will find members of the HeLx engineering and product management team, as well as other members of your community. Here you can ask questions, answer questions, and engage in community-building for your specific instance of HeLx.</Typography>
+      <br />
+      <Typography>Please visit <a href="https://community.helx.renci.org" target="_blank" rel="noopener noreferrer">community.helx.renci.org</a> today to create your account, and to join in the discourse!</Typography>
       <Title level={1}>Documentation</Title>
       <Typography>Our documentation is designed to help guide you through your first steps with HeLx. We encourage you to get started with these introductory guides</Typography>
       <ul>
