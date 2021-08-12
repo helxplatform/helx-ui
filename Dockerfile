@@ -24,7 +24,9 @@ COPY --from=builder /usr/src/app/build/ /usr/share/nginx/static/
 RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
 
 WORKDIR /usr/src/app
-COPY bin /usr/src/app/
+COPY bin /usr/src/app/bin
+ENV PATH="/usr/src/app/bin:${PATH}"
+
 
 EXPOSE 80
-CMD ["./start.sh", "/usr/share/nginx/static/frontend/env.json"]
+CMD ["start_server", "/usr/share/nginx/static/frontend/env.json"]
