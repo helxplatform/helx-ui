@@ -22,7 +22,7 @@ export const Layout = ({ children }) => {
           <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
           <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
           {routes.map(m => m['text'] !== '' && <Menu.Item key={`${baseLinkPath}${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>)}
-          {process.env.REACT_APP_HELX_APPSTORE_ENABLED === 'true' && <Button type="primary" ghost className="logout-button" onClick={() => logoutHandler(helxAppstoreUrl)}>LOG OUT</Button>}
+          {context.workspaces_enabled === 'true' && <Button type="primary" ghost className="logout-button" onClick={() => logoutHandler(helxAppstoreUrl)}>LOG OUT</Button>}
         </Menu>
         <MobileMenu menu={routes} />
       </Header>
