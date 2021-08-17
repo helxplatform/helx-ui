@@ -15,10 +15,10 @@ const { Meta } = Card;
 const validateLocalstorageValue = (config, app_id, min, max) => {
     let prev = localStorage.getItem(`${app_id}-${config}`);
     if (prev !== null && prev >= min && prev <= max) {
-        return parseInt(prev);
+        return parseFloat(prev);
     }
     else {
-        return parseInt(min);
+        return parseFloat(min);
     }
 }
 
@@ -94,11 +94,11 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                     <Fragment>
                         <Col span={14}>
                             <Slider
-                                min={parseInt(minimum_resources.cpus)}
-                                max={parseInt(maximum_resources.cpus)}
+                                min={parseFloat(minimum_resources.cpus)}
+                                max={parseFloat(maximum_resources.cpus)}
                                 onChange={(value) => { setCpu(value) }}
                                 value={typeof currentCpu === 'number' ? currentCpu : 0}
-                                step={1}
+                                step={0.5}
                             />
                         </Col>
                         <Col className="app_config_value" span={6}>
@@ -112,11 +112,11 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                         <Fragment>
                             <Col span={14}>
                                 <Slider
-                                    min={parseInt(minimum_resources.gpus)}
-                                    max={parseInt(maximum_resources.gpus)}
+                                    min={parseFloat(minimum_resources.gpus)}
+                                    max={parseFloat(maximum_resources.gpus)}
                                     onChange={(value) => { setGpu(value) }}
                                     value={typeof currentGpu === 'number' ? currentGpu : 0}
-                                    step={1}
+                                    step={0.5}
                                 />
                             </Col>
                             <Col className="app_config_value" span={6}>
