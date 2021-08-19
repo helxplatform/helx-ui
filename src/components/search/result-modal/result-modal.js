@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react'
-import { List, Menu, Modal, Space, Tag, Typography } from 'antd'
+import { Fragment, useEffect, useState } from 'react'
+import { Collapse, List, Menu, Modal, Space, Tag, Typography } from 'antd'
 import './result-modal.css'
 import { KnowledgeGraphs, useHelxSearch } from '../'
 import { Link } from '../../link'
 
 const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
+const { Panel } = Collapse
 
 const OverviewTab = ({ result }) => {
   return (
@@ -51,26 +52,32 @@ const StudiesTab = ({ studies }) => {
           ))
         }
       </Space>
-      <List
-        className="studies-list"
-        dataSource={
+      <Collapse ghost className="variables-collapse">
+        {
           Object.keys(studies)
             .filter(facet => selectedFacets.includes(facet))
             .reduce((arr, facet) => [...arr, ...studies[facet]], [])
             .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
+            .map(item => (
+              <Panel
+                key={ `panel_${ item.c_name }` }
+                header={
+                    <Text>
+                      { item.c_name }{ ` ` }
+                      (<Link to={ item.c_link }>{ item.c_id }</Link>)
+                    </Text>
+                }
+                extra={ <Text>{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text> }
+              >
+                <List
+                  className="variables-list"
+                  dataSource={ item.elements }
+                  renderItem={ variable => <div><Text>{ variable.name }</Text></div> }
+                />
+              </Panel>
+            ))
         }
-        renderItem={ item => (
-          <List.Item>
-            <div className="studies-list-item">
-              <Text className="study-name">
-                { item.c_name }{ ` ` }
-                (<Link to={ item.c_link }>{ item.c_id }</Link>)
-              </Text>
-              <Text className="variables-count">{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
-            </div>
-          </List.Item>
-        ) }
-      />
+      </Collapse>
    </Space>
   )
 }
@@ -125,7 +132,7 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       onOk={ closeHandler }
       okText="Close"
       onCancel={ closeHandler }
-      width={ 800 }
+      width={ 1200 }
       style={{ top: 135 }}
       bodyStyle={{ padding: `0`, minHeight: `50vh` }}
       cancelButtonProps={{ hidden: true }}

@@ -1,8 +1,17 @@
 .modal-content-container {
   padding: 1rem;
+  width: 100% !important;
   max-height: 600px;
   overflow-y:  auto;
   scrollbar-width: thin; /* firefox only */
   scrollbar-color: #00000022 transparent; /* firefox only */
   transition: scrollbar-color 250ms; /* firefox only */
+}
+
+.ant-space {
+  width: 100%;
+}
+
+.ant-modal-body > .ant-space > .ant-space-item:nth-child(2) {
+  width: 100% !important;
 }
