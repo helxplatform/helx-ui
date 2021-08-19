@@ -62,17 +62,23 @@ const StudiesTab = ({ studies }) => {
               <Panel
                 key={ `panel_${ item.c_name }` }
                 header={
-                    <Text>
-                      { item.c_name }{ ` ` }
-                      (<Link to={ item.c_link }>{ item.c_id }</Link>)
-                    </Text>
+                  <Text>
+                    { item.c_name }{ ` ` }
+                    (<Link to={ item.c_link }>{ item.c_id }</Link>)
+                  </Text>
                 }
                 extra={ <Text>{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text> }
+                onChange={ console.log(item.elements) }
               >
                 <List
-                  className="variables-list"
+                  className="study-variables-list"
                   dataSource={ item.elements }
-                  renderItem={ variable => <div><Text>{ variable.name }</Text></div> }
+                  renderItem={ variable => (
+                    <div className="study-variables-list-item">
+                      <Text className="variable-name"> { variable.name } (<a href={ variable.e_link }>{ variable.id }</a>)</Text><br />
+                      <Text className="variable-description"> { variable.description }</Text>
+                    </div>
+                  ) }
                 />
               </Panel>
             ))
