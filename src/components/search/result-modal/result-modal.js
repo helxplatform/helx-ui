@@ -67,7 +67,6 @@ const StudiesTab = ({ studies }) => {
                   </Text>
                 }
                 extra={ <Text>{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text> }
-                onChange={ console.log(item.elements) }
               >
                 <List
                   className="study-variables-list"
