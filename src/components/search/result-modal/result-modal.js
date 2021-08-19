@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Collapse, List, Menu, Modal, Space, Tag, Typography } from 'antd'
 import './result-modal.css'
 import { KnowledgeGraphs, useHelxSearch } from '../'
@@ -20,7 +20,6 @@ const OverviewTab = ({ result }) => {
 const StudiesTab = ({ studies }) => {
   const [facets, setFacets] = useState([])
   const [selectedFacets, setSelectedFacets] = useState([])
-  const [loading, setLoading] = useState(true)
 
   const handleSelectFacet = (facet, checked) => {
     const newSelection = new Set(selectedFacets)
