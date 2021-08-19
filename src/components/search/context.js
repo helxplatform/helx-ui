@@ -84,7 +84,6 @@ export const HelxSearch = ({ children }) => {
           size: PER_PAGE,
         }
         const response = await axios.post(`${helxSearchUrl}/search`, params)
-        console.log(response)
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.hits) {
           const unsortedHits = response.data.result.hits.hits.map(r => r._source)
           // gather invalid results: remove from rendered results and dump to console.
