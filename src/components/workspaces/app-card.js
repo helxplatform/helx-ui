@@ -22,7 +22,7 @@ const validateLocalstorageValue = (config, app_id, min, max) => {
     }
 }
 
-export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
+export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources, available }) => {
     const { launchApp } = useApp();
     const { addActivity } = useActivity();
     const [launchTab, setLaunchTab] = useState(true)
@@ -76,7 +76,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         <Card
             style={{ width: '400px', height: '450px' }}
             actions={[
-                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Button icon={<RocketOutlined />} onClick={appLauncher}>Launch</Button><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>About</Button></div>) :
+                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Button icon={<RocketOutlined />} disabled={!available} onClick={appLauncher}>Launch</Button><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>About</Button></div>) :
                     <Button icon={<SettingOutlined />} key='setting' onClick={() => setLaunchTab(true)}>Configuration</Button>
             ]}
         >
