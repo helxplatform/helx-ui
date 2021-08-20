@@ -73,7 +73,10 @@ const StudiesTab = ({ studies }) => {
                   dataSource={ item.elements }
                   renderItem={ variable => (
                     <div className="study-variables-list-item">
-                      <Text className="variable-name"> { variable.name } (<a href={ variable.e_link }>{ variable.id }</a>)</Text><br />
+                      <Text className="variable-name">
+                        { variable.name } &nbsp;
+                        ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
+                      </Text><br />
                       <Text className="variable-description"> { variable.description }</Text>
                     </div>
                   ) }
