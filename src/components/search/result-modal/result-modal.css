@@ -34,3 +34,13 @@
 .variable-description {
   font-style: italic;
 }
+
+.tab-name {
+  display: none;
+}
+
+@media (min-width: 600px) {
+  .tab-name {
+    display: inline;
+  }
+}

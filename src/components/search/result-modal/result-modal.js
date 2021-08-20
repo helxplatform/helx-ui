@@ -3,6 +3,12 @@ import { Collapse, List, Menu, Modal, Space, Tag, Typography } from 'antd'
 import './result-modal.css'
 import { KnowledgeGraphs, useHelxSearch } from '../'
 import { Link } from '../../link'
+import {
+  InfoCircleOutlined as OverviewIcon,
+  BookOutlined as StudiesIcon,
+  ShareAltOutlined as KnowledgeGraphsIcon,
+  CodeOutlined as TranQLIcon,
+} from '@ant-design/icons'
 
 const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
@@ -124,9 +130,9 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
   }
 
   const tabs = {
-    'overview': { title: 'Overview',         content: <OverviewTab result={ result } />, },
-    'studies':  { title: `Studies`,          content: <StudiesTab studies={ studies } />, },
-    'kgs':      { title: `Knowledge Graphs`, content: <KnowledgeGraphsTab graphs={ graphs } />, },
+    'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
+    'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
+    'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
   }
 
   return (
@@ -143,14 +149,17 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
     >
       <Space direction="horizontal" align="start">
         <Menu
-          style={{ width: 256, height: '100%' }}
           defaultSelectedKeys={ ['overview'] }
           mode="inline"
           theme="light"
         >
-          <Menu.Item key="overview" onClick={ () => setCurrentTab('overview') }>Overview</Menu.Item>
-          <Menu.Item key="studies" onClick={ () => setCurrentTab('studies') }>Studies</Menu.Item>
-          <Menu.Item key="kgs" onClick={ () => setCurrentTab('kgs') }>Knowledge Graphs</Menu.Item>
+          {
+            Object.keys(tabs).map(key => (
+              <Menu.Item className="tab-menu-item" key={ key } onClick={ () => setCurrentTab(key) }>
+                <span className="tab-icon">{ tabs[key].icon }</span> &nbsp; <span className="tab-name">{ tabs[key].title }</span>
+              </Menu.Item>
+            ))
+          }
         </Menu>
         <div className="modal-content-container" children={ tabs[currentTab].content } />
       </Space>
