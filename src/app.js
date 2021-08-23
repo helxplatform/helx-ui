@@ -9,11 +9,11 @@ const ContextProviders = ({ children }) => {
     <EnvironmentProvider>
       <LocationProvider>
         <ActivityProvider>
-          <AppProvider>
-            <InstanceProvider>
+          <InstanceProvider>
+            <AppProvider>
               {children}
-            </InstanceProvider>
-          </AppProvider>
+            </AppProvider>
+          </InstanceProvider>
         </ActivityProvider>
       </LocationProvider>
     </EnvironmentProvider >
