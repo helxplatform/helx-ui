@@ -12,7 +12,7 @@ export const AvailableView = () => {
     const [apps, setApps] = useState();
     const [runningInstances, setRunningInstances] = useState();
     const [filteredApps, setFilteredApps] = useState();
-    const { lastLaunchedTime, loadApps } = useApp();
+    const { loadApps } = useApp();
     const { loadInstances } = useInstance();
     const [isLoading, setLoading] = useState(false);
     const breadcrumbs = [
@@ -34,7 +34,7 @@ export const AvailableView = () => {
                 })
         }
         renderApp();
-    }, [lastLaunchedTime])
+    }, [])
 
     useEffect(() => {
         const filterApps = async (a) => {
