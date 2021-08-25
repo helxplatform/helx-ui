@@ -6,7 +6,6 @@ export const AppContext = createContext({});
 
 export const AppProvider = ({ children }) => {
     const { helxAppstoreUrl } = useEnvironment();
-    const [lastLaunchedTime, setLastLaunchTime] = useState();
 
     const launchApp = (app_id, cpu, gpu, memory) => {
         const params = {
@@ -15,7 +14,6 @@ export const AppProvider = ({ children }) => {
             memory: memory,
             gpus: gpu
         };
-        setLastLaunchTime(new Date())
         return axios.post(`${helxAppstoreUrl}/api/v1/instances/`, params);
     }
 
@@ -26,7 +24,7 @@ export const AppProvider = ({ children }) => {
 
     return (
         <AppContext.Provider value={{
-            launchApp, loadApps, lastLaunchedTime
+            launchApp, loadApps
         }}>
             {children}
         </AppContext.Provider>
