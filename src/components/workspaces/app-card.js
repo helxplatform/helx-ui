@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Button, Card, Spin, Slider, Col, Typography, Row } from 'antd';
 import { useApp } from '../../contexts/app-context';
-import { Link } from '@reach/router';
+import { Link, navigate } from '@reach/router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
 import { openNotificationWithIcon } from '../notifications'
@@ -52,6 +52,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                 }
                 addActivity(newActivity)
                 pollingInstance(app_id, sid, res.data.url, name);
+                // navigate to active tab when a launch is successful
+                navigate('/helx/workspaces/active');
             }).catch(e => {
                 let newActivity = {
                     'sid': 'none',
