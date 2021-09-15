@@ -1,13 +1,11 @@
 import React, { Fragment, useState } from 'react';
-import { Button, Card, Spin, Slider, Col, Typography, Row } from 'antd';
+import { Button, Card, Spin, Slider, Col, Tooltip, Typography, Row } from 'antd';
 import { useApp } from '../../contexts/app-context';
 import { Link, navigate } from '@reach/router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
-import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
-import { openNotificationWithIcon } from '../notifications'
+import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import './app-card.css';
 import { useActivity, useInstance } from "../../contexts";
-import { updateTabName } from '../../utils/update-tab-name';
 
 const { Meta } = Card;
 
@@ -78,7 +76,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         <Card
             style={{ width: '400px', height: '450px' }}
             actions={[
-                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Button icon={<RocketOutlined />} disabled={!available} onClick={appLauncher}>Launch</Button><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>About</Button></div>) :
+                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Tooltip title={available ? "" : "The maximum number of instances is currently running"}><Button icon={<RocketOutlined />} disabled={!available} onClick={appLauncher}>Launch</Button></Tooltip><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>About</Button></div>) :
                     <Button icon={<SettingOutlined />} key='setting' onClick={() => setLaunchTab(true)}>Configuration</Button>
             ]}
         >
