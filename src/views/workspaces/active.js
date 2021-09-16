@@ -8,6 +8,7 @@ import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import { updateTabName } from '../../utils/update-tab-name';
+import { navigate } from '@reach/router';
 
 const memoryFormatter = (value) => {
     return formatBytes(value, 2);
@@ -51,7 +52,10 @@ export const ActiveView = () => {
                 })
             setLoading(false);
         }
+        renderInstance();
+    }, [refresh])
 
+    useEffect(() => {
         // load all app configuration for input validation
         const loadAppsConfig = async () => {
             await loadApps()
@@ -63,9 +67,10 @@ export const ActiveView = () => {
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
                 })
         }
-        renderInstance();
-        loadAppsConfig();
-    }, [refresh])
+        if(instances && instances.length === 0) setTimeout(() => navigate('/helx/workspaces/available'), 1000)
+        else loadAppsConfig();
+
+    }, [instances])
 
     const stopInstanceHandler = async () => {
         setIsStopping(true);
@@ -135,7 +140,6 @@ export const ActiveView = () => {
                 if (res.data.status === "success") {
                     setUpdateModalVisibility(false);
                     setUpdating(false);
-                    // openNotificationWithIcon('success', 'Success', `${currentRecord.name} is updated and will be restarted.`)
                     let newActivity = {
                         'sid': currentRecord.sid,
                         'app_name': currentRecord.name,
@@ -146,7 +150,6 @@ export const ActiveView = () => {
                     addActivity(newActivity)
                     pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
                     setRefresh(!refresh);
-                    //splashScreen(currentRecord.url, currentRecord.aid, currentRecord.sid, currentRecord.name);
                 }
                 else {
                     setUpdateModalVisibility(false);
@@ -159,7 +162,6 @@ export const ActiveView = () => {
                         'message': `Error occured when updating instance ${currentRecord.name}.`
                     }
                     addActivity(newActivity)
-                    // openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
                 }
             }).catch(e => {
                 setUpdateModalVisibility(false);
@@ -172,7 +174,6 @@ export const ActiveView = () => {
                     'message': `Error occured when updating instance ${currentRecord.name}.`
                 }
                 addActivity(newActivity)
-                // openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
             })
     };
 
@@ -338,7 +339,7 @@ export const ActiveView = () => {
                     <div></div> :
                     (instances.length > 0 ?
                         <Table columns={columns} dataSource={instances}>
-                        </Table> : <div style={{ textAlign: 'center' }}>No instances running</div>))}
+                        </Table> : <div style={{ textAlign: 'center' }}>No instances running. Redirecting to apps...</div>))}
         </Layout>
     )
 }

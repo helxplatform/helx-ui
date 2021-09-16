@@ -64,8 +64,8 @@ export const AvailableView = () => {
                 }
             }
             for (let currAppName in currApps) {
-                // will receive max limit from tycho, set as 1 for now
-                if (appUsage.has(currApps[currAppName].name)) {
+                // receive max instance count from tycho
+                if (appUsage.has(currApps[currAppName].name) && appUsage.get(currApps[currAppName].name) === currApps[currAppName].count) {
                     currApps[currAppName].available = false;
                 }
                 else {
