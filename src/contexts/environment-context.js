@@ -83,8 +83,12 @@ export const EnvironmentProvider = ({ children }) => {
       case 'heal':
         context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/heal/logo.png'
         break;
+      case 'argus':
+        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/argus/argus-array-256.png'
+        break;
+      // display helx logo in case no brand is defined
       default:
-        context.logo_url = ''
+        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/helx.jpg'
     }
     setContext(context);
     setIsLoadingContext(false);
