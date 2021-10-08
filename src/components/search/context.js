@@ -75,7 +75,7 @@ export const HelxSearch = ({ children }) => {
   }
 
   useEffect(() => {
-    const trackSearch = (execTime, resultCount) => {
+    const trackSearch = (execTime, resultCount, error=undefined) => {
       analytics.trackEvent({
         category: "UI Interaction",
         action: "Search executed",
@@ -85,7 +85,9 @@ export const HelxSearch = ({ children }) => {
           "Execution time": execTime,
           "User ID": "",
           "Search term": query,
-          "Response count": resultCount
+          "Response count": resultCount,
+          "Caused error": error !== undefined,
+          "Error stack": error ? error.stack : undefined
         }
       });
     }
@@ -123,7 +125,7 @@ export const HelxSearch = ({ children }) => {
         console.log(error)
         setError({ message: 'An error occurred!' })
         setIsLoadingResults(false)
-        trackSearch(Date.now() - startTime, 0)
+        trackSearch(Date.now() - startTime, 0, error)
       }
     }
     if (query) {

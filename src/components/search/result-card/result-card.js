@@ -8,12 +8,15 @@ import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
 import './result-card.css'
+import { useAnalytics } from '../../../contexts'
 
 const { Meta } = Card
 const { CheckableTag: CheckableFacet } = Tag
 const { Text } = Typography
 
 export const SearchResultCard = ({ index, result, openModalHandler }) => {
+  const analytics = useAnalytics()
+  const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
 
   const tabs = {
@@ -25,6 +28,22 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
   const tabList = Object.keys(tabs).map(key => tabs[key].content ? ({ key, tab: tabs[key].title }) : null).filter(tab => tab !== null)
   const tabContents = Object.keys(tabs).reduce((obj, key) => tabs[key].content ? ({ ...obj, [key]: tabs[key].content }) : obj, {})
 
+  const openModal = (...args) => {
+    openModalHandler(...args);
+    analytics.trackEvent({
+      category: "UI Interaction",
+      action: "Result modal opened",
+      label: `Opened modal from card for result "${result.name}"`,
+      customParameters: {
+        "Search term": query,
+        "User ID": "",
+        "Result name": result.name,
+        "Result type": result.type,
+        "Additional search terms": result.search_terms
+      }
+    })
+  }
+
   return (
     <Fragment>
       <Card
@@ -34,7 +53,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
         tabProps={{size: 'small'}}
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
-        extra={ <ViewIcon onClick={ openModalHandler } /> }
+        extra={ <ViewIcon onClick={ openModal } /> }
         actions={ [<br />] }
       >
         { tabContents[currentTab] }

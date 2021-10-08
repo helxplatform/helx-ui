@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons'
 import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from '../'
 import './results.css'
-import { useEnvironment } from '../../../contexts'
+import { useAnalytics, useEnvironment } from '../../../contexts'
 
 const { Text } = Typography
 
@@ -18,14 +18,41 @@ const LIST = 'LIST'
 export const SearchResults = () => {
   const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult } = useHelxSearch()
   const { basePath } = useEnvironment()
+  const analytics = useAnalytics()
   const [layout, setLayout] = useState(GRID)
 
   const NotifyLinkCopied = () => {
     notification.open({ key: 'key', message: 'Link copied to clipboard' })
     navigator.clipboard.writeText(window.location.href)
+    analytics.trackEvent({
+      category: "UI Interaction",
+      action: "Search URL copied",
+      label: "User copied sharable link for search query",
+      customParameters: {
+        "Search term": query,
+        "User ID": ""
+      }
+    })
   }
 
-  const handleChangeLayout = event => setLayout(event.target.value)
+  const handleChangeLayout = (event) => {
+    const newLayout = event.target.value;
+    setLayout(newLayout)
+    // Only track when layout changes
+    if (layout !== newLayout) {
+      analytics.trackEvent({
+        category: "UI Interaction",
+        action: "Search layout changed",
+        label: `Layout set to "${newLayout}"`,
+        customParameters: {
+          "Search term": query,
+          "User ID": "",
+          "Changed from": layout,
+          "Changed to": newLayout
+        }
+      })
+    }
+  }
 
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
