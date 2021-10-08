@@ -18,7 +18,7 @@ template='{
     "search_url": "%SEARCH_URL%",
     "search_enabled": "%SEARCH_ENABLED%",
     "workspaces_enabled": "%WORKSPACES_ENABLED%",
-    "analytics": "%ANALYTICS%"
+    "analytics": %ANALYTICS%
 }'
 
 echo $template | sed \
