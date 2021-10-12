@@ -125,8 +125,8 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
       const newTime = Date.now();
       const elapsed = newTime - oldTime;
       const tabTitle = tabs[tabName].title;
-      if (tabName !== currentTab && elapsed > 5000) {
-        // Make sure we only track events when the tab actually changes and when the tab was used for a notable amount of time (5 seconds).
+      if (tabName !== currentTab) {
+        // Make sure we only track events when the tab actually changes.
         analytics.trackEvent({
           category: "UI Interaction",
           action: "Result tab selected",
@@ -135,7 +135,8 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
           customParameters: {
             "User ID": "",
             "Tab name": tabTitle,
-            "Time spent on tab": elapsed
+            "Previous tab name": tabs[currentTab].title,
+            "Time spent on previous tab": elapsed
           }
         });
       } 
