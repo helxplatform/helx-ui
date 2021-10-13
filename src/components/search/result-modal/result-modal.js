@@ -9,6 +9,7 @@ import {
   ShareAltOutlined as KnowledgeGraphsIcon,
   CodeOutlined as TranQLIcon,
 } from '@ant-design/icons'
+import { useAnalytics } from '../../../contexts'
 
 const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
@@ -106,10 +107,43 @@ const KnowledgeGraphsTab = ({ graphs }) => {
 
 
 export const SearchResultModal = ({ result, visible, closeHandler }) => {
-  const [currentTab, setCurrentTab] = useState('overview')
+  const analytics = useAnalytics();
+  const [currentTab, _setCurrentTab] = useState('overview')
   const { fetchKnowledgeGraphs, fetchStudyVariables, query } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studies, setStudies] = useState([])
+
+  const tabs = {
+    'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
+    'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
+    'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
+  }
+  
+  const setCurrentTab = (() => {
+    let oldTime = Date.now();
+    return (tabName) => {
+      const newTime = Date.now();
+      const elapsed = newTime - oldTime;
+      const tabTitle = tabs[tabName].title;
+      if (tabName !== currentTab) {
+        // Make sure we only track events when the tab actually changes.
+        analytics.trackEvent({
+          category: "UI Interaction",
+          action: "Result tab selected",
+          label: `User selected tab "${tabTitle}"`,
+          value: tabTitle,
+          customParameters: {
+            "User ID": "",
+            "Tab name": tabTitle,
+            "Previous tab name": tabs[currentTab].title,
+            "Time spent on previous tab": elapsed
+          }
+        });
+      } 
+      oldTime = newTime;
+      _setCurrentTab(tabName);
+    }
+  })()
 
   useEffect(() => {
     setCurrentTab('overview')
@@ -130,12 +164,6 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
 
   if (!result) {
     return null
-  }
-
-  const tabs = {
-    'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
-    'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
-    'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
   }
 
   return (

@@ -10,13 +10,15 @@ workspaces_enabled="${REACT_APP_WORKSPACES_ENABLED:-true}"
 search_enabled="${REACT_APP_SEMANTIC_SEARCH_ENABLED:-true}"
 search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
+analytics="${REACT_APP_ANALYTICS}"
 
 template='{
     "brand": "%BRAND%",
     "color_scheme": { "primary": "#8a5a91", "secondary": "#505057" },
     "search_url": "%SEARCH_URL%",
     "search_enabled": "%SEARCH_ENABLED%",
-    "workspaces_enabled": "%WORKSPACES_ENABLED%"
+    "workspaces_enabled": "%WORKSPACES_ENABLED%",
+    "analytics": %ANALYTICS%
 }'
 
 echo $template | sed \
@@ -24,4 +26,5 @@ echo $template | sed \
   -e "s/%SEARCH_ENABLED%/$search_enabled/" \
   -e "s/%SEARCH_URL%/$search_url/" \
   -e "s/%BRAND%/$brand_name/" \
+  -e "s/%ANALYTICS%/$analytics/" \
   > $1

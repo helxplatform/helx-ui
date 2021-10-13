@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
-import { useEnvironment } from '../../contexts'
+import { useEnvironment, useAnalytics } from '../../contexts'
 import './search.css'
 import { SearchResultModal } from './'
 
@@ -30,6 +30,7 @@ const validateResult = result => {
 
 export const HelxSearch = ({ children }) => {
   const { helxSearchUrl, basePath } = useEnvironment()
+  const analytics = useAnalytics()
   const [query, setQuery] = useState('')
   const [isLoadingResults, setIsLoadingResults] = useState(false);
   const [error, setError] = useState({})
@@ -74,8 +75,25 @@ export const HelxSearch = ({ children }) => {
   }
 
   useEffect(() => {
+    const trackSearch = (execTime, resultCount, error=undefined) => {
+      analytics.trackEvent({
+        category: "UI Interaction",
+        action: "Search executed",
+        label: `User searched for "${query}"`,
+        value: execTime,
+        customParameters: {
+          "Execution time": execTime,
+          "User ID": "",
+          "Search term": query,
+          "Response count": resultCount,
+          "Caused error": error !== undefined,
+          "Error stack": error ? error.stack : undefined
+        }
+      });
+    }
     const fetchResults = async () => {
       setIsLoadingResults(true)
+      const startTime = Date.now()
       try {
         const params = {
           index: 'concepts_index',
@@ -96,15 +114,18 @@ export const HelxSearch = ({ children }) => {
           setResults(hits.valid)
           setTotalResults(response.data.result.total_items)
           setIsLoadingResults(false)
+          trackSearch(Date.now() - startTime, response.data.result.total_items)
         } else {
           setResults([])
           setTotalResults(0)
           setIsLoadingResults(false)
+          trackSearch(Date.now() - startTime, 0)
         }
       } catch (error) {
         console.log(error)
         setError({ message: 'An error occurred!' })
         setIsLoadingResults(false)
+        trackSearch(Date.now() - startTime, 0, error)
       }
     }
     if (query) {
