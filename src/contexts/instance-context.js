@@ -34,7 +34,7 @@ export const InstanceProvider = ({ children }) => {
                     }
                 })
                 .catch((e) => {
-                    setTimeout(executePoll, 1000)
+                    setTimeout(executePoll, 5000)
                     console.log(e);
                 });
 
