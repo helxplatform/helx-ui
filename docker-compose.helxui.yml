@@ -6,8 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: helxplatform/helx-ui:0.1.0
     env_file:
       .env
     ports:
-      - 3000:3000
+      - 3000:80
