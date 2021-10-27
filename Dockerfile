@@ -18,15 +18,20 @@ RUN BUILD_PATH=./build/frontend npm run build --production --no-audit
 # Production environment
 ########################
 
-FROM nginx:latest
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /usr/src/app/build/ /usr/share/nginx/static/
-RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
+FROM nginxinc/nginx-unprivileged:latest
 
-WORKDIR /usr/src/app
-COPY bin /usr/src/app/bin
+COPY --from=builder --chown=nginx /usr/src/app/build/ /usr/share/nginx/static/
+COPY --from=builder --chown=nginx /usr/src/app/build/frontend/index.html /usr/share/nginx/html/index.html
+
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+
+COPY --chown=nginx bin /usr/src/app/bin
+
 ENV PATH="/usr/src/app/bin:${PATH}"
 
+EXPOSE 8080
 
-EXPOSE 80
+WORKDIR /usr/src/app
+
 CMD ["start_server", "/usr/share/nginx/static/frontend/env.json"]
