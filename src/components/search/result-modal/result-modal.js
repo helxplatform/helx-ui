@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Collapse, List, Menu, Modal, Space, Tag, Typography } from 'antd'
+import { Menu, Modal, Space } from 'antd'
 import './result-modal.css'
-import { KnowledgeGraphs, useHelxSearch } from '../'
-import { Link } from '../../link'
+import { useHelxSearch } from '../'
 import {
   InfoCircleOutlined as OverviewIcon,
   BookOutlined as StudiesIcon,
@@ -11,10 +10,6 @@ import {
 } from '@ant-design/icons'
 import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
 import { useAnalytics } from '../../../contexts'
-
-const { Text, Title } = Typography
-const { CheckableTag: CheckableFacet } = Tag
-const { Panel } = Collapse
 
 export const SearchResultModal = ({ result, visible, closeHandler }) => {
   const analytics = useAnalytics();
