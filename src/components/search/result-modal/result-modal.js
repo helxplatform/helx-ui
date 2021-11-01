@@ -9,102 +9,12 @@ import {
   ShareAltOutlined as KnowledgeGraphsIcon,
   CodeOutlined as TranQLIcon,
 } from '@ant-design/icons'
+import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
 import { useAnalytics } from '../../../contexts'
 
 const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 const { Panel } = Collapse
-
-const OverviewTab = ({ result }) => {
-  return (
-    <Space direction="vertical">
-      <Title level={ 4 }>Overview</Title>
-      <Text>{ result.description }</Text>
-    </Space>
-  )
-}
-
-const StudiesTab = ({ studies }) => {
-  const [facets, setFacets] = useState([])
-  const [selectedFacets, setSelectedFacets] = useState([])
-
-  const handleSelectFacet = (facet, checked) => {
-    const newSelection = new Set(selectedFacets)
-    if (newSelection.has(facet)) {
-      newSelection.delete(facet)
-    } else {
-      newSelection.add(facet)
-    }
-    setSelectedFacets([...newSelection])
-  }
-
-  useEffect(() => {
-    setFacets(Object.keys(studies))
-    setSelectedFacets(Object.keys(studies))
-  }, [studies])
-
-  return (
-    <Space direction="vertical">
-      <Title level={ 4 }>Studies</Title>
-      <Space direction="horizontal" size="small">
-        {
-          facets.map(facet => studies[facet] && (
-            <CheckableFacet
-              key={ `search-facet-${ facet }` }
-              checked={ selectedFacets.includes(facet) }
-              onChange={ checked => handleSelectFacet(facet, checked) }
-              children={ `${ facet } (${studies[facet].length})` }
-            />
-          ))
-        }
-      </Space>
-      <Collapse ghost className="variables-collapse">
-        {
-          Object.keys(studies)
-            .filter(facet => selectedFacets.includes(facet))
-            .reduce((arr, facet) => [...arr, ...studies[facet]], [])
-            .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
-            .map(item => (
-              <Panel
-                key={ `panel_${ item.c_name }` }
-                header={
-                  <Text>
-                    { item.c_name }{ ` ` }
-                    (<Link to={ item.c_link }>{ item.c_id }</Link>)
-                  </Text>
-                }
-                extra={ <Text>{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text> }
-              >
-                <List
-                  className="study-variables-list"
-                  dataSource={ item.elements }
-                  renderItem={ variable => (
-                    <div className="study-variables-list-item">
-                      <Text className="variable-name">
-                        { variable.name } &nbsp;
-                        ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
-                      </Text><br />
-                      <Text className="variable-description"> { variable.description }</Text>
-                    </div>
-                  ) }
-                />
-              </Panel>
-            ))
-        }
-      </Collapse>
-   </Space>
-  )
-}
-
-const KnowledgeGraphsTab = ({ graphs }) => {
-  return (
-    <Space direction="vertical">
-      <Title level={ 4 }>Knowledge Graphs</Title>
-      <KnowledgeGraphs graphs={ graphs } />
-    </Space>    
-  )
-}
-
 
 export const SearchResultModal = ({ result, visible, closeHandler }) => {
   const analytics = useAnalytics();
@@ -117,6 +27,7 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
     'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
     'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
     'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
+    'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } />, },
   }
   
   const setCurrentTab = (() => {
