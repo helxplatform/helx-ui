@@ -148,7 +148,7 @@ export const HelxSearch = ({ children }) => {
       if (!data || data.result.total_items === 0) {
         return []
       }
-      return data.result.hits.hits.map(graph => graph._source.knowledge_graph.knowledge_graph)
+      return data.result.hits.hits.map(graph => graph._source.knowledge_graph)
     } catch (error) {
       console.error(error)
     }
