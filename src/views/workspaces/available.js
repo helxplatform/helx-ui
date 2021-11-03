@@ -38,7 +38,6 @@ export const AvailableView = () => {
 
     useEffect(() => {
         const filterApps = async (a) => {
-            // timeout 1 second before we load instance list
             const instance_result = await loadInstances()
                 .then(r => {
                     setRunningInstances(r.data);
@@ -48,7 +47,7 @@ export const AvailableView = () => {
                 })
             setLoading(false);
         }
-        setTimeout(filterApps(), 1000);
+        filterApps()
     }, [apps])
 
     useEffect(() => {
