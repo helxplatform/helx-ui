@@ -10,7 +10,7 @@ import './tranql.css'
 
 axios.defaults.timeout = 30000
 
-const { Text } = Typography
+const { Text, Title  } = Typography
 const { TextArea } = Input
 
 export const TranQLTab = ({ result, graphs }) => {
@@ -45,12 +45,6 @@ export const TranQLTab = ({ result, graphs }) => {
   const [tranqlQuery, setTranqlQuery] = useState(initialTranqlQuery)
   const [debouncedQuery] = useDebounce(tranqlQuery, 250)
 
-  const [hasSearched, setHasSearched] = useState(false)
-  const [busy,setBusy] = useState(false)
-
-  const [nodes, setNodes] = useState([])
-  const [edges, setEdges] = useState([])
-
   const [iframeLoading, setIframeLoading] = useState(true)
 
   const tranqlIframe = useRef(null);
@@ -59,64 +53,35 @@ export const TranQLTab = ({ result, graphs }) => {
     setTranqlQuery(event.target.value)
   }
 
-  const handlePressEnter = event => {
-    if (event.ctrlKey) {
-      submitTranqlQuery()
-    }
-  }
-
-  const submitTranqlQuery = useCallback(async () => {
-    setBusy(true)
-    setHasSearched(false)
-    const headers = {
-      'Content-Type': 'text/plain',
-    }
-    try {
-      const { data } = await axios({
-        method: 'POST',
-        url: 'https://tranql.renci.org/tranql/query?dynamic_id_resolution=true&asynchronous=true',
-        data: tranqlQuery,
-        headers,
-      })
-      if (!data) {
-        console.log('no data')
-        return
-      }
-      setNodes(data.knowledge_graph.nodes)
-      setEdges(data.knowledge_graph.edges.map(edge => ({ source: edge.source_id, target: edge.target_id })))
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setBusy(false)
-      setHasSearched(true)
-    }
-  }, [result, tranqlQuery])
-
   return (
     <Fragment>
-      <TextArea className="tranql-query-textarea" value={ tranqlQuery } onChange={ handleChangeTranqlQuery } onPressEnter={ handlePressEnter } />
+      {/* <TextArea className="tranql-query-textarea" value={ tranqlQuery } onChange={ handleChangeTranqlQuery } /> */}
       
-      {/* <Button onClick={ submitTranqlQuery } type="primary" ghost block icon={ <QueryIcon rotate={ 90 } style={{ padding: '0' }} /> } loading={ busy } /> */}
-      
-      <br /><br />
+      {/* <br /><br /> */}
       { /* <Link to={ `https://heal.renci.org/tranql/?q=${ encodeURI(tranqlQuery) }` }>View in TranQL</Link> */ }
       {/* <br /> */}
       
       {/* <Divider /> */}
-      
-      { hasSearched && !nodes.length && !edges.length && <Text type="warning">no response from tranql query</Text>}
-      
-      <SizeMe>
-        {
-          ({ size }) => (
-            <iframe src={`${tranqlUrl}?embed=true&q=${debouncedQuery}`}
-                    height="665" width={size.width}
-                    ref={tranqlIframe}
-                    onLoad={() => setIframeLoading(false)}
-            />
-          )
-        }
-      </SizeMe>
+      {
+        debouncedQuery === undefined ? (
+          <>
+          <Title level={ 4 }>TranQL</Title>
+          <Text>No query could be constructed from the result.</Text>
+          </>
+        ) : (
+          <SizeMe>
+            {
+              ({ size }) => (
+                <iframe src={`${tranqlUrl}?embed=FULL&q=${encodeURIComponent(debouncedQuery)}`}
+                        height="665" width={size.width}
+                        ref={tranqlIframe}
+                        onLoad={() => setIframeLoading(false)}
+                />
+              )
+            }
+          </SizeMe>
+        )
+      }
     </Fragment>
   )
 }
