@@ -5,12 +5,9 @@ import { Button, Divider, Input, Spin, Typography } from 'antd'
 import { useHelxSearch } from '../../'
 import { Link } from '../../../link'
 import { RocketOutlined as QueryIcon } from '@ant-design/icons'
-import GammaViewer from 'gamma-viewer-web'
 import { SizeMe } from 'react-sizeme'
 import { useDebounce } from 'use-debounce'
 import './tranql.css'
-
-// const response = require("../../../../response.json");
 
 axios.defaults.timeout = 30000
 
@@ -66,7 +63,6 @@ export const TranQLTab = ({ result, graphs }) => {
       {/* <br /> */}
       
       {/* <Divider /> */}
-      {/* <GammaViewer data={response}/> */}
       {
         tranqlQuery === undefined ? (
           <Fragment>
