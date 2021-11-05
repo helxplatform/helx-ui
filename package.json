@@ -11,6 +11,7 @@
     "antd": "^4.15.6",
     "axios": "^0.21.1",
     "eslint": "^7.27.0",
+    "gamma-viewer-web": "^0.1.0",
     "helx-analytics": "^1.0.12",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
