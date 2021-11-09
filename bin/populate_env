@@ -11,6 +11,7 @@ search_enabled="${REACT_APP_SEMANTIC_SEARCH_ENABLED:-true}"
 search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
 analytics="${REACT_APP_ANALYTICS}"
+tranql_enabled="${REACT_APP_TRANQL_ENABLED:-false}"
 
 template='{
     "brand": "%BRAND%",
@@ -18,7 +19,8 @@ template='{
     "search_url": "%SEARCH_URL%",
     "search_enabled": "%SEARCH_ENABLED%",
     "workspaces_enabled": "%WORKSPACES_ENABLED%",
-    "analytics": %ANALYTICS%
+    "analytics": %ANALYTICS%,
+    "tranql_enabled": "%TRANQL_ENABLED%"
 }'
 
 echo $template | sed \
@@ -27,4 +29,5 @@ echo $template | sed \
   -e "s/%SEARCH_URL%/$search_url/" \
   -e "s/%BRAND%/$brand_name/" \
   -e "s/%ANALYTICS%/$analytics/" \
+  -e "s/%TRANQL_ENABLED%/$tranql_enabled/" \
   > $1

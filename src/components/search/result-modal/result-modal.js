@@ -9,10 +9,11 @@ import {
   CodeOutlined as TranQLIcon,
 } from '@ant-design/icons'
 import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
-import { useAnalytics } from '../../../contexts'
+import { useAnalytics, useEnvironment } from '../../../contexts'
 
 export const SearchResultModal = ({ result, visible, closeHandler }) => {
   const analytics = useAnalytics();
+  const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
   const { fetchKnowledgeGraphs, fetchStudyVariables, query } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
@@ -22,8 +23,9 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
     'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
     'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
     'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
-    'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } />, },
+    'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> }
   }
+  if (context.tranql_enabled === 'false') delete tabs['tranql'];
   
   const setCurrentTab = (() => {
     let oldTime = Date.now();
