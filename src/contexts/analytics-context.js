@@ -6,12 +6,13 @@ import { version } from 'helx-analytics/package.json';
 export const AnalyticsContext = createContext();
 
 export const AnalyticsProvider = ({ children }) => {
-    const { context } = useEnvironment();
+    const { context, isLoadingContext } = useEnvironment();
     let analytics;
     if (context.analytics && context.analytics.enabled) {
         const { mixpanel_token, ga_property } = context.analytics.auth || {};
         const globalEventParameters = {
-            "HeLx-Analytics version": version
+            "HeLx-Analytics version": version,
+            "HeLx Brand": context.brand || "Unknown"
         };
         switch (context.analytics.platform) {
             case "mixpanel":
