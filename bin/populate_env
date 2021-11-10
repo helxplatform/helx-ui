@@ -10,8 +10,9 @@ workspaces_enabled="${REACT_APP_WORKSPACES_ENABLED:-true}"
 search_enabled="${REACT_APP_SEMANTIC_SEARCH_ENABLED:-true}"
 search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
-analytics="${REACT_APP_ANALYTICS}"
 tranql_enabled="${REACT_APP_TRANQL_ENABLED:-false}"
+analytics="${REACT_APP_ANALYTICS:-0c39f8410fd548bfa1976957d0248289}"
+
 
 template='{
     "brand": "%BRAND%",
@@ -19,8 +20,15 @@ template='{
     "search_url": "%SEARCH_URL%",
     "search_enabled": "%SEARCH_ENABLED%",
     "workspaces_enabled": "%WORKSPACES_ENABLED%",
-    "analytics": %ANALYTICS%,
-    "tranql_enabled": "%TRANQL_ENABLED%"
+    "tranql_enabled": "%TRANQL_ENABLED%",
+    "analytics": {
+      "enabled": true,
+      "platform": "mixpanel",
+      "auth": {
+      "mixpanel_token": "%ANALYTICS%",
+      "ga_property": ""
+      }
+    }
 }'
 
 echo $template | sed \

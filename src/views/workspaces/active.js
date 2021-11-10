@@ -67,7 +67,7 @@ export const ActiveView = () => {
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
                 })
         }
-        if(instances && instances.length === 0) setTimeout(() => navigate('/helx/workspaces/available'), 1000)
+        if (instances && instances.length === 0) setTimeout(() => navigate('/helx/workspaces/available'), 1000)
         else loadAppsConfig();
 
     }, [instances])
@@ -77,7 +77,6 @@ export const ActiveView = () => {
         addOrDeleteInstanceTab("close", currentRecord.sid);
         await stopInstance(currentRecord.sid)
             .then(r => {
-                setRefresh(!refresh)
                 let newActivity = {
                     'sid': 'none',
                     'app_name': currentRecord.name,
@@ -86,14 +85,32 @@ export const ActiveView = () => {
                     'message': `${currentRecord.name} is stopped.`
                 }
                 addActivity(newActivity)
+                setRefresh(!refresh)
             })
             .catch(e => {
                 let newActivity = {
                     'sid': 'none',
                     'app_name': currentRecord.name,
-                    'status': 'error',
+                    'status': '',
                     'timestamp': new Date(),
-                    'message': `An error has occurred while stopping ${currentRecord.name}.`
+                    'message': ``
+                }
+                switch (e.response.status) {
+                    case 403: {
+                        newActivity['status'] = 'error'
+                        newActivity['message'] = `Sorry, you don't have the permission to stop this instance.`
+                        break;
+                    }
+                    case 404: {
+                        newActivity['status'] = 'warning'
+                        newActivity['message'] = `${currentRecord.name} no longer exists.`
+                        setTimeout(() => setRefresh(!refresh), 1000)
+                        break;
+                    }
+                    default: {
+                        newActivity['status'] = 'error'
+                        newActivity['message'] = `An error has occurred while stopping ${currentRecord.name}.`
+                    }
                 }
                 addActivity(newActivity)
             })
