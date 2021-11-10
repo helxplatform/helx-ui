@@ -16,7 +16,7 @@ const { TextArea } = Input
 
 export const TranQLTab = ({ result, graphs }) => {
   const { query } = useHelxSearch()
-  const tranqlUrl = "http://localhost:3000"
+  const tranqlUrl = "https://heal.renci.org/tranql"
   const robokopUrl = "https://robokop.renci.org"
 
   const makeTranqlQuery = () => {
