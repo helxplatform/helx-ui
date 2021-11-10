@@ -1,9 +1,9 @@
 import React, { Fragment, useCallback, useMemo, useState, useRef } from 'react'
 import ReactDOM from 'react-dom'
 import axios from 'axios'
-import { Button, Divider, Input, Spin, Typography } from 'antd'
-import { useHelxSearch } from '../../'
-import { Link } from '../../../link'
+import { Button, Divider, Input, Spin, Space, Typography } from 'antd'
+import { useHelxSearch } from '../../../'
+import { Link } from '../../../../link'
 import { RocketOutlined as QueryIcon } from '@ant-design/icons'
 import { SizeMe } from 'react-sizeme'
 import { useDebounce } from 'use-debounce'
@@ -11,12 +11,13 @@ import './tranql.css'
 
 axios.defaults.timeout = 30000
 
-const { Text, Title  } = Typography
+const { Text, Title } = Typography
 const { TextArea } = Input
 
 export const TranQLTab = ({ result, graphs }) => {
   const { query } = useHelxSearch()
   const tranqlUrl = "http://localhost:3000"
+  const robokopUrl = "https://robokop.renci.org"
 
   const makeTranqlQuery = () => {
     const tranqlQueries = graphs.map(({ knowledge_graph, question_graph, knowledge_map }) => {
@@ -54,40 +55,30 @@ export const TranQLTab = ({ result, graphs }) => {
     setTranqlQuery(event.target.value)
   }
 
+  if (tranqlQuery === undefined) return (
+    <Fragment>
+      <Title level={ 4 }>TranQL</Title>
+      <Text>No query could be constructed from the result.</Text>
+    </Fragment>
+  );
   return (
     <Fragment>
-      {/* <TextArea className="tranql-query-textarea" value={ tranqlQuery } onChange={ handleChangeTranqlQuery } /> */}
-      
-      {/* <br /><br /> */}
-      { /* <Link to={ `https://heal.renci.org/tranql/?q=${ encodeURI(tranqlQuery) }` }>View in TranQL</Link> */ }
-      {/* <br /> */}
-      
-      {/* <Divider /> */}
-      {
-        tranqlQuery === undefined ? (
-          <Fragment>
-          <Title level={ 4 }>TranQL</Title>
-          <Text>No query could be constructed from the result.</Text>
-          </Fragment>
-        ) : (
-          <Fragment>
-          <SizeMe>
-            {
-              ({ size }) => (
-                <iframe src={`${tranqlUrl}?embed=FULL&q=${encodeURIComponent(tranqlQuery)}`}
-                        height="500" width={size.width}
-                        ref={tranqlIframe}
-                        onLoad={() => setIframeLoading(false)}
-                        style={{borderWidth: "0"}}
-                />
-              )
-            }
-          </SizeMe>
-          <br /><br />
-          <Link to={`${tranqlUrl}?q=${encodeURIComponent(tranqlQuery)}`}>View in TranQL</Link>
-          </Fragment>
-        )
-      }
+      <Space direction="vertical">
+        <SizeMe>
+          {
+            ({ size }) => (
+              <iframe src={`${tranqlUrl}?embed=FULL&q=${encodeURIComponent(tranqlQuery)}`}
+                      height="500" width={size.width}
+                      ref={tranqlIframe}
+                      onLoad={() => setIframeLoading(false)}
+                      style={{borderWidth: "0"}}
+              />
+            )
+          }
+        </SizeMe>
+        <Link to={`${tranqlUrl}?q=${encodeURIComponent(tranqlQuery)}`}>View in TranQL</Link>
+        <Link to={robokopUrl}>Open Robokop</Link>
+      </Space>
     </Fragment>
-  )
+  );
 }
