@@ -142,11 +142,18 @@ export const ActiveView = () => {
     }
 
     const connectInstance = (aid, sid, url, name) => {
-        const app_url = `${window.location.origin}/helx/connect/${aid}/${encodeURIComponent(url)}`
-        const connect_tab_ref = `${sid}-tab`
-        const connect_tab = window.open(app_url, connect_tab_ref);
-        updateTabName(connect_tab, name)
-        addOrDeleteInstanceTab("add", sid, connect_tab);
+        try {
+            const urlObject = new URL(url);
+            const appUrl = `${window.location.origin}/helx/connect/${aid}/${encodeURIComponent(urlObject.pathname)}`;
+            const connectTabRef = `${sid}-tab`;
+            const connectTab = window.open(appUrl, connectTabRef);
+            updateTabName(connectTab,name);
+            addOrDeleteInstanceTab("add",sid,connectTab);
+        }
+        catch(e) {
+            // if invalid URL parse error do nothing
+            console.log(`error trying to connect to instance ${e}`)
+        }
     }
 
     //Update a running Instance.
