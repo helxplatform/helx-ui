@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import axios from 'axios'
 import { Button, Divider, Input, Spin, Space, Typography } from 'antd'
 import { useHelxSearch } from '../../../'
+import { useAnalytics } from '../../../../../contexts'
 import { Link } from '../../../../link'
 import { RocketOutlined as QueryIcon } from '@ant-design/icons'
 import { SizeMe } from 'react-sizeme'
@@ -15,9 +16,23 @@ const { Text, Title } = Typography
 const { TextArea } = Input
 
 export const TranQLTab = ({ result, graphs }) => {
+  const analytics = useAnalytics()
   const { query } = useHelxSearch()
   const tranqlUrl = "https://heal.renci.org/tranql"
   const robokopUrl = "https://robokop.renci.org"
+
+  const trackLink = (name, url) => {
+    analytics.trackEvent({
+      category: "UI Interaction",
+      action: "TranQL tab URL clicked",
+      label: `User opened URL for ${name}`,
+      customParameters: {
+        "User ID": "",
+        "URL name": name,
+        "URL": url
+      }
+    });
+  }
 
   const makeTranqlQuery = () => {
     const tranqlQueries = graphs.map(({ knowledge_graph, question_graph, knowledge_map }) => {
@@ -45,6 +60,7 @@ export const TranQLTab = ({ result, graphs }) => {
 
   const initialTranqlQuery = useMemo(makeTranqlQuery, [result, graphs])
   const [tranqlQuery, setTranqlQuery] = useState(initialTranqlQuery)
+  const tranqlQueryUrl = useMemo(() => `${tranqlUrl}?q=${encodeURIComponent(tranqlQuery)}`, [tranqlQuery])
   // const [debouncedQuery] = useDebounce(tranqlQuery, 250)
 
   const [iframeLoading, setIframeLoading] = useState(true)
@@ -76,8 +92,8 @@ export const TranQLTab = ({ result, graphs }) => {
             )
           }
         </SizeMe>
-        <Link to={`${tranqlUrl}?q=${encodeURIComponent(tranqlQuery)}`}>View in TranQL</Link>
-        <Link to={robokopUrl}>Open Robokop</Link>
+        <Link to={tranqlQueryUrl} onClick={() => trackLink("TranQL", tranqlQueryUrl)}>View in TranQL</Link>
+        <Link to={robokopUrl} onClick={() => trackLink("Robokop", robokopUrl)}>Open Robokop</Link>
       </Space>
     </Fragment>
   );
