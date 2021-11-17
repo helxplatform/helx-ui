@@ -29,8 +29,8 @@ export const SupportView = () => {
 
   return (
     <Fragment>
-      {!context.hidden_support_section.includes('community') && <CommunitySupport />}
-      {!context.hidden_support_section.includes('documentation') && <Documentation />}
+      {Array.isArray(context.hidden_support_section) && !context.hidden_support_section.includes('community') && <CommunitySupport />}
+      {Array.isArray(context.hidden_support_section) && !context.hidden_support_section.includes('documentation') && <Documentation />}
     </Fragment>
   )
 }

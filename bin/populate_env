@@ -12,6 +12,7 @@ search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
 tranql_enabled="${REACT_APP_TRANQL_ENABLED:-false}"
 analytics="${REACT_APP_ANALYTICS:-0c39f8410fd548bfa1976957d0248289}"
+hidden_support_section=${REACT_APP_HIDDEN_SUPPORT_SECTION}
 
 
 template='{
@@ -28,7 +29,8 @@ template='{
       "mixpanel_token": "%ANALYTICS%",
       "ga_property": ""
       }
-    }
+    },
+    "hidden_support_section": %HIDDEN_SUPPORT_SECTION%
 }'
 
 echo $template | sed \
@@ -36,6 +38,7 @@ echo $template | sed \
   -e "s/%SEARCH_ENABLED%/$search_enabled/" \
   -e "s/%SEARCH_URL%/$search_url/" \
   -e "s/%BRAND%/$brand_name/" \
+  -e "s/%HIDDEN_SUPPORT_SECTION%/$hidden_support_section/" \
   -e "s/%ANALYTICS%/$analytics/" \
   -e "s/%TRANQL_ENABLED%/$tranql_enabled/" \
   > $1
