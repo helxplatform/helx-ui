@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import { Typography } from 'antd'
+import { useEnvironment } from '../contexts'
 
 const { Title } = Typography
 
@@ -24,11 +25,12 @@ const Documentation = () =>
   </Fragment>
 
 export const SupportView = () => {
+  const { context } = useEnvironment()
 
   return (
     <Fragment>
-      <CommunitySupport />
-      <Documentation />
+      {!context.hidden_support_section.includes('community') && <CommunitySupport />}
+      {!context.hidden_support_section.includes('documentation') && <Documentation />}
     </Fragment>
   )
 }
