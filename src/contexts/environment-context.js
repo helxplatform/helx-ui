@@ -64,6 +64,9 @@ export const EnvironmentProvider = ({ children }) => {
       url: `${relativeHost}/static/frontend/env.json`
     })
     let context = response.data;
+
+    // split the comma-separated string which tells ui the support section to hide
+    context.hidden_support_sections = context.hidden_support_sections.split(',')
     switch (context.brand) {
       case 'braini':
         context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/braini/braini-lg-gray.png'
