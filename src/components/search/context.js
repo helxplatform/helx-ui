@@ -33,9 +33,13 @@ export const HelxSearch = ({ children }) => {
   const analytics = useAnalytics()
   const [query, setQuery] = useState('')
   const [isLoadingResults, setIsLoadingResults] = useState(false);
+  const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
   const [error, setError] = useState({})
+  const [variableError, setVariableError] = useState({})
   const [results, setResults] = useState([])
+  const [variableResults, setVariableResults] = useState([])
   const [totalResults, setTotalResults] = useState(0)
+  const [totalVariableResults, setTotalVariableResults] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
@@ -134,6 +138,40 @@ export const HelxSearch = ({ children }) => {
   }, [query, currentPage, helxSearchUrl, setResults, setError])
 
   useEffect(() => {
+    const fetchVariableResults = async () => {
+      setIsLoadingVariableResults(true)
+      try {
+        const params = {
+          index: 'variables_index',
+          query: query,
+          size: 1000
+        }
+        const response = await axios.post(`${helxSearchUrl}/search_var`, params)
+        if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
+          const hits = response.data.result.DbGaP.map(r => r)
+          console.log(hits)
+          // console.log(`hits.length ${hits.length}`)
+          setVariableResults(hits)
+          setTotalVariableResults(hits.length)
+          setIsLoadingVariableResults(false)
+        } else {
+          setVariableResults([])
+          setTotalVariableResults(0)
+          setIsLoadingVariableResults(false)
+        }
+      } catch (variableError) {
+        console.log(variableError)
+        setVariableError({ message: 'An variable error occurred!' })
+        setIsLoadingVariableResults(false)
+      }
+    }
+
+    if (query) {
+      fetchVariableResults()
+    }
+  }, [query, currentPage, helxSearchUrl, setVariableResults, setVariableError])
+
+  useEffect(() => {
     setPageCount(Math.ceil(totalResults / PER_PAGE))
   }, [totalResults])
 
@@ -186,7 +224,9 @@ export const HelxSearch = ({ children }) => {
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
       error, isLoadingResults,
+      variableError, isLoadingVariableResults,
       results, totalResults,
+      variableResults, totalVariableResults,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
