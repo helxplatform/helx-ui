@@ -133,7 +133,6 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
           label: `User selected tab "${tabTitle}"`,
           value: tabTitle,
           customParameters: {
-            "User ID": "",
             "Tab name": tabTitle,
             "Previous tab name": tabs[currentTab].title,
             "Time spent on previous tab": elapsed

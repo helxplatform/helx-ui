@@ -29,8 +29,7 @@ export const SearchResults = () => {
       action: "Search URL copied",
       label: "User copied sharable link for search query",
       customParameters: {
-        "Search term": query,
-        "User ID": ""
+        "Search term": query
       }
     })
   }
@@ -46,7 +45,6 @@ export const SearchResults = () => {
         label: `Layout set to "${newLayout}"`,
         customParameters: {
           "Search term": query,
-          "User ID": "",
           "Changed from": layout,
           "Changed to": newLayout
         }
