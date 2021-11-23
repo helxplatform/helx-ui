@@ -36,7 +36,6 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
       label: `Opened modal from card for result "${result.name}"`,
       customParameters: {
         "Search term": query,
-        "User ID": "",
         "Result name": result.name,
         "Result type": result.type,
         "Additional search terms": result.search_terms

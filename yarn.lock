@@ -6113,10 +6113,10 @@
   "resolved" "https://registry.npmjs.org/he/-/he-1.2.0.tgz"
   "version" "1.2.0"
 
-"helx-analytics@^1.0.12":
-  "integrity" "sha512-nemPoXT7JLyEF7NJa7L2AbxJvdV/6F5Lo8PtXJDnaxgl1ehR6rLFnPZdx7hKik1Cfaxsjy7SmNBjpFN/fcOZVA=="
-  "resolved" "https://registry.npmjs.org/helx-analytics/-/helx-analytics-1.0.12.tgz"
-  "version" "1.0.12"
+"helx-analytics@^1.0.14":
+  "integrity" "sha512-TKjgPEFsm4y7ELsv3Ze1JIj/WcTRXfOHDmlyw/Kg71BNVnw5TqVqry/+A0vJZCAOrdkep/y4bKfNCIg1xILDhg=="
+  "resolved" "https://registry.npmjs.org/helx-analytics/-/helx-analytics-1.0.14.tgz"
+  "version" "1.0.14"
   dependencies:
     "@babel/plugin-proposal-class-properties" "^7.14.5"
     "@types/mixpanel-browser" "^2.35.7"

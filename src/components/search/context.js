@@ -83,7 +83,6 @@ export const HelxSearch = ({ children }) => {
         value: execTime,
         customParameters: {
           "Execution time": execTime,
-          "User ID": "",
           "Search term": query,
           "Response count": resultCount,
           "Caused error": error !== undefined,
