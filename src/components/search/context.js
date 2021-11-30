@@ -137,6 +137,27 @@ export const HelxSearch = ({ children }) => {
     }
   }, [query, currentPage, helxSearchUrl, setResults, setError])
 
+  function createCsvFromHits(hits) {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Study Name,Variable ID,Variable Name,Variable Description\r\n";
+
+    hits.forEach(function(rowObject) {
+      let studyName = rowObject.c_name
+      rowObject.elements.forEach(element => {
+        let row = `${studyName},${element.id},${element.name},"${element.description}"`
+        csvContent += row + "\r\n";
+      });
+    });
+
+    let encodedUri = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "my_data.csv");
+    document.body.appendChild(link);
+
+    link.click();
+  }
+
   useEffect(() => {
     const fetchVariableResults = async () => {
       setIsLoadingVariableResults(true)
@@ -149,8 +170,7 @@ export const HelxSearch = ({ children }) => {
         const response = await axios.post(`${helxSearchUrl}/search_var`, params)
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
           const hits = response.data.result.DbGaP.map(r => r)
-          console.log(hits)
-          // console.log(`hits.length ${hits.length}`)
+          // createCsvFromHits(hits)
           setVariableResults(hits)
           setTotalVariableResults(hits.length)
           setIsLoadingVariableResults(false)
