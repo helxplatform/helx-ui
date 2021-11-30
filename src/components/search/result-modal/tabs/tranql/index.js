@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import axios from 'axios'
 import { Button, Divider, Input, Spin, Space, Typography } from 'antd'
 import { useHelxSearch } from '../../../'
-import { useAnalytics } from '../../../../../contexts'
+import { useAnalytics, useEnvironment } from '../../../../../contexts'
 import { Link } from '../../../../link'
 import { RocketOutlined as QueryIcon } from '@ant-design/icons'
 import { SizeMe } from 'react-sizeme'
@@ -17,8 +17,9 @@ const { TextArea } = Input
 
 export const TranQLTab = ({ result, graphs }) => {
   const analytics = useAnalytics()
+  const { context } = useEnvironment()
   const { query } = useHelxSearch()
-  const tranqlUrl = "https://heal.renci.org/tranql"
+  const tranqlUrl = context.tranql_url
   const robokopUrl = "https://robokop.renci.org"
 
   const trackLink = (name, url) => {

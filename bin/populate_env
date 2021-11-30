@@ -11,6 +11,7 @@ search_enabled="${REACT_APP_SEMANTIC_SEARCH_ENABLED:-true}"
 search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
 tranql_enabled="${REACT_APP_TRANQL_ENABLED:-false}"
+tranql_url="${REACT_APP_TRANQL_URL:-\/tranql}"
 analytics="${REACT_APP_ANALYTICS:-0c39f8410fd548bfa1976957d0248289}"
 
 
@@ -21,6 +22,7 @@ template='{
     "search_enabled": "%SEARCH_ENABLED%",
     "workspaces_enabled": "%WORKSPACES_ENABLED%",
     "tranql_enabled": "%TRANQL_ENABLED%",
+    "tranql_url": "%TRANQL_URL%",
     "analytics": {
       "enabled": true,
       "platform": "mixpanel",
@@ -38,4 +40,5 @@ echo $template | sed \
   -e "s/%BRAND%/$brand_name/" \
   -e "s/%ANALYTICS%/$analytics/" \
   -e "s/%TRANQL_ENABLED%/$tranql_enabled/" \
+  -e "s/%TRANQL_URL%/$tranql_url/" \
   > $1
