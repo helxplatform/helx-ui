@@ -92,32 +92,26 @@ export const TranQLTab = ({ result, graphs }) => {
   return (
     <Fragment>
       <Space direction="vertical">
-        <SizeMe>
-          {
-            ({ size }) => (
-              <div style={{postiion: "relative"}}>
-                {/* Some really weird stuff happens when applying display: none to the TranQL iframe. I believe this is due to 
-                  * the size-detection that's used within the TranQL app, but it messes up the rendering. Instead, just make both the components
-                  * have the same dimensions and overlay each other, since only can be visible at once anyways.
-                  */}
-                <div style={{position: "absolute", display: iframeLoading ? "flex" : "none", justifyContent: "center", alignItems: "center", height: "500px", width: size.width + "px"}}>
-                  <Spin/>
-                </div>
-                <div style={{position: "relative", visibility: iframeLoading ? "hidden": "visible"}}>
-                  <iframe src={`${tranqlUrl}?embed=FULL&q=${encodeURIComponent(tranqlQuery)}`}
-                          height="500" width={size.width}
-                          ref={tranqlIframe}
-                          onLoad={() => setIframeLoading(false)}
-                          style={{borderWidth: "0"}}
-                  />
-                  <Link to={tranqlQueryUrl} onClick={() => trackLink("TranQL", tranqlQueryUrl)} style={{position: "absolute", top: "12px", right: "12px"}}>
-                    View in TranQL
-                  </Link>
-                </div>
-              </div>
-            )
-          }
-        </SizeMe>
+        <div style={{position: "relative"}}>
+          {/* Some really weird stuff happens when applying display: none to the TranQL iframe. I believe this is due to 
+            * the size-detection that's used within the TranQL app, but it messes up the rendering. Instead, just make both the components
+            * have the same dimensions and overlay each other, since only can be visible at once anyways.
+            */}
+          <div style={{position: "absolute", display: iframeLoading ? "flex" : "none", justifyContent: "center", alignItems: "center", height: "500px", width: "100%"}}>
+            <Spin/>
+          </div>
+          <div style={{position: "relative", visibility: iframeLoading ? "hidden": "visible"}}>
+            <iframe src={`${tranqlUrl}?embed=FULL&q=${encodeURIComponent(tranqlQuery)}`}
+                    height="500"
+                    ref={tranqlIframe}
+                    onLoad={() => setIframeLoading(false)}
+                    style={{borderWidth: "0", width: "100%"}}
+            />
+            <Link to={tranqlQueryUrl} onClick={() => trackLink("TranQL", tranqlQueryUrl)} style={{position: "absolute", top: "12px", right: "12px"}}>
+              View in TranQL
+            </Link>
+          </div>
+        </div>
         {/* <Link to={robokopUrl} onClick={() => trackLink("Robokop", robokopUrl)}>Open Robokop</Link> */}
       </Space>
     </Fragment>
