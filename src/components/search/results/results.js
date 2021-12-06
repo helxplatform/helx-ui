@@ -1,26 +1,28 @@
 import React, { Fragment, useState, useMemo } from 'react'
 import { Link } from '../../link'
-import { Radio, notification, Spin, Tooltip, Typography } from 'antd'
+import { Radio, notification, Spin, Tooltip, Typography, Collapse, List } from 'antd'
 import {
   LinkOutlined as LinkIcon,
   TableOutlined as GridViewIcon,
   UnorderedListOutlined as ListViewIcon,
+  DatabaseOutlined as ConceptViewIcon,
+  SmallDashOutlined as VariableViewIcon
 } from '@ant-design/icons'
-import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from '../'
+import { PaginationTray, SearchResultCard, useHelxSearch } from '../'
 import './results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
-
+const { Panel } = Collapse
 const { Text } = Typography
 
 const GRID = 'GRID'
 const LIST = 'LIST'
 
 export const SearchResults = () => {
-  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult } = useHelxSearch()
+  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult, studyResults, totalStudyResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
   const { basePath } = useEnvironment()
   const analytics = useAnalytics()
   const [layout, setLayout] = useState(GRID)
-
+  const [conceptView, setConceptView] = useState(true)
   const NotifyLinkCopied = () => {
     notification.open({ key: 'key', message: 'Link copied to clipboard' })
     navigator.clipboard.writeText(window.location.href)
@@ -33,6 +35,59 @@ export const SearchResults = () => {
         "User ID": ""
       }
     })
+  }
+
+  const StudyListWithVariables = () => {
+    return (
+      <Collapse ghost className="variables-collapse">
+        {
+          studyResults.map((study, i) => {
+            return (
+              <Panel
+                key={ `panel_${ study.c_name }` }
+                header={
+                  <Text>
+                    { study.c_name }{ ` ` }
+                    (<Link to={ study.c_link }>{ study.c_id }</Link>)
+                  </Text>
+                }
+                extra={ <Text>{ study.elements.length } variable{ study.elements.length === 1 ? '' : 's' }</Text> }
+              >
+                <List
+                  className="study-variables-list"
+                  dataSource={ study.elements }
+                  renderItem={ variable => (
+                    <div className="study-variables-list-item">
+                      <Text className="variable-name">
+                        { variable.name } &nbsp;
+                        ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
+                      </Text><br />
+                      <Text className="variable-description"> { variable.description }</Text>
+                    </div>
+                  ) }
+                />
+              </Panel>
+            )
+          })
+        }
+      </Collapse>
+    )
+  }
+
+  const ConceptsList = () => {
+    return (
+      results.map((result, i) => {
+        const index = (currentPage - 1) * perPage + i + 1
+        return (
+          <SearchResultCard
+            key={ `${query}_result_${index}` }
+            index={ index }
+            result={ result }
+            openModalHandler={ () => setSelectedResult(result) }
+          />
+        )
+      })
+    )
   }
 
   const handleChangeLayout = (event) => {
@@ -54,20 +109,30 @@ export const SearchResults = () => {
     }
   }
 
+  const handleDataDisplayChange = (event) => {
+    setConceptView(event.target.value)
+  }
+
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
-      <Text>{totalResults} results for "{query}" ({pageCount} page{pageCount > 1 && 's'})</Text>
-      <Tooltip title="Shareable link" placement="top">
-        <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
+      <Text>{totalResults} concepts and {totalStudyResults} studies with {totalVariableResults} variables for "{query}" ({pageCount} page{pageCount > 1 && 's'})</Text>
+      <Tooltip title="Results Toggle" placement="top">
+        <Radio.Group value={conceptView} onChange={handleDataDisplayChange}>
+          <Radio.Button value={true}><ConceptViewIcon /></Radio.Button>
+          <Radio.Button value={false}><VariableViewIcon /></Radio.Button>
+        </Radio.Group>
       </Tooltip>
-      <Tooltip title="Toggle Layout" placement="top">
+      <Tooltip title="Layout Toggle" placement="top">
         <Radio.Group value={layout} onChange={handleChangeLayout}>
           <Radio.Button value={GRID}><GridViewIcon /></Radio.Button>
           <Radio.Button value={LIST}><ListViewIcon /></Radio.Button>
         </Radio.Group>
       </Tooltip>
+      <Tooltip title="Shareable link" placement="top">
+        <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
+      </Tooltip>
     </div>
-  ), [currentPage, layout, pageCount, totalResults, query])
+  ), [currentPage, layout, pageCount, totalResults, query, totalStudyResults, totalVariableResults, conceptView])
 
   if (isLoadingResults) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
@@ -84,19 +149,7 @@ export const SearchResults = () => {
             { results.length >= 1 && MemoizedResultsHeader }
 
             <div className={ layout === GRID ? 'results-list grid' : 'results-list list' }>
-              {
-                results.map((result, i) => {
-                  const index = (currentPage - 1) * perPage + i + 1
-                  return (
-                    <SearchResultCard
-                      key={ `${query}_result_${index}` }
-                      index={ index }
-                      result={ result }
-                      openModalHandler={ () => setSelectedResult(result) }
-                    />
-                  )
-                })
-              }
+              { conceptView ? <ConceptsList/> : <StudyListWithVariables/> }
             </div>
           </div>
         )
@@ -104,7 +157,7 @@ export const SearchResults = () => {
 
       <br/><br/>
 
-      { pageCount > 1 && <PaginationTray /> }
+      { pageCount > 1 && conceptView ? <PaginationTray /> : <div/> }
 
     </Fragment>
   )
