@@ -101,7 +101,7 @@ export const TranQLTab = ({ result, graphs }) => {
             <Spin/>
           </div>
           <div style={{position: "relative", visibility: iframeLoading ? "hidden": "visible"}}>
-            <iframe src={`${tranqlUrl}?embed=FULL&q=${encodeURIComponent(tranqlQuery)}`}
+            <iframe src={`${tranqlUrl}?embed=FULL&use_last_view&q=${encodeURIComponent(tranqlQuery)}`}
                     height="500"
                     ref={tranqlIframe}
                     onLoad={() => setIframeLoading(false)}
