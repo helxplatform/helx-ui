@@ -10,13 +10,21 @@ export const InstanceProvider = ({ children }) => {
     const { helxAppstoreUrl } = useEnvironment();
     const { addActivity, updateActivity } = useActivity();
     const [openedTabs, setTabs] = useState([]);
+    const [pollingTimerIDs, setpollingTimerIDs] = useState([])
+
+    const stopPolling = (sid) => {
+        // stop polling when instance is deleted
+        clearTimeout(pollingTimerIDs[sid])
+        setpollingTimerIDs((prev) => {
+            delete prev[sid]
+            return prev
+        })
+    }
 
     const pollingInstance = (app_id, sid, app_url, app_name) => {
         let ready = false;
         const decoded_url = decodeURIComponent(app_url);
-        
         const executePoll = async () => {
-            console.log("checking if app is ready")
             const result = await axios.get(decoded_url)
                 .then(response => {
                     if (response.status == 200) {
@@ -34,10 +42,13 @@ export const InstanceProvider = ({ children }) => {
                     }
                 })
                 .catch((e) => {
-                    setTimeout(executePoll, 5000)
+                    let timerID = setTimeout(executePoll, 5000)
+                    setpollingTimerIDs((prev) => {
+                        prev[sid] = timerID
+                        return prev
+                    })
                     console.log(e);
                 });
-
         }
         executePoll();
     }
@@ -79,7 +90,7 @@ export const InstanceProvider = ({ children }) => {
 
     return (
         <InstanceContext.Provider value={{
-            loadInstances, stopInstance, updateInstance, addOrDeleteInstanceTab, pollingInstance
+            loadInstances, stopInstance, updateInstance, addOrDeleteInstanceTab, pollingInstance, stopPolling
         }}>
             {children}
         </InstanceContext.Provider>
