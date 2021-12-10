@@ -6,7 +6,6 @@ import { useHelxSearch } from '../../../'
 import { useAnalytics, useEnvironment } from '../../../../../contexts'
 import { Link } from '../../../../link'
 import { RocketOutlined as QueryIcon } from '@ant-design/icons'
-import { SizeMe } from 'react-sizeme'
 import { useDebounce } from 'use-debounce'
 import './tranql.css'
 
