@@ -1,5 +1,4 @@
 import { Space, Typography } from 'antd'
-import { SizeMe } from 'react-sizeme'
 
 const { Title } = Typography
 
@@ -8,15 +7,10 @@ export const RobokopTab = () => {
     
     return (
         <Space direction="vertical">
-            <SizeMe>
-                {
-                    ({ size }) => (
-                        <iframe src={robokopUrl}
-                                height="500" width={size.width}
-                        />
-                    )
-                }
-            </SizeMe>
+            <iframe src={robokopUrl}
+                    height="500"
+                    style={{width: "100%"}}
+            />
         </Space>
     )
 }
