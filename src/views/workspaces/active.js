@@ -19,9 +19,9 @@ export const ActiveView = () => {
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
-    const { addActivity } = useActivity();
+    const { addActivity, updateActivity } = useActivity();
     const { loadApps } = useApp();
-    const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab } = useInstance();
+    const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
     const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
     const [stopModalVisibility, setStopModalVisibility] = useState(false);
     const [stopAllModalVisibility, setStopAllModalVisibility] = useState(false);
@@ -75,21 +75,22 @@ export const ActiveView = () => {
     const stopInstanceHandler = async () => {
         setIsStopping(true);
         addOrDeleteInstanceTab("close", currentRecord.sid);
+        stopPolling(currentRecord.sid)
         await stopInstance(currentRecord.sid)
             .then(r => {
                 let newActivity = {
-                    'sid': 'none',
+                    'sid': currentRecord.sid,
                     'app_name': currentRecord.name,
                     'status': 'success',
                     'timestamp': new Date(),
                     'message': `${currentRecord.name} is stopped.`
                 }
-                addActivity(newActivity)
+                updateActivity(newActivity)
                 setRefresh(!refresh)
             })
             .catch(e => {
                 let newActivity = {
-                    'sid': 'none',
+                    'sid': currentRecord.sid,
                     'app_name': currentRecord.name,
                     'status': '',
                     'timestamp': new Date(),
@@ -112,7 +113,7 @@ export const ActiveView = () => {
                         newActivity['message'] = `An error has occurred while stopping ${currentRecord.name}.`
                     }
                 }
-                addActivity(newActivity)
+                updateActivity(newActivity)
             })
         setStopModalVisibility(false);
         setIsStopping(false);
