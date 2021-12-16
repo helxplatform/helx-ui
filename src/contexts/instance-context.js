@@ -10,12 +10,12 @@ export const InstanceProvider = ({ children }) => {
     const { helxAppstoreUrl } = useEnvironment();
     const { addActivity, updateActivity } = useActivity();
     const [openedTabs, setTabs] = useState([]);
-    const [pollingTimerIDs, setpollingTimerIDs] = useState([])
+    const [pollingTimerIDs, setPollingTimerIDs] = useState([])
 
     const stopPolling = (sid) => {
         // stop polling when instance is deleted
         clearTimeout(pollingTimerIDs[sid])
-        setpollingTimerIDs((prev) => {
+        setPollingTimerIDs((prev) => {
             delete prev[sid]
             return prev
         })
@@ -43,7 +43,7 @@ export const InstanceProvider = ({ children }) => {
                 })
                 .catch((e) => {
                     let timerID = setTimeout(executePoll, 5000)
-                    setpollingTimerIDs((prev) => {
+                    setPollingTimerIDs((prev) => {
                         prev[sid] = timerID
                         return prev
                     })
