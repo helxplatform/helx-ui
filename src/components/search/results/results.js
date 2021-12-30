@@ -98,42 +98,40 @@ export const SearchResults = () => {
     })
   }
 
-  const StudyListWithVariables = () => {
-    return (
-      <Collapse ghost className="variables-collapse">
-        {
-          studyResults.map((study, i) => {
-            return (
-              <Panel
-                key={ `panel_${ study.c_name }` }
-                header={
-                  <Text>
-                    { study.c_name }{ ` ` }
-                    (<Link to={ study.c_link }>{ study.c_id }</Link>)
-                  </Text>
-                }
-                extra={ <Text>{ study.elements.length } variable{ study.elements.length === 1 ? '' : 's' }</Text> }
-              >
-                <List
-                  className="study-variables-list"
-                  dataSource={ study.elements }
-                  renderItem={ variable => (
-                    <div className="study-variables-list-item">
-                      <Text className="variable-name">
-                        { variable.name } &nbsp;
-                        ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
-                      </Text><br />
-                      <Text className="variable-description"> { variable.description }</Text>
-                    </div>
-                  ) }
-                />
-              </Panel>
-            )
-          })
-        }
-      </Collapse>
-    )
-  }
+  const StudyListWithVariables = useMemo(() => (
+    <Collapse ghost className="variables-collapse">
+      {
+        studyResults.map((study, i) => {
+          return (
+            <Panel
+              key={ `panel_${ study.c_name }` }
+              header={
+                <Text>
+                  { study.c_name }{ ` ` }
+                  (<Link to={ study.c_link }>{ study.c_id }</Link>)
+                </Text>
+              }
+              extra={ <Text>{ study.elements.length } variable{ study.elements.length === 1 ? '' : 's' }</Text> }
+            >
+              <List
+                className="study-variables-list"
+                dataSource={ study.elements }
+                renderItem={ variable => (
+                  <div className="study-variables-list-item">
+                    <Text className="variable-name">
+                      { variable.name } &nbsp;
+                      ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
+                    </Text><br />
+                    <Text className="variable-description"> { variable.description }</Text>
+                  </div>
+                ) }
+              />
+            </Panel>
+          )
+        })
+      }
+    </Collapse>
+  ), [studyResults])
 
   const ConceptsList = () => {
     return (
@@ -297,7 +295,7 @@ export const SearchResults = () => {
             { conceptView ? <div/> : <TestPlot name="Sara"/> }
 
             <div className={ layout === GRID ? 'results-list grid' : 'results-list list' }>
-              { conceptView ? <ConceptsList/> : <StudyListWithVariables/> }
+              { conceptView ? <ConceptsList/> : StudyListWithVariables }
             </div>
           </div>
         )
