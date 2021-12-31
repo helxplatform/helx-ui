@@ -12,16 +12,12 @@ import { PaginationTray, SearchResultCard, useHelxSearch } from '../'
 import './results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import {
-  Label,
-  LineChart,
-  Line,
-  BarChart, Bar, Cell,
+  BarChart,
+  Bar,
   CartesianGrid,
   XAxis,
   YAxis,
-  ReferenceArea,
   ResponsiveContainer,
-  Legend,
   Tooltip as TooltipRc
 } from 'recharts';
 
@@ -30,36 +26,13 @@ const { Text } = Typography
 
 const GRID = 'GRID'
 const LIST = 'LIST'
-const initialData = [
-  { name: 1, cost: 4.11 },
-  { name: 2, cost: 2.39 },
-  { name: 3, cost: 1.37 },
-  { name: 4, cost: 1.16 },
-  { name: 5, cost: 2.29 },
-  { name: 6, cost: 3 },
-  { name: 7, cost: 0.53},
-  { name: 8, cost: 2.52 },
-  { name: 9, cost: 1.79 },
-  { name: 10, cost: 2.94 },
-  { name: 11, cost: 4.3 },
-  { name: 12, cost: 4.41 },
-  { name: 13, cost: 2.1},
-  { name: 14, cost: 8 },
-  { name: 15, cost: 0 },
-  { name: 16, cost: 9 },
-  { name: 17, cost: 3 },
-  { name: 18, cost: 2},
-  { name: 19, cost: 3 },
-  { name: 20, cost: 7 },
-];
 
-const getAxisYDomain = (data, from, to, ref, offset) => {
-  console.log(data)
-  console.log(`from ${from}`)
-  console.log(`to ${to}`)
-  console.log(ref)
-  console.log(offset)
-  const refData = data.slice(from - 1, to);
+const getAxisYDomain = (data, left, right, ref, offset) => {
+  console.log(`left ${left}`)
+  console.log(`right ${right}`)
+  let sliceFrom = left > 0 || left === "undefined" ? left : 0
+  let sliceTo = right === "undefined" ? 0 : right
+  const refData = data.slice(sliceFrom, sliceTo);
   let [bottom, top] = [refData[0][ref], refData[0][ref]];
   refData.forEach((d) => {
     if (d[ref] > top) top = d[ref];
@@ -74,10 +47,11 @@ function CustomTooltip({ payload, label, active }) {
     const v = payload[0]["payload"]
     return (
       <div className="custom-tooltip">
-        <span className="study-label">{`Study: ${v.study_name}`}</span><br/>
-        <span className="label">{`Variable Name: ${v.name}`}</span><br/>
-        <span className="label">{`Score: ${v.score}`}</span><br/>
-        <span className="desc">{`Description: ${v.description}`}</span><br/>
+        <p className="margin-bottom-0"><span className="tooltip-label">Index: </span>{v.index_pos}</p>
+        <p className="margin-bottom-0"><span className="tooltip-label">Study: </span>{v.study_name}</p>
+        <p className="margin-bottom-0"><span className="tooltip-label">Variable Name: </span>{v.name}</p>
+        <p className="margin-bottom-0"><span className="tooltip-label">Score: </span>{v.score}</p>
+        <p className="margin-bottom-0"><span className="tooltip-label">Description: </span>{v.description}</p>
       </div>
     );
   }
@@ -105,14 +79,22 @@ export const SearchResults = () => {
     })
   }
 
-  const initialState = {
+  const yAxisValues = variableResults.map(obj => { return obj.score; });
+  const yMax = Math.max(...yAxisValues);
+  const yDomainMax = Math.ceil(yMax) + 10
+
+  const xAxisValues = variableResults.map(obj => { return obj.index_pos; });
+  const xMax = Math.max(...xAxisValues);
+  const xDomainMax = Math.ceil(xMax) + 10
+
+  const chartInitialState = {
     data: variableResults,
-    left: 'dataMin',
-    right: 'dataMax',
+    left: 0,
+    right: xDomainMax,
     refAreaLeft: '',
     refAreaRight: '',
-    top: 'dataMax+1',
-    bottom: 'dataMin-1',
+    top: yDomainMax,
+    bottom: 0,
     animation: true,
   };
 
@@ -219,14 +201,11 @@ export const SearchResults = () => {
   class TestPlot extends React.Component {
     constructor(props) {
       super(props);
-      this.state = initialState;
+      this.state = chartInitialState;
     }
 
     zoom() {
-      console.log("ZOOMING")
       let { refAreaLeft, refAreaRight } = this.state;
-      console.log(`refAreaLeft: ${refAreaLeft}`, )
-      console.log(`refAreaRight: ${refAreaRight}`)
       const { data } = this.state;
 
       if (refAreaLeft === refAreaRight || refAreaRight === '') {
@@ -238,6 +217,12 @@ export const SearchResults = () => {
       }
 
       // xAxis domain
+      if (refAreaLeft === "undefined") {
+        refAreaLeft = 0;
+      }
+      if (refAreaRight === "undefined") {
+        refAreaRight = xDomainMax;
+      }
       if (refAreaLeft > refAreaRight) [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
       // // yAxis domain
@@ -249,8 +234,8 @@ export const SearchResults = () => {
         data: data.slice(),
         left: refAreaLeft,
         right: refAreaRight,
-        top: 'dataMax+1',
-        bottom: 'dataMin-1'
+        top: yDomainMax,
+        bottom: 0
       }));
     }
 
@@ -262,16 +247,13 @@ export const SearchResults = () => {
         refAreaRight: '',
         left: 'dataMin',
         right: 'dataMax',
-        top: 'dataMax+1',
-        bottom: 'dataMin',
-        top2: 'dataMax+50',
-        bottom2: 'dataMin+50',
+        top: yDomainMax,
+        bottom: 0
       }));
     }
 
     render() {
-      const { data, barIndex, left, right, refAreaLeft, refAreaRight, top, bottom } = this.state;
-      console.log(data)
+      const { data, left, right, top, bottom } = this.state;
       return (
         <div className="highlight-bar-charts" style={{ userSelect: 'none', width: '100%' }}>
           <button type="button" className="btn update" onClick={this.zoomOut.bind(this)}>
@@ -290,11 +272,9 @@ export const SearchResults = () => {
             >
               <Bar dataKey="score" fill="#8884d8" />
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis allowDataOverflow domain={[left, right]} dataKey="index_pos" tick={false} />
-              <YAxis allowDataOverflow />
+              <XAxis allowDataOverflow domain={[left, right]} dataKey="index_pos" tick={false} type="number" />
+              <YAxis allowDataOverflow domain={[bottom, top]} allowDecimals={false} />
               <TooltipRc content={<CustomTooltip />} />
-
-
             </BarChart>
           </ResponsiveContainer>
         </div>
