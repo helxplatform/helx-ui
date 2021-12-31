@@ -53,8 +53,13 @@ const initialData = [
   { name: 20, cost: 7 },
 ];
 
-const getAxisYDomain = (from, to, ref, offset) => {
-  const refData = initialData.slice(from - 1, to);
+const getAxisYDomain = (data, from, to, ref, offset) => {
+  console.log(data)
+  console.log(`from ${from}`)
+  console.log(`to ${to}`)
+  console.log(ref)
+  console.log(offset)
+  const refData = data.slice(from - 1, to);
   let [bottom, top] = [refData[0][ref], refData[0][ref]];
   refData.forEach((d) => {
     if (d[ref] > top) top = d[ref];
@@ -64,22 +69,10 @@ const getAxisYDomain = (from, to, ref, offset) => {
   return [(bottom | 0) - offset, (top | 0) + offset];
 };
 
-const initialState = {
-  data: initialData,
-  left: 'dataMin',
-  right: 'dataMax',
-  refAreaLeft: '',
-  refAreaRight: '',
-  top: 'dataMax+1',
-  bottom: 'dataMin-1',
-  top2: 'dataMax+20',
-  bottom2: 'dataMin-20',
-  animation: true,
-};
 
 
 export const SearchResults = () => {
-  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult, studyResults, totalStudyResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
+  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult, studyResults, totalStudyResults, variableResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
   const { basePath } = useEnvironment()
   const analytics = useAnalytics()
   const [layout, setLayout] = useState(GRID)
@@ -97,6 +90,18 @@ export const SearchResults = () => {
       }
     })
   }
+
+  const initialState = {
+    data: variableResults,
+    left: 'dataMin',
+    right: 'dataMax',
+    refAreaLeft: '',
+    refAreaRight: '',
+    top: 'dataMax+1',
+    bottom: 'dataMin-1',
+    animation: true,
+  };
+
 
   const StudyListWithVariables = useMemo(() => (
     <Collapse ghost className="variables-collapse">
@@ -206,6 +211,8 @@ export const SearchResults = () => {
     zoom() {
       console.log("ZOOMING")
       let { refAreaLeft, refAreaRight } = this.state;
+      console.log(`refAreaLeft: ${refAreaLeft}`, )
+      console.log(`refAreaRight: ${refAreaRight}`)
       const { data } = this.state;
 
       if (refAreaLeft === refAreaRight || refAreaRight === '') {
@@ -220,7 +227,7 @@ export const SearchResults = () => {
       if (refAreaLeft > refAreaRight) [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
       // // yAxis domain
-      const [bottom, top] = getAxisYDomain(refAreaLeft, refAreaRight, 'cost', 1);
+      // const [bottom, top] = getAxisYDomain(data, refAreaLeft, refAreaRight, 'score', 1);
 
       this.setState(() => ({
         refAreaLeft: '',
@@ -228,8 +235,8 @@ export const SearchResults = () => {
         data: data.slice(),
         left: refAreaLeft,
         right: refAreaRight,
-        bottom,
-        top
+        top: 'dataMax+1',
+        bottom: 'dataMin-1'
       }));
     }
 
@@ -249,8 +256,8 @@ export const SearchResults = () => {
     }
 
     render() {
-      const { data, barIndex, left, right, refAreaLeft, refAreaRight, top, bottom, top2, bottom2 } = this.state;
-      console.log(this.state)
+      const { data, barIndex, left, right, refAreaLeft, refAreaRight, top, bottom } = this.state;
+      console.log(data)
       return (
         <div className="highlight-bar-charts" style={{ userSelect: 'none', width: '100%' }}>
           <button type="button" className="btn update" onClick={this.zoomOut.bind(this)}>
@@ -267,11 +274,11 @@ export const SearchResults = () => {
               // // eslint-disable-next-line react/jsx-no-bind
               onMouseUp={this.zoom.bind(this)}
             >
+              <Bar dataKey="score" fill="#8884d8" />
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis allowDataOverflow domain={[left, right]} type="number" dataKey="name" />
-              <YAxis allowDataOverflow type="number" />
+              <XAxis allowDataOverflow domain={[left, right]} dataKey="index_pos" tick={false} />
+              <YAxis allowDataOverflow />
               <TooltipRc />
-              <Bar dataKey="cost" fill="#8884d8" />
 
 
             </BarChart>
