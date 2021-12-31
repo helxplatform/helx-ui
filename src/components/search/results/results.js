@@ -78,6 +78,10 @@ export const SearchResults = () => {
       }
     })
   }
+  const [studyResultsForDisplay, setStudyResultsForDisplay] = useState([])
+  if (studyResultsForDisplay.length === 0 ) {
+    setStudyResultsForDisplay(studyResults)
+  }
 
   const yAxisValues = variableResults.map(obj => { return obj.score; });
   const yMax = Math.max(...yAxisValues);
@@ -98,11 +102,17 @@ export const SearchResults = () => {
     animation: true,
   };
 
+  function updateStudyResults(refAreaLeft, refAreaRight) {
+    console.log(`refAreaLeft: ${refAreaLeft}`)
+    console.log(`refAreaRight: ${refAreaRight}`)
+    setStudyResultsForDisplay([])
+  }
+
 
   const StudyListWithVariables = useMemo(() => (
     <Collapse ghost className="variables-collapse">
       {
-        studyResults.map((study, i) => {
+        studyResultsForDisplay.map((study, i) => {
           return (
             <Panel
               key={ `panel_${ study.c_name }` }
@@ -132,7 +142,7 @@ export const SearchResults = () => {
         })
       }
     </Collapse>
-  ), [studyResults])
+  ), [studyResultsForDisplay])
 
   const ConceptsList = () => {
     return (
@@ -237,6 +247,8 @@ export const SearchResults = () => {
         top: yDomainMax,
         bottom: 0
       }));
+
+      // updateStudyResults(refAreaLeft, refAreaRight)
     }
 
     zoomOut() {
