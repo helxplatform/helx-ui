@@ -69,7 +69,21 @@ const getAxisYDomain = (data, from, to, ref, offset) => {
   return [(bottom | 0) - offset, (top | 0) + offset];
 };
 
+function CustomTooltip({ payload, label, active }) {
+  if (active) {
+    const v = payload[0]["payload"]
+    return (
+      <div className="custom-tooltip">
+        <span className="study-label">{`Study: ${v.study_name}`}</span><br/>
+        <span className="label">{`Variable Name: ${v.name}`}</span><br/>
+        <span className="label">{`Score: ${v.score}`}</span><br/>
+        <span className="desc">{`Description: ${v.description}`}</span><br/>
+      </div>
+    );
+  }
 
+  return null;
+}
 
 export const SearchResults = () => {
   const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult, studyResults, totalStudyResults, variableResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
@@ -278,7 +292,7 @@ export const SearchResults = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis allowDataOverflow domain={[left, right]} dataKey="index_pos" tick={false} />
               <YAxis allowDataOverflow />
-              <TooltipRc />
+              <TooltipRc content={<CustomTooltip />} />
 
 
             </BarChart>
