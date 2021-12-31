@@ -38,6 +38,7 @@ export const HelxSearch = ({ children }) => {
   const [variableError, setVariableError] = useState({})
   const [results, setResults] = useState([])
   const [studyResults, setStudyResults] = useState([])
+  const [variableResults, setVariableResults] = useState([])
   const [totalResults, setTotalResults] = useState(0)
   const [totalStudyResults, setStudyResultCount] = useState(0)
   const [totalVariableResults, setVariableResultCount] = useState(0)
@@ -138,6 +139,33 @@ export const HelxSearch = ({ children }) => {
     }
   }, [query, currentPage, helxSearchUrl, setResults, setError])
 
+  function collectVariables(studies) {
+    let variables = []
+    studies.forEach(study => {
+      study.elements.forEach(variable => {
+        variables.push({
+          "name": variable.name,
+          "score": variable.score,
+          "id": variable.id,
+          "description": variable.description,
+          "e_link": variable.e_link,
+          "study_name": study.c_name
+        })
+      })
+    });
+    let sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
+    // sortedVariables = sortedVariables.slice(0,100)
+    const sortedVariablesWithIndexPosition = sortedVariables.map((v, i) =>  {
+      let rObj = v
+      rObj["index_pos"] = i
+      return rObj;
+    })
+    return {
+      "sortedVariables": sortedVariablesWithIndexPosition,
+      "variablesCount": sortedVariables.length
+    };
+  }
+
   useEffect(() => {
     const fetchVariableResults = async () => {
       setIsLoadingVariableResults(true)
@@ -149,16 +177,17 @@ export const HelxSearch = ({ children }) => {
         }
         const response = await axios.post(`${helxSearchUrl}/search_var`, params)
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
-          const variables = new Set()
           const studies = response.data.result.DbGaP.map(r => r)
-          studies.forEach(s => { s.elements.forEach(v => variables.add(v.id)) });
+          const {sortedVariables, variablesCount} = collectVariables(studies)
           setStudyResults(studies)
           setStudyResultCount(studies.length)
-          setVariableResultCount(variables.size)
+          setVariableResults(sortedVariables)
+          setVariableResultCount(variablesCount)
           setIsLoadingVariableResults(false)
         } else {
           setStudyResults([])
           setStudyResultCount(0)
+          setVariableResults([])
           setVariableResultCount(0)
           setIsLoadingVariableResults(false)
         }
@@ -229,7 +258,7 @@ export const HelxSearch = ({ children }) => {
       error, isLoadingResults,
       variableError, isLoadingVariableResults,
       results, totalResults,
-      studyResults, totalStudyResults, totalVariableResults,
+      studyResults, totalStudyResults, variableResults, totalVariableResults,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
