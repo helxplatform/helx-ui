@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react'
 import { Menu, Modal, Space } from 'antd'
 import './result-modal.css'
 import { useHelxSearch } from '../'
-import {
+import CustomIcon, {
   InfoCircleOutlined as OverviewIcon,
   BookOutlined as StudiesIcon,
   ShareAltOutlined as KnowledgeGraphsIcon,
   CodeOutlined as TranQLIcon,
+  PlayCircleOutlined as RobokopIcon
 } from '@ant-design/icons'
-import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
+import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
 import { useAnalytics, useEnvironment } from '../../../contexts'
+
+// const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
 export const SearchResultModal = ({ result, visible, closeHandler }) => {
   const analytics = useAnalytics();
@@ -23,9 +26,13 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
     'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
     'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
     'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
-    'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> }
+    'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> },
+    'robokop':   { title: 'Robokop',            icon: <RobokopIcon/>,           content: <RobokopTab /> }
   }
-  if (context.tranql_enabled === 'false') delete tabs['tranql'];
+  if (context.tranql_enabled === 'false') {
+    delete tabs['tranql'];
+    delete tabs['robokop'];
+  }
   
   const setCurrentTab = (() => {
     let oldTime = Date.now();
