@@ -65,6 +65,8 @@
   background: linear-gradient(transparent 60%, white 90%);
   pointer-events: none;
   transition: filter 250ms;
+  /* Unclear what the original purpose of this was, but it doesn't seem to do anything on most browser and breaks on Safari. */
+  display: none;
 }
 
 .interactions-grid {
