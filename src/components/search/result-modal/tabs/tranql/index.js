@@ -22,6 +22,8 @@ export const TranQLTab = ({ result, graphs }) => {
   const { query } = useHelxSearch()
   const tranqlUrl = context.tranql_url
 
+  const robokopUrl = "https://robokop.renci.org"
+
   const trackLink = (name, url) => {
     analytics.trackEvent({
       category: "UI Interaction",
@@ -106,9 +108,16 @@ export const TranQLTab = ({ result, graphs }) => {
                     onLoad={() => setIframeLoading(false)}
                     style={{borderWidth: "0", width: "100%"}}
             />
-            <Link to={tranqlQueryUrl} onClick={() => trackLink("TranQL", tranqlQueryUrl)} style={{position: "absolute", top: "12px", right: "12px"}}>
-              View in TranQL
-            </Link>
+            <div style={{position: "absolute", top: "12px", right: "12px"}}>
+              <Space direction="vertical" style={{alignItems: "flex-end"}}>
+                <Link to={tranqlQueryUrl} onClick={() => trackLink("TranQL", tranqlQueryUrl)}>
+                  View in TranQL
+                </Link>
+                <Link to={robokopUrl} onClick={() => trackLink("Robokop", robokopUrl)}>
+                  Open ROBOKOP
+                </Link>
+              </Space>
+            </div>
           </div>
         </div>
         {/* <Link to={robokopUrl} onClick={() => trackLink("Robokop", robokopUrl)}>Open Robokop</Link> */}

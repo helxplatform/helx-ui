@@ -30,6 +30,8 @@
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05));
   transition: filter 250ms;
   overflow: hidden;
+  /* For positioning .ant-card-body::after */
+  position: relative;
 }
 
 .results .grid .result-card:hover {
@@ -40,7 +42,6 @@
   min-height: 200px;
   max-height: 200px;
   overflow: hidden;
-  position: relative;
   overflow-y: auto;
   scrollbar-width: thin; /* firefox only */
   scrollbar-color: transparent transparent; /* firefox only */
@@ -56,15 +57,27 @@
 }
 
 .results .results-list .result-card .ant-card-body::after {
-  position: fixed;
+  /* Text fade-to-white effect on card bodies. */
+  /* Position over the entire card to avoid issues with positioning when overflow in the card body. */
+  position: absolute;
   content: "";
   left: 0;
-  top: 0;
-  height: 100%;
+  /* Only apply the linear-gradient fade-out effect starting after 40% of the card */
+  top: 40%;
+  /* Go to the bottom of the card. */
+  height: 60%;
   width: 100%;
-  background: linear-gradient(transparent 60%, white 90%);
+  /* Safari only has partial linear-gradient support, and it does *not* work properly with transparent values (seems like it treats them as black).
+  /* rgba(255, 255, 255, .001) represents something very close to a transparent value, which safari works much better with */
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.001), white);
   pointer-events: none;
   transition: filter 250ms;
+  /* Unclear what the original purpose of this was, but it doesn't seem to do anything on most browser and breaks on Safari. */
+}
+
+.results .results-list .result-card .ant-card-body > .ant-space {
+  /* Fix padding issue caused by inline display rule applied by ant-space */
+  display: flex;
 }
 
 .interactions-grid {
