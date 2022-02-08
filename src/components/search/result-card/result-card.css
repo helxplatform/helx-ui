@@ -16,3 +16,18 @@
   min-width: 100px;
   text-align: right;
 }
+
+.shovel-button svg {
+  filter: saturate(0.5) opacity(0.5);
+  transition: filter 250ms, transform 250ms;
+  transform: scale(0.9);
+}
+
+.result-card:hover .shovel-button svg {
+  filter: saturate(0.75) opacity(0.75);
+  transform: scale(1.0);
+}
+
+.result-card .shovel-button:hover svg {
+  filter: saturate(1.0) opacity(1.0);
+}
