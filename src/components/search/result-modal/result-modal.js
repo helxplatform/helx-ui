@@ -7,7 +7,8 @@ import CustomIcon, {
   BookOutlined as StudiesIcon,
   ShareAltOutlined as KnowledgeGraphsIcon,
   CodeOutlined as TranQLIcon,
-  PlayCircleOutlined as RobokopIcon
+  PlayCircleOutlined as RobokopIcon,
+  ExportOutlined as ExternalLinkIcon
 } from '@ant-design/icons'
 import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
 import { useAnalytics, useEnvironment } from '../../../contexts'
@@ -27,11 +28,14 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
     'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
     'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
     'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> },
-    'robokop':   { title: 'Robokop',            icon: <RobokopIcon/>,           content: <RobokopTab /> }
+    // 'robokop':   { title: 'Robokop',            icon: <RobokopIcon/>,           content: <RobokopTab /> }
+  }
+  const links = {
+    'robokop' : { title: 'Robokop', icon: <RobokopIcon/>, url: "https://robokop.renci.org/" }
   }
   if (context.tranql_enabled === 'false') {
     delete tabs['tranql'];
-    delete tabs['robokop'];
+    delete links['robokop'];
   }
   
   const setCurrentTab = (() => {
@@ -97,11 +101,22 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
           defaultSelectedKeys={ ['overview'] }
           mode="inline"
           theme="light"
+          selectedKeys={ [currentTab] }
         >
           {
             Object.keys(tabs).map(key => (
               <Menu.Item className="tab-menu-item" key={ key } onClick={ () => setCurrentTab(key) }>
                 <span className="tab-icon">{ tabs[key].icon }</span> &nbsp; <span className="tab-name">{ tabs[key].title }</span>
+              </Menu.Item>
+            ))
+          }
+          {Object.keys(links).length !== 0 && <Menu.Divider/>}
+          {
+            Object.keys(links).map(key => (
+              <Menu.Item className="tab-menu-item" key={ key } onClick={null}>
+                <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
+                  <span className="tab-icon">{ <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
+                </a>
               </Menu.Item>
             ))
           }

@@ -113,9 +113,9 @@ export const TranQLTab = ({ result, graphs }) => {
                 <Link to={tranqlQueryUrl} onClick={() => trackLink("TranQL", tranqlQueryUrl)}>
                   View in TranQL
                 </Link>
-                <Link to={robokopUrl} onClick={() => trackLink("Robokop", robokopUrl)}>
+                {/* <Link to={robokopUrl} onClick={() => trackLink("Robokop", robokopUrl)}>
                   Open ROBOKOP
-                </Link>
+                </Link> */}
               </Space>
             </div>
           </div>
