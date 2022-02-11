@@ -6,7 +6,7 @@ import {
   TableOutlined as GridViewIcon,
   UnorderedListOutlined as ListViewIcon,
 } from '@ant-design/icons'
-import { PaginationTray, ConceptCard, SearchResultModal, useHelxSearch } from '../'
+import { PaginationTray, ConceptCard, ConceptModal, useHelxSearch } from '../'
 import './concept-results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 

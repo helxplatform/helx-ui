@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment, useAnalytics } from '../../contexts'
 import './search.css'
-import { SearchResultModal } from './'
+import { ConceptModal } from './'
 
 //
 
@@ -191,7 +191,7 @@ export const HelxSearch = ({ children }) => {
       selectedResult, setSelectedResult,
     }}>
       { children }
-      <SearchResultModal
+      <ConceptModal
         result={ selectedResult }
         visible={ selectedResult !== null}
         closeHandler={ () => setSelectedResult(null) }
