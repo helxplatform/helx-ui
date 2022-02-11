@@ -6,7 +6,7 @@ import {
   TableOutlined as GridViewIcon,
   UnorderedListOutlined as ListViewIcon,
 } from '@ant-design/icons'
-import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from '../'
+import { PaginationTray, ConceptCard, SearchResultModal, useHelxSearch } from '../'
 import './concept-results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 
@@ -86,7 +86,7 @@ export const ConceptSearchResults = () => {
                 concepts.map((result, i) => {
                   const index = (currentPage - 1) * perPage + i + 1
                   return (
-                    <SearchResultCard
+                    <ConceptCard
                       key={ `${query}_result_${index}` }
                       index={ index }
                       result={ result }
