@@ -33,7 +33,6 @@ export const Layout = ({ children }) => {
               </Button>
             )
           }
-          <Menu.Item key="shopping-cart-menu-item" icon={ <ShoppingCartIcon /> } />
         </Menu>
         <MobileMenu menu={routes} />
       </Header>

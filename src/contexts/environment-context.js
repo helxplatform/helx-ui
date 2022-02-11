@@ -6,8 +6,10 @@ import {
   SupportView,
   LoadingView,
   SearchView,
-  SplashScreenView
+  SplashScreenView,
+  ShoppingCartView,
 } from '../views'
+import { ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
 
 // Setup global csrf token
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -55,6 +57,7 @@ export const EnvironmentProvider = ({ children }) => {
       baseRoutes.push({ path: '/', text: '', Component: SupportView })
     }
     baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
+    baseRoutes.push({ path: '/cart', text: <ShoppingCartIcon />, Component: ShoppingCartView })
     return baseRoutes;
   }
 
