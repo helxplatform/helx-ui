@@ -54,7 +54,7 @@ export const ConceptSearchResults = () => {
 
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
-      <Text>{totalConcepts} concepts for "{query}" ({pageCount} page{pageCount > 1 && 's'})</Text>
+      <Text>{totalConcepts} concepts ({pageCount} page{pageCount > 1 && 's'})</Text>
       <Tooltip title="Shareable link" placement="top">
         <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
