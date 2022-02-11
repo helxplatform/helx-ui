@@ -5,6 +5,7 @@ import { logoutHandler } from '../../api/';
 import { MobileMenu } from './menu';
 import { SidePanel } from '../side-panel/side-panel';
 import './layout.css';
+import { ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
 
 const { Header, Content, Footer } = AntLayout
 
@@ -18,11 +19,21 @@ export const Layout = ({ children }) => {
       <Header id="helx-header" style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>
         {context !== undefined ? <Link to={basePath}><img className="brand_img" src={'' + context.logo_url} alt={context.brand}></img></Link> : <span />}
         <Menu className="menu-toggle" style={{ position: 'absolute', right: '2px' }} theme="light" mode="horizontal" selectedKeys={[location.pathname]}>
-          <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
-          <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
-          <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
-          {routes.map(m => m['text'] !== '' && <Menu.Item key={`${baseLinkPath}${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>)}
-          {context.workspaces_enabled === 'true' && <Button type="primary" ghost className="logout-button" onClick={() => logoutHandler(helxAppstoreUrl)}>LOG OUT</Button>}
+          {
+            routes.map(m => m['text'] !== '' && (
+              <Menu.Item key={`${baseLinkPath}${m.path}`}>
+                <Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link>
+              </Menu.Item>)
+            )
+          }
+          {
+            context.workspaces_enabled === 'true' && (
+              <Button type="primary" ghost className="logout-button" onClick={() => logoutHandler(helxAppstoreUrl)}>
+                LOG OUT
+              </Button>
+            )
+          }
+          <Menu.Item key="shopping-cart-menu-item" icon={ <ShoppingCartIcon /> } />
         </Menu>
         <MobileMenu menu={routes} />
       </Header>
