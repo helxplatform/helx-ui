@@ -1,6 +1,7 @@
 import { LocationProvider, Router as ReachRouter } from '@reach/router'
 import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, AnalyticsProvider, useEnvironment } from './contexts'
 import { Layout } from './components/layout'
+import { ShoppingCartProvider } from './components/shopping-cart'
 import { NotFoundView } from './views'
 import { useEffect } from 'react'
 
@@ -9,13 +10,15 @@ const ContextProviders = ({ children }) => {
     <EnvironmentProvider>
       <LocationProvider>
         <AnalyticsProvider>
-          <ActivityProvider>
-            <InstanceProvider>
-              <AppProvider>
-                {children}
-              </AppProvider>
-            </InstanceProvider>
-          </ActivityProvider>
+          <ShoppingCartProvider>
+            <ActivityProvider>
+              <InstanceProvider>
+                <AppProvider>
+                  {children}
+                </AppProvider>
+              </InstanceProvider>
+            </ActivityProvider>
+          </ShoppingCartProvider>
         </AnalyticsProvider>
       </LocationProvider>
     </EnvironmentProvider >
