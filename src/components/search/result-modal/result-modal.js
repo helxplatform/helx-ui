@@ -31,7 +31,7 @@ export const SearchResultModal = ({ result, visible, closeHandler }) => {
     // 'robokop':   { title: 'Robokop',            icon: <RobokopIcon/>,           content: <RobokopTab /> }
   }
   const links = {
-    'robokop' : { title: 'Robokop', icon: <RobokopIcon/>, url: "https://robokop.renci.org/" }
+    'robokop' : { title: 'ROBOKOP', icon: <RobokopIcon/>, url: "https://robokop.renci.org/" }
   }
   if (context.tranql_enabled === 'false') {
     delete tabs['tranql'];
