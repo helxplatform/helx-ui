@@ -208,7 +208,7 @@ export const SearchResults = () => {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
   }
 
-  class TestPlot extends React.Component {
+  class HistogramChart extends React.Component {
     constructor(props) {
       super(props);
       this.state = chartInitialState;
@@ -305,7 +305,7 @@ export const SearchResults = () => {
         query && !error.message && (
           <div className="results">
             { results.length >= 1 && MemoizedResultsHeader }
-            { conceptView ? <div/> : <TestPlot name="Sara"/> }
+            { conceptView ? <div/> : <HistogramChart /> }
 
             <div className={ layout === GRID ? 'results-list grid' : 'results-list list' }>
               { conceptView ? <ConceptsList/> : StudyListWithVariables }
