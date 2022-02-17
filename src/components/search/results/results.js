@@ -47,11 +47,11 @@ function CustomTooltip({ payload, label, active }) {
     const v = payload[0]["payload"]
     return (
       <div className="custom-tooltip">
-        <p className="margin-bottom-0"><span className="tooltip-label">Index: </span>{v.index_pos}</p>
-        <p className="margin-bottom-0"><span className="tooltip-label">Study: </span>{v.study_name}</p>
         <p className="margin-bottom-0"><span className="tooltip-label">Variable Name: </span>{v.name}</p>
-        <p className="margin-bottom-0"><span className="tooltip-label">Score: </span>{v.score}</p>
         <p className="margin-bottom-0"><span className="tooltip-label">Description: </span>{v.description}</p>
+        <p className="margin-bottom-0"><span className="tooltip-label">Score: </span>{v.score}</p>
+        <p className="margin-bottom-0"><span className="tooltip-label">Study: </span>{v.study_name}</p>
+        <p className="margin-bottom-0"><span className="tooltip-label">Index: </span>{v.index_pos}</p>
       </div>
     );
   }
