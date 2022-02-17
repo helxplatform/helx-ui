@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { BarChartOutlined as ChartViewIcon } from '@ant-design/icons'
 import { List, Spin, Space, Tag, Typography } from 'antd'
 import { useHelxSearch } from '../'
 import { Link } from '../../link'
@@ -37,17 +38,17 @@ export const StudiesTab = ({ result }) => {
   if (loading) {
     return <Spin />
   }
-  
+
   return (
     <Space direction="vertical" className="tab-content">
       <Space direction="horizontal" size="small">
         {
           facets.map(facet => studyVariables[facet] && (
             <CheckableFacet
-              key={ `search-facet-${ facet }` }
-              checked={ selectedFacets.includes(facet) }
-              onChange={ checked => handleSelectFacet(facet, checked) }
-              children={ `${ facet } (${studyVariables[facet].length})` }
+              key={`search-facet-${facet}`}
+              checked={selectedFacets.includes(facet)}
+              onChange={checked => handleSelectFacet(facet, checked)}
+              children={`${facet} (${studyVariables[facet].length})`}
             />
           ))
         }
@@ -60,17 +61,17 @@ export const StudiesTab = ({ result }) => {
             .reduce((arr, facet) => [...arr, ...studyVariables[facet]], [])
             .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
         }
-        renderItem={ item => (
+        renderItem={item => (
           <List.Item>
             <div className="studies-list-item">
               <Text className="study-name">
-                { item.c_name }{ ` ` }
-                (<Link to={ item.c_link }>{ item.c_id }</Link>)
+                {item.c_name}{` `}
+                (<Link to={item.c_link}>{item.c_id}</Link>)
               </Text>
-              <Text className="variables-count">{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
+              <Text className="variables-count">{item.elements.length} variable{item.elements.length === 1 ? '' : 's'}</Text>
             </div>
           </List.Item>
-        ) }
+        )}
       />
     </Space>
   )
