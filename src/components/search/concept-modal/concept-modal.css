@@ -16,6 +16,11 @@
   width: 100% !important;
 }
 
+#study-chart-container {
+  max-width: 100%;
+  height: 500px;
+}
+
 .study-variables-list {
   font-size: 90% !important;
 }

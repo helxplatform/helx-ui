@@ -33,7 +33,9 @@ export const HelxSearch = ({ children }) => {
   const analytics = useAnalytics()
   const [query, setQuery] = useState('')
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
+  const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
   const [error, setError] = useState({})
+  const [variableError, setVariableError] = useState({})
   const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
   const [studyResults, setStudyResults] = useState([])
@@ -81,7 +83,7 @@ export const HelxSearch = ({ children }) => {
   }
 
   useEffect(() => {
-    const trackSearch = (execTime, resultCount, error=undefined) => {
+    const trackSearch = (execTime, resultCount, error = undefined) => {
       analytics.trackEvent({
         category: "UI Interaction",
         action: "Search executed",
@@ -112,8 +114,8 @@ export const HelxSearch = ({ children }) => {
           // gather invalid concepts: remove from rendered concepts and dump to console.
           let hits = unsortedHits.reduce(validationReducer, { valid: [], invalid: [] })
           if (hits.invalid.length) {
-            console.error(`The following ${ hits.invalid.length } invalid concepts ` + 
-              `were removed from the ${ hits.valid.length + hits.invalid.length } ` +
+            console.error(`The following ${hits.invalid.length} invalid concepts ` +
+              `were removed from the ${hits.valid.length + hits.invalid.length} ` +
               `concepts in the response.`, hits.invalid)
           }
           setConcepts(hits.valid)
@@ -139,12 +141,48 @@ export const HelxSearch = ({ children }) => {
   }, [query, currentPage, helxSearchUrl, setConcepts, setError])
 
   useEffect(() => {
+    const fetchVariableResults = async () => {
+      setIsLoadingVariableResults(true)
+      try {
+        const params = {
+          index: 'variables_index',
+          query: query,
+          size: 10000
+        }
+        const response = await axios.post(`${helxSearchUrl}/search_var`, params)
+        if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
+          const variables = new Set()
+          const studies = response.data.result.DbGaP.map(r => r)
+          studies.forEach(s => { s.elements.forEach(v => variables.add(v.id)) });
+          setStudyResults(studies)
+          setStudyResultCount(studies.length)
+          setVariableResultCount(variables.size)
+          setIsLoadingVariableResults(false)
+        } else {
+          setStudyResults([])
+          setStudyResultCount(0)
+          setVariableResultCount(0)
+          setIsLoadingVariableResults(false)
+        }
+      } catch (variableError) {
+        console.log(variableError)
+        setVariableError({ message: 'An variable error occurred!' })
+        setIsLoadingVariableResults(false)
+      }
+    }
+
+    if (query) {
+      fetchVariableResults()
+    }
+  }, [query, currentPage, helxSearchUrl, setStudyResults, setVariableError])
+
+  useEffect(() => {
     setPageCount(Math.ceil(totalConcepts / PER_PAGE))
   }, [totalConcepts])
 
   const fetchKnowledgeGraphs = useCallback(async (tag_id) => {
     try {
-      const { data } =  await axios.post(`${helxSearchUrl}/search_kg`, {
+      const { data } = await axios.post(`${helxSearchUrl}/search_kg`, {
         index: 'kg_index',
         unique_id: tag_id,
         query: query,
@@ -261,18 +299,20 @@ export const HelxSearch = ({ children }) => {
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
       error, isLoadingConcepts,
+      variableError, isLoadingVariableResults,
       concepts, totalConcepts,
+      studyResults, totalStudyResults,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
       variableError, isLoadingVariableResults,
       studyResults, totalStudyResults, totalVariableResults
     }}>
-      { children }
+      {children}
       <ConceptModal
-        result={ selectedResult }
-        visible={ selectedResult !== null}
-        closeHandler={ () => setSelectedResult(null) }
+        result={selectedResult}
+        visible={selectedResult !== null}
+        closeHandler={() => setSelectedResult(null)}
       />
     </HelxSearchContext.Provider>
   )

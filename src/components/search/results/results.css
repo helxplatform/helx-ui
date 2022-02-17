@@ -106,3 +106,8 @@
   border: 0;
   padding: 0.251rem 0;
 }
+
+#studies-chart-container {
+  max-width: 100%;
+  height: 500px;
+}

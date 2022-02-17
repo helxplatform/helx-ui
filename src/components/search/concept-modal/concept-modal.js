@@ -10,7 +10,7 @@ import CustomIcon, {
   PlayCircleOutlined as RobokopIcon,
   ExportOutlined as ExternalLinkIcon
 } from '@ant-design/icons'
-import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
+import { OverviewTab, StudiesTab, StudiesChartTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
