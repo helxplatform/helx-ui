@@ -177,12 +177,17 @@ export const HelxSearch = ({ children }) => {
         }
         const response = await axios.post(`${helxSearchUrl}/search_var`, params)
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
+          // Data structure of studies matches API response 
           const studies = response.data.result.DbGaP.map(r => r)
-          const {sortedVariables, variablesCount} = collectVariables(studies)
           setStudyResults(studies)
           setStudyResultCount(studies.length)
+
+          // Data structure of sortedVariables is designed to populate the histogram feature
+          const {sortedVariables, variablesCount} = collectVariables(studies)
           setVariableResults(sortedVariables)
           setVariableResultCount(variablesCount)
+
+          // Possible TODO.... I don't know for sure if this is used anywhere
           setIsLoadingVariableResults(false)
         } else {
           setStudyResults([])
