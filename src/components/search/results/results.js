@@ -78,7 +78,9 @@ export const SearchResults = () => {
       }
     })
   }
-  const [studyResultsForDisplay, setStudyResultsForDisplay] = useState([])
+  console.log(studyResults)
+  // Appropriate???
+  const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(studyResults)
   if (studyResultsForDisplay.length === 0 ) {
     setStudyResultsForDisplay(studyResults)
   }
@@ -105,11 +107,28 @@ export const SearchResults = () => {
   function updateStudyResults(refAreaLeft, refAreaRight) {
     console.log(`refAreaLeft: ${refAreaLeft}`)
     console.log(`refAreaRight: ${refAreaRight}`)
-    setStudyResultsForDisplay([])
+    console.log(studyResultsForDisplay)
+    console.log(variableResults)
+
+    let filtered_variables = variableResults.filter(obj => {
+      return obj.index_pos >= refAreaLeft &&  obj.index_pos <= refAreaRight
+    });
+    console.log(filtered_variables)
+    console.log(filtered_variables.length)
+    console.log(variableResults.length)
+    let studiesInFilter = [...new Set(filtered_variables.map(obj => obj.study_name))]
+    console.log(studiesInFilter)
+
+    let studyResultsFiltered = studyResults.filter(obj => {
+      return studiesInFilter.includes(obj.c_name)
+    })
+    console.log(studyResultsFiltered.length)
+
+    setStudyResultsForDisplay(studyResultsFiltered)
   }
 
 
-  const StudyListWithVariables = useMemo(() => (
+  const VariablesTableByStudy = useMemo(() => (
     <Collapse ghost className="variables-collapse">
       {
         studyResultsForDisplay.map((study, i) => {
@@ -235,6 +254,8 @@ export const SearchResults = () => {
       }
       if (refAreaLeft > refAreaRight) [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
+      updateStudyResults(refAreaLeft, refAreaRight)
+
       // // yAxis domain
       // const [bottom, top] = getAxisYDomain(data, refAreaLeft, refAreaRight, 'score', 1);
 
@@ -247,8 +268,6 @@ export const SearchResults = () => {
         top: yDomainMax,
         bottom: 0
       }));
-
-      // updateStudyResults(refAreaLeft, refAreaRight)
     }
 
     zoomOut() {
@@ -262,6 +281,7 @@ export const SearchResults = () => {
         top: yDomainMax,
         bottom: 0
       }));
+      updateStudyResults("", "")
     }
 
     render() {
@@ -308,7 +328,7 @@ export const SearchResults = () => {
             { conceptView ? <div/> : <HistogramChart /> }
 
             <div className={ layout === GRID ? 'results-list grid' : 'results-list list' }>
-              { conceptView ? <ConceptsList/> : StudyListWithVariables }
+              { conceptView ? <ConceptsList/> : VariablesTableByStudy }
             </div>
           </div>
         )
