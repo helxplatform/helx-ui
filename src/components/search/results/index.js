@@ -1,1 +1,1 @@
-export * from './concept-results'
+export * from './results'
