@@ -106,3 +106,21 @@
   border: 0;
   padding: 0.251rem 0;
 }
+
+.recharts-tooltip-wrapper .custom-tooltip {
+  min-width: 200px;
+  max-width: 400px;
+  margin: 0;
+  line-height: 24px;
+  border: 1px solid #f5f5f5;
+  background-color: hsla(0,0%,100%,.8);
+  padding: 10px
+}
+
+.tooltip-label {
+  font-weight: bold;
+}
+
+p.margin-bottom-0 {
+  margin-bottom: 0;
+}
