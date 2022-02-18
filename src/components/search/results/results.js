@@ -81,9 +81,9 @@ export const SearchResults = () => {
   console.log(studyResults)
   // Appropriate???
   const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(studyResults)
-  if (studyResultsForDisplay.length === 0 ) {
-    setStudyResultsForDisplay(studyResults)
-  }
+  // if (studyResultsForDisplay.length === 0 ) {
+  //   setStudyResultsForDisplay(studyResults)
+  // }
 
   const yAxisValues = variableResults.map(obj => { return obj.score; });
   const yMax = Math.max(...yAxisValues);
@@ -116,6 +116,7 @@ export const SearchResults = () => {
     console.log(filtered_variables)
     console.log(filtered_variables.length)
     console.log(variableResults.length)
+
     let studiesInFilter = [...new Set(filtered_variables.map(obj => obj.study_name))]
     console.log(studiesInFilter)
 
@@ -254,8 +255,6 @@ export const SearchResults = () => {
       }
       if (refAreaLeft > refAreaRight) [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
-      updateStudyResults(refAreaLeft, refAreaRight)
-
       // // yAxis domain
       // const [bottom, top] = getAxisYDomain(data, refAreaLeft, refAreaRight, 'score', 1);
 
@@ -268,6 +267,8 @@ export const SearchResults = () => {
         top: yDomainMax,
         bottom: 0
       }));
+
+      updateStudyResults(refAreaLeft, refAreaRight)
     }
 
     zoomOut() {
