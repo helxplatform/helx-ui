@@ -44,6 +44,12 @@ export const HelxSearch = ({ children }) => {
   const [conceptPages, setConceptPages] = useState({})
   // const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
+  const [studyResults, setStudyResults] = useState([])
+  const [totalStudyResults, setStudyResultCount] = useState(0)
+  const [variableResults, setVariableResults] = useState([])
+  const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
+  const [variableError, setVariableError] = useState({})
+  const [totalVariableResults, setVariableResultCount] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
@@ -249,6 +255,77 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
+  function collectVariables(studies) {
+    let variables = []
+    studies.forEach(study => {
+      study.elements.forEach(variable => {
+        variables.push({
+          "name": variable.name,
+          "score": variable.score,
+          "id": variable.id,
+          "description": variable.description,
+          "e_link": variable.e_link,
+          "study_name": study.c_name
+        })
+      })
+    });
+    let sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
+    // sortedVariables = sortedVariables.slice(0,100)
+    const sortedVariablesWithIndexPosition = sortedVariables.map((v, i) =>  {
+      let rObj = v
+      rObj["index_pos"] = i
+      return rObj;
+    })
+    return {
+      "sortedVariables": sortedVariablesWithIndexPosition,
+      "variablesCount": sortedVariables.length
+    };
+  }
+
+  useEffect(() => {
+    const fetchVariableResults = async () => {
+      setIsLoadingVariableResults(true)
+      try {
+        const params = {
+          index: 'variables_index',
+          query: query,
+          size: 10000
+        }
+        const response = await axios.post(`${helxSearchUrl}/search_var`, params)
+        if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
+          
+          // Data structure of studies matches API response 
+          const studies = response.data.result.DbGaP.map(r => r)
+          setStudyResults(studies)
+          setStudyResultCount(studies.length)
+
+          // Data structure of sortedVariables is designed to populate the histogram feature
+          const {sortedVariables, variablesCount} = collectVariables(studies)
+          setVariableResults(sortedVariables)
+          setVariableResultCount(variablesCount)
+
+          // Possible TODO.... I don't know for sure if this is used anywhere
+          setIsLoadingVariableResults(false)
+        } else {
+          setStudyResults([])
+          setStudyResultCount(0)
+          setVariableResults([])
+          setVariableResultCount(0)
+          setIsLoadingVariableResults(false)
+        }
+      } catch (variableError) {
+        console.log(variableError)
+        setVariableError({ message: 'An variable error occurred!' })
+        setIsLoadingVariableResults(false)
+      }
+    }
+
+    if (query) {
+      fetchVariableResults()
+    }
+  }, [query, currentPage, helxSearchUrl, setStudyResults, setVariableError])
+
+
   return (
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
@@ -260,6 +337,8 @@ export const HelxSearch = ({ children }) => {
       layout, setLayout, setFullscreenResult,
       typeFilter, setTypeFilter,
       conceptTypes, conceptTypeCounts
+      variableError, isLoadingVariableResults,
+      studyResults, totalStudyResults, totalVariableResults
     }}>
       { children }
       <ConceptModal
