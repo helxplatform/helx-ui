@@ -33,9 +33,7 @@ export const HelxSearch = ({ children }) => {
   const analytics = useAnalytics()
   const [query, setQuery] = useState('')
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
-  const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
   const [error, setError] = useState({})
-  const [variableError, setVariableError] = useState({})
   const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
   const [studyResults, setStudyResults] = useState([])
@@ -299,13 +297,12 @@ export const HelxSearch = ({ children }) => {
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
       error, isLoadingConcepts,
-      variableError, isLoadingVariableResults,
+      variableError, variableResults, isLoadingVariableResults,
       concepts, totalConcepts,
       studyResults, totalStudyResults,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
-      variableError, isLoadingVariableResults,
       studyResults, totalStudyResults, totalVariableResults
     }}>
       {children}
