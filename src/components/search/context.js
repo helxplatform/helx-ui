@@ -40,7 +40,6 @@ export const HelxSearch = ({ children }) => {
   const { analyticsEvents } = useAnalytics()
   const [query, setQuery] = useState('')
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
-  const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
   const [error, setError] = useState({})
   const [conceptPages, setConceptPages] = useState({})
   // const [concepts, setConcepts] = useState([])
@@ -385,7 +384,7 @@ export const HelxSearch = ({ children }) => {
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
       error, isLoadingConcepts,
       concepts, totalConcepts, conceptPages: filteredConceptPages,
-      variableError, isLoadingVariableResults,
+      variableError, variableResults, isLoadingVariableResults,
       concepts, totalConcepts,
       studyResults, totalStudyResults,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
