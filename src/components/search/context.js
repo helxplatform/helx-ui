@@ -30,7 +30,7 @@ const validateResult = result => {
 
 export const HelxSearch = ({ children }) => {
   const { helxSearchUrl, basePath } = useEnvironment()
-  const analytics = useAnalytics()
+  const { analytics } = useAnalytics()
   const [query, setQuery] = useState('')
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
   const [error, setError] = useState({})

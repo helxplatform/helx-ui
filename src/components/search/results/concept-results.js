@@ -18,7 +18,7 @@ const LIST = 'LIST'
 export const ConceptSearchResults = () => {
   const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult } = useHelxSearch()
   const { basePath } = useEnvironment()
-  const analytics = useAnalytics()
+  const { analytics } = useAnalytics()
   const [layout, setLayout] = useState(GRID)
 
   const NotifyLinkCopied = () => {

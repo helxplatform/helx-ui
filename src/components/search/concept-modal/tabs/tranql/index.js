@@ -17,7 +17,7 @@ const { TextArea } = Input
 const TRANQL_RESULT_LIMIT = 100;
 
 export const TranQLTab = ({ result, graphs }) => {
-  const analytics = useAnalytics()
+  const { analytics } = useAnalytics()
   const { context } = useEnvironment()
   const { query } = useHelxSearch()
   const tranqlUrl = context.tranql_url

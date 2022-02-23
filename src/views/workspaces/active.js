@@ -3,7 +3,7 @@ import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spi
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
-import { useActivity, useApp, useInstance } from '../../contexts';
+import { useActivity, useApp, useInstance, useAnalytics } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
@@ -20,6 +20,7 @@ export const ActiveView = () => {
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
     const { addActivity, updateActivity } = useActivity();
+    const { analyticsEvents } = useAnalytics();
     const { loadApps } = useApp();
     const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
     const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
@@ -85,6 +86,7 @@ export const ActiveView = () => {
                     'timestamp': new Date(),
                     'message': `${currentRecord.name} is stopped.`
                 }
+                analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, null);
                 updateActivity(newActivity)
                 setRefresh(!refresh)
             })
@@ -113,6 +115,7 @@ export const ActiveView = () => {
                         newActivity['message'] = `An error has occurred while stopping ${currentRecord.name}.`
                     }
                 }
+                analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, newActivity.message);
                 updateActivity(newActivity)
             })
         setStopModalVisibility(false);
@@ -137,6 +140,7 @@ export const ActiveView = () => {
                     addActivity(newActivity)
                 })
         }
+        analyticsEvents.allAppsDeleted()
         setRefresh(!refresh)
         setStopAllModalVisibility(false);
         setIsStoppingAll(false);
@@ -150,6 +154,7 @@ export const ActiveView = () => {
             const connectTab = window.open(appUrl, connectTabRef);
             updateTabName(connectTab,name);
             addOrDeleteInstanceTab("add",sid,connectTab);
+            analyticsEvents.appOpened(name, sid);
         }
         catch(e) {
             // if invalid URL parse error do nothing
@@ -160,6 +165,9 @@ export const ActiveView = () => {
     //Update a running Instance.
     const updateOne = async (_workspace, _cpu, _gpu, _memory) => {
         setUpdating(true);
+        const appUpdatedAnalyticsEvent = (failed=false) => (
+            analyticsEvents.appUpdated(currentRecord.name, currentRecord.sid, _workspace, _cpu, _gpu, _memory, failed)
+        );
         await updateInstance(currentRecord.sid, _workspace, _cpu, _gpu, _memory)
             .then(res => {
                 if (res.data.status === "success") {
@@ -172,6 +180,7 @@ export const ActiveView = () => {
                         'timestamp': new Date(),
                         'message': `${currentRecord.name} is launching.`
                     }
+                    appUpdatedAnalyticsEvent(false)
                     addActivity(newActivity)
                     pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
                     setRefresh(!refresh);
@@ -186,6 +195,7 @@ export const ActiveView = () => {
                         'timestamp': new Date(),
                         'message': `Error occured when updating instance ${currentRecord.name}.`
                     }
+                    appUpdatedAnalyticsEvent(true)
                     addActivity(newActivity)
                 }
             }).catch(e => {
@@ -198,6 +208,7 @@ export const ActiveView = () => {
                     'timestamp': new Date(),
                     'message': `Error occured when updating instance ${currentRecord.name}.`
                 }
+                appUpdatedAnalyticsEvent(true)
                 addActivity(newActivity)
             })
     };

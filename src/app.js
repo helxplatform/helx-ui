@@ -1,8 +1,8 @@
-import { LocationProvider, Router as ReachRouter } from '@reach/router'
-import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, AnalyticsProvider, useEnvironment } from './contexts'
+import { useEffect } from 'react'
+import { LocationProvider, Router as ReachRouter, globalHistory, useLocation } from '@reach/router'
+import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, AnalyticsProvider, useEnvironment, useAnalytics } from './contexts'
 import { Layout } from './components/layout'
 import { NotFoundView } from './views'
-import { useEffect } from 'react'
 
 const ContextProviders = ({ children }) => {
   return (
@@ -24,7 +24,23 @@ const ContextProviders = ({ children }) => {
 
 const Router = () => {
   const { context, routes } = useEnvironment();
+  const { analytics, analyticsEvents } = useAnalytics();
+  const location = useLocation();
   const baseRouterPath = context.workspaces_enabled === 'true' ? '/helx' : '/'
+
+  // Component mount
+  useEffect(() => {
+    globalHistory.listen(({ location }) => {
+      analyticsEvents.trackLocation(location);
+    });
+    // Track the initial location on page load (not captured in `globalHistory.listen`).
+    analyticsEvents.trackLocation(location);
+
+    // Component unmount
+    return () => {
+      analytics.teardown();
+    }
+  }, []);
 
   return (
     <ReachRouter basepath={baseRouterPath}>
@@ -35,7 +51,6 @@ const Router = () => {
 }
 
 export const App = () => {
-  const { routes } = useEnvironment();
   return (
     <ContextProviders>
       <Layout>

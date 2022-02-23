@@ -16,7 +16,7 @@ import { useAnalytics, useEnvironment } from '../../../contexts'
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
 export const ConceptModal = ({ result, visible, closeHandler }) => {
-  const analytics = useAnalytics();
+  const { analytics } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
   const { fetchKnowledgeGraphs, fetchStudyVariables, query } = useHelxSearch()

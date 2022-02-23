@@ -15,7 +15,7 @@ const { CheckableTag: CheckableFacet } = Tag
 const { Text } = Typography
 
 export const ConceptCard = ({ index, result, openModalHandler }) => {
-  const analytics = useAnalytics()
+  const { analytics } = useAnalytics()
   const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
 
