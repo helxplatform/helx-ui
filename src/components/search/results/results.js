@@ -20,7 +20,7 @@ const GRID = 'GRID'
 const LIST = 'LIST'
 
 export const SearchResults = () => {
-  const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult, studyResults, totalStudyResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
+  const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult, studyResults, filteredVariablesResults, totalStudyResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
   const { basePath } = useEnvironment()
   const analytics = useAnalytics()
   const [layout, setLayout] = useState(GRID)
@@ -106,7 +106,7 @@ export const SearchResults = () => {
       <Collapse ghost className="variables-collapse">
         <VariableSearchResults />
         {
-          studyResults.map((study, i) => {
+          filteredVariablesResults && filteredVariablesResults.map((study, i) => {
             return (
               <Panel
                 key={`panel_${study.c_name}`}

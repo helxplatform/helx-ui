@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from 'react'
-import { Column, Line } from '@antv/g2plot';
+import React, { useEffect, memo, useState } from 'react'
+import { Column } from '@antv/g2plot';
 import { useHelxSearch } from '..';
+
+const paletteSemanticRed = '#F4664A';
+const brandColor = '#5B8FF9';
 
 export const VariableSearchResults = () => {
     const { variableResults } = useHelxSearch()
-    const [filteredVariables, setFilteredVariables] = useState([])
+    const [filteredVariables, setFilteredVariables] = useState(variableResults)
+    const [highlightStudies, setHighlightStudies] = useState('')
+    const [highlightVariables, setHighLightVariables] = useState([])
 
     // initial config for the histogram
-    const currentConfig = {
+    const initialConfig = {
         data: variableResults,
         xField: 'id',
         yField: 'score',
@@ -23,25 +28,30 @@ export const VariableSearchResults = () => {
     }
 
     useEffect(() => {
-        setFilteredVariables(variableResults)
-        const column = new Column('histogram-container', currentConfig);
+            const column = new Column('histogram-container', initialConfig);
+            console.log(column)
+            column.render()
+            // event handler for slider, so 'filteredVariables' state will be the variables shown on the histogram
+            column.on('slider:mouseup', (e) => {
+                setFilteredVariables(e.view.filteredData)
+            })
 
-        // event handler for slider, so 'filteredVariables' state will be the variables shown on the histogram
-        column.on('slider:mouseup', (e) => {
-            setFilteredVariables(e.view.filteredData)
-        })
-        column.render()
-
-    }, [variableResults])
-
-
-
-
+            column.on('plot:click', (e) => {
+                if (e?.data?.data) {
+                    const variablesPerStudy = variableResults.filter(variable => variable.study_name === e.data.data.study_name)
+                    setHighlightStudies(e.data.data.study_name)
+                    setHighLightVariables(variablesPerStudy)
+                    column.update({ ...initialConfig, data: variablesPerStudy })
+                }
+            })
+    }, [])
 
     return (
         <div>
-            <div id="histogram-container"><div id="container1"></div><div id="container2"></div></div>
-            <div>{filteredVariables.length} variables currently on histogram.</div>
+            <button>Start Over</button>
+            <div id="histogram-container"></div>
+            <div>Study: {highlightStudies ? highlightStudies : 'Not Selected'} </div>
+            <div>{highlightVariables.length} variables</div>
         </div>
     )
 }
