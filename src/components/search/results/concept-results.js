@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useMemo } from 'react'
 import { Link } from '../../link'
-import { Radio, notification, Spin, Tooltip, Typography } from 'antd'
+import { Radio, notification, Spin, Tooltip, Typography, Grid as AntGrid } from 'antd'
 import {
   LinkOutlined as LinkIcon,
   TableOutlined as GridViewIcon,
@@ -11,6 +11,7 @@ import './concept-results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 
 const { Text } = Typography
+const { useBreakpoint } = AntGrid
 
 const GRID = 'GRID'
 const LIST = 'LIST'
@@ -19,7 +20,11 @@ export const ConceptSearchResults = () => {
   const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult } = useHelxSearch()
   const { basePath } = useEnvironment()
   const analytics = useAnalytics()
+  const { md } = useBreakpoint();
   const [layout, setLayout] = useState(GRID)
+
+  let gridClass = (layout === GRID) ? 'results-list grid' : 'results-list list'
+  gridClass += md ? " md" : ""
 
   const NotifyLinkCopied = () => {
     notification.open({ key: 'key', message: 'Link copied to clipboard' })
@@ -81,7 +86,7 @@ export const ConceptSearchResults = () => {
           <div className="results">
             { concepts.length >= 1 && MemoizedResultsHeader }
 
-            <div className={ layout === GRID ? 'results-list grid' : 'results-list list' }>
+            <div className={gridClass}>
               {
                 concepts.map((result, i) => {
                   const index = (currentPage - 1) * perPage + i + 1
