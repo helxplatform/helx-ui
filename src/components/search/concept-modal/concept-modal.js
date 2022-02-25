@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Menu, Modal, Space } from 'antd'
-import './result-modal.css'
+import './concept-modal.css'
 import { useHelxSearch } from '../'
 import CustomIcon, {
   InfoCircleOutlined as OverviewIcon,
@@ -15,7 +15,7 @@ import { useAnalytics, useEnvironment } from '../../../contexts'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
-export const SearchResultModal = ({ result, visible, closeHandler }) => {
+export const ConceptModal = ({ result, visible, closeHandler }) => {
   const analytics = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')

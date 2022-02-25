@@ -6,8 +6,8 @@ import {
   TableOutlined as GridViewIcon,
   UnorderedListOutlined as ListViewIcon,
 } from '@ant-design/icons'
-import { PaginationTray, SearchResultCard, SearchResultModal, useHelxSearch } from '../'
-import './results.css'
+import { PaginationTray, ConceptCard, ConceptModal, useHelxSearch } from '../'
+import './concept-results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 
 const { Text } = Typography
@@ -16,8 +16,8 @@ const { useBreakpoint } = AntGrid
 const GRID = 'GRID'
 const LIST = 'LIST'
 
-export const SearchResults = () => {
-  const { query, results, totalResults, perPage, currentPage, pageCount, isLoadingResults, error, setSelectedResult } = useHelxSearch()
+export const ConceptSearchResults = () => {
+  const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult } = useHelxSearch()
   const { basePath } = useEnvironment()
   const analytics = useAnalytics()
   const { md } = useBreakpoint();
@@ -59,7 +59,7 @@ export const SearchResults = () => {
 
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
-      <Text>{totalResults} results for "{query}" ({pageCount} page{pageCount > 1 && 's'})</Text>
+      <Text>{totalConcepts} concepts ({pageCount} page{pageCount > 1 && 's'})</Text>
       <Tooltip title="Shareable link" placement="top">
         <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
@@ -70,9 +70,9 @@ export const SearchResults = () => {
         </Radio.Group>
       </Tooltip>
     </div>
-  ), [currentPage, layout, pageCount, totalResults, query])
+  ), [currentPage, layout, pageCount, totalConcepts, query])
 
-  if (isLoadingResults) {
+  if (isLoadingConcepts) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
   }
 
@@ -84,14 +84,14 @@ export const SearchResults = () => {
       {
         query && !error.message && (
           <div className="results">
-            { results.length >= 1 && MemoizedResultsHeader }
+            { concepts.length >= 1 && MemoizedResultsHeader }
 
             <div className={gridClass}>
               {
-                results.map((result, i) => {
+                concepts.map((result, i) => {
                   const index = (currentPage - 1) * perPage + i + 1
                   return (
-                    <SearchResultCard
+                    <ConceptCard
                       key={ `${query}_result_${index}` }
                       index={ index }
                       result={ result }

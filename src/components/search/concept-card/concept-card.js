@@ -7,14 +7,14 @@ import { KnowledgeGraphs, useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
-import './result-card.css'
+import './concept-card.css'
 import { useAnalytics } from '../../../contexts'
 
 const { Meta } = Card
 const { CheckableTag: CheckableFacet } = Tag
 const { Text } = Typography
 
-export const SearchResultCard = ({ index, result, openModalHandler }) => {
+export const ConceptCard = ({ index, result, openModalHandler }) => {
   const analytics = useAnalytics()
   const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
@@ -61,7 +61,7 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
   )
 }
 
-SearchResultCard.propTypes = {
+ConceptCard.propTypes = {
   index: PropTypes.number.isRequired,
   result: PropTypes.object.isRequired,
   openModalHandler: PropTypes.func.isRequired,
