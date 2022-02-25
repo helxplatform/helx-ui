@@ -18,20 +18,13 @@ const LIST = 'LIST'
 export const ConceptSearchResults = () => {
   const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult } = useHelxSearch()
   const { basePath } = useEnvironment()
-  const { analytics } = useAnalytics()
+  const { analyticsEvents } = useAnalytics()
   const [layout, setLayout] = useState(GRID)
 
   const NotifyLinkCopied = () => {
     notification.open({ key: 'key', message: 'Link copied to clipboard' })
     navigator.clipboard.writeText(window.location.href)
-    analytics.trackEvent({
-      category: "UI Interaction",
-      action: "Search URL copied",
-      label: "User copied sharable link for search query",
-      customParameters: {
-        "Search term": query
-      }
-    })
+    analyticsEvents.searchURLCopied(query)
   }
 
   const handleChangeLayout = (event) => {
@@ -39,16 +32,7 @@ export const ConceptSearchResults = () => {
     setLayout(newLayout)
     // Only track when layout changes
     if (layout !== newLayout) {
-      analytics.trackEvent({
-        category: "UI Interaction",
-        action: "Search layout changed",
-        label: `Layout set to "${newLayout}"`,
-        customParameters: {
-          "Search term": query,
-          "Changed from": layout,
-          "Changed to": newLayout
-        }
-      })
+      analyticsEvents.searchLayoutChanged(query, newLayout, layout)
     }
   }
 

@@ -1,4 +1,5 @@
 import * as WorkspaceEvents from './workspace-events';
+import * as SearchEvents from './search-events';
 import * as RoutingEvents from './routing-events';
 import * as MiscEvents from './misc-events';
 
@@ -10,6 +11,7 @@ export function AnalyticsEvents(analytics) {
         Object.entries({
         ...RoutingEvents,
         ...WorkspaceEvents,
+        ...SearchEvents,
         ...MiscEvents
         }).map(
             // Bind each event function to `AnalyticsEvents` to make `this.analytics` available.
