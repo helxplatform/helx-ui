@@ -13,14 +13,13 @@ import './results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import { VariableSearchResults } from './'
 
-const { Panel } = Collapse
 const { Text } = Typography
 
 const GRID = 'GRID'
 const LIST = 'LIST'
 
 export const SearchResults = () => {
-  const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult, studyResults, totalStudyResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
+  const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult, totalStudyResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
   const { basePath } = useEnvironment()
   const analytics = useAnalytics()
   const [layout, setLayout] = useState(GRID)
@@ -81,6 +80,7 @@ export const SearchResults = () => {
       </Tooltip>
     </div>
   ), [currentPage, layout, pageCount, totalConcepts, query, totalStudyResults, totalVariableResults, conceptView])
+
   if (isLoadingConcepts) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
   }
@@ -101,44 +101,6 @@ export const SearchResults = () => {
     )
   }
 
-  const StudyListWithVariables = () => {
-    return (
-      <Collapse ghost className="variables-collapse">
-        <VariableSearchResults />
-        {
-          studyResults.map((study, i) => {
-            return (
-              <Panel
-                key={`panel_${study.c_name}`}
-                header={
-                  <Text>
-                    {study.c_name}{` `}
-                    (<Link to={study.c_link}>{study.c_id}</Link>)
-                  </Text>
-                }
-                extra={<Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>}
-              >
-                <List
-                  className="study-variables-list"
-                  dataSource={study.elements}
-                  renderItem={variable => (
-                    <div className="study-variables-list-item">
-                      <Text className="variable-name">
-                        {variable.name} &nbsp;
-                        ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
-                      </Text><br />
-                      <Text className="variable-description"> {variable.description}</Text>
-                    </div>
-                  )}
-                />
-              </Panel>
-            )
-          })
-        }
-      </Collapse>
-    )
-  }
-
   return (
     <Fragment>
 
@@ -150,7 +112,7 @@ export const SearchResults = () => {
             {concepts.length >= 1 && MemoizedResultsHeader}
 
             <div className={layout === GRID ? 'results-list grid' : 'results-list list'}>
-              {conceptView ? <ConceptsList /> : <StudyListWithVariables />}
+              {conceptView ? <ConceptsList /> : <VariableSearchResults /> }
             </div>
           </div>
         )
