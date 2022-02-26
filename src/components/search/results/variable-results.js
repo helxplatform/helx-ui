@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Column, Line } from '@antv/g2plot';
+import { Column, G2 } from '@antv/g2plot';
 import { useHelxSearch } from '..';
 
 export const VariableSearchResults = () => {
@@ -9,28 +9,32 @@ export const VariableSearchResults = () => {
     // initial config for the histogram
     const currentConfig = {
         data: variableResults,
-        xField: 'id',
+        xField: 'index_pos',
         yField: 'score',
         xAxis: {
-            label: {
-                autoRotate: false,
-            },
+            label: ""
         },
-        slider: {
-            start: 0,
-            end: 1.0,
-        }
+        brush: {
+            enabled: true,
+            type: "x-rect"
+        },
+        tooltip: {
+            showTitle: false,
+            fields: ['name', 'description', 'study_name', 'score','index_pos'],
+        },
+        interactions: [{ type: 'active-region', enable: false }],
     }
 
     useEffect(() => {
         setFilteredVariables(variableResults)
-        const column = new Column('histogram-container', currentConfig);
+        const histogram = new Column('histogram-container', currentConfig);
 
         // event handler for slider, so 'filteredVariables' state will be the variables shown on the histogram
-        column.on('slider:mouseup', (e) => {
-            setFilteredVariables(e.view.filteredData)
+        histogram.on(G2.BRUSH_FILTER_EVENTS.AFTER_FILTER, (e) => {
+            // console.log(e.data.view.filteredData)
+            setFilteredVariables(e.data.view.filteredData)
         })
-        column.render()
+        histogram.render()
 
     }, [variableResults])
 
