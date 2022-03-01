@@ -24,9 +24,9 @@ export const VariableSearchResults = () => {
                 autoRotate: false,
             },
         },
-        slider: {
-            start: 0,
-            end: 1.0,
+        brush: {
+            enabled: true,
+            type: 'x-rect',
         }
     }
 
@@ -37,7 +37,9 @@ export const VariableSearchResults = () => {
 
     useEffect(() => {
         let histogramObj = histogram.current.getChart()
-        histogramObj.on('slider:mouseup', (e) => {
+
+        histogramObj.on('mouseup', (e) => {
+            console.log(e.view.filteredData)
             setFilteredVariables(e.view.filteredData)
         })
         histogramObj.on('plot:click', (e) => {
