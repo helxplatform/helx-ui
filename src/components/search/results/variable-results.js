@@ -42,6 +42,8 @@ export const VariableSearchResults = () => {
             console.log(e.view.filteredData)
             setFilteredVariables(e.view.filteredData)
         })
+
+        // The below functionality isn't needed now (3/1/22), but is still useful to have worked out
         histogramObj.on('plot:click', (e) => {
             if (e?.data?.data) {
                 const newHighLightVariables = variableResults.filter(variable => variable.study_name === e.data.data.study_name)
