@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
 import { useHelxSearch } from '..';
 import { Collapse, List, Typography, Button } from 'antd'
@@ -16,7 +16,7 @@ export const VariableSearchResults = () => {
 
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(studyResults)
 
-    // initial config for the variables histogram
+    // Initial config for the variables histogram
     const variableHistogramConfig = {
         data: filteredVariables,
         xField: 'id',
@@ -36,14 +36,26 @@ export const VariableSearchResults = () => {
 
     const startOverHandler = () => {
         setFilteredVariables(variableResults)
+        setStudyResultsForDisplay(studyResults)
+    }
+
+    function updateStudyResults(filtered_variables) {
+        let studiesInFilter = [...new Set(filtered_variables.map(obj => obj.study_name))]
+        let studyResultsFiltered = studyResults.filter(obj => {
+            return studiesInFilter.includes(obj.c_name)
+        })
+
+        setStudyResultsForDisplay(studyResultsFiltered)
     }
 
     useEffect(() => {
         let histogramObj = histogram.current.getChart()
 
         histogramObj.on('mouseup', (e) => {
-            console.log(e.view.filteredData)
-            setFilteredVariables(e.view.filteredData)
+            let filteredVariables = e.view.filteredData
+
+            updateStudyResults(filteredVariables)
+            setFilteredVariables(filteredVariables)
         })
     }, [])
 
@@ -52,42 +64,40 @@ export const VariableSearchResults = () => {
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
     }, [filteredVariables])
 
-    const StudyListWithVariables = () => {
-        return (
-            <Collapse ghost className="variables-collapse">
-                {
-                    studyResults.map((study, i) => {
-                        return (
-                            <Panel
-                                key={`panel_${study.c_name}`}
-                                header={
-                                <Text>
-                                    {study.c_name}{` `}
-                                    (<Link to={study.c_link}>{study.c_id}</Link>)
-                                </Text>
-                                }
-                                extra={<Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>}
-                            >
-                            <List
-                                className="study-variables-list"
-                                dataSource={study.elements}
-                                renderItem={variable => (
-                                    <div className="study-variables-list-item">
-                                        <Text className="variable-name">
-                                            {variable.name} &nbsp;
-                                            ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
-                                        </Text><br />
-                                        <Text className="variable-description"> {variable.description}</Text>
-                                    </div>
-                                )}
-                            />
-                        </Panel>
-                        )
-                    })
-                }
-            </Collapse>
-        )
-    }
+    const VariablesTableByStudy = useMemo(() => (
+        <Collapse ghost className="variables-collapse">
+            {
+                studyResultsForDisplay.map((study, i) => {
+                    return (
+                        <Panel
+                            key={`panel_${study.c_name}`}
+                            header={
+                            <Text>
+                                {study.c_name}{` `}
+                                (<Link to={study.c_link}>{study.c_id}</Link>)
+                            </Text>
+                            }
+                            extra={<Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>}
+                        >
+                        <List
+                            className="study-variables-list"
+                            dataSource={study.elements}
+                            renderItem={variable => (
+                                <div className="study-variables-list-item">
+                                    <Text className="variable-name">
+                                        {variable.name} &nbsp;
+                                        ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
+                                    </Text><br />
+                                    <Text className="variable-description"> {variable.description}</Text>
+                                </div>
+                            )}
+                        />
+                    </Panel>
+                    )
+                })
+            }
+        </Collapse>
+    ), [studyResultsForDisplay] )
 
     return (
         <div>
@@ -97,7 +107,7 @@ export const VariableSearchResults = () => {
                 ref={histogram}
             />
             <div>Filtered Variables Count: {filteredVariables.length}</div>
-            <div className='list'><StudyListWithVariables /></div>
+            <div className='list'>{ VariablesTableByStudy }</div>
         </div>
     )
 }
