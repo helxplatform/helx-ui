@@ -30,7 +30,7 @@ const validateResult = result => {
 
 export const HelxSearch = ({ children }) => {
   const { helxSearchUrl, basePath } = useEnvironment()
-  const analytics = useAnalytics()
+  const { analyticsEvents } = useAnalytics()
   const [query, setQuery] = useState('')
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
   const [error, setError] = useState({})
@@ -75,21 +75,6 @@ export const HelxSearch = ({ children }) => {
   }
 
   useEffect(() => {
-    const trackSearch = (execTime, resultCount, error=undefined) => {
-      analytics.trackEvent({
-        category: "UI Interaction",
-        action: "Search executed",
-        label: `User searched for "${query}"`,
-        value: execTime,
-        customParameters: {
-          "Execution time": execTime,
-          "Search term": query,
-          "Response count": resultCount,
-          "Caused error": error !== undefined,
-          "Error stack": error ? error.stack : undefined
-        }
-      });
-    }
     const fetchConcepts = async () => {
       setIsLoadingConcepts(true)
       const startTime = Date.now()
@@ -113,18 +98,18 @@ export const HelxSearch = ({ children }) => {
           setConcepts(hits.valid)
           setTotalConcepts(response.data.result.total_items)
           setIsLoadingConcepts(false)
-          trackSearch(Date.now() - startTime, response.data.result.total_items)
+          analyticsEvents.searchExecuted(query, Date.now() - startTime, response.data.result.total_items)
         } else {
           setConcepts([])
           setTotalConcepts(0)
           setIsLoadingConcepts(false)
-          trackSearch(Date.now() - startTime, 0)
+          analyticsEvents.searchExecuted(query, Date.now() - startTime, 0)
         }
       } catch (error) {
         console.log(error)
         setError({ message: 'An error occurred!' })
         setIsLoadingConcepts(false)
-        trackSearch(Date.now() - startTime, 0, error)
+        analyticsEvents.searchExecuted(query, Date.now() - startTime, 0, error)
       }
     }
     if (query) {

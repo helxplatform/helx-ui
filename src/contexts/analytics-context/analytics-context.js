@@ -1,8 +1,9 @@
-import React, { createContext, useContext } from 'react';
-import { useEnvironment } from './environment-context';
+import React, { createContext, memo, useContext } from 'react';
+import { useEnvironment } from '../environment-context';
+import { AnalyticsEvents } from './events';
 import { MixPanelAnalytics, GAAnalytics, NoAnalytics } from 'helx-analytics';
 import { version } from 'helx-analytics/package.json';
-import { getUser } from '../api';
+import { getUser } from '../../api';
 
 export const AnalyticsContext = createContext();
 
@@ -14,6 +15,7 @@ export const AnalyticsProvider = ({ children }) => {
         const globalEventParameters = {
             "HeLx-Analytics version": version,
             "HeLx Brand": context.brand || "Unknown",
+            "Deployment Namespace": context.deployment_namespace || "Unknown",
             "User ID": async () => {
                 if (context.workspaces_enabled) {
                     const user = await getUser(helxAppstoreUrl);
@@ -36,8 +38,11 @@ export const AnalyticsProvider = ({ children }) => {
     } else {
         analytics = new NoAnalytics();
     }
+    const analyticsEvents = new AnalyticsEvents(analytics);
     return (
-        <AnalyticsContext.Provider value={analytics}>
+        <AnalyticsContext.Provider value={{
+            analytics, analyticsEvents
+        }}>
             {children}
         </AnalyticsContext.Provider>
     );

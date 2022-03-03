@@ -5,7 +5,7 @@ import { Link, navigate } from '@reach/router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import './app-card.css';
-import { useActivity, useInstance } from "../../contexts";
+import { useActivity, useInstance, useAnalytics } from "../../contexts";
 
 const { Meta } = Card;
 
@@ -23,7 +23,8 @@ const validateLocalstorageValue = (config, app_id, min, max) => {
 export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources, available }) => {
     const { launchApp } = useApp();
     const { addActivity } = useActivity();
-    const [launchTab, setLaunchTab] = useState(true)
+    const { analytics, analyticsEvents } = useAnalytics();
+    const [launchTab, setLaunchTab] = useState(true);
     const [isLaunching, setLaunching] = useState(false);
     const { pollingInstance, addOrDeleteInstanceTab } = useInstance();
     const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
@@ -48,6 +49,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                     'timestamp': new Date(),
                     'message': `${name} is launching.`
                 }
+                analyticsEvents.appLaunched(name, sid, currentCpu, currentGpu, currentMemory, false)
                 addActivity(newActivity)
                 pollingInstance(app_id, sid, res.data.url, name);
                 // navigate to active tab when a launch is successful
@@ -60,6 +62,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                     'timestamp': new Date(),
                     'message': `Failed to launch ${name}.`
                 }
+                // Same as other event, but indicate that it failed. +no sid, since the app did not launch.
+                analyticsEvents.appLaunched(name, null, currentCpu, currentGpu, currentMemory, true)
                 addActivity(newActivity)
             })
         localStorage.setItem(`${app_id}-cpu`, currentCpu);

@@ -16,7 +16,7 @@ import { useAnalytics, useEnvironment } from '../../../contexts'
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
 export const ConceptModal = ({ result, visible, closeHandler }) => {
-  const analytics = useAnalytics();
+  const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
   const { fetchKnowledgeGraphs, fetchStudyVariables, query } = useHelxSearch()
@@ -43,20 +43,9 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
     return (tabName) => {
       const newTime = Date.now();
       const elapsed = newTime - oldTime;
-      const tabTitle = tabs[tabName].title;
       if (tabName !== currentTab) {
         // Make sure we only track events when the tab actually changes.
-        analytics.trackEvent({
-          category: "UI Interaction",
-          action: "Result tab selected",
-          label: `User selected tab "${tabTitle}"`,
-          value: tabTitle,
-          customParameters: {
-            "Tab name": tabTitle,
-            "Previous tab name": tabs[currentTab].title,
-            "Time spent on previous tab": elapsed
-          }
-        });
+        analyticsEvents.resultTabSelected(tabs[tabName].title, tabs[currentTab].title, elapsed)
       } 
       oldTime = newTime;
       _setCurrentTab(tabName);

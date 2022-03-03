@@ -17,25 +17,14 @@ const { TextArea } = Input
 const TRANQL_RESULT_LIMIT = 100;
 
 export const TranQLTab = ({ result, graphs }) => {
-  const analytics = useAnalytics()
+  const { analyticsEvents } = useAnalytics()
   const { context } = useEnvironment()
   const { query } = useHelxSearch()
   const tranqlUrl = context.tranql_url
 
   const robokopUrl = "https://robokop.renci.org"
 
-  const trackLink = (name, url) => {
-    analytics.trackEvent({
-      category: "UI Interaction",
-      action: "TranQL tab URL clicked",
-      label: `User opened URL for ${name}`,
-      customParameters: {
-        "User ID": "",
-        "URL name": name,
-        "URL": url
-      }
-    });
-  }
+  const trackLink = (name, url) => analyticsEvents.tranqlLinkClicked(name, url)
 
   const makeTranqlQuery = () => {
     const tranqlQueries = graphs.map(({ knowledge_graph, question_graph, knowledge_map }) => {

@@ -15,7 +15,7 @@ const { CheckableTag: CheckableFacet } = Tag
 const { Text } = Typography
 
 export const ConceptCard = ({ index, result, openModalHandler }) => {
-  const analytics = useAnalytics()
+  const { analyticsEvents } = useAnalytics()
   const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
 
@@ -29,18 +29,8 @@ export const ConceptCard = ({ index, result, openModalHandler }) => {
   const tabContents = Object.keys(tabs).reduce((obj, key) => tabs[key].content ? ({ ...obj, [key]: tabs[key].content }) : obj, {})
 
   const openModal = (...args) => {
-    openModalHandler(...args);
-    analytics.trackEvent({
-      category: "UI Interaction",
-      action: "Result modal opened",
-      label: `Opened modal from card for result "${result.name}"`,
-      customParameters: {
-        "Search term": query,
-        "Result name": result.name,
-        "Result type": result.type,
-        "Additional search terms": result.search_terms
-      }
-    })
+    openModalHandler(...args)
+    analyticsEvents.resultModalOpened(query, result)
   }
 
   return (
