@@ -10,11 +10,14 @@ const { Text } = Typography
 const { Panel } = Collapse
 
 export const VariableSearchResults = () => {
-    const { variableResults, studyResults } = useHelxSearch()
+    const { variableResults, variableStudyResults } = useHelxSearch()
+    console.log("first variable in study")
+    console.log(variableStudyResults[0]["elements"][0])
+    
     const [filteredVariables, setFilteredVariables] = useState(variableResults)
     const histogram = useRef()
 
-    const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(studyResults)
+    const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
 
     // Initial config for the variables histogram
     const variableHistogramConfig = {
@@ -30,22 +33,50 @@ export const VariableSearchResults = () => {
         },
         tooltip: {
             showTitle: false,
-            fields: ['name', 'description', 'study_name', 'score','index_pos'],
+            fields: ['name', 'description', 'study_name', 'score','index_pos', 'index_by_study'],
         }
     }
 
     const startOverHandler = () => {
         setFilteredVariables(variableResults)
-        setStudyResultsForDisplay(studyResults)
+        setStudyResultsForDisplay(variableStudyResults)
     }
 
     function updateStudyResults(filtered_variables) {
-        let studiesInFilter = [...new Set(filtered_variables.map(obj => obj.study_name))]
-        let studyResultsFiltered = studyResults.filter(obj => {
+        const studiesInFilter = [...new Set(filtered_variables.map(obj => obj.study_name))]
+
+        const studyResultsFiltered = studyResultsForDisplay.filter(obj => {
             return studiesInFilter.includes(obj.c_name)
         })
 
-        setStudyResultsForDisplay(studyResultsFiltered)
+        const indicesForFilteredVariables = [filtered_variables.map(obj => obj.indexWithinStudy)]
+        console.log(indicesForFilteredVariables)
+
+
+        const studyResultsWithVariablesUpdated = []
+        const filteredVarsInStudies = []
+        studyResultsFiltered.forEach(study => {
+            const updatedStudy = Object.assign({}, study);
+            const updatedVariables = []
+            study.elements.forEach(variable => {
+                const indexForVariableInStudy = variable.indexWithinStudy;
+                const studyVarInFilteredVars = indicesForFilteredVariables.includes(indexForVariableInStudy)
+
+                // console.log(`${studyVarInFilteredVars} for ${indexForVariableInStudy}`)
+                
+                if (studyVarInFilteredVars) {
+                    filteredVarsInStudies.push(indexForVariableInStudy)
+                    variable["withinFilter"] = true
+                }
+                updatedVariables.push(variable)
+            })
+            console.log(indicesForFilteredVariables)
+            updatedStudy["elements"] = updatedVariables
+            studyResultsWithVariablesUpdated.push(updatedStudy)
+        })
+
+        console.log(filteredVarsInStudies)
+        setStudyResultsForDisplay(studyResultsWithVariablesUpdated)
     }
 
     useEffect(() => {
@@ -84,7 +115,7 @@ export const VariableSearchResults = () => {
                             dataSource={study.elements}
                             renderItem={variable => (
                                 <div className="study-variables-list-item">
-                                    <Text className="variable-name">
+                                    <Text className={`"variable-name within-filter-${variable.withinFilter}"`}>
                                         {variable.name} &nbsp;
                                         ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
                                     </Text><br />

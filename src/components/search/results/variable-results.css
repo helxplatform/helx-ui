@@ -1,3 +1,10 @@
 .histogram-startover-btn {
     margin-bottom: 10px;
 }
+
+.within-filter-true {
+    color: pink;
+}
+.within-filter-false {
+    color: blue;
+}

@@ -48,6 +48,8 @@ export const HelxSearch = ({ children }) => {
   const [totalConcepts, setTotalConcepts] = useState(0)
   const [studyResults, setStudyResults] = useState([])
   const [totalStudyResults, setStudyResultCount] = useState(0)
+  const [variableStudyResults, setVariableStudyResults] = useState([])
+  const [variableStudyResultCount, setVariableStudyResultCount] = useState(0)
   const [variableResults, setVariableResults] = useState([])
   const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
   const [variableError, setVariableError] = useState({})
@@ -308,30 +310,40 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
-  function collectVariables(studies) {
-    let variables = []
-    studies.forEach(study => {
-      study.elements.forEach(variable => {
-        variables.push({
-          "name": variable.name,
-          "score": variable.score,
-          "id": variable.id,
-          "description": variable.description,
-          "e_link": variable.e_link,
-          "study_name": study.c_name
-        })
+  function collectVariablesAndUpdateStudies(studies) {
+    const variables = []
+    const studiesWithVariablesMarked = []
+
+    studies.forEach((study, indexByStudy) => {
+      const studyToUpdate = Object.assign({}, study);
+      studyToUpdate["elements"] = [];
+
+      study.elements.forEach((variable, indexByVariable) => {
+        const variableIndex = parseFloat(`${indexByStudy}.${indexByVariable}`)
+        
+        const variableToUpdate = Object.assign({}, variable);
+        variableToUpdate["indexWithinStudy"] = variableIndex
+        variableToUpdate["study_name"] = study.c_name
+        variables.push(variableToUpdate)
+        
+        studyToUpdate["elements"].push(variableToUpdate)
       })
+
+      studiesWithVariablesMarked.push(studyToUpdate)
     });
-    let sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
-    // sortedVariables = sortedVariables.slice(0,100)
+
+    const sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
     const sortedVariablesWithIndexPosition = sortedVariables.map((v, i) =>  {
-      let rObj = v
+      const rObj = v
       rObj["index_pos"] = i
       return rObj;
     })
+
     return {
       "sortedVariables": sortedVariablesWithIndexPosition,
-      "variablesCount": sortedVariables.length
+      "variablesCount": sortedVariables.length,
+      "studiesWithVariablesMarked": studiesWithVariablesMarked,
+      "studiesCount": studiesWithVariablesMarked.length
     };
   }
 
@@ -349,19 +361,24 @@ export const HelxSearch = ({ children }) => {
           
           // Data structure of studies matches API response 
           const studies = response.data.result.DbGaP.map(r => r)
-          setStudyResults(studies)
-          setStudyResultCount(studies.length)
 
           // Data structure of sortedVariables is designed to populate the histogram feature
-          const {sortedVariables, variablesCount} = collectVariables(studies)
+          const {sortedVariables, variablesCount, studiesWithVariablesMarked, studiesCount} = collectVariablesAndUpdateStudies(studies)
+          // console.log("studiesWithVariablesMarked")
+          // console.log(studiesWithVariablesMarked)
+          // console.log("sortedVariables")
+          // console.log(sortedVariables)
+          setVariableStudyResults(studiesWithVariablesMarked)
+          setVariableStudyResultCount(studiesCount)
+
           setVariableResults(sortedVariables)
           setVariableResultCount(variablesCount)
 
           // Possible TODO.... I don't know for sure if this is used anywhere
           setIsLoadingVariableResults(false)
         } else {
-          setStudyResults([])
-          setStudyResultCount(0)
+          setVariableStudyResults([])
+          setVariableStudyResultCount(0)
           setVariableResults([])
           setVariableResultCount(0)
           setIsLoadingVariableResults(false)
@@ -376,7 +393,7 @@ export const HelxSearch = ({ children }) => {
     if (query) {
       fetchVariableResults()
     }
-  }, [query, currentPage, helxSearchUrl, setStudyResults, setVariableError])
+  }, [query, helxSearchUrl])
 
 
   return (
@@ -386,7 +403,7 @@ export const HelxSearch = ({ children }) => {
       concepts, totalConcepts, conceptPages: filteredConceptPages,
       variableError, variableResults, isLoadingVariableResults,
       concepts, totalConcepts,
-      studyResults, totalStudyResults,
+      variableStudyResults, variableStudyResultCount,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
