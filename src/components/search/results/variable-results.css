@@ -3,8 +3,8 @@
 }
 
 .within-filter-true {
-    color: pink;
+    background-color: #6399e9;
 }
 .within-filter-false {
-    color: blue;
+    background-color: #b0b0b78a;
 }

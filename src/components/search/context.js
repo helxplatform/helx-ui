@@ -233,11 +233,9 @@ export const HelxSearch = ({ children }) => {
       studyToUpdate["elements"] = [];
 
       study.elements.forEach((variable, indexByVariable) => {
-        const variableIndex = parseFloat(`${indexByStudy}.${indexByVariable}`)
-        
         const variableToUpdate = Object.assign({}, variable);
-        variableToUpdate["indexWithinStudy"] = variableIndex
         variableToUpdate["study_name"] = study.c_name
+        variableToUpdate["withinFilter"] = "none"
         variables.push(variableToUpdate)
         
         studyToUpdate["elements"].push(variableToUpdate)
@@ -249,7 +247,7 @@ export const HelxSearch = ({ children }) => {
     const sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
     const sortedVariablesWithIndexPosition = sortedVariables.map((v, i) =>  {
       const rObj = v
-      rObj["index_pos"] = i
+      rObj["indexPos"] = i
       return rObj;
     })
 
@@ -278,10 +276,6 @@ export const HelxSearch = ({ children }) => {
 
           // Data structure of sortedVariables is designed to populate the histogram feature
           const {sortedVariables, variablesCount, studiesWithVariablesMarked, studiesCount} = collectVariablesAndUpdateStudies(studies)
-          // console.log("studiesWithVariablesMarked")
-          // console.log(studiesWithVariablesMarked)
-          // console.log("sortedVariables")
-          // console.log(sortedVariables)
           setVariableStudyResults(studiesWithVariablesMarked)
           setVariableStudyResultCount(studiesCount)
 
