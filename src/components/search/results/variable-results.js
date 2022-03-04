@@ -15,7 +15,16 @@ export const VariableSearchResults = () => {
     const [filteredVariables, setFilteredVariables] = useState(variableResults)
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
 
-    const histogram = useRef()
+    const variablesHistogram = useRef()
+    const studiesHistogram = useRef()
+
+    const studyDataForHistogram = variableStudyResults.map(study => {
+        let studyDetails = {
+            "studyName": study.c_name,
+            "variableCount": study.elements.length
+        }
+        return studyDetails;
+    })
 
     // Initial config for the variables histogram
     const variableHistogramConfig = {
@@ -31,9 +40,27 @@ export const VariableSearchResults = () => {
         },
         tooltip: {
             showTitle: false,
-            fields: ['name', 'description', 'study_name', 'score','indexPos'],
+            fields: ['name', 'id', 'description', 'study_name', 'score'],
         }
     }
+
+    const studiesHistogramConfig = {
+        data: studyDataForHistogram,
+        xField: 'studyName',
+        yField: 'variableCount',
+        yAxis: {
+            title: {text: "Variable Count"}
+        },
+        xAxis: {
+            label: ""
+        },
+        tooltip: {
+            showTitle: false,
+            fields: ['studyName', 'variableCount']
+        },
+        height: 100
+    }
+
     function removeWithinFilterClass() {
         const variableStudyResultsUpdated = []
         variableStudyResults.forEach(study => {
@@ -91,7 +118,7 @@ export const VariableSearchResults = () => {
     }
 
     useEffect(() => {
-        let histogramObj = histogram.current.getChart()
+        let histogramObj = variablesHistogram.current.getChart()
 
         histogramObj.on('mouseup', (e) => {
             let filteredVariables = e.view.filteredData
@@ -102,9 +129,20 @@ export const VariableSearchResults = () => {
     })
 
     useEffect(() => {
-        let histogramObj = histogram.current.getChart()
+        let histogramObj = variablesHistogram.current.getChart()
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
     }, [filteredVariables])
+
+    useEffect(() => {
+        let studiesHistogramObj = studiesHistogram.current.getChart()
+
+        studiesHistogramObj.on('plot:click', (e) => {
+            const studyName = e.data.data.studyName
+
+            const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName)
+            setFilteredVariables(variablesFilteredByStudy)
+        })
+    })
 
     const VariablesTableByStudy = useMemo(() => (
         <Collapse ghost className="variables-collapse">
@@ -146,7 +184,11 @@ export const VariableSearchResults = () => {
             <Button className="histogram-startover-btn" onClick={startOverHandler}>Start Over</Button>
             <Column
                 {...variableHistogramConfig}
-                ref={histogram}
+                ref={variablesHistogram}
+            />
+            <Column
+                {...studiesHistogramConfig}
+                ref={studiesHistogram}
             />
             <div>Filtered Variables Count: {filteredVariables.length}</div>
             <div className='list'>{ VariablesTableByStudy }</div>
