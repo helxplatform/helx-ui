@@ -34,10 +34,27 @@ export const VariableSearchResults = () => {
             fields: ['name', 'description', 'study_name', 'score','indexPos'],
         }
     }
+    function removeWithinFilterClass() {
+        const variableStudyResultsUpdated = []
+        variableStudyResults.forEach(study => {
+            const updatedStudy = Object.assign({}, study);
+            const updatedVariables = []
+            study.elements.forEach(variable => {
+                variable.withinFilter = "none"
+                updatedVariables.push(variable)
+            })
+            updatedStudy["elements"] = updatedVariables
+            variableStudyResultsUpdated.push(updatedStudy)
+        })
+
+        return variableStudyResultsUpdated;
+    }
 
     const startOverHandler = () => {
         setFilteredVariables(variableResults)
-        setStudyResultsForDisplay(variableStudyResults)
+
+        const variableStudyResultsUpdated = removeWithinFilterClass()
+        setStudyResultsForDisplay(variableStudyResultsUpdated)
     }
 
     function updateStudyResults(filtered_variables) {
