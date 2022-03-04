@@ -11,13 +11,11 @@ const { Panel } = Collapse
 
 export const VariableSearchResults = () => {
     const { variableResults, variableStudyResults } = useHelxSearch()
-    console.log("first variable in study")
-    console.log(variableStudyResults[0]["elements"][0])
-    
-    const [filteredVariables, setFilteredVariables] = useState(variableResults)
-    const histogram = useRef()
 
+    const [filteredVariables, setFilteredVariables] = useState(variableResults)
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
+
+    const histogram = useRef()
 
     // Initial config for the variables histogram
     const variableHistogramConfig = {
@@ -33,7 +31,7 @@ export const VariableSearchResults = () => {
         },
         tooltip: {
             showTitle: false,
-            fields: ['name', 'description', 'study_name', 'score','index_pos', 'index_by_study'],
+            fields: ['name', 'description', 'study_name', 'score','indexPos'],
         }
     }
 
@@ -43,39 +41,35 @@ export const VariableSearchResults = () => {
     }
 
     function updateStudyResults(filtered_variables) {
+        // Determine the studies that should be displayed in table
         const studiesInFilter = [...new Set(filtered_variables.map(obj => obj.study_name))]
-
         const studyResultsFiltered = studyResultsForDisplay.filter(obj => {
             return studiesInFilter.includes(obj.c_name)
         })
 
-        const indicesForFilteredVariables = [filtered_variables.map(obj => obj.indexWithinStudy)]
-        console.log(indicesForFilteredVariables)
-
-
+        // Update how variables are displayed under studies depending on whether they were filtered within the histogram
+        const indicesForFilteredVariables = filtered_variables.map(obj => obj.indexPos)
         const studyResultsWithVariablesUpdated = []
         const filteredVarsInStudies = []
         studyResultsFiltered.forEach(study => {
             const updatedStudy = Object.assign({}, study);
             const updatedVariables = []
             study.elements.forEach(variable => {
-                const indexForVariableInStudy = variable.indexWithinStudy;
+                const indexForVariableInStudy = variable.indexPos;
                 const studyVarInFilteredVars = indicesForFilteredVariables.includes(indexForVariableInStudy)
 
-                // console.log(`${studyVarInFilteredVars} for ${indexForVariableInStudy}`)
-                
                 if (studyVarInFilteredVars) {
                     filteredVarsInStudies.push(indexForVariableInStudy)
-                    variable["withinFilter"] = true
+                    variable.withinFilter = true
+                } else {
+                    variable.withinFilter = false
                 }
                 updatedVariables.push(variable)
             })
-            console.log(indicesForFilteredVariables)
             updatedStudy["elements"] = updatedVariables
             studyResultsWithVariablesUpdated.push(updatedStudy)
         })
 
-        console.log(filteredVarsInStudies)
         setStudyResultsForDisplay(studyResultsWithVariablesUpdated)
     }
 
@@ -88,7 +82,7 @@ export const VariableSearchResults = () => {
             updateStudyResults(filteredVariables)
             setFilteredVariables(filteredVariables)
         })
-    }, [])
+    })
 
     useEffect(() => {
         let histogramObj = histogram.current.getChart()
@@ -114,8 +108,8 @@ export const VariableSearchResults = () => {
                             className="study-variables-list"
                             dataSource={study.elements}
                             renderItem={variable => (
-                                <div className="study-variables-list-item">
-                                    <Text className={`"variable-name within-filter-${variable.withinFilter}"`}>
+                                <div className={`study-variables-list-item within-filter-${variable.withinFilter}`}>
+                                    <Text className="variable-name">
                                         {variable.name} &nbsp;
                                         ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
                                     </Text><br />
