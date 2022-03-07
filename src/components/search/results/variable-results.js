@@ -42,6 +42,15 @@ export const VariableSearchResults = () => {
         tooltip: {
             showTitle: false,
             fields: ['name', 'id', 'description', 'study_name', 'score'],
+        },
+        // The following is NOT actually altering the styles as desired
+        // Examples that inspired the code below for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
+        active: {
+            color: "pink",
+            fillStyle: "pink",
+            fillOpacity: 0.8,
+            stroke: 'pink',
+            lineWidth: 4
         }
     }
 
@@ -135,8 +144,14 @@ export const VariableSearchResults = () => {
         studiesHistogramObj.on('plot:click', (e) => {
             if (e?.data?.data?.studyName) {
                 const studyName = e.data.data.studyName
-                const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName)
-                setFilteredVariables(variablesFilteredByStudy)
+
+                const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName).map(el => el.id);
+
+                // Examples that suggested how to setState to 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
+                // Style parameters below do nothing. Examples that inspired the code for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
+                let histogramObj = variablesHistogram.current.getChart()
+                histogramObj.setState("active", (datum) => variablesFilteredByStudy.includes(datum.id), { stroke: 'pink', lineWidth: 2 });
+                histogramObj.setState("active", (datum) => !variablesFilteredByStudy.includes(datum.id), false);
             }
         })
     })
