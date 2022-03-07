@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
 import { useHelxSearch } from '..';
-import { Collapse, List, Typography, Button } from 'antd'
+import { Collapse, List, Typography, Button, Switch } from 'antd'
 import { Link } from '../../link'
 
 import './variable-results.css';
@@ -144,6 +144,18 @@ export const VariableSearchResults = () => {
         })
     })
 
+    function selectVariablesByStudy(studyName) {
+        return function(bool, e) {
+            e.stopPropagation()
+            console.log(e)
+            console.log(bool)
+            console.log(studyName)
+
+            const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName)
+            setFilteredVariables(variablesFilteredByStudy)
+        } 
+    }
+
     const VariablesTableByStudy = useMemo(() => (
         <Collapse ghost className="variables-collapse">
             {
@@ -157,7 +169,10 @@ export const VariableSearchResults = () => {
                                 (<Link to={study.c_link}>{study.c_id}</Link>)
                             </Text>
                             }
-                            extra={<Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>}
+                            extra={
+                                [<Switch size="small" onChange={selectVariablesByStudy(study.c_name)}>Select Variables From This Study</Switch>,
+                                <Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>]
+                            }
                         >
                         <List
                             className="study-variables-list"
