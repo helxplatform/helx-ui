@@ -14,6 +14,7 @@ export const VariableSearchResults = () => {
 
     const [filteredVariables, setFilteredVariables] = useState(variableResults)
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
+    const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
 
     const variablesHistogram = useRef()
     const studiesHistogram = useRef()
@@ -49,7 +50,7 @@ export const VariableSearchResults = () => {
         xField: 'studyName',
         yField: 'variableCount',
         yAxis: {
-            title: {text: "Variable Count"}
+            title: { text: "Variable Count" }
         },
         xAxis: {
             label: ""
@@ -129,31 +130,40 @@ export const VariableSearchResults = () => {
     })
 
     useEffect(() => {
+        let studiesHistogramObj = studiesHistogram.current.getChart()
+
+        studiesHistogramObj.on('plot:click', (e) => {
+            if (e?.data?.data?.studyName) {
+                const studyName = e.data.data.studyName
+                const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName)
+                setFilteredVariables(variablesFilteredByStudy)
+            }
+        })
+    })
+
+    useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
     }, [filteredVariables])
 
-    useEffect(() => {
-        let studiesHistogramObj = studiesHistogram.current.getChart()
-
-        studiesHistogramObj.on('plot:click', (e) => {
-            const studyName = e.data.data.studyName
-
-            const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName)
-            setFilteredVariables(variablesFilteredByStudy)
-        })
-    })
-
     function selectVariablesByStudy(studyName) {
-        return function(bool, e) {
+        return function (_, e) {
             e.stopPropagation()
-            console.log(e)
-            console.log(bool)
-            console.log(studyName)
 
-            const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName)
+            let idx = studyNamesForDisplay.indexOf(studyName)
+            let newStudyNamesForDisplay = [...studyNamesForDisplay]
+            if (idx > -1) {
+                newStudyNamesForDisplay.splice(idx, 1)
+            } else {
+                newStudyNamesForDisplay = [...newStudyNamesForDisplay, studyName]
+            }
+
+            // filter variables by study if needed.
+            const variablesFilteredByStudy = newStudyNamesForDisplay.length > 0 ? variableResults.filter(variable => newStudyNamesForDisplay.includes(variable.study_name)) : variableResults
+
             setFilteredVariables(variablesFilteredByStudy)
-        } 
+            setStudyNamesForDisplay(newStudyNamesForDisplay)
+        }
     }
 
     const VariablesTableByStudy = useMemo(() => (
@@ -164,35 +174,35 @@ export const VariableSearchResults = () => {
                         <Panel
                             key={`panel_${study.c_name}`}
                             header={
-                            <Text>
-                                {study.c_name}{` `}
-                                (<Link to={study.c_link}>{study.c_id}</Link>)
-                            </Text>
+                                <Text>
+                                    {study.c_name}{` `}
+                                    (<Link to={study.c_link}>{study.c_id}</Link>)
+                                </Text>
                             }
                             extra={
-                                [<Switch size="small" onChange={selectVariablesByStudy(study.c_name)}>Select Variables From This Study</Switch>,
-                                <Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>]
+                                [<Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>, <Switch size="small" style={{ marginLeft: '5px' }} onChange={selectVariablesByStudy(study.c_name)}></Switch>,
+                                ]
                             }
                         >
-                        <List
-                            className="study-variables-list"
-                            dataSource={study.elements}
-                            renderItem={variable => (
-                                <div className={`study-variables-list-item within-filter-${variable.withinFilter}`}>
-                                    <Text className="variable-name">
-                                        {variable.name} &nbsp;
-                                        ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
-                                    </Text><br />
-                                    <Text className="variable-description"> {variable.description}</Text>
-                                </div>
-                            )}
-                        />
-                    </Panel>
+                            <List
+                                className="study-variables-list"
+                                dataSource={study.elements}
+                                renderItem={variable => (
+                                    <div className={`study-variables-list-item within-filter-${variable.withinFilter}`}>
+                                        <Text className="variable-name">
+                                            {variable.name} &nbsp;
+                                            ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
+                                        </Text><br />
+                                        <Text className="variable-description"> {variable.description}</Text>
+                                    </div>
+                                )}
+                            />
+                        </Panel>
                     )
                 })
             }
         </Collapse>
-    ), [studyResultsForDisplay] )
+    ), [studyNamesForDisplay, studyResultsForDisplay])
 
     return (
         <div>
@@ -206,7 +216,7 @@ export const VariableSearchResults = () => {
                 ref={studiesHistogram}
             />
             <div>Filtered Variables Count: {filteredVariables.length}</div>
-            <div className='list'>{ VariablesTableByStudy }</div>
+            <div className='list'>{VariablesTableByStudy}</div>
         </div>
     )
 }
