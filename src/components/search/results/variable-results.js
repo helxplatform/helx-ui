@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
 import { useHelxSearch } from '..';
-import { Collapse, List, Typography, Button, Switch } from 'antd'
+import { Collapse, List, Typography, Button, Switch, Space } from 'antd'
 import { Link } from '../../link'
 
 import './variable-results.css';
@@ -17,7 +17,7 @@ export const VariableSearchResults = () => {
     const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
 
     const variablesHistogram = useRef()
-    const studiesHistogram = useRef()
+    // const studiesHistogram = useRef()
 
     const studyDataForHistogram = variableStudyResults.map(study => {
         let studyDetails = {
@@ -138,23 +138,23 @@ export const VariableSearchResults = () => {
         })
     })
 
-    useEffect(() => {
-        let studiesHistogramObj = studiesHistogram.current.getChart()
+    // useEffect(() => {
+    //     let studiesHistogramObj = studiesHistogram.current.getChart()
 
-        studiesHistogramObj.on('plot:click', (e) => {
-            if (e?.data?.data?.studyName) {
-                const studyName = e.data.data.studyName
+    //     studiesHistogramObj.on('plot:click', (e) => {
+    //         if (e?.data?.data?.studyName) {
+    //             const studyName = e.data.data.studyName
 
-                const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName).map(el => el.id);
+    //             const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName).map(el => el.id);
 
-                // Examples that suggested how to setState to 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
-                // Style parameters below do nothing. Examples that inspired the code for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
-                let histogramObj = variablesHistogram.current.getChart()
-                histogramObj.setState("active", (datum) => variablesFilteredByStudy.includes(datum.id), { stroke: 'pink', lineWidth: 2 });
-                histogramObj.setState("active", (datum) => !variablesFilteredByStudy.includes(datum.id), false);
-            }
-        })
-    })
+    //             // Examples that suggested how to setState to 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
+    //             // Style parameters below do nothing. Examples that inspired the code for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
+    //             let histogramObj = variablesHistogram.current.getChart()
+    //             histogramObj.setState("active", (datum) => variablesFilteredByStudy.includes(datum.id), { stroke: 'pink', lineWidth: 2 });
+    //             histogramObj.setState("active", (datum) => !variablesFilteredByStudy.includes(datum.id), false);
+    //         }
+    //     })
+    // })
 
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
@@ -222,15 +222,23 @@ export const VariableSearchResults = () => {
     return (
         <div>
             <Button className="histogram-startover-btn" onClick={startOverHandler}>Start Over</Button>
-            <Column
-                {...variableHistogramConfig}
-                ref={variablesHistogram}
-            />
-            <Column
-                {...studiesHistogramConfig}
-                ref={studiesHistogram}
-            />
-            <div>Filtered Variables Count: {filteredVariables.length}</div>
+            <Space direction="vertical">
+                <div>Variables according to DUG Score</div>
+                <Column
+                    {...variableHistogramConfig}
+                    ref={variablesHistogram}
+                />
+                <div>Filtered Variables Count: {filteredVariables.length}</div>
+            </Space>
+            {/* <Collapse>
+                <Space direction="vertical">
+                    <div>Studies with Variable Counts per Study</div>
+                    <Column
+                        {...studiesHistogramConfig}
+                        ref={studiesHistogram}
+                    />
+                </Space>
+            </Collapse> */}
             <div className='list'>{VariablesTableByStudy}</div>
         </div>
     )
