@@ -17,7 +17,7 @@ export const VariableSearchResults = () => {
     const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
 
     const variablesHistogram = useRef()
-    // const studiesHistogram = useRef()
+    const studiesHistogram = useRef()
 
     const studyDataForHistogram = variableStudyResults.map(study => {
         let studyDetails = {
@@ -138,23 +138,23 @@ export const VariableSearchResults = () => {
         })
     })
 
-    // useEffect(() => {
-    //     let studiesHistogramObj = studiesHistogram.current.getChart()
+    useEffect(() => {
+        let studiesHistogramObj = studiesHistogram.current.getChart()
 
-    //     studiesHistogramObj.on('plot:click', (e) => {
-    //         if (e?.data?.data?.studyName) {
-    //             const studyName = e.data.data.studyName
+        studiesHistogramObj.on('plot:click', (e) => {
+            if (e?.data?.data?.studyName) {
+                const studyName = e.data.data.studyName
 
-    //             const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName).map(el => el.id);
+                const variablesFilteredByStudy = variableResults.filter(variable => variable.study_name === studyName).map(el => el.id);
 
-    //             // Examples that suggested how to setState to 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
-    //             // Style parameters below do nothing. Examples that inspired the code for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
-    //             let histogramObj = variablesHistogram.current.getChart()
-    //             histogramObj.setState("active", (datum) => variablesFilteredByStudy.includes(datum.id), { stroke: 'pink', lineWidth: 2 });
-    //             histogramObj.setState("active", (datum) => !variablesFilteredByStudy.includes(datum.id), false);
-    //         }
-    //     })
-    // })
+                // Examples that suggested how to setState to 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
+                // Style parameters below do nothing. Examples that inspired the code for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
+                let histogramObj = variablesHistogram.current.getChart()
+                histogramObj.setState("active", (datum) => variablesFilteredByStudy.includes(datum.id), { stroke: 'pink', lineWidth: 2 });
+                histogramObj.setState("active", (datum) => !variablesFilteredByStudy.includes(datum.id), false);
+            }
+        })
+    })
 
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
@@ -230,15 +230,13 @@ export const VariableSearchResults = () => {
                 />
                 <div>Filtered Variables Count: {filteredVariables.length}</div>
             </Space>
-            {/* <Collapse>
-                <Space direction="vertical">
-                    <div>Studies with Variable Counts per Study</div>
-                    <Column
-                        {...studiesHistogramConfig}
-                        ref={studiesHistogram}
-                    />
-                </Space>
-            </Collapse> */}
+            <Space direction="vertical">
+                <div>Studies with Variable Counts per Study</div>
+                <Column
+                    {...studiesHistogramConfig}
+                    ref={studiesHistogram}
+                />
+            </Space>
             <div className='list'>{VariablesTableByStudy}</div>
         </div>
     )
