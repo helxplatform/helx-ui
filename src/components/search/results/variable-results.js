@@ -39,7 +39,7 @@ export const VariableSearchResults = () => {
               style: {
                 lineWidth: 0,
                 fill: 'aquamarine',
-                stroke: "aquamarine"
+                strokeStyle: "aquamarine"
               },
             },
           }
