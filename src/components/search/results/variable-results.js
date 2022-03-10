@@ -155,7 +155,7 @@ export const VariableSearchResults = () => {
                             header={
                                 <Text>
                                     {study.c_name}{` `}
-                                    <PushpinOutlined />
+                                    <PushpinOutlined className="study-pushpin" />
                                 </Text>
                             }
                             extra={

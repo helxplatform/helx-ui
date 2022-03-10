@@ -8,3 +8,7 @@
 .within-filter-false {
     background-color: #b0b0b78a;
 }
+
+.variables-collapse .study-pushpin {
+    border: 1px dashed crimson;
+}
