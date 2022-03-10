@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
-import { useHelxSearch } from '..';
 import { Collapse, List, Typography, Button, Switch, Space } from 'antd'
+import { PushpinOutlined } from '@ant-design/icons'
+import { useHelxSearch } from '..';
 import { Link } from '../../link'
 
 import './variable-results.css';
@@ -154,7 +155,7 @@ export const VariableSearchResults = () => {
                             header={
                                 <Text>
                                     {study.c_name}{` `}
-                                    (<Link to={study.c_link}>{study.c_id}</Link>)
+                                    <PushpinOutlined />
                                 </Text>
                             }
                             extra={
