@@ -74,6 +74,7 @@ export const ActiveView = () => {
     }, [instances])
 
     const stopInstanceHandler = async () => {
+        // besides making requests to delete the instance, close its browser tab and stop polling service
         setIsStopping(true);
         addOrDeleteInstanceTab("close", currentRecord.sid);
         stopPolling(currentRecord.sid)
@@ -98,6 +99,7 @@ export const ActiveView = () => {
                     'timestamp': new Date(),
                     'message': ``
                 }
+                // catch error and update instance activity
                 switch (e.response.status) {
                     case 403: {
                         newActivity['status'] = 'error'
@@ -122,6 +124,7 @@ export const ActiveView = () => {
         setIsStopping(false);
     }
 
+    // stop all instances
     const stopAllInstanceHandler = async () => {
         setIsStoppingAll(true);
         for (let this_app of instances) {
@@ -228,6 +231,8 @@ export const ActiveView = () => {
         setStopModalVisibility(true);
     }
 
+
+    // config for the instance table
     const columns = [
         {
             title: 'App Name',

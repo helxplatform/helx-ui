@@ -51,8 +51,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                 }
                 analyticsEvents.appLaunched(name, sid, currentCpu, currentGpu, currentMemory, false)
                 addActivity(newActivity)
+                // start polling service and navigate to active tab if the launch is successful
                 pollingInstance(app_id, sid, res.data.url, name);
-                // navigate to active tab when a launch is successful
                 navigate('/helx/workspaces/active');
             }).catch(e => {
                 let newActivity = {
@@ -66,6 +66,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                 analyticsEvents.appLaunched(name, null, currentCpu, currentGpu, currentMemory, true)
                 addActivity(newActivity)
             })
+            
+        // store user's preference of each app configuration in localStorage
         localStorage.setItem(`${app_id}-cpu`, currentCpu);
         localStorage.setItem(`${app_id}-gpu`, currentGpu);
         localStorage.setItem(`${app_id}-memory`, currentMemory);

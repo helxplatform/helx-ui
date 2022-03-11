@@ -4,6 +4,8 @@ import { useEnvironment } from '../contexts'
 
 const { Title } = Typography
 
+// Support page sections can be hidden using hidden_sections in the configuration. <community, support>
+
 const CommunitySupport = () =>
   <Fragment>
     <Title level={1}>Community Support</Title>
