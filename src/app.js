@@ -1,65 +1,61 @@
-import { Fragment } from 'react'
-import { LocationProvider, Router } from '@reach/router'
-import { ActivityProvider, AppProvider, EnvironmentProvider, InstanceProvider } from './contexts'
-import {
-  ActiveView,
-  AvailableView,
-  SupportView,
-  NotFoundView,
-  SearchView,
-} from './views'
+import { useEffect } from 'react'
+import { LocationProvider, Router as ReachRouter, globalHistory, useLocation } from '@reach/router'
+import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, AnalyticsProvider, useEnvironment, useAnalytics } from './contexts'
 import { Layout } from './components/layout'
+import { NotFoundView } from './views'
 
-const renderSearchModule = () => {
-  if (process.env.REACT_APP_ENABLE_SEMANTIC_SEARCH === 'true') {
-    return <Fragment>
-      <SearchView path="/" />
-      <SearchView path="/search" />
-    </Fragment>
-  }
+const ContextProviders = ({ children }) => {
+  return (
+    <EnvironmentProvider>
+      <LocationProvider>
+        <AnalyticsProvider>
+          <ActivityProvider>
+            <InstanceProvider>
+              <AppProvider>
+                {children}
+              </AppProvider>
+            </InstanceProvider>
+          </ActivityProvider>
+        </AnalyticsProvider>
+      </LocationProvider>
+    </EnvironmentProvider >
+  )
 }
 
-const renderWorkspacesModule = () => {
-  if (process.env.REACT_APP_WORKSPACES_ENABLED === 'true') {
-    return <Fragment>
-      <AvailableView path="/workspaces" />
-      <AvailableView path="/workspaces/available" />
-      <ActiveView path="/workspaces/active" />
-    </Fragment>
-  }
-}
+const Router = () => {
+  const { context, routes } = useEnvironment();
+  const { analytics, analyticsEvents } = useAnalytics();
+  const location = useLocation();
+  const baseRouterPath = context.workspaces_enabled === 'true' ? '/helx' : '/'
 
-const routeHomepage = () => {
-  if (process.env.REACT_APP_SEMANTIC_SEARCH_ENABLED === 'false'){
-    if(process.env.REACT_APP_WORKSPACES_ENABLED === 'true'){
-      return <AvailableView path="/" />
+  // Component mount
+  useEffect(() => {
+    globalHistory.listen(({ location }) => {
+      analyticsEvents.trackLocation(location);
+    });
+    // Track the initial location on page load (not captured in `globalHistory.listen`).
+    analyticsEvents.trackLocation(location);
+
+    // Component unmount
+    return () => {
+      analytics.teardown();
     }
-    else{
-      return <SupportView path="/" />
-    }
-  }
+  }, []);
+
+  return (
+    <ReachRouter basepath={baseRouterPath}>
+      {routes !== undefined && routes.map(({ path, text, Component }) => <Component key={path} path={path}></Component>)}
+      <NotFoundView default />
+    </ReachRouter>
+  )
 }
 
 export const App = () => {
   return (
-    <EnvironmentProvider>
-      <LocationProvider>
-        <ActivityProvider>
-          <AppProvider>
-            <InstanceProvider>
-              <Layout>
-                <Router basepath="/helx">
-                  <SupportView path="/support" />
-                  {renderSearchModule()}
-                  {renderWorkspacesModule()}
-                  {routeHomepage()}
-                  <NotFoundView default />
-                </Router>
-              </Layout>
-            </InstanceProvider>
-          </AppProvider>
-        </ActivityProvider>
-      </LocationProvider>
-    </EnvironmentProvider >
+    <ContextProviders>
+      <Layout>
+        <Router />
+      </Layout>
+    </ContextProviders>
   )
 }

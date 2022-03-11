@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+
+if [ -z "$1" ]
+  then
+    echo "Usage: start_server /path/to/output/env.json"
+    exit 1
+fi
+populate_env $1
+nginx -g "daemon off;"

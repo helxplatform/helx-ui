@@ -1,0 +1,46 @@
+.modal-content-container {
+  padding: 1rem;
+  width: 100% !important;
+  max-height: 600px;
+  overflow-y:  auto;
+  scrollbar-width: thin; /* firefox only */
+  scrollbar-color: #00000022 transparent; /* firefox only */
+  transition: scrollbar-color 250ms; /* firefox only */
+}
+
+.ant-space {
+  width: 100%;
+}
+
+.ant-modal-body > .ant-space > .ant-space-item:nth-child(2) {
+  width: 100% !important;
+}
+
+.study-variables-list {
+  font-size: 90% !important;
+}
+
+.study-variables-list-item {
+  margin-left: 0.4rem !important;
+  padding-left: 1rem !important;
+  border-left:  2px solid #eee;
+  margin-bottom: 0.5rem;
+}
+
+.variable-name {
+  font-weight: 500;
+}
+
+.variable-description {
+  font-style: italic;
+}
+
+.tab-name {
+  display: none;
+}
+
+@media (min-width: 600px) {
+  .tab-name {
+    display: inline;
+  }
+}

@@ -6,7 +6,7 @@ const { Title } = Typography
 export const NotFoundView = () => {
   return (
     <Fragment>
-      <Title level={ 1 }>404</Title>
+      <Title level={ 1 }>ERROR 404</Title>
     </Fragment>
   )
 }

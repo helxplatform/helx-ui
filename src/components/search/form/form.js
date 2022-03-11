@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Form, Input } from 'antd'
-import { useHelxSearch } from './'
+import { useHelxSearch } from '../'
 import './form.css'
 
 export const SearchForm = () => {
-  const { doSearch, inputRef, query, totalResults } = useHelxSearch()
+  const { doSearch, inputRef, query, totalConcepts } = useHelxSearch()
   const [searchTerm, setSearchTerm] = useState(query)
 
   const handleChangeQuery = event => setSearchTerm(event.target.value)
@@ -23,7 +23,7 @@ export const SearchForm = () => {
   useEffect(() => setSearchTerm(query), [query])
 
   return (
-    <Form onFinish={ () => doSearch(searchTerm) } className={ `search-form ${ totalResults ? 'with-results' : 'without-results' }` }>
+    <Form onFinish={ () => doSearch(searchTerm) } className={ `search-form ${ totalConcepts ? 'with-results' : 'without-results' }` }>
       <Form.Item>
         <Input
           allowClear

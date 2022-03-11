@@ -1,13 +1,11 @@
 import React, { Fragment, useState } from 'react';
-import { Button, Card, Spin, Slider, Col, Typography, Row } from 'antd';
+import { Button, Card, Spin, Slider, Col, Tooltip, Typography, Row } from 'antd';
 import { useApp } from '../../contexts/app-context';
-import { Link } from '@reach/router';
+import { Link, navigate } from '@reach/router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
-import { toBytes, bytesToMegabytes, formatBytes, formatMemory } from '../../utils/memory-converter';
-import { openNotificationWithIcon } from '../notifications'
+import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import './app-card.css';
-import { useActivity, useInstance } from "../../contexts";
-import { updateTabName } from '../../utils/update-tab-name';
+import { useActivity, useInstance, useAnalytics } from "../../contexts";
 
 const { Meta } = Card;
 
@@ -15,17 +13,18 @@ const { Meta } = Card;
 const validateLocalstorageValue = (config, app_id, min, max) => {
     let prev = localStorage.getItem(`${app_id}-${config}`);
     if (prev !== null && prev >= min && prev <= max) {
-        return parseInt(prev);
+        return parseFloat(prev);
     }
     else {
-        return parseInt(min);
+        return parseFloat(min);
     }
 }
 
-export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources }) => {
+export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources, available }) => {
     const { launchApp } = useApp();
     const { addActivity } = useActivity();
-    const [launchTab, setLaunchTab] = useState(true)
+    const { analytics, analyticsEvents } = useAnalytics();
+    const [launchTab, setLaunchTab] = useState(true);
     const [isLaunching, setLaunching] = useState(false);
     const { pollingInstance, addOrDeleteInstanceTab } = useInstance();
     const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
@@ -50,8 +49,11 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                     'timestamp': new Date(),
                     'message': `${name} is launching.`
                 }
+                analyticsEvents.appLaunched(name, sid, currentCpu, currentGpu, currentMemory, false)
                 addActivity(newActivity)
                 pollingInstance(app_id, sid, res.data.url, name);
+                // navigate to active tab when a launch is successful
+                navigate('/helx/workspaces/active');
             }).catch(e => {
                 let newActivity = {
                     'sid': 'none',
@@ -60,6 +62,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                     'timestamp': new Date(),
                     'message': `Failed to launch ${name}.`
                 }
+                // Same as other event, but indicate that it failed. +no sid, since the app did not launch.
+                analyticsEvents.appLaunched(name, null, currentCpu, currentGpu, currentMemory, true)
                 addActivity(newActivity)
             })
         localStorage.setItem(`${app_id}-cpu`, currentCpu);
@@ -76,7 +80,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         <Card
             style={{ width: '400px', height: '450px' }}
             actions={[
-                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Button icon={<RocketOutlined />} onClick={appLauncher}>Launch</Button><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>About</Button></div>) :
+                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Tooltip title={available ? "" : "The maximum number of instances is currently running"}><Button icon={<RocketOutlined />} disabled={!available} onClick={appLauncher}>Launch</Button></Tooltip><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>About</Button></div>) :
                     <Button icon={<SettingOutlined />} key='setting' onClick={() => setLaunchTab(true)}>Configuration</Button>
             ]}
         >
@@ -94,11 +98,11 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                     <Fragment>
                         <Col span={14}>
                             <Slider
-                                min={parseInt(minimum_resources.cpus)}
-                                max={parseInt(maximum_resources.cpus)}
+                                min={parseFloat(minimum_resources.cpus)}
+                                max={parseFloat(maximum_resources.cpus)}
                                 onChange={(value) => { setCpu(value) }}
                                 value={typeof currentCpu === 'number' ? currentCpu : 0}
-                                step={1}
+                                step={0.5}
                             />
                         </Col>
                         <Col className="app_config_value" span={6}>
@@ -112,11 +116,11 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                         <Fragment>
                             <Col span={14}>
                                 <Slider
-                                    min={parseInt(minimum_resources.gpus)}
-                                    max={parseInt(maximum_resources.gpus)}
+                                    min={parseFloat(minimum_resources.gpus)}
+                                    max={parseFloat(maximum_resources.gpus)}
                                     onChange={(value) => { setGpu(value) }}
                                     value={typeof currentGpu === 'number' ? currentGpu : 0}
-                                    step={1}
+                                    step={0.5}
                                 />
                             </Col>
                             <Col className="app_config_value" span={6}>

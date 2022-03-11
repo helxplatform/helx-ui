@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Layout, Col, Spin } from 'antd'
 import { AppCard } from '../../components/workspaces'
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group'
-import { useApp } from '../../contexts/app-context'
+import { useApp, useInstance } from '../../contexts'
 import { openNotificationWithIcon } from '../../components/notifications';
 import { Breadcrumbs } from '../../components/layout'
 import '../../components/workspaces/app-card.css'
@@ -10,7 +10,10 @@ import '../../components/workspaces/app-card.css'
 
 export const AvailableView = () => {
     const [apps, setApps] = useState();
+    const [runningInstances, setRunningInstances] = useState();
+    const [filteredApps, setFilteredApps] = useState();
     const { loadApps } = useApp();
+    const { loadInstances } = useInstance();
     const [isLoading, setLoading] = useState(false);
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
@@ -28,12 +31,50 @@ export const AvailableView = () => {
                 .catch(e => {
                     setApps({})
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading apps.')
-                    // setApps({"filebrowser":{"name":"File Browser","app_id":"filebrowser","description":"File Browser - a utility for browsing files through a web interface","detail":"File Browser provides a web interface for browsing files in a cloud environment.","docs":"https://filebrowser.org/","spec":"https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/filebrowser/docker-compose.yaml","minimum_resources":{"cpus":"1","gpus":0,"memory":"4000M"},"maximum_resources":{"cpus":"8","gpus":0,"memory":"64000M"}},"jupyter-ds":{"name":"Jupyter Data Science","app_id":"jupyter-ds","description":"Jupyter DataScience - A Jupyter notebook for exploring and visualizing data.","detail":"Includes R, Julia, and Python.","docs":"https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-datascience-notebook","spec":"https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/jupyter-ds/docker-compose.yaml","minimum_resources":{"cpus":"1","gpus":0,"memory":"4000M"},"maximum_resources":{"cpus":"8","gpus":0,"memory":"64000M"}},"octave":{"name":"Octave","app_id":"octave","description":"A scientific programming language largely compatible with MATLAB.","detail":"GNU Octave is a high-level language, primarily intended for numerical computations.","docs":"https://www.gnu.org/software/octave","spec":"https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/octave/docker-compose.yaml","minimum_resources":{"cpus":"1","gpus":0,"memory":"4000M"},"maximum_resources":{"cpus":"8","gpus":0,"memory":"64000M"}}})
+                })
+        }
+        renderApp();
+    }, [])
+
+    useEffect(() => {
+        const filterApps = async (a) => {
+            const instance_result = await loadInstances()
+                .then(r => {
+                    setRunningInstances(r.data);
+                })
+                .catch(e => {
+                    setRunningInstances([])
                 })
             setLoading(false);
         }
-        renderApp();
-    }, [loadApps])
+        filterApps()
+    }, [apps])
+
+    useEffect(() => {
+        if (runningInstances !== undefined && runningInstances.length >= 0) {
+            let currApps = apps;
+            let appUsage = new Map();
+            for (let instance of runningInstances) {
+                if (appUsage.has(instance.name)) {
+                    appUsage.set(instance.name, appUsage.get(instance.name) + 1)
+                }
+                else {
+                    appUsage.set(instance.name, 1)
+                }
+            }
+            for (let currAppName in currApps) {
+                // receive max instance count from tycho
+                if (appUsage.has(currApps[currAppName].name) && appUsage.get(currApps[currAppName].name) === currApps[currAppName].count) {
+                    currApps[currAppName].available = false;
+                }
+                else {
+                    currApps[currAppName].available = true;
+                }
+            }
+            setFilteredApps(currApps)
+        }
+    }, [runningInstances])
+
 
     return (
         <Layout>
@@ -41,9 +82,9 @@ export const AvailableView = () => {
             <NavigationTabGroup currentKey="available" />
             {isLoading ?
                 <Spin size="large" /> :
-                (apps !== undefined ?
-                    (Object.keys(apps).length !== 0 ?
-                        <div className="grid">{Object.keys(apps).sort().map(appKey => <Col><AppCard key={appKey} {...apps[appKey]} /></Col>)}</div>
+                (filteredApps !== undefined ?
+                    (Object.keys(filteredApps).length !== 0 ?
+                        <div className="grid">{Object.keys(filteredApps).sort().map(appKey => <Col><AppCard key={appKey} {...filteredApps[appKey]} /></Col>)}</div>
                         : <div>No Apps Available</div>)
                     : <div></div>)}
         </Layout>

@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { kgLink } from '../../utils'
-import { Link } from '../link'
+import { kgLink } from '../../../utils'
+import { Link } from '../../link'
 import './knowledge-graphs.css'
 
 const KnowledgeGraph = ({ graph }) => {
@@ -49,8 +49,9 @@ const NoKnowledgeGraphsMessage = () => {
   )
 }
 
-export const KnowledgeGraphs = ({ graphs }) => {
-  if (graphs.length) {
+export const KnowledgeGraphs = ({ graphs: complete_graphs }) => {
+  if (complete_graphs.length) {
+    const graphs = complete_graphs.map((graph) => graph.knowledge_graph);
     return (
       <div className="interactions-grid">
         <div className="column-title">Ontological Term)</div>

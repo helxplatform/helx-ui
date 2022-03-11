@@ -7,6 +7,7 @@ export const ExternalLink = ({ to, children, ...props }) => {
       href={ to }
       target="_blank"
       rel="noopener noreferrer"
+      {...props}
     >{ children }</a>
   )
 }

@@ -3,11 +3,12 @@ import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spi
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
-import { useActivity, useApp, useInstance } from '../../contexts';
+import { useActivity, useApp, useInstance, useAnalytics } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import { updateTabName } from '../../utils/update-tab-name';
+import { navigate } from '@reach/router';
 
 const memoryFormatter = (value) => {
     return formatBytes(value, 2);
@@ -18,9 +19,10 @@ export const ActiveView = () => {
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
-    const { addActivity } = useActivity();
+    const { addActivity, updateActivity } = useActivity();
+    const { analyticsEvents } = useAnalytics();
     const { loadApps } = useApp();
-    const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab } = useInstance();
+    const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
     const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
     const [stopModalVisibility, setStopModalVisibility] = useState(false);
     const [stopAllModalVisibility, setStopAllModalVisibility] = useState(false);
@@ -51,7 +53,10 @@ export const ActiveView = () => {
                 })
             setLoading(false);
         }
+        renderInstance();
+    }, [refresh])
 
+    useEffect(() => {
         // load all app configuration for input validation
         const loadAppsConfig = async () => {
             await loadApps()
@@ -63,34 +68,55 @@ export const ActiveView = () => {
                     openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
                 })
         }
-        renderInstance();
-        loadAppsConfig();
-    }, [refresh])
+        if (instances && instances.length === 0) setTimeout(() => navigate('/helx/workspaces/available'), 1000)
+        else loadAppsConfig();
 
-    const stopInstanceHandler = async (app_id, name) => {
+    }, [instances])
+
+    const stopInstanceHandler = async () => {
         setIsStopping(true);
-        addOrDeleteInstanceTab("close", app_id);
-        await stopInstance(app_id)
+        addOrDeleteInstanceTab("close", currentRecord.sid);
+        stopPolling(currentRecord.sid)
+        await stopInstance(currentRecord.sid)
             .then(r => {
-                setRefresh(!refresh)
                 let newActivity = {
-                    'sid': 'none',
-                    'app_name': name,
+                    'sid': currentRecord.sid,
+                    'app_name': currentRecord.name,
                     'status': 'success',
                     'timestamp': new Date(),
-                    'message': `${name} is stopped.`
+                    'message': `${currentRecord.name} is stopped.`
                 }
-                addActivity(newActivity)
+                analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, null);
+                updateActivity(newActivity)
+                setRefresh(!refresh)
             })
             .catch(e => {
                 let newActivity = {
-                    'sid': 'none',
-                    'app_name': name,
-                    'status': 'error',
+                    'sid': currentRecord.sid,
+                    'app_name': currentRecord.name,
+                    'status': '',
                     'timestamp': new Date(),
-                    'message': `An error has occurred while stopping ${name}.`
+                    'message': ``
                 }
-                addActivity(newActivity)
+                switch (e.response.status) {
+                    case 403: {
+                        newActivity['status'] = 'error'
+                        newActivity['message'] = `Sorry, you don't have the permission to stop this instance.`
+                        break;
+                    }
+                    case 404: {
+                        newActivity['status'] = 'warning'
+                        newActivity['message'] = `${currentRecord.name} no longer exists.`
+                        setTimeout(() => setRefresh(!refresh), 1000)
+                        break;
+                    }
+                    default: {
+                        newActivity['status'] = 'error'
+                        newActivity['message'] = `An error has occurred while stopping ${currentRecord.name}.`
+                    }
+                }
+                analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, newActivity.message);
+                updateActivity(newActivity)
             })
         setStopModalVisibility(false);
         setIsStopping(false);
@@ -99,8 +125,8 @@ export const ActiveView = () => {
     const stopAllInstanceHandler = async () => {
         setIsStoppingAll(true);
         for (let this_app of instances) {
-            addOrDeleteInstanceTab("close", this_app.app_id);
-            await stopInstance(this_app.app_id)
+            addOrDeleteInstanceTab("close", this_app.sid);
+            await stopInstance(this_app.sid)
                 .then(r => {
                 })
                 .catch(e => {
@@ -114,32 +140,39 @@ export const ActiveView = () => {
                     addActivity(newActivity)
                 })
         }
+        analyticsEvents.allAppsDeleted()
         setRefresh(!refresh)
         setStopAllModalVisibility(false);
         setIsStoppingAll(false);
     }
 
     const connectInstance = (aid, sid, url, name) => {
-        let newActivity = {
-            'sid': sid,
-            'app_name': name,
-            'status': 'processing',
-            'timestamp': new Date(),
-            'message': `${name} is launching.`
+        try {
+            const urlObject = new URL(url);
+            const appUrl = `${window.location.origin}/helx/connect/${aid}/${encodeURIComponent(urlObject.pathname)}`;
+            const connectTabRef = `${sid}-tab`;
+            const connectTab = window.open(appUrl, connectTabRef);
+            updateTabName(connectTab,name);
+            addOrDeleteInstanceTab("add",sid,connectTab);
+            analyticsEvents.appOpened(name, sid);
         }
-        addActivity(newActivity)
-        pollingInstance(aid, sid, url, name)
+        catch(e) {
+            // if invalid URL parse error do nothing
+            console.log(`error trying to connect to instance ${e}`)
+        }
     }
 
     //Update a running Instance.
     const updateOne = async (_workspace, _cpu, _gpu, _memory) => {
         setUpdating(true);
+        const appUpdatedAnalyticsEvent = (failed=false) => (
+            analyticsEvents.appUpdated(currentRecord.name, currentRecord.sid, _workspace, _cpu, _gpu, _memory, failed)
+        );
         await updateInstance(currentRecord.sid, _workspace, _cpu, _gpu, _memory)
             .then(res => {
                 if (res.data.status === "success") {
                     setUpdateModalVisibility(false);
                     setUpdating(false);
-                    // openNotificationWithIcon('success', 'Success', `${currentRecord.name} is updated and will be restarted.`)
                     let newActivity = {
                         'sid': currentRecord.sid,
                         'app_name': currentRecord.name,
@@ -147,10 +180,10 @@ export const ActiveView = () => {
                         'timestamp': new Date(),
                         'message': `${currentRecord.name} is launching.`
                     }
+                    appUpdatedAnalyticsEvent(false)
                     addActivity(newActivity)
                     pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
                     setRefresh(!refresh);
-                    //splashScreen(currentRecord.url, currentRecord.aid, currentRecord.sid, currentRecord.name);
                 }
                 else {
                     setUpdateModalVisibility(false);
@@ -162,8 +195,8 @@ export const ActiveView = () => {
                         'timestamp': new Date(),
                         'message': `Error occured when updating instance ${currentRecord.name}.`
                     }
+                    appUpdatedAnalyticsEvent(true)
                     addActivity(newActivity)
-                    // openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
                 }
             }).catch(e => {
                 setUpdateModalVisibility(false);
@@ -175,8 +208,8 @@ export const ActiveView = () => {
                     'timestamp': new Date(),
                     'message': `Error occured when updating instance ${currentRecord.name}.`
                 }
+                appUpdatedAnalyticsEvent(true)
                 addActivity(newActivity)
-                // openNotificationWithIcon('error', 'Error', `Error occured when updating instance ${currentRecord.name}.`)
             })
     };
 
@@ -266,7 +299,7 @@ export const ActiveView = () => {
                             title='Stop Instance'
                             footer={[
                                 <Button key="stop" onClick={() => setStopModalVisibility(false)}>Cancel</Button>,
-                                <Button type="primary" key="stop" onClick={() => stopInstanceHandler(record.app_id, record.name)} danger>{isStopping ? <Spin /> : 'Stop'}</Button>
+                                <Button type="primary" key="stop" onClick={() => stopInstanceHandler()} danger>{isStopping ? <Spin /> : 'Stop'}</Button>
                             ]}
                             onCancel={() => setStopModalVisibility(false)}
                         >
@@ -342,7 +375,7 @@ export const ActiveView = () => {
                     <div></div> :
                     (instances.length > 0 ?
                         <Table columns={columns} dataSource={instances}>
-                        </Table> : <div style={{ textAlign: 'center' }}>No instances running</div>))}
+                        </Table> : <div style={{ textAlign: 'center' }}>No instances running. Redirecting to apps...</div>))}
         </Layout>
     )
 }

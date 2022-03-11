@@ -1,0 +1,11 @@
+.tranql-query-textarea {
+  width: 100%;
+  background-color: var(--color-unc-gray);
+  font-family: monospace;
+  font-size: 90%;
+  min-height: 80px !important;
+}
+
+.force-graph-container {
+  background-color: #eee ;
+}

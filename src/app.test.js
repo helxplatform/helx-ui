@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { App } from './app';
+import { NotFoundView } from './views/';
 
 test('renders app', () => {
-    render(<App />);
-    const linkElement = screen.getByText(/© HeLx 2021/i);
+    render(<NotFoundView />);
+    const linkElement = screen.getByText(/ERROR 404/i);
     expect(linkElement).toBeInTheDocument();
 });

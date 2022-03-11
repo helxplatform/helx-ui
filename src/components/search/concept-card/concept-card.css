@@ -1,0 +1,18 @@
+.ant-list-items {
+  width: 100%;
+}
+
+.studies-list-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.study-name {
+  flex: 1 !important;
+}
+
+.variables-count {
+  min-width: 100px;
+  text-align: right;
+}
