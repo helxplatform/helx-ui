@@ -3,6 +3,8 @@ import { Spin } from "antd";
 
 import { useEffect, useState } from 'react';
 
+// This view is used when the UI is checking the readiness of an instance
+
 export const SplashScreenView = (props) => {
     const header = document.getElementById('helx-header');
     const sidePanel = document.getElementById('helx-side-panel');

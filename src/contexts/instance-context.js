@@ -21,6 +21,10 @@ export const InstanceProvider = ({ children }) => {
         })
     }
 
+    // Check the status code of an instance to see if it's ready for use.
+    // Do the check every 5 seconds until it returns a OK status.
+    // Clear its timeout when the instance is deleted by user.
+
     const pollingInstance = (app_id, sid, app_url, app_name) => {
         let ready = false;
         const decoded_url = decodeURIComponent(app_url);
@@ -57,6 +61,7 @@ export const InstanceProvider = ({ children }) => {
         if (action === "add") {
             setTabs(prev => prev.concat(tabIns));
         }
+        // Close its browser tab if an instance is deleted by a use.
         if (action === "close") {
             openedTabs.map((item) => {
                 if (item.name.split("-")[0] === `${app_id}`) {

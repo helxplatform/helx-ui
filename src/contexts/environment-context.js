@@ -32,8 +32,10 @@ export const EnvironmentProvider = ({ children }) => {
   const [isLoadingContext, setIsLoadingContext] = useState(true);
   const [basePath, setBasePath] = useState('/');
 
+  // Routes are generated dynamically based on search and workspace configuration. 
+  // If workspace module is enabled, all relevant paths will be added. (/workspaces/active, workspace/available, ...)
+
   const generateRoutes = (searchEnabled, workspaceEnabled) => {
-    console.log("generate Routes")
     const baseRoutes = [];
     if (searchEnabled === 'true') {
       // route homepage to search if search is enabled
@@ -58,6 +60,7 @@ export const EnvironmentProvider = ({ children }) => {
     return baseRoutes;
   }
 
+  // fetch env.json for environment configuration
   const loadEnvironmentContext = async () => {
     let response = await axios({
       method: 'GET',
@@ -67,6 +70,8 @@ export const EnvironmentProvider = ({ children }) => {
 
     // split the comma-separated string which tells ui the support section to hide
     context.hidden_support_sections = context.hidden_support_sections.split(',')
+
+    // logos for different brands
     switch (context.brand) {
       case 'braini':
         context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/braini/braini-lg-gray.png'
@@ -101,6 +106,7 @@ export const EnvironmentProvider = ({ children }) => {
     loadEnvironmentContext()
   }, [relativeHost])
 
+  // If workspace is enabled, all routes should have a '/helx' basePath as the ui is embedded in the appstore
   useEffect(() => {
     if (Object.keys(context).length !== 0) {
       const routes = generateRoutes(context.search_enabled, context.workspaces_enabled);

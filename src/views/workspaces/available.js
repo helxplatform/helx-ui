@@ -63,7 +63,7 @@ export const AvailableView = () => {
                 }
             }
             for (let currAppName in currApps) {
-                // receive max instance count from tycho
+                // receive max instance count from tycho and disabled app launch button if necessary
                 if (appUsage.has(currApps[currAppName].name) && appUsage.get(currApps[currAppName].name) === currApps[currAppName].count) {
                     currApps[currAppName].available = false;
                 }
