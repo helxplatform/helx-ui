@@ -9,7 +9,6 @@ import './search.css'
 
 //
 
-import { sampleResponseFromSearch } from '../../response-search'
 import { sampleResponseFromSearchVar } from '../../response-search-var'
 
 //
@@ -191,8 +190,7 @@ export const HelxSearch = ({ children }) => {
           offset: (currentPage - 1) * PER_PAGE,
           size: PER_PAGE,
         }
-        const response = sampleResponseFromSearch
-        // const response = await axios.post(`${helxSearchUrl}/search`, params)
+        const response = await axios.post(`${helxSearchUrl}/search`, params)
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.hits) {
           const unsortedHits = response.data.result.hits.hits.map(r => r._source)
           // gather invalid concepts: remove from rendered concepts and dump to console.
