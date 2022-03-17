@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
 import { Collapse, List, Typography, Button, Space } from 'antd'
-import { PushpinOutlined } from '@ant-design/icons'
+import {
+    PushpinOutlined as UnselectedIcon,
+    PushpinFilled as SelectedIcon,
+} from '@ant-design/icons'
 import { useHelxSearch } from '..';
 import { Link } from '../../link'
 
@@ -152,11 +155,14 @@ export const VariableSearchResults = () => {
                     return (
                         <Panel
                             key={`panel_${study.c_name}`}
+                            className="study-panel"
                             header={
-                                <Text>
-                                    {study.c_name}{` `}
-                                    <PushpinOutlined className="study-pushpin" />
-                                </Text>
+                                <span className="study-panel-header">
+                                    <Text>{study.c_name}{` `}</Text>
+                                    <Button type="link" className="study-selection-button">
+                                      <SelectedIcon />
+                                    </Button> 
+                                </span>
                             }
                             extra={ [
                                 <Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
