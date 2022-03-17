@@ -122,7 +122,7 @@ export const VariableSearchResults = () => {
     }, [filteredVariables])
 
     function selectVariablesByStudy(studyName) {
-        return function (_, e) {
+        return function (e) {
             e.stopPropagation()
 
             let idx = studyNamesForDisplay.indexOf(studyName)
@@ -159,8 +159,16 @@ export const VariableSearchResults = () => {
                             header={
                                 <span className="study-panel-header">
                                     <Text>{study.c_name}{` `}</Text>
-                                    <Button type="link" className="study-selection-button">
-                                      <SelectedIcon />
+                                    <Button
+                                      type="link"
+                                      className="study-selection-button"
+                                      onClick={ selectVariablesByStudy(study.c_name) }
+                                    >
+                                      {
+                                        studyNamesForDisplay.includes(study.c_name)
+                                            ? <SelectedIcon />
+                                            : <UnselectedIcon />
+                                      }
                                     </Button> 
                                 </span>
                             }
