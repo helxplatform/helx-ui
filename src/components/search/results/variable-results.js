@@ -1,7 +1,11 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
+import { Collapse, List, Typography, Button, Space } from 'antd'
+import {
+    PushpinOutlined as UnselectedIcon,
+    PushpinFilled as SelectedIcon,
+} from '@ant-design/icons'
 import { useHelxSearch } from '..';
-import { Collapse, List, Typography, Button, Switch, Space } from 'antd'
 import { Link } from '../../link'
 
 import './variable-results.css';
@@ -118,7 +122,7 @@ export const VariableSearchResults = () => {
     }, [filteredVariables])
 
     function selectVariablesByStudy(studyName) {
-        return function (_, e) {
+        return function (e) {
             e.stopPropagation()
 
             let idx = studyNamesForDisplay.indexOf(studyName)
@@ -151,16 +155,29 @@ export const VariableSearchResults = () => {
                     return (
                         <Panel
                             key={`panel_${study.c_name}`}
+                            className={ [
+                                'study-panel ',
+                                studyNamesForDisplay.includes(study.c_name) ? 'selected' : 'unselected',
+                            ] }
                             header={
-                                <Text>
-                                    {study.c_name}{` `}
-                                    (<Link to={study.c_link}>{study.c_id}</Link>)
-                                </Text>
+                                <span className="study-panel-header">
+                                    <Text>{study.c_name}{` `}</Text>
+                                    <Button
+                                      type="link"
+                                      className="study-selection-button"
+                                      onClick={ selectVariablesByStudy(study.c_name) }
+                                    >
+                                      {
+                                        studyNamesForDisplay.includes(study.c_name)
+                                            ? <SelectedIcon />
+                                            : <UnselectedIcon />
+                                      }
+                                    </Button> 
+                                </span>
                             }
-                            extra={
-                                [<Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>, <Switch size="small" style={{ marginLeft: '5px' }} onChange={selectVariablesByStudy(study.c_name)}></Switch>,
-                                ]
-                            }
+                            extra={ [
+                                <Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
+                            ] }
                         >
                             <List
                                 className="study-variables-list"
