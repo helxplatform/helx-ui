@@ -10,8 +10,15 @@
 }
 
 .variables-collapse .study-panel .study-panel-header .study-selection-button {
-    filter: opacity(0);
     color: #6399e9;
+}
+
+.variables-collapse .study-panel.unselected .study-panel-header .study-selection-button {
+    filter: opacity(0);
+}
+
+.variables-collapse .study-panel.selected .study-panel-header .study-selection-button {
+    filter: opacity(1);
 }
 
 .variables-collapse .study-panel:hover .study-panel-header .study-selection-button {
