@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
-import { Collapse, List, Typography, Button, Switch, Space } from 'antd'
+import { Collapse, List, Typography, Button, Space } from 'antd'
 import { PushpinOutlined } from '@ant-design/icons'
 import { useHelxSearch } from '..';
 import { Link } from '../../link'
@@ -158,10 +158,9 @@ export const VariableSearchResults = () => {
                                     <PushpinOutlined className="study-pushpin" />
                                 </Text>
                             }
-                            extra={
-                                [<Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>, <Switch size="small" style={{ marginLeft: '5px' }} onChange={selectVariablesByStudy(study.c_name)}></Switch>,
-                                ]
-                            }
+                            extra={ [
+                                <Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
+                            ] }
                         >
                             <List
                                 className="study-variables-list"
