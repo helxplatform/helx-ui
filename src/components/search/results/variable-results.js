@@ -155,7 +155,10 @@ export const VariableSearchResults = () => {
                     return (
                         <Panel
                             key={`panel_${study.c_name}`}
-                            className="study-panel"
+                            className={ [
+                                'study-panel ',
+                                studyNamesForDisplay.includes(study.c_name) ? 'selected' : 'unselected',
+                            ] }
                             header={
                                 <span className="study-panel-header">
                                     <Text>{study.c_name}{` `}</Text>
