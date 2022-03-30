@@ -39,6 +39,14 @@ export const VariableSearchResults = () => {
             fields: ['name', 'id', 'description', 'study_name', 'score'],
         },
         state: {
+            default: {
+                style: {
+                    lineWidth: 0,
+                    fill: 'slateblue',
+                    strokeStyle: "slateblue",
+                    fillOpacity: 1,
+                },
+            },
             active: {
                 style: {
                     lineWidth: 0,
@@ -49,8 +57,8 @@ export const VariableSearchResults = () => {
             inactive: {
                 style: {
                     lineWidth: 0,
-                    fill: '#476eb2',
-                    strokeStyle: "#476eb2",
+                    fill: 'slateblue',
+                    strokeStyle: "slateblue",
                     fillOpacity: 1,
                 },
             },
@@ -127,15 +135,47 @@ export const VariableSearchResults = () => {
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
+
+        // Initially, all bars should be labelled as "inactive"
         const variableIds = variableResults.map(el => el.id);
         histogramObj.setState("inactive", (datum) => variableIds.includes(datum.id));
     }, [filteredVariables])
 
-    function selectVariablesByStudy(studyName) {
+    function updateDisplayedHistogramStudies(desiredState, oppositeState, newStudyNamesForDisplay) {
+        console.log(studyNamesForDisplay);
+        // filter variables by study if needed.
+        const variableIdsFilteredByStudy = newStudyNamesForDisplay.length > 0 ?
+            // if there's a reason to filter, DO
+            variableResults.filter(variable => newStudyNamesForDisplay.includes(variable.study_name)).map(el => el.id) :
+            // otherwise, collect all IDs, so that can be assigned the opposite state
+            variableResults.map(el => el.id);
+
+        // Examples that suggested how to setState to 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
+        // Style parameters below do nothing. Examples that inspired the code for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
+        // We found documentation for how to style state properties under Geometry Style > State at https://charts.ant.design/en/examples/column/basic#color
+        let histogramObj = variablesHistogram.current.getChart()
+        histogramObj.setState(desiredState, (datum) => variableIdsFilteredByStudy.includes(datum.id));
+        histogramObj.setState(oppositeState, (datum) => !variableIdsFilteredByStudy.includes(datum.id), false);
+
+        setStudyNamesForDisplay(newStudyNamesForDisplay);
+    }
+
+    function toggleVariablesByStudy(studyName) {
         return function (e) {
             e.stopPropagation()
-
             let idx = studyNamesForDisplay.indexOf(studyName)
+            let desiredState;
+            let oppositeState;
+            if (idx === -1) {
+                console.log("I'll be active")
+                desiredState = "active";
+                oppositeState = "inactive";
+            } else {
+                console.log("INactive")
+                desiredState = "inactive";
+                oppositeState = "active";
+            }
+            
             let newStudyNamesForDisplay = [...studyNamesForDisplay]
             if (idx > -1) {
                 newStudyNamesForDisplay.splice(idx, 1)
@@ -143,19 +183,7 @@ export const VariableSearchResults = () => {
                 newStudyNamesForDisplay = [...newStudyNamesForDisplay, studyName]
             }
 
-            // filter variables by study if needed.
-            const variableIdsFilteredByStudy = newStudyNamesForDisplay.length > 0 ?
-                variableResults.filter(variable => newStudyNamesForDisplay.includes(variable.study_name)).map(el => el.id) :
-                variableResults.map(el => el.id);
-
-            // Examples that suggested how to setState to 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
-            // Style parameters below do nothing. Examples that inspired the code for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
-            // We found documentation for how to style state properties under Geometry Style > State at https://charts.ant.design/en/examples/column/basic#color
-            let histogramObj = variablesHistogram.current.getChart()
-            histogramObj.setState("active", (datum) => variableIdsFilteredByStudy.includes(datum.id));
-            histogramObj.setState("active", (datum) => !variableIdsFilteredByStudy.includes(datum.id), false);
-
-            setStudyNamesForDisplay(newStudyNamesForDisplay)
+            updateDisplayedHistogramStudies(desiredState, oppositeState, newStudyNamesForDisplay);
         }
     }
 
@@ -176,7 +204,7 @@ export const VariableSearchResults = () => {
                                     <Button
                                       type="link"
                                       className="study-selection-button"
-                                      onClick={ selectVariablesByStudy(study.c_name) }
+                                      onClick={ toggleVariablesByStudy(study.c_name) }
                                     >
                                       {
                                         studyNamesForDisplay.includes(study.c_name)
