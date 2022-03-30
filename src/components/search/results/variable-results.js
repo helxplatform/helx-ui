@@ -40,13 +40,21 @@ export const VariableSearchResults = () => {
         },
         state: {
             active: {
-              style: {
-                lineWidth: 0,
-                fill: 'aquamarine',
-                strokeStyle: "aquamarine"
-              },
+                style: {
+                    lineWidth: 0,
+                    fill: 'aquamarine',
+                    strokeStyle: "aquamarine"
+                },
             },
-          }
+            inactive: {
+                style: {
+                    lineWidth: 0,
+                    fill: '#476eb2',
+                    strokeStyle: "#476eb2",
+                    fillOpacity: 1,
+                },
+            },
+        }
     }
 
     function removeWithinFilterClass() {
@@ -119,6 +127,8 @@ export const VariableSearchResults = () => {
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
+        const variableIds = variableResults.map(el => el.id);
+        histogramObj.setState("inactive", (datum) => variableIds.includes(datum.id));
     }, [filteredVariables])
 
     function selectVariablesByStudy(studyName) {
@@ -140,6 +150,7 @@ export const VariableSearchResults = () => {
 
             // Examples that suggested how to setState to 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
             // Style parameters below do nothing. Examples that inspired the code for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
+            // We found documentation for how to style state properties under Geometry Style > State at https://charts.ant.design/en/examples/column/basic#color
             let histogramObj = variablesHistogram.current.getChart()
             histogramObj.setState("active", (datum) => variableIdsFilteredByStudy.includes(datum.id));
             histogramObj.setState("active", (datum) => !variableIdsFilteredByStudy.includes(datum.id), false);
