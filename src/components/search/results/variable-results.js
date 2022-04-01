@@ -23,6 +23,7 @@ export const VariableSearchResults = () => {
     const variablesHistogram = useRef()
 
     // Initial config for the variables histogram
+    // Default color I found in the ant Obj schema: #5B8FF9
     const variableHistogramConfig = {
         data: filteredVariables,
         xField: 'id',
@@ -39,26 +40,11 @@ export const VariableSearchResults = () => {
             fields: ['name', 'id', 'description', 'study_name', 'score'],
         },
         state: {
-            default: {
-                style: {
-                    lineWidth: 0,
-                    fill: 'slateblue',
-                    strokeStyle: "slateblue",
-                    fillOpacity: 1,
-                },
-            },
             active: {
                 style: {
                     lineWidth: 0,
-                    fill: 'aquamarine',
-                    strokeStyle: "aquamarine"
-                },
-            },
-            inactive: {
-                style: {
-                    lineWidth: 0,
-                    fill: 'slateblue',
-                    strokeStyle: "slateblue",
+                    fill: '#3CCEA0',
+                    strokeStyle: "#3CCEA0",
                     fillOpacity: 1,
                 },
             },
@@ -86,6 +72,10 @@ export const VariableSearchResults = () => {
 
         const variableStudyResultsUpdated = removeWithinFilterClass()
         setStudyResultsForDisplay(variableStudyResultsUpdated)
+        setStudyNamesForDisplay([])
+
+        let histogramObj = variablesHistogram.current.getChart()
+        histogramObj.setState('active', () => true, false);
     }
 
     function updateStudyResults(filtered_variables) {
@@ -135,27 +125,26 @@ export const VariableSearchResults = () => {
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
-
-        // Initially, all bars should be labelled as "inactive"
-        const variableIds = variableResults.map(el => el.id);
-        histogramObj.setState("inactive", (datum) => variableIds.includes(datum.id));
     }, [filteredVariables])
 
-    function updateDisplayedHistogramStudies(desiredState, oppositeState, newStudyNamesForDisplay) {
-        console.log(studyNamesForDisplay);
-        // filter variables by study if needed.
+    function updateDisplayedHistogramStudies(newStudyNamesForDisplay) {
+        // If there are new StudyNames in newStudyNamesForDisplay,
+        //      - Filter the variables by study,
+        //      - Otherwise, collect all IDs to one Array
         const variableIdsFilteredByStudy = newStudyNamesForDisplay.length > 0 ?
-            // if there's a reason to filter, DO
             variableResults.filter(variable => newStudyNamesForDisplay.includes(variable.study_name)).map(el => el.id) :
-            // otherwise, collect all IDs, so that can be assigned the opposite state
             variableResults.map(el => el.id);
 
-        // Examples that suggested how to setState to 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
-        // Style parameters below do nothing. Examples that inspired the code for styles came from https://antv-g2plot-v1.gitee.io/en/examples/general/state
-        // We found documentation for how to style state properties under Geometry Style > State at https://charts.ant.design/en/examples/column/basic#color
+        // Examples using setState to pass & remove 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
+        // Documentation for how to style state properties under Geometry Style > State at https://charts.ant.design/en/examples/column/basic#color
         let histogramObj = variablesHistogram.current.getChart()
-        histogramObj.setState(desiredState, (datum) => variableIdsFilteredByStudy.includes(datum.id));
-        histogramObj.setState(oppositeState, (datum) => !variableIdsFilteredByStudy.includes(datum.id), false);
+        if (variableIdsFilteredByStudy.length === variableResults.length) {
+            // Remove "active" from all places where it has been set
+            histogramObj.setState('active', () => true, false);
+        } else {
+            histogramObj.setState("active", (datum) => variableIdsFilteredByStudy.includes(datum.id));
+            histogramObj.setState("active", (datum) => !variableIdsFilteredByStudy.includes(datum.id), false);
+        }
 
         setStudyNamesForDisplay(newStudyNamesForDisplay);
     }
@@ -164,18 +153,7 @@ export const VariableSearchResults = () => {
         return function (e) {
             e.stopPropagation()
             let idx = studyNamesForDisplay.indexOf(studyName)
-            let desiredState;
-            let oppositeState;
-            if (idx === -1) {
-                console.log("I'll be active")
-                desiredState = "active";
-                oppositeState = "inactive";
-            } else {
-                console.log("INactive")
-                desiredState = "inactive";
-                oppositeState = "active";
-            }
-            
+
             let newStudyNamesForDisplay = [...studyNamesForDisplay]
             if (idx > -1) {
                 newStudyNamesForDisplay.splice(idx, 1)
@@ -183,7 +161,7 @@ export const VariableSearchResults = () => {
                 newStudyNamesForDisplay = [...newStudyNamesForDisplay, studyName]
             }
 
-            updateDisplayedHistogramStudies(desiredState, oppositeState, newStudyNamesForDisplay);
+            updateDisplayedHistogramStudies(newStudyNamesForDisplay);
         }
     }
 
