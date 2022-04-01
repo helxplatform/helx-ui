@@ -171,7 +171,7 @@ export const VariableSearchResults = () => {
                 studyResultsForDisplay.map((study, i) => {
                     return (
                         <Panel
-                            key={`panel_${study.c_name}`}
+                            key={`panel_${study.c_name}_${i}`}
                             className={ [
                                 'study-panel ',
                                 studyNamesForDisplay.includes(study.c_name) ? 'selected' : 'unselected',
