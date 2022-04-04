@@ -6,24 +6,25 @@ import {
     PushpinFilled as SelectedIcon,
 } from '@ant-design/icons'
 import { useHelxSearch } from '..';
-import { Link } from '../../link'
-
 import './variable-results.css';
 
 const { Text } = Typography
 const { Panel } = Collapse
 
+/** Component that handles display of Variable Results */
 export const VariableSearchResults = () => {
     const { variableResults, variableStudyResults } = useHelxSearch()
 
-    const [filteredVariables, setFilteredVariables] = useState(variableResults)
+    /** studyResultsForDisplay holds variables grouped by study for the studies table */
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
+
+    /** filteredVariables holds the variables displayed in the histogram */
+    const [filteredVariables, setFilteredVariables] = useState(variableResults)
+
+    /** studyNamesForDisplay holds names of user selected studies to highlight in histogram */
     const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
 
     const variablesHistogram = useRef()
-
-    // Initial config for the variables histogram
-    // Default color I found in the ant Obj schema: #5B8FF9
     const variableHistogramConfig = {
         data: filteredVariables,
         xField: 'id',
@@ -51,9 +52,18 @@ export const VariableSearchResults = () => {
         }
     }
 
-    function removeWithinFilterClass() {
-        const variableStudyResultsUpdated = []
-        variableStudyResults.forEach(study => {
+    /**
+     * Helper function called from startOverHandler().
+     *
+     * The withinFilter property on each variable determines how the variable row is
+     * displayed within the Studies table when the histogram brush filter/zoom function
+     * is active.
+     *
+     * This function resets the  the withinFilter property back to none so styles are
+     * dropped.
+     */
+    function resetFilterPropertyToNone() {
+        return variableStudyResults.map(study => {
             const updatedStudy = Object.assign({}, study);
             const updatedVariables = []
             study.elements.forEach(variable => {
@@ -61,19 +71,27 @@ export const VariableSearchResults = () => {
                 updatedVariables.push(variable)
             })
             updatedStudy["elements"] = updatedVariables
-            variableStudyResultsUpdated.push(updatedStudy)
-        })
 
-        return variableStudyResultsUpdated;
+            return updatedStudy;
+        })
     }
 
+
+    /**
+     * Triggered by the Start Over button.
+     */
     const startOverHandler = () => {
+        /** Restores the variables shown in the histogram back to the original inputs */
         setFilteredVariables(variableResults)
 
-        const variableStudyResultsUpdated = removeWithinFilterClass()
-        setStudyResultsForDisplay(variableStudyResultsUpdated)
+        /** Restores the variables and studies in the Studies Table to original inputs */
+        const studyResultsWithVariablesUpdated = resetFilterPropertyToNone()
+        setStudyResultsForDisplay(studyResultsWithVariablesUpdated)
+
+        /** Resets selected study names to none selected */
         setStudyNamesForDisplay([])
 
+        /** Removes 'active' state property, which allows bar highlighting when a study is selected */
         let histogramObj = variablesHistogram.current.getChart()
         histogramObj.setState('active', () => true, false);
     }
