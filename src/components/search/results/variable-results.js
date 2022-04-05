@@ -145,33 +145,22 @@ export const VariableSearchResults = () => {
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
     }, [filteredVariables])
 
-    function updateDisplayedHistogramStudies(newStudyNamesForDisplay) {
-        // If there are new StudyNames in newStudyNamesForDisplay,
-        //      - Filter the variables by study,
-        //      - Otherwise, collect all IDs to one Array
-        const variableIdsFilteredByStudy = newStudyNamesForDisplay.length > 0 ?
-            variableResults.filter(variable => newStudyNamesForDisplay.includes(variable.study_name)).map(el => el.id) :
-            variableResults.map(el => el.id);
-
-        // Examples using setState to pass & remove 'active' came from https://g2plot.antv.vision/en/examples/dynamic-plots/brush#advanced-brush2
-        // Documentation for how to style state properties under Geometry Style > State at https://charts.ant.design/en/examples/column/basic#color
-        let histogramObj = variablesHistogram.current.getChart()
-        if (variableIdsFilteredByStudy.length === variableResults.length) {
-            // Remove "active" from all places where it has been set
-            histogramObj.setState('active', () => true, false);
-        } else {
-            histogramObj.setState("active", (datum) => variableIdsFilteredByStudy.includes(datum.id));
-            histogramObj.setState("active", (datum) => !variableIdsFilteredByStudy.includes(datum.id), false);
-        }
-
-        setStudyNamesForDisplay(newStudyNamesForDisplay);
-    }
-
-    function toggleVariablesByStudy(studyName) {
-        return function (e) {
+    /**
+     * Takes a studyName, selected by the user in the studies table & updates data going to
+     * the histogram, to toggle highlighting of variables from the selected study.
+     * 
+     * Outcome:
+     *  - Updates variable highlighting in histogram based on selected studies
+     *  - Updates the contents of studyNamesForDisplay
+     */
+    function toggleStudyHighlightingInHistogram(studyName) {
+        return function(e) {
             e.stopPropagation()
-            let idx = studyNamesForDisplay.indexOf(studyName)
 
+            /** Check in studyName is in the array of studyNamesForDisplay, then either add or
+             * remove the study.
+            */
+            let idx = studyNamesForDisplay.indexOf(studyName)
             let newStudyNamesForDisplay = [...studyNamesForDisplay]
             if (idx > -1) {
                 newStudyNamesForDisplay.splice(idx, 1)
@@ -179,8 +168,31 @@ export const VariableSearchResults = () => {
                 newStudyNamesForDisplay = [...newStudyNamesForDisplay, studyName]
             }
 
-            updateDisplayedHistogramStudies(newStudyNamesForDisplay);
+            /** If newStudyNamesForDisplay isn't empty:
+            *       - Filter the variables by study,
+            *       - Otherwise, collect all IDs to one Array */
+            const variableIdsFilteredByStudy = newStudyNamesForDisplay.length > 0 ?
+                variableResults.filter(_var => newStudyNamesForDisplay.includes(_var.study_name)).map(el => el.id) :
+                []
+                
+
+            /** Use `variableIdsFilteredByStudy` to determine which variables need to have their
+             * state set to 'active' */
+            let histogramObj = variablesHistogram.current.getChart()
+            if (variableIdsFilteredByStudy.length === 0) {
+                /** Remove "active" from all places where it has been set, if size of filtered variables
+                 * matches the size of the original input array */
+                histogramObj.setState('active', () => true, false);
+            } else {
+                /** If a variable is in the filtered variables array, it should be tagged as 'active' in
+                 * the histogram object. */
+                histogramObj.setState("active", (d) => variableIdsFilteredByStudy.includes(d.id));
+                histogramObj.setState("active", (d) => !variableIdsFilteredByStudy.includes(d.id), false);
+            }
+    
+            setStudyNamesForDisplay(newStudyNamesForDisplay);
         }
+
     }
 
     const VariablesTableByStudy = useMemo(() => (
@@ -200,7 +212,7 @@ export const VariableSearchResults = () => {
                                     <Button
                                       type="link"
                                       className="study-selection-button"
-                                      onClick={ toggleVariablesByStudy(study.c_name) }
+                                      onClick={ toggleStudyHighlightingInHistogram(study.c_name) }
                                     >
                                       {
                                         studyNamesForDisplay.includes(study.c_name)
