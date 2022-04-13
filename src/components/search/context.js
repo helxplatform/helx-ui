@@ -6,8 +6,8 @@ import './search.css'
 import { ConceptModal } from './'
 
 //
-
-import { sampleResponseFromSearchVar } from '../../response-search-var'
+// The following pulls in a json data dump that we will eventually drop
+// import { sampleResponseFromSearchVar } from '../../response-search-var'
 
 //
 
@@ -153,8 +153,7 @@ export const HelxSearch = ({ children }) => {
           query: query,
           size: 10000
         }
-        const response = sampleResponseFromSearchVar
-        // const response = await axios.post(`${helxSearchUrl}/search_var`, params)
+        const response = await axios.post(`${helxSearchUrl}/search_var`, params)
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
           const variables = new Set()
           const studies = response.data.result.DbGaP.map(r => r)
