@@ -241,13 +241,13 @@ export const HelxSearch = ({ children }) => {
         }
         const response = await axios.post(`${helxSearchUrl}/search_var`, params)
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
-          const variables = new Set()
           const studies = response.data.result.DbGaP.map(r => r)
-          studies.forEach(s => { s.elements.forEach(v => variables.add(v.id)) });
-          setStudyResults(studies)
-          setStudyResultCount(studies.length)
-          setVariableResultCount(variables.size)
-          setIsLoadingVariableResults(false)
+          setStudyResults(studies);
+          setStudyResultCount(studies.length);
+
+          const variables = new Set(studies.map(s => s.elements.map(v => variables.add(v.id))));
+          setVariableResultCount(variables.size);
+          setIsLoadingVariableResults(false);
         } else {
           setStudyResults([])
           setStudyResultCount(0)
