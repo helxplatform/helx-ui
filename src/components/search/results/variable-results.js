@@ -223,7 +223,8 @@ export const VariableSearchResults = () => {
                                 </span>
                             }
                             extra={ [
-                                <Text>{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
+                                <Text key={`text_${study.c_name}_${i}`}
+                                >{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
                             ] }
                         >
                             <List
