@@ -180,8 +180,8 @@ export const VariableSearchResults = () => {
              * state set to 'active' */
             let histogramObj = variablesHistogram.current.getChart()
             if (variableIdsFilteredByStudy.length === 0) {
-                /** Remove "active" from all places where it has been set, if size of filtered variables
-                 * matches the size of the original input array */
+                /** If there are no filtered variables,
+                 *      Remove "active" from all places where it has been set */
                 histogramObj.setState('active', () => true, false);
             } else {
                 /** If a variable is in the filtered variables array, it should be tagged as 'active' in
