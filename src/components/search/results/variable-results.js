@@ -25,7 +25,7 @@ export const VariableSearchResults = () => {
     const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
 
     const variablesHistogram = useRef()
-    const variableHistogramConfig = {
+    const variableHistogramConfig = useMemo(() => ({
         data: filteredVariables,
         xField: 'id',
         yField: 'score',
@@ -50,7 +50,7 @@ export const VariableSearchResults = () => {
                 },
             },
         }
-    }
+    }), [filteredVariables])
 
     /**
      * Helper function called from startOverHandler().
@@ -143,7 +143,7 @@ export const VariableSearchResults = () => {
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
-    }, [filteredVariables])
+    }, [filteredVariables, variableHistogramConfig])
 
     /**
      * Takes a studyName, selected by the user in the studies table & updates data going to
