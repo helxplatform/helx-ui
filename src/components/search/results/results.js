@@ -1,10 +1,8 @@
 import React, { Fragment, useState, useMemo } from 'react'
 import { Link } from '../../link'
-import { Radio, notification, Spin, Tooltip, Typography, Collapse, List } from 'antd'
+import { Radio, notification, Spin, Tooltip, Typography } from 'antd'
 import {
   LinkOutlined as LinkIcon,
-  TableOutlined as GridViewIcon,
-  UnorderedListOutlined as ListViewIcon,
   DatabaseOutlined as ConceptViewIcon,
   SmallDashOutlined as VariableViewIcon
 } from '@ant-design/icons'
@@ -13,17 +11,12 @@ import './results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import { VariableSearchResults } from './'
 
-const { Panel } = Collapse
 const { Text } = Typography
-
-const GRID = 'GRID'
-const LIST = 'LIST'
 
 export const SearchResults = () => {
   const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult, totalStudyResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
   const { basePath } = useEnvironment()
   const analytics = useAnalytics()
-  const [layout, setLayout] = useState(GRID)
   const [conceptView, setConceptView] = useState(true)
 
   const NotifyLinkCopied = () => {
@@ -39,24 +32,6 @@ export const SearchResults = () => {
     })
   }
 
-  const handleChangeLayout = (event) => {
-    const newLayout = event.target.value;
-    setLayout(newLayout)
-    // Only track when layout changes
-    if (layout !== newLayout) {
-      analytics.trackEvent({
-        category: "UI Interaction",
-        action: "Search layout changed",
-        label: `Layout set to "${newLayout}"`,
-        customParameters: {
-          "Search term": query,
-          "Changed from": layout,
-          "Changed to": newLayout
-        }
-      })
-    }
-  }
-
   const handleDataDisplayChange = (event) => {
     setConceptView(event.target.value)
   }
@@ -70,17 +45,12 @@ export const SearchResults = () => {
           <Radio.Button value={false}><VariableViewIcon /></Radio.Button>
         </Radio.Group>
       </Tooltip>
-      <Tooltip title="Layout Toggle" placement="top">
-        <Radio.Group value={layout} onChange={handleChangeLayout}>
-          <Radio.Button value={GRID}><GridViewIcon /></Radio.Button>
-          <Radio.Button value={LIST}><ListViewIcon /></Radio.Button>
-        </Radio.Group>
-      </Tooltip>
       <Tooltip title="Shareable link" placement="top">
         <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
     </div>
-  ), [currentPage, layout, pageCount, totalConcepts, query, totalStudyResults, totalVariableResults, conceptView])
+  ), [currentPage, pageCount, totalConcepts, query, totalStudyResults, totalVariableResults, conceptView])
+  
   if (isLoadingConcepts || isLoadingVariableResults) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
   }
@@ -111,7 +81,7 @@ export const SearchResults = () => {
           <div className="results">
             {concepts.length >= 1 && MemoizedResultsHeader}
 
-            <div className={layout === GRID ? 'results-list grid' : 'results-list list'}>
+            <div className='results-list grid'>
               {conceptView ? <ConceptsList /> : <VariableSearchResults />}
             </div>
           </div>
