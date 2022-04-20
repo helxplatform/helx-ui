@@ -14,12 +14,22 @@ const { Panel } = Collapse
 /** Component that handles display of Variable Results */
 export const VariableSearchResults = () => {
     const { variableResults, variableStudyResults } = useHelxSearch()
+    // console.log(variableStudyResults.length)
 
     /** studyResultsForDisplay holds variables grouped by study for the studies table */
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
+    // console.log(studyResultsForDisplay.length)
 
     /** filteredVariables holds the variables displayed in the histogram */
     const [filteredVariables, setFilteredVariables] = useState(variableResults)
+    
+    /** useEffect added to address bug whereby displayed results were not updating when a new
+     * search term was entered */
+    useEffect(() => {
+        setStudyResultsForDisplay(variableStudyResults);
+        setFilteredVariables(variableResults);
+    }, [variableResults, variableStudyResults]);
+    // console.log(studyResultsForDisplay.length)
 
     /** studyNamesForDisplay holds names of user selected studies to highlight in histogram */
     const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
