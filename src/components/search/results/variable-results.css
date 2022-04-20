@@ -2,11 +2,13 @@
     margin-bottom: 10px;
 }
 
-.within-filter-true {
-    background-color: #6399e9;
+div.within-filter-false span,
+div.within-filter-false a {
+    color: grey;
 }
-.within-filter-false {
-    background-color: #b0b0b78a;
+div.within-filter-false a:hover {
+    color: rgb(69, 69, 69);
+    text-decoration: underline;
 }
 
 .variables-collapse .study-panel .study-panel-header .study-selection-button {
