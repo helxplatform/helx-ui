@@ -5,6 +5,7 @@ import {
     PushpinOutlined as UnselectedIcon,
     PushpinFilled as SelectedIcon,
 } from '@ant-design/icons'
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHelxSearch } from '..';
 import './variable-results.css';
 
@@ -246,20 +247,35 @@ export const VariableSearchResults = () => {
                                 <Text key={`text_${study.c_name}_${i}`}
                                 >{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
                             ] }
-                        >
-                            <List
-                                className="study-variables-list"
-                                dataSource={study.elements}
-                                renderItem={variable => (
-                                    <div className={`study-variables-list-item within-filter-${variable.withinFilter}`}>
-                                        <Text className="variable-name">
-                                            {variable.name} &nbsp;
-                                            ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
-                                        </Text><br />
-                                        <Text className="variable-description"> {variable.description}</Text>
-                                    </div>
-                                )}
-                            />
+                        >   
+                            <div
+                                id="scrollableDiv"
+                                style={{
+                                    height: 300,
+                                    overflow: 'auto',
+                                    padding: '0 16px',
+                                    border: 'solid 1px #dddddd',
+                                }}
+                            >
+                                <InfiniteScroll
+                                    dataLength={study.elements.length}
+                                    scrollableTarget="scrollableDiv"
+                                >
+                                    <List
+                                        className="study-variables-list"
+                                        dataSource={study.elements}
+                                        renderItem={variable => (
+                                            <div className={`study-variables-list-item within-filter-${variable.withinFilter}`}>
+                                                <Text className="variable-name">
+                                                    {variable.name} &nbsp;
+                                                    ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
+                                                </Text><br />
+                                                <Text className="variable-description"> {variable.description}</Text>
+                                            </div>
+                                        )}
+                                    />
+                                </InfiniteScroll>
+                            </div>
                         </Panel>
                     )
                 })
