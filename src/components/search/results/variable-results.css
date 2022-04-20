@@ -1,4 +1,4 @@
-.histogram-startover-btn {
+.histogram-buttons-wrapper {
     margin-bottom: 10px;
 }
 
@@ -30,7 +30,7 @@ div.within-filter-false a:hover {
 .scrollable-div {
     height: 300px;
     overflow: auto;
-    padding: 4px 16px;
+    padding:  16px;
     border: solid 1px #dddddd;
 }
 

@@ -15,14 +15,13 @@ const { Panel } = Collapse
 /** Component that handles display of Variable Results */
 export const VariableSearchResults = () => {
     const { variableResults, variableStudyResults } = useHelxSearch()
-    // console.log(variableStudyResults.length)
 
-    /** studyResultsForDisplay holds variables grouped by study for the studies table */
+    /** Variables grouped by study for the studies table */
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
-    // console.log(studyResultsForDisplay.length)
 
-    /** filteredVariables holds the variables displayed in the histogram */
+    /** Variables displayed in the histogram */
     const [filteredVariables, setFilteredVariables] = useState(variableResults)
+    const [lastFilteredVariables, setLastFilteredVariables] = useState({})
     
     /** useEffect added to address bug whereby displayed results were not updating when a new
      * search term was entered */
@@ -30,9 +29,8 @@ export const VariableSearchResults = () => {
         setStudyResultsForDisplay(variableStudyResults);
         setFilteredVariables(variableResults);
     }, [variableResults, variableStudyResults]);
-    // console.log(studyResultsForDisplay.length)
 
-    /** studyNamesForDisplay holds names of user selected studies to highlight in histogram */
+    /** User selected studies to highlight in histogram */
     const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
 
     const variablesHistogram = useRef()
@@ -100,6 +98,7 @@ export const VariableSearchResults = () => {
     const startOverHandler = () => {
         /** Restores the variables shown in the histogram back to the original inputs */
         setFilteredVariables(variableResults)
+        setLastFilteredVariables({})
 
         /** Restores the variables and studies in the Studies Table to original inputs */
         const studyResultsWithVariablesUpdated = resetFilterPropertyToNone()
@@ -112,9 +111,42 @@ export const VariableSearchResults = () => {
         let histogramObj = variablesHistogram.current.getChart()
         /** Removes 'active' state property, which allows bar highlighting when a study is selected */
         histogramObj.setState('active', () => true, false);
+
         /** Restores histogram data to refreshed value of filteredVariables, which is based on no filtering */
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
     }
+
+    const lastZoomHandler = () => {
+        let currentLastFilVars = {...lastFilteredVariables}
+        const lastKey = Object.keys(currentLastFilVars)[Object.keys(currentLastFilVars).length-1]
+        const newFilteredVars = currentLastFilVars[lastKey]
+
+        delete currentLastFilVars[lastKey]
+        setLastFilteredVariables(currentLastFilVars)
+
+        /* Update histogram by updating data passed */
+        let histogramObj = variablesHistogram.current.getChart()
+        histogramObj.update({ ...variableHistogramConfig, data: newFilteredVars })
+        setFilteredVariables(newFilteredVars)
+    }
+
+    /**
+     * Whenever the brush filter is used, the value of filtered Variables &
+     * studyResults gets updated based on the filteredData in the histogram
+     */
+    useEffect(() => {
+        let histogramObj = variablesHistogram.current.getChart()
+        histogramObj.on('mouseup', (e) => {
+            const nextKey = Object.keys(lastFilteredVariables).length + 1
+            let newLastFilteredVars = {...lastFilteredVariables}
+            newLastFilteredVars[nextKey] = filteredVariables
+            setLastFilteredVariables(newLastFilteredVars)
+
+            let newlyFilteredVariables = e.view.filteredData
+            updateStudyResults(newlyFilteredVariables)
+            setFilteredVariables(newlyFilteredVariables)
+        })
+    })
 
     /**
      * Called whenever the brush effect is used to zoom in on histogram
@@ -151,21 +183,6 @@ export const VariableSearchResults = () => {
 
         setStudyResultsForDisplay(studyResultsWithVariablesUpdated)
     }
-
-    /**
-     * Whenever the brush filter is used, the value of filtered Variables &
-     * studyResults gets updated based on the filteredData in the histogram
-     */
-    useEffect(() => {
-        let histogramObj = variablesHistogram.current.getChart()
-
-        histogramObj.on('mouseup', (e) => {
-            let filteredVariables = e.view.filteredData
-
-            updateStudyResults(filteredVariables)
-            setFilteredVariables(filteredVariables)
-        })
-    })
 
     /**
      * Takes a studyName, selected by the user in the studies table & updates data going to
@@ -290,7 +307,15 @@ export const VariableSearchResults = () => {
 
     return (
         <div>
-            <Button className="histogram-startover-btn" onClick={startOverHandler}>Start Over</Button>
+            <Space className="histogram-buttons-wrapper">
+                <Button className="histogram-startover-btn" onClick={startOverHandler}>Start Over</Button>
+                <Button 
+                    className="histogram-last-zoom-btn" 
+                    onClick={lastZoomHandler}
+                    disabled={ Object.keys(lastFilteredVariables).length === 0 }
+                >View Last Zoom</Button>
+            </Space>
+            <Space/>
             <Space direction="vertical">
                 <div>Variables according to DUG Score</div>
                 <Column
