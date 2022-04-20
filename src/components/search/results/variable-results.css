@@ -27,3 +27,10 @@ div.within-filter-false a:hover {
     filter: opacity(1);
 }
 
+.scrollable-div {
+    height: 300px;
+    overflow: auto;
+    padding: 4px 16px;
+    border: solid 1px #dddddd;
+}
+
