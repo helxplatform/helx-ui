@@ -159,7 +159,7 @@ export const HelxSearch = ({ children }) => {
           setStudyResults(studies);
           setStudyResultCount(studies.length);
 
-          const variables = new Set(studies.map(s => s.elements.map(v => variables.add(v.id))));
+          const variables = new Set(studies.map(s => s.elements.map(v => v.id)));
           setVariableResultCount(variables.size);
           setIsLoadingVariableResults(false);
         } else {
