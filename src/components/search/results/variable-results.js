@@ -42,6 +42,12 @@ export const VariableSearchResults = () => {
         xAxis: {
             label: ""
         },
+        animation: {
+            appear: {
+                duration: 800,
+                delay: 100
+            }
+        },
         brush: {
             enabled: true,
             type: 'x-rect',

@@ -81,7 +81,7 @@ export const SearchResults = () => {
       </Tooltip>
     </div>
   ), [currentPage, layout, pageCount, totalConcepts, query, totalStudyResults, totalVariableResults, conceptView])
-  if (isLoadingConcepts) {
+  if (isLoadingConcepts || isLoadingVariableResults) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
   }
 
