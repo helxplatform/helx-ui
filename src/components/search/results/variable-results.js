@@ -88,14 +88,20 @@ export const VariableSearchResults = () => {
         const studyResultsWithVariablesUpdated = resetFilterPropertyToNone()
         setStudyResultsForDisplay(studyResultsWithVariablesUpdated)
 
+
         /** Resets selected study names to none selected */
         setStudyNamesForDisplay([])
 
-        /** Removes 'active' state property, which allows bar highlighting when a study is selected */
         let histogramObj = variablesHistogram.current.getChart()
+        /** Removes 'active' state property, which allows bar highlighting when a study is selected */
         histogramObj.setState('active', () => true, false);
+        /** Restores histogram data to refreshed value of filteredVariables, which is based on no filtering */
+        histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
     }
 
+    /**
+     * Called whenever the brush effect is used to zoom in on histogram
+     */
     function updateStudyResults(filtered_variables) {
         // Determine the studies that should be displayed in table
         const studiesInFilter = [...new Set(filtered_variables.map(obj => obj.study_name))]
@@ -129,6 +135,10 @@ export const VariableSearchResults = () => {
         setStudyResultsForDisplay(studyResultsWithVariablesUpdated)
     }
 
+    /**
+     * Whenever the brush filter is used, the value of filtered Variables &
+     * studyResults gets updated based on the filteredData in the histogram
+     */
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
 
@@ -139,11 +149,6 @@ export const VariableSearchResults = () => {
             setFilteredVariables(filteredVariables)
         })
     })
-
-    useEffect(() => {
-        let histogramObj = variablesHistogram.current.getChart()
-        histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
-    }, [filteredVariables, variableHistogramConfig])
 
     /**
      * Takes a studyName, selected by the user in the studies table & updates data going to
@@ -192,7 +197,6 @@ export const VariableSearchResults = () => {
     
             setStudyNamesForDisplay(newStudyNamesForDisplay);
         }
-
     }
 
     const VariablesTableByStudy = useMemo(() => (
