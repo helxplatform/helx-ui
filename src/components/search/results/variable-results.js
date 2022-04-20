@@ -216,6 +216,38 @@ export const VariableSearchResults = () => {
         }
     }
 
+    const VariableList = ({ study }) => {
+        return (
+            <List
+                className="study-variables-list"
+                dataSource={study.elements}
+                renderItem={variable => (
+                    <div className={`study-variables-list-item within-filter-${variable.withinFilter}`}>
+                        <Text className="variable-name">
+                            {variable.name} &nbsp;
+                            ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
+                        </Text><br />
+                        <Text className="variable-description"> {variable.description}</Text>
+                    </div>
+                )}
+            />
+        )
+    }
+
+    const ScrollableVariableList = ({ study }) => (
+        <div
+            id="scrollableDiv"
+            className="scrollable-div"
+        >
+            <InfiniteScroll
+                dataLength={study.elements.length}
+                scrollableTarget="scrollableDiv"
+            >
+                <VariableList study={study}/>
+            </InfiniteScroll>
+        </div>
+    )
+
     const VariablesTableByStudy = useMemo(() => (
         <Collapse ghost className="variables-collapse">
             {
@@ -248,34 +280,7 @@ export const VariableSearchResults = () => {
                                 >{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
                             ] }
                         >   
-                            <div
-                                id="scrollableDiv"
-                                style={{
-                                    height: 300,
-                                    overflow: 'auto',
-                                    padding: '0 16px',
-                                    border: 'solid 1px #dddddd',
-                                }}
-                            >
-                                <InfiniteScroll
-                                    dataLength={study.elements.length}
-                                    scrollableTarget="scrollableDiv"
-                                >
-                                    <List
-                                        className="study-variables-list"
-                                        dataSource={study.elements}
-                                        renderItem={variable => (
-                                            <div className={`study-variables-list-item within-filter-${variable.withinFilter}`}>
-                                                <Text className="variable-name">
-                                                    {variable.name} &nbsp;
-                                                    ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
-                                                </Text><br />
-                                                <Text className="variable-description"> {variable.description}</Text>
-                                            </div>
-                                        )}
-                                    />
-                                </InfiniteScroll>
-                            </div>
+                            {study.elements.length > 7 ? < ScrollableVariableList study={study}/> : < VariableList study={study}/> }
                         </Panel>
                     )
                 })
