@@ -128,6 +128,8 @@ export const VariableSearchResults = () => {
         let histogramObj = variablesHistogram.current.getChart()
         histogramObj.update({ ...variableHistogramConfig, data: newFilteredVars })
         setFilteredVariables(newFilteredVars)
+        
+        /* TODO: Study highlighting needs to be tracked */
     }
 
     /**
