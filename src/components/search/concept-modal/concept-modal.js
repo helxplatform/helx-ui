@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Menu, Modal, Space } from 'antd'
+import { Fragment, useEffect, useState } from 'react'
+import { Menu, Modal, Space, Breadcrumb, Button, Typography, Spin } from 'antd'
 import './concept-modal.css'
 import { useHelxSearch } from '../'
 import CustomIcon, {
@@ -15,11 +15,16 @@ import { useAnalytics, useEnvironment } from '../../../contexts'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
-export const ConceptModal = ({ result, visible, closeHandler }) => {
+const { Text } = Typography
+
+export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => {
   const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
-  const { fetchKnowledgeGraphs, fetchStudyVariables, query } = useHelxSearch()
+  const {
+    fetchKnowledgeGraphs, fetchStudyVariables, query,
+    resultCrumbs, goToResultBreadcrumb, selectedResultLoading
+  } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studies, setStudies] = useState([])
 
@@ -69,22 +74,46 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
     getKgs()
   }, [fetchKnowledgeGraphs, fetchStudyVariables, result, query])
 
+  const ResultCrumb = ({ result, isLastCrumb }) => {
+    let body = (
+      <span>{result.name}</span>
+    )
+    if (!isLastCrumb) body = (
+      <a role="button" aria-hidden="true" onClick={() => goToResultBreadcrumb(result)}>
+        {body}
+      </a>
+    )
+    return body
+  }
+
   if (!result) {
     return null
   }
 
-  return (
-    <Modal
-      title={ `${ result.name } (${ result.type })` }
-      visible={ visible }
-      onOk={ closeHandler }
-      okText="Close"
-      onCancel={ closeHandler }
-      width={ 1200 }
-      style={{ top: 135 }}
-      bodyStyle={{ padding: `0`, minHeight: `50vh` }}
-      cancelButtonProps={{ hidden: true }}
-    >
+  const title = (
+    <Fragment>
+      { result.name } {result.type && `(${result.type})`}
+      {resultCrumbs.length > 1 && (
+        <Space direction="vertical" size="middle" style={{ marginTop: "16px", fontWeight: "normal" }}>
+          <Breadcrumb>
+            <Breadcrumb.Item>
+              Explore results
+            </Breadcrumb.Item>
+            {resultCrumbs.map((crumbResult, i) => (
+              <Breadcrumb.Item>
+                <ResultCrumb result={crumbResult} isLastCrumb={i === resultCrumbs.length - 1}/>
+              </Breadcrumb.Item>
+            ))}
+          </Breadcrumb>
+          {/* <Button type="ghost" size="small">Full search</Button> */}
+        </Space>
+      )}
+    </Fragment>
+  )
+  const body = selectedResultLoading ? (
+    <Spin style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}/>
+  ) : (
+    <div style={{ display: "flex", flexDirection: "column", visibility: selectedResultLoading ? "hidden" : "visible" }}>
       <Space direction="horizontal" align="start">
         <Menu
           defaultSelectedKeys={ ['overview'] }
@@ -112,6 +141,22 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
         </Menu>
         <div className="modal-content-container" children={ tabs[currentTab].content } />
       </Space>
+    </div>
+  )
+
+  return (
+    <Modal
+      title={ title }
+      visible={ visible }
+      onOk={ closeHandler }
+      okText="Close"
+      onCancel={ closeHandler }
+      width={ 1200 }
+      style={{ top: 135 }}
+      bodyStyle={{ padding: `0`, minHeight: `50vh`, position: `relative` }}
+      cancelButtonProps={{ hidden: true }}
+    >
+      {body}
     </Modal>
   )
 }

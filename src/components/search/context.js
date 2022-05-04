@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment, useAnalytics } from '../../contexts'
@@ -39,10 +39,28 @@ export const HelxSearch = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
-  const [selectedResult, setSelectedResult] = useState(null)
+  // const [selectedResult, _setSelectedResult] = useState(null)
+  const [resultCrumbs, setResultBreadcrumbs] = useState([])
 
   const inputRef = useRef()
   const navigate = useNavigate()
+
+  const selectedResult = useMemo(() => resultCrumbs[resultCrumbs.length - 1], [resultCrumbs])
+  const selectedResultLoading = useMemo(() => !selectedResult || selectedResult.loading === true, [selectedResult])
+
+  const executeDugSearch = async ({ query, offset, size }) => {
+    const params = {
+      index: 'concepts_index',
+      query,
+      offset,
+      size
+    }
+    const response = await axios.post(`${helxSearchUrl}/search`, params)
+    if (response.status === 200 && response.data.status === 'success' && response.data.result) {
+      return response.data.result
+    }
+    return null
+  }
 
   useEffect(() => {
     // this lets the user press backslash to jump focus to the search box
@@ -79,15 +97,13 @@ export const HelxSearch = ({ children }) => {
       setIsLoadingConcepts(true)
       const startTime = Date.now()
       try {
-        const params = {
-          index: 'concepts_index',
+        const result = await executeDugSearch({
           query: query,
           offset: (currentPage - 1) * PER_PAGE,
-          size: PER_PAGE,
-        }
-        const response = await axios.post(`${helxSearchUrl}/search`, params)
-        if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.hits) {
-          const unsortedHits = response.data.result.hits.hits.map(r => r._source)
+          size: PER_PAGE
+        })
+        if (result && result.hits) {
+          const unsortedHits = result.hits.hits.map(r => r._source)
           // gather invalid concepts: remove from rendered concepts and dump to console.
           let hits = unsortedHits.reduce(validationReducer, { valid: [], invalid: [] })
           if (hits.invalid.length) {
@@ -96,9 +112,9 @@ export const HelxSearch = ({ children }) => {
               `concepts in the response.`, hits.invalid)
           }
           setConcepts(hits.valid)
-          setTotalConcepts(response.data.result.total_items)
+          setTotalConcepts(result.total_items)
           setIsLoadingConcepts(false)
-          analyticsEvents.searchExecuted(query, Date.now() - startTime, response.data.result.total_items)
+          analyticsEvents.searchExecuted(query, Date.now() - startTime, result.total_items)
         } else {
           setConcepts([])
           setTotalConcepts(0)
@@ -106,7 +122,7 @@ export const HelxSearch = ({ children }) => {
           analyticsEvents.searchExecuted(query, Date.now() - startTime, 0)
         }
       } catch (error) {
-        console.log(error)
+        console.error(error)
         setError({ message: 'An error occurred!' })
         setIsLoadingConcepts(false)
         analyticsEvents.searchExecuted(query, Date.now() - startTime, 0, error)
@@ -120,6 +136,28 @@ export const HelxSearch = ({ children }) => {
   useEffect(() => {
     setPageCount(Math.ceil(totalConcepts / PER_PAGE))
   }, [totalConcepts])
+
+  const setSelectedResult = (result) => {
+    setResultBreadcrumbs([ result ])
+  }
+
+  const addResultBreadcrumb = (result) => {
+    setResultBreadcrumbs([ ...resultCrumbs, result ])
+  }
+
+  const goToResultBreadcrumb = (result) => {
+    const resultIndex = resultCrumbs.indexOf(result)
+    if (resultIndex !== -1) setResultBreadcrumbs(resultCrumbs.slice(0, resultIndex + 1))
+    else console.error("Could not find breadcrumb for result:", result)
+  }
+
+  const addBreadcrumbFromKG = async ({ name, id }) => {
+    const result = {
+      name,
+      loading: true
+    }
+    addResultBreadcrumb(result)
+  }
 
   const fetchKnowledgeGraphs = useCallback(async (tag_id) => {
     try {
@@ -165,6 +203,15 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
+  window.x = {
+    query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
+    error, isLoadingConcepts,
+    concepts, totalConcepts,
+    currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
+    facets: tempSearchFacets,
+    selectedResult, setSelectedResult, selectedResultLoading,
+    resultCrumbs, addResultBreadcrumb, goToResultBreadcrumb, addBreadcrumbFromKG
+  }
 
   return (
     <HelxSearchContext.Provider value={{
@@ -173,7 +220,8 @@ export const HelxSearch = ({ children }) => {
       concepts, totalConcepts,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
-      selectedResult, setSelectedResult,
+      selectedResult, setSelectedResult, selectedResultLoading,
+      resultCrumbs, addResultBreadcrumb, goToResultBreadcrumb, addBreadcrumbFromKG
     }}>
       { children }
       <ConceptModal
