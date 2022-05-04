@@ -81,13 +81,13 @@ export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => 
       <span>{result.name}</span>
     )
     if (!isLastCrumb) body = (
-      <a role="button" aria-hidden="true" onClick={() => goToResultBreadcrumb(result)}>
+      <a role="button" onClick={() => goToResultBreadcrumb(result)}>
         {body}
       </a>
     )
     /*else {
       body = (
-        <a role="button" aria-hidden="true" onClick={() => doSearch()} style={{ color: blue.primary }}>
+        <a role="button" onClick={() => doSearch()} style={{ color: blue.primary }}>
           {body}
         </a>
       )
@@ -128,7 +128,7 @@ export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => 
     <Result
       status="error"
       title="Result not found"
-      subTitle="Sorry! It looks like we don't have this concept indexed."
+      subTitle="Sorry! It looks like we don't have this concept indexed yet."
       extra={[
         <Button type="primary" onClick={() => {
           // go back one crumb

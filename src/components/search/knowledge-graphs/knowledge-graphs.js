@@ -1,12 +1,14 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { Button } from 'antd'
+import { Typography } from 'antd'
 import { useHelxSearch } from '..'
 import { kgLink } from '../../../utils'
-import { Link } from '../../link'
 import './knowledge-graphs.css'
+import { Link } from '../../link'
+
+const { Text } = Typography
 
 const KnowledgeGraph = ({ graph }) => {
-  const { addBreadcrumbFromKG } = useHelxSearch()
+  const { addBreadcrumbFromKG, selectedResult } = useHelxSearch()
   const [interactions, setInteractions] = useState([])
 
   const { knowledge_graph: knowledgeGraph, question_graph: questionGraph } = graph
@@ -23,12 +25,30 @@ const KnowledgeGraph = ({ graph }) => {
       })
     }
   }, [knowledgeGraph])
+
+  const BreadcrumbLink = ({ node, divProps={}, aProps={}}) => {
+    return (
+      <div {...divProps}>
+        { node.id === selectedResult.id ? (
+          <Text type="secondary">{node.name}</Text>
+        ) : (
+          <a
+            role="button"
+            onClick={() => addBreadcrumbFromKG(node)}
+            {...aProps}
+          >
+            {node.name}
+          </a>
+        )}
+      </div>
+    )
+  }
+
   return interactions.map((interaction, i) => (
     <Fragment key={ `kg-${i}` }>
-      <div className="source-label"><a role="button" aria-hidden="true" onClick={() => addBreadcrumbFromKG(interaction.source)}>{interaction.source.name}</a></div>
+      <BreadcrumbLink node={interaction.source} divProps={{ className: "source-label" }}/>
       <div />
-      <div className="target-label"><a role="button" aria-hidden="true" onClick={() => addBreadcrumbFromKG(interaction.target)}>{interaction.target.name}</a></div>
-
+      <BreadcrumbLink node={interaction.target} divProps={{ className: "target-label" }}/>
       <div className="source-node"><span className="node" /></div>
       <div className="edge">
         <div className="edge-type">{interaction.type}</div>

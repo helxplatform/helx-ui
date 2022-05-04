@@ -169,13 +169,15 @@ export const HelxSearch = ({ children }) => {
     if (dugResult && dugResult.hits) {
       const hits = dugResult.hits.hits.map(r => r._source).reduce(validationReducer, { valid: [], invalid: [] })
       const results = hits.valid
-      console.log(id, name, results)
+      // console.log(id, name, results)
       foundConceptResult = results.find((result) => (
         result.id === id ||
         result.name === name
         // result.identifiers.some((identifier) => identifier.equivalent_identifiers.includes(id))
         )
       )
+      const synonymousConcepts = results.filter((result) => result.identifiers.some((identifier) => identifier.equivalent_identifiers.includes(id)))
+      console.log(id, synonymousConcepts.map((result) => result.name))
     }
     setResultBreadcrumbs((prevResultCrumbs) => {
       const index = prevResultCrumbs.indexOf(tempResult)
