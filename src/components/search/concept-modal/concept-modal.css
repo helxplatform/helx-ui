@@ -12,9 +12,9 @@
   width: 100%;
 }
 
-.ant-modal-body > .ant-space > .ant-space-item:nth-child(2) {
+/* .ant-modal-body > .ant-space > .ant-space-item:nth-child(2) {
   width: 100% !important;
-}
+} */
 
 .study-variables-list {
   font-size: 90% !important;

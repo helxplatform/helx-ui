@@ -140,35 +140,35 @@ export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => 
 
     </Result>
   ) : (
-    <div style={{ display: "flex", flexDirection: "column", visibility: selectedResultLoading ? "hidden" : "visible" }}>
-      <Space direction="horizontal" align="start">
-        <Menu
-          defaultSelectedKeys={ ['overview'] }
-          mode="inline"
-          theme="light"
-          selectedKeys={ [currentTab] }
-        >
-          {
-            Object.keys(tabs).map(key => (
-              <Menu.Item className="tab-menu-item" key={ key } onClick={ () => setCurrentTab(key) }>
-                <span className="tab-icon">{ tabs[key].icon }</span> &nbsp; <span className="tab-name">{ tabs[key].title }</span>
-              </Menu.Item>
-            ))
-          }
-          {Object.keys(links).length !== 0 && <Menu.Divider/>}
-          {
-            Object.keys(links).map(key => (
-              <Menu.Item className="tab-menu-item" key={ key } onClick={null}>
-                <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
-                  <span className="tab-icon">{ <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
-                </a>
-              </Menu.Item>
-            ))
-          }
-        </Menu>
-        <div className="modal-content-container" children={ tabs[currentTab].content } />
-      </Space>
-    </div>
+    // `display: inline-flex` (default) can result in strange padding since it's an inline element
+    <Space align="start" style={{ display: "flex" }}>
+      <Menu
+        defaultSelectedKeys={ ['overview'] }
+        mode="inline"
+        theme="light"
+        selectedKeys={ [currentTab] }
+        style={{ flex: 0 }}
+      >
+        {
+          Object.keys(tabs).map(key => (
+            <Menu.Item className="tab-menu-item" key={ key } onClick={ () => setCurrentTab(key) }>
+              <span className="tab-icon">{ tabs[key].icon }</span> &nbsp; <span className="tab-name">{ tabs[key].title }</span>
+            </Menu.Item>
+          ))
+        }
+        {Object.keys(links).length !== 0 && <Menu.Divider/>}
+        {
+          Object.keys(links).map(key => (
+            <Menu.Item className="tab-menu-item" key={ key } onClick={null}>
+              <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
+                <span className="tab-icon">{ <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
+              </a>
+            </Menu.Item>
+          ))
+        }
+      </Menu>
+      <div className="modal-content-container" children={ tabs[currentTab].content } style={{ flex: 1 }} />
+    </Space>
   )
 
   return (
