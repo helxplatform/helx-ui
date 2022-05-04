@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Menu, Modal, Space, Breadcrumb, Button, Typography, Spin } from 'antd'
+import { Menu, Modal, Space, Breadcrumb, Button, Typography, Spin, Result } from 'antd'
 import './concept-modal.css'
 import { useHelxSearch } from '../'
 import CustomIcon, {
@@ -10,6 +10,7 @@ import CustomIcon, {
   PlayCircleOutlined as RobokopIcon,
   ExportOutlined as ExternalLinkIcon
 } from '@ant-design/icons'
+import { blue } from '@ant-design/colors'
 import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 
@@ -23,7 +24,8 @@ export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => 
   const [currentTab, _setCurrentTab] = useState('overview')
   const {
     fetchKnowledgeGraphs, fetchStudyVariables, query,
-    resultCrumbs, goToResultBreadcrumb, selectedResultLoading
+    resultCrumbs, goToResultBreadcrumb, selectedResultLoading,
+    selectedResultFailed, doSearch, setSelectedResult
   } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studies, setStudies] = useState([])
@@ -83,6 +85,13 @@ export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => 
         {body}
       </a>
     )
+    /*else {
+      body = (
+        <a role="button" aria-hidden="true" onClick={() => doSearch()} style={{ color: blue.primary }}>
+          {body}
+        </a>
+      )
+    }*/
     return body
   }
 
@@ -105,13 +114,31 @@ export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => 
               </Breadcrumb.Item>
             ))}
           </Breadcrumb>
-          {/* <Button type="ghost" size="small">Full search</Button> */}
+          <Button type="link" size="small" style={{ padding: 0 }} onClick={() => {
+            doSearch(result.name)
+            setSelectedResult(null)
+          }}>Search</Button>
         </Space>
       )}
     </Fragment>
   )
   const body = selectedResultLoading ? (
     <Spin style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}/>
+  ) : selectedResultFailed ? (
+    <Result
+      status="error"
+      title="Result not found"
+      subTitle="Sorry! It looks like we don't have this concept indexed."
+      extra={[
+        <Button type="primary" onClick={() => {
+          // go back one crumb
+          goToResultBreadcrumb(resultCrumbs[resultCrumbs.indexOf(result) - 1])
+        }}>Go back</Button>
+      ]}
+      style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+    >
+
+    </Result>
   ) : (
     <div style={{ display: "flex", flexDirection: "column", visibility: selectedResultLoading ? "hidden" : "visible" }}>
       <Space direction="horizontal" align="start">

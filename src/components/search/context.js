@@ -47,6 +47,7 @@ export const HelxSearch = ({ children }) => {
 
   const selectedResult = useMemo(() => resultCrumbs[resultCrumbs.length - 1], [resultCrumbs])
   const selectedResultLoading = useMemo(() => !selectedResult || selectedResult.loading === true, [selectedResult])
+  const selectedResultFailed = useMemo(() => selectedResult && selectedResult.failed === true, [selectedResult])
 
   const executeDugSearch = async ({ query, offset, size }) => {
     const params = {
@@ -138,7 +139,8 @@ export const HelxSearch = ({ children }) => {
   }, [totalConcepts])
 
   const setSelectedResult = (result) => {
-    setResultBreadcrumbs([ result ])
+    if (result === null) setResultBreadcrumbs([])
+    else setResultBreadcrumbs([ result ])
   }
 
   const addResultBreadcrumb = (result) => {
@@ -152,11 +154,41 @@ export const HelxSearch = ({ children }) => {
   }
 
   const addBreadcrumbFromKG = async ({ name, id }) => {
-    const result = {
+    const tempResult = {
       name,
       loading: true
     }
-    addResultBreadcrumb(result)
+    addResultBreadcrumb(tempResult)
+    // You currently can't restrict a query against the Dug concepts index to certain concept ids.
+    const dugResult = await executeDugSearch({
+      query: name,
+      offset: 0,
+      size: 200
+    })
+    let foundConceptResult;
+    if (dugResult && dugResult.hits) {
+      const hits = dugResult.hits.hits.map(r => r._source).reduce(validationReducer, { valid: [], invalid: [] })
+      const results = hits.valid
+      console.log(id, name, results)
+      foundConceptResult = results.find((result) => (
+        result.id === id ||
+        result.name === name
+        // result.identifiers.some((identifier) => identifier.equivalent_identifiers.includes(id))
+        )
+      )
+    }
+    setResultBreadcrumbs((prevResultCrumbs) => {
+      const index = prevResultCrumbs.indexOf(tempResult)
+      // The crumb no longer exists (e.g. user went to older crumb/closed modal/etc.)
+      if (index === -1) return prevResultCrumbs
+      return [
+        ...prevResultCrumbs.slice(0, index),
+        foundConceptResult ? foundConceptResult : {
+          name,
+          failed: true
+        }
+      ]
+    })
   }
 
   const fetchKnowledgeGraphs = useCallback(async (tag_id) => {
@@ -210,7 +242,7 @@ export const HelxSearch = ({ children }) => {
       concepts, totalConcepts,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
-      selectedResult, setSelectedResult, selectedResultLoading,
+      selectedResult, setSelectedResult, selectedResultLoading, selectedResultFailed,
       resultCrumbs, addResultBreadcrumb, goToResultBreadcrumb, addBreadcrumbFromKG
     }}>
       { children }
