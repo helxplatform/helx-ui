@@ -7,8 +7,8 @@ import { Link } from '../../link'
 
 const { Text } = Typography
 
-const KnowledgeGraph = ({ graph }) => {
-  const { addBreadcrumbFromKG, selectedResult } = useHelxSearch()
+const KnowledgeGraph = ({ graph, result }) => {
+  const { addBreadcrumbFromKG } = useHelxSearch()
   const [interactions, setInteractions] = useState([])
 
   const { knowledge_graph: knowledgeGraph, question_graph: questionGraph } = graph
@@ -29,8 +29,8 @@ const KnowledgeGraph = ({ graph }) => {
   const BreadcrumbLink = ({ node, divProps={}, aProps={}}) => {
     return (
       <div {...divProps}>
-        { selectedResult && node.id === selectedResult.id ? (
-          <Text type="secondary">{node.name}</Text>
+        { node.id === result.id ? (
+          <Text>{node.name}</Text>
         ) : (
           <a
             role="button"
@@ -73,7 +73,7 @@ const NoKnowledgeGraphsMessage = () => {
   )
 }
 
-export const KnowledgeGraphs = ({ graphs: complete_graphs }) => {
+export const KnowledgeGraphs = ({ graphs: complete_graphs, result }) => {
   if (complete_graphs.length) {
     // const graphs = complete_graphs.map((graph) => graph.knowledge_graph);
     return (
@@ -81,7 +81,7 @@ export const KnowledgeGraphs = ({ graphs: complete_graphs }) => {
         <div className="column-title">Ontological Term)</div>
         <div className="column-title">Interaction Type</div>
         <div className="column-title">Linked Term</div>
-        { complete_graphs.map(graph => <KnowledgeGraph graph={graph} />)}
+        { complete_graphs.map(graph => <KnowledgeGraph graph={graph} result={result} />)}
       </div>
     )
   }

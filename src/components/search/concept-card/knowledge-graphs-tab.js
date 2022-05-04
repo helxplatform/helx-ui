@@ -22,7 +22,7 @@ export const KnowledgeGraphsTab = ({ result }) => {
 
   return (
     <Space direction="vertical" className="tab-content">
-      <KnowledgeGraphs graphs={ graphs } />
+      <KnowledgeGraphs graphs={ graphs } result={ result }/>
     </Space>
   )
 }
