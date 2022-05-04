@@ -46,7 +46,7 @@ export const HelxSearch = ({ children }) => {
   const navigate = useNavigate()
 
   const selectedResult = useMemo(() => resultCrumbs[resultCrumbs.length - 1], [resultCrumbs])
-  const selectedResultLoading = useMemo(() => !selectedResult || selectedResult.loading === true, [selectedResult])
+  const selectedResultLoading = useMemo(() => selectedResult && selectedResult.loading === true, [selectedResult])
   const selectedResultFailed = useMemo(() => selectedResult && selectedResult.failed === true, [selectedResult])
 
   const executeDugSearch = async ({ query, offset, size }) => {

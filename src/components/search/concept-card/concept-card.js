@@ -44,6 +44,7 @@ export const ConceptCard = ({ index, result, openModalHandler }) => {
         onTabChange={key => setCurrentTab(key)}
         extra={ <ViewIcon onClick={ openModal } /> }
         actions={ [<br />] }
+        bodyStyle={{ position: "relative" }}
       >
         { tabContents[currentTab] }
       </Card>

@@ -16,8 +16,8 @@ export const KnowledgeGraphsTab = ({ result }) => {
     getKgs()
   }, [fetchKnowledgeGraphs, query])
 
-  if (loading) {
-    return <Spin />
+  if (loading || true) {
+    return <Spin style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }} />
   }
 
   return (

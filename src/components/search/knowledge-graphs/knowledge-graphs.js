@@ -29,7 +29,7 @@ const KnowledgeGraph = ({ graph }) => {
   const BreadcrumbLink = ({ node, divProps={}, aProps={}}) => {
     return (
       <div {...divProps}>
-        { node.id === selectedResult.id ? (
+        { selectedResult && node.id === selectedResult.id ? (
           <Text type="secondary">{node.name}</Text>
         ) : (
           <a
