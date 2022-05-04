@@ -203,16 +203,6 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
-  window.x = {
-    query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
-    error, isLoadingConcepts,
-    concepts, totalConcepts,
-    currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
-    facets: tempSearchFacets,
-    selectedResult, setSelectedResult, selectedResultLoading,
-    resultCrumbs, addResultBreadcrumb, goToResultBreadcrumb, addBreadcrumbFromKG
-  }
-
   return (
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
