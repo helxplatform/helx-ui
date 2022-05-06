@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Menu, Modal, Space, Breadcrumb, Button, Typography, Spin, Result } from 'antd'
+import { Menu, Modal, Space, Breadcrumb, Button, Typography, Spin, Result, List } from 'antd'
 import './concept-modal.css'
 import { useHelxSearch } from '../'
 import CustomIcon, {
@@ -16,7 +16,7 @@ import { useAnalytics, useEnvironment } from '../../../contexts'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
-const { Text } = Typography
+const { Paragraph, Text } = Typography
 
 export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => {
   const { analyticsEvents } = useAnalytics();
@@ -25,7 +25,8 @@ export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => 
   const {
     fetchKnowledgeGraphs, fetchStudyVariables, query,
     resultCrumbs, goToResultBreadcrumb, selectedResultLoading,
-    selectedResultFailed, doSearch, setSelectedResult
+    selectedResultFailed, doSearch, setSelectedResult,
+    addResultBreadcrumb
   } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studies, setStudies] = useState([])
@@ -117,7 +118,7 @@ export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => 
           <Button type="link" size="small" style={{ padding: 0 }} onClick={() => {
             doSearch(result.name)
             setSelectedResult(null)
-          }}>Search</Button>
+          }}>Full search</Button>
         </Space>
       )}
     </Fragment>
@@ -135,9 +136,34 @@ export const ConceptModal = ({ result, breadcrumbs, visible, closeHandler }) => 
           goToResultBreadcrumb(resultCrumbs[resultCrumbs.indexOf(result) - 1])
         }}>Go back</Button>
       ]}
-      style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        width: "100%",
+        height: "100%",
+        transform: "translate(-50%, -50%)",
+        overflowY: "auto"
+      }}
     >
-
+      <Paragraph>
+        <Text strong style={{ fontSize: 16 }}>Related concepts</Text>
+      </Paragraph>
+      <Space size="large" wrap>
+        {
+          result.suggestions
+          .filter((result) => {
+            return !resultCrumbs.find((crumb) => crumb.id === result.id);
+          })
+          .slice(0, 8)
+          .map((suggestedResult) => (
+            <a role="button" onClick={() => addResultBreadcrumb(suggestedResult)}>{suggestedResult.name}</a>
+          ))
+        }
+      </Space>
+      {/* <Paragraph>
+        {result.suggestions.slice(0, 5).map((suggestedResult) => suggestedResult.name)}
+      </Paragraph> */}
     </Result>
   ) : (
     // `display: inline-flex` (default) can result in strange padding since it's an inline element

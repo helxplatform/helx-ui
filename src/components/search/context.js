@@ -166,9 +166,11 @@ export const HelxSearch = ({ children }) => {
       size: 200
     })
     let foundConceptResult;
+    let synonymousConcepts;
+    let results;
     if (dugResult && dugResult.hits) {
       const hits = dugResult.hits.hits.map(r => r._source).reduce(validationReducer, { valid: [], invalid: [] })
-      const results = hits.valid
+      results = hits.valid
       // console.log(id, name, results)
       foundConceptResult = results.find((result) => (
         result.id === id ||
@@ -176,8 +178,9 @@ export const HelxSearch = ({ children }) => {
         // result.identifiers.some((identifier) => identifier.equivalent_identifiers.includes(id))
         )
       )
-      const synonymousConcepts = results.filter((result) => result.identifiers.some((identifier) => identifier.equivalent_identifiers.includes(id)))
+      synonymousConcepts = results.filter((result) => result.identifiers.some((identifier) => identifier.equivalent_identifiers.includes(id)))
       console.log(id, synonymousConcepts.map((result) => result.name))
+      console.log(results);
     }
     setResultBreadcrumbs((prevResultCrumbs) => {
       const index = prevResultCrumbs.indexOf(tempResult)
@@ -187,7 +190,8 @@ export const HelxSearch = ({ children }) => {
         ...prevResultCrumbs.slice(0, index),
         foundConceptResult ? foundConceptResult : {
           name,
-          failed: true
+          failed: true,
+          suggestions: synonymousConcepts.length > 0 ? synonymousConcepts : results
         }
       ]
     })
