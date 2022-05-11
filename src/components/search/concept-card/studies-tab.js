@@ -4,34 +4,20 @@ import { useHelxSearch } from '../'
 import { Link } from '../../link'
 
 const { Text } = Typography
-const { CheckableTag: CheckableFacet } = Tag
 
 export const StudiesTab = ({ result }) => {
   const { query, fetchStudyVariables } = useHelxSearch()
-  const [studyVariables, setStudyVariables] = useState([])
-  const [facets, setFacets] = useState([])
-  const [selectedFacets, setSelectedFacets] = useState([])
+  const [studies, setStudies] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const handleSelectFacet = (facet, checked) => {
-    const newSelection = new Set(selectedFacets)
-    if (newSelection.has(facet)) {
-      newSelection.delete(facet)
-    } else {
-      newSelection.add(facet)
-    }
-    setSelectedFacets([...newSelection])
-  }
-
   useEffect(() => {
-    const getVars = async () => {
-      const { result: data } = await fetchStudyVariables(result.id, query)
-      setStudyVariables(data)
-      setFacets(Object.keys(data))
-      setSelectedFacets(Object.keys(data))
+    const getStudies = async () => {
+      const studies = await fetchStudyVariables(result.id, query)
+      setStudies(studies)
       setLoading(false)
     }
-    getVars()
+    setLoading(true)
+    getStudies()
   }, [fetchStudyVariables])
 
   if (loading) {
@@ -40,35 +26,16 @@ export const StudiesTab = ({ result }) => {
   
   return (
     <Space direction="vertical" className="tab-content">
-      <Space direction="horizontal" size="small">
-        {
-          facets.map(facet => studyVariables[facet] && (
-            <CheckableFacet
-              key={ `search-facet-${ facet }` }
-              checked={ selectedFacets.includes(facet) }
-              onChange={ checked => handleSelectFacet(facet, checked) }
-              children={ `${ facet } (${studyVariables[facet].length})` }
-            />
-          ))
-        }
-      </Space>
       <List
         className="studies-list"
-        dataSource={
-          Object.keys(studyVariables)
-            .filter(facet => selectedFacets.includes(facet))
-            .reduce((arr, facet) => [...arr, ...studyVariables[facet]], [])
-            .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
-        }
-        renderItem={ item => (
+        dataSource={ studies }
+        renderItem={ study => (
           <List.Item>
-            <div className="studies-list-item">
-              <Text className="study-name">
-                { item.c_name }{ ` ` }
-                (<Link to={ item.c_link }>{ item.c_id }</Link>)
-              </Text>
-              <Text className="variables-count">{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
-            </div>
+            <Text className="study-name">{ study.c_name }{ ` ` }</Text>
+            <Text className="variables-count">
+              { study.elements.length } variable{ study.elements.length === 1 ? '' : 's' }<br />
+              <Tag>{ study.type }</Tag> <Link to={ study.c_link }>{ study.c_id }</Link>
+            </Text>
           </List.Item>
         ) }
       />

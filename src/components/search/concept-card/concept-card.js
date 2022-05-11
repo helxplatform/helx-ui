@@ -7,7 +7,6 @@ import { KnowledgeGraphs, useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { CdesTab } from './cdes-tab'
-import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
 import { useAnalytics } from '../../../contexts'
 import classNames from 'classnames'
 import './concept-card.css'
@@ -24,8 +23,7 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
   const tabs = {
     'overview': { title: 'Overview',         content: <OverviewTab result={ result } /> },
     'studies':  { title: `Studies`,          content: <StudiesTab result={ result } /> },
-    'cdes':     { title: `CDEs`,             content: <CdesTab /> },
-    'kgs':      { title: `Knowledge Graphs`, content: <KnowledgeGraphsTab result={ result } /> },
+    'cdes':     { title: `CDEs`,             content: <CdesTab result={ result } /> },
   }
 
   const tabList = Object.keys(tabs).map(key => tabs[key].content ? ({ key, tab: tabs[key].title }) : null).filter(tab => tab !== null)

@@ -22,6 +22,10 @@ const tempSearchFacets = [
   'LOINC',
   'PhenX',
 ].sort((f, g) => f.toLowerCase() < g.toLowerCase() ? -1 : 1)
+// The search_var endpoint returns studies (DbGaP, etc) and CDEs.
+// The CDEs will be rendered in another tab, so this array will assist
+// in separating out CDEs from actual studies.
+const STUDY_TYPES = ['DbGaP']
 
 
 export const SearchLayout = Object.freeze({
@@ -166,17 +170,49 @@ export const HelxSearch = ({ children }) => {
 
   const fetchStudyVariables = useCallback(async (_id, _query) => {
     try {
-      const { data } = await axios.post(`${helxSearchUrl}/search_var`, {
+      const { data: { result } } = await axios.post(`${helxSearchUrl}/search_var`, {
         concept: _id,
         index: 'variables_index',
         query: _query,
         size: 1000
       })
-      if (!data) {
+      if (!result) {
         return []
       }
-      return data
-      // return []
+      const filteredAndTypedStudies = Object.keys(result)
+        .reduce((studies, key) => {
+          if (STUDY_TYPES.includes(key)) {
+            const newStudies = [...result[key].map(item => ({ type: key, ...item }))]
+            return [...newStudies, ...studies]        
+          }
+          return [...studies]
+        }, [])
+      return filteredAndTypedStudies
+    } catch (error) {
+      console.error(error)
+    }
+  }, [helxSearchUrl, concepts])
+
+  const fetchCDEs = useCallback(async (_id, _query) => {
+    try {
+      const { data: { result } } = await axios.post(`${helxSearchUrl}/search_var`, {
+        concept: _id,
+        index: 'variables_index',
+        query: _query,
+        size: 1000
+      })
+      if (!result) {
+        return []
+      }
+      const cdesOnly = Object.keys(result)
+        .reduce((studies, key) => {
+          if (key === 'cde') {
+            const newStudies = [...result[key].map(item => ({ type: key, ...item }))]
+            return [...newStudies, ...studies]        
+          }
+          return [...studies]
+        }, [])
+      return cdesOnly[0]
     } catch (error) {
       console.error(error)
     }
@@ -193,7 +229,9 @@ export const HelxSearch = ({ children }) => {
 
   return (
     <HelxSearchContext.Provider value={{
-      query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
+      query, setQuery, doSearch,
+      fetchKnowledgeGraphs, fetchStudyVariables, fetchCDEs,
+      inputRef,
       error, isLoadingConcepts,
       concepts, totalConcepts,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,

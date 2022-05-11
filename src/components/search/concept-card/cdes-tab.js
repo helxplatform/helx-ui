@@ -1,15 +1,42 @@
 import { useEffect, useState } from 'react'
-import { Collapse, List, Space, Tag, Typography } from 'antd'
+import { List, Spin, Space, Tag, Typography } from 'antd'
+import { useHelxSearch } from '../'
 import { Link } from '../../link'
 
-const { Text, Title } = Typography
-const { CheckableTag: CheckableFacet } = Tag
-const { Panel } = Collapse
+const { Text } = Typography
 
-export const CdesTab = ({ cdes }) => {
+export const CdesTab = ({ result }) => {
+  const { query, fetchCDEs } = useHelxSearch()
+  const [cdes, setCDEs] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const getCDEs = async () => {
+      const data = await fetchCDEs(result.id, query)
+      setCDEs(data)
+      setLoading(false)
+    }
+    setLoading(true)
+    getCDEs()
+  }, [fetchCDEs])
+
+  console.log(cdes)
+
+  if (loading) {
+    return <Spin />
+  }
+  
   return (
-    <Space direction="vertical">
-      <Title level={ 4 }>CDEs</Title>
-   </Space>
+    <Space direction="vertical" className="tab-content">
+      <List
+        className="studies-list"
+        dataSource={ cdes.elements }
+        renderItem={ item => (
+          <List.Item>
+            <Text className="study-name">{ item.name }{ ` ` }</Text>
+          </List.Item>
+        ) }
+      />
+    </Space>
   )
 }
