@@ -10,8 +10,9 @@ import CustomIcon, {
   RobotOutlined as RobokopIcon,
   ExportOutlined as ExternalLinkIcon,
   FullscreenOutlined as FullscreenLayoutIcon
+  UnorderedListOutlined as CdesIcon,
 } from '@ant-design/icons'
-import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
+import { CdesTab, OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import { SearchLayout } from '../context'
 
@@ -28,6 +29,7 @@ export const ConceptModalBody = ({ result }) => {
   const tabs = {
     'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
     'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
+    'cdes':     { title: `CDEs`,                icon: <CdesIcon />,             content: <CdesTab /> },
     'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
     'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> },
     // 'robokop':   { title: 'Robokop',            icon: <RobokopIcon/>,           content: <RobokopTab /> }
