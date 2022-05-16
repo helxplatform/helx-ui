@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Form, Input } from 'antd'
+import { useDebouncedCallback } from 'use-debounce'
 import { useHelxSearch } from '../'
 import './form.css'
 
-export const SearchForm = () => {
+// If search is minimal (used in expanded view), remove the search button and automatically execute search on a debounce.
+const MINIMAL = 'minimal'
+const FULL = 'full'
+
+export const SearchForm = ({ type=FULL }) => {
   const { doSearch, inputRef, query, totalConcepts } = useHelxSearch()
   const [searchTerm, setSearchTerm] = useState(query)
+  
+  const executeDebouncedSearch = useDebouncedCallback(() => {
+    doSearch(searchTerm)
+  }, 500)
 
   const handleChangeQuery = event => setSearchTerm(event.target.value)
 
@@ -14,6 +23,10 @@ export const SearchForm = () => {
       doSearch(searchTerm)
     }
   }
+
+  useEffect(() => {
+    // if (type === MINIMAL) executeDebouncedSearch()
+  }, [searchTerm])
 
   // This enables a two-way binding from this component's state (searchTerm) and that provided by the search-context,
   // ..but only when a new search is executed.
@@ -35,9 +48,11 @@ export const SearchForm = () => {
           onKeyDown={handleKeyDown}
         />
       </Form.Item>
-      <Form.Item>
-        <Button htmlType="submit">Search</Button>
-      </Form.Item>
+      {type === FULL && (
+        <Form.Item>
+          <Button htmlType="submit">Search</Button>
+        </Form.Item>
+      )}
     </Form>
   )
 }

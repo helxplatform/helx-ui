@@ -22,7 +22,12 @@ const tempSearchFacets = [
   'PhenX',
 ].sort((f, g) => f.toLowerCase() < g.toLowerCase() ? -1 : 1)
 
-//
+
+export const SearchLayout = Object.freeze({
+  GRID: 'GRID',
+  LIST: 'LIST',
+  EXPANDED_RESULT: 'EXPANDED_RESULT'
+})
 
 const validateResult = result => {
   return result.description.trim() && result.name.trim()
@@ -40,9 +45,23 @@ export const HelxSearch = ({ children }) => {
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
   const [selectedResult, setSelectedResult] = useState(null)
+  const [layout, _setLayout] = useState(SearchLayout.GRID)
 
   const inputRef = useRef()
   const navigate = useNavigate()
+
+  const setLayout = (newLayout) => {
+    // Only track when layout changes
+    if (layout !== newLayout) {
+      analyticsEvents.searchLayoutChanged(query, newLayout, layout)
+    }
+    if (newLayout === SearchLayout.EXPANDED_RESULT) {
+      if (totalConcepts > 0) setSelectedResult(concepts[0])
+    } else {
+      setSelectedResult(null)
+    }
+    _setLayout(newLayout)
+  }
 
   useEffect(() => {
     // this lets the user press backslash to jump focus to the search box
@@ -174,11 +193,12 @@ export const HelxSearch = ({ children }) => {
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
+      layout, setLayout
     }}>
       { children }
       <ConceptModal
         result={ selectedResult }
-        visible={ selectedResult !== null}
+        visible={ layout !== SearchLayout.EXPANDED_RESULT && selectedResult !== null }
         closeHandler={ () => setSelectedResult(null) }
       />
     </HelxSearchContext.Provider>

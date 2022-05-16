@@ -53,7 +53,7 @@ export const Layout = ({ children }) => {
         </Menu>
         <MobileMenu menu={routes} />
       </Header>
-      <Content>
+      <Content className>
         {children}
         {context.workspaces_enabled === 'true' && <SidePanel />}
       </Content>

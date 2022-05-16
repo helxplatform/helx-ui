@@ -1,98 +1,81 @@
 import React, { Fragment, useState, useMemo } from 'react'
-import { Link } from '../../link'
-import { Radio, notification, Spin, Tooltip, Typography, Grid as AntGrid } from 'antd'
-import {
-  LinkOutlined as LinkIcon,
-  TableOutlined as GridViewIcon,
-  UnorderedListOutlined as ListViewIcon,
-} from '@ant-design/icons'
-import { PaginationTray, ConceptCard, ConceptModal, useHelxSearch } from '../'
+import { Radio, notification, Spin, Tooltip, Typography, Grid as AntGrid, Empty } from 'antd'
+import { PaginationTray, ConceptCard, ConceptModal, useHelxSearch, SearchLayout, ExpandedResultsLayout } from '../'
 import './concept-results.css'
-import { useAnalytics, useEnvironment } from '../../../contexts'
+import { ResultsHeader } from '.'
+import { SearchForm } from '../form'
 
 const { Text } = Typography
 const { useBreakpoint } = AntGrid
 
-const GRID = 'GRID'
-const LIST = 'LIST'
-
 export const ConceptSearchResults = () => {
-  const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult } = useHelxSearch()
-  const { basePath } = useEnvironment()
-  const { analyticsEvents } = useAnalytics()
+  const {
+    query, concepts, perPage, currentPage,
+    pageCount, isLoadingConcepts, error, setSelectedResult,
+    layout
+  } = useHelxSearch()
   const { md } = useBreakpoint();
-  const [layout, setLayout] = useState(GRID)
 
-  let gridClass = (layout === GRID) ? 'results-list grid' : 'results-list list'
+  let gridClass = 'results-list'
+  switch (layout) {
+    case SearchLayout.GRID:
+      gridClass += ' ' + 'grid'
+      break;
+    case SearchLayout.LIST:
+      gridClass += ' ' + 'list'
+      break;
+    case SearchLayout.EXPANDED_RESULT:
+      gridClass += ' ' + 'expanded-result'
+      break;
+  }
   gridClass += md ? " md" : ""
 
-  const NotifyLinkCopied = () => {
-    notification.open({ key: 'key', message: 'Link copied to clipboard' })
-    navigator.clipboard.writeText(window.location.href)
-    analyticsEvents.searchURLCopied(query)
-  }
-
-  const handleChangeLayout = (event) => {
-    const newLayout = event.target.value;
-    setLayout(newLayout)
-    // Only track when layout changes
-    if (layout !== newLayout) {
-      analyticsEvents.searchLayoutChanged(query, newLayout, layout)
-    }
-  }
-
-  const MemoizedResultsHeader = useMemo(() => (
-    <div className="header">
-      <Text>{totalConcepts} concepts ({pageCount} page{pageCount > 1 && 's'})</Text>
-      <Tooltip title="Shareable link" placement="top">
-        <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
-      </Tooltip>
-      <Tooltip title="Toggle Layout" placement="top">
-        <Radio.Group value={layout} onChange={handleChangeLayout}>
-          <Radio.Button value={GRID}><GridViewIcon /></Radio.Button>
-          <Radio.Button value={LIST}><ListViewIcon /></Radio.Button>
-        </Radio.Group>
-      </Tooltip>
-    </div>
-  ), [currentPage, layout, pageCount, totalConcepts, query])
-
-  if (isLoadingConcepts) {
-    return <Spin style={{ display: 'block', margin: '4rem' }} />
-  }
-
+  if (layout === SearchLayout.EXPANDED_RESULT) return (
+    <ExpandedResultsLayout/>
+  )
   return (
     <Fragment>
+      <SearchForm />
+      {isLoadingConcepts ? (
+        <Spin style={{ display: 'block', margin: '4rem', flexGrow: 1 }} />
+      ) : (
+        <Fragment>
+        { error && <span>{ error.message }</span> }
 
-      { error && <span>{ error.message }</span> }
+        {
+          query && !error.message && (
+            <Fragment>
+            <div className="results" style={{ flexGrow: 1 }}>
+              <ResultsHeader />
+              { concepts.length === 0 && (
+                <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <Empty />
+                </div>
+              )}
 
-      {
-        query && !error.message && (
-          <div className="results">
-            { concepts.length >= 1 && MemoizedResultsHeader }
-
-            <div className={gridClass}>
-              {
-                concepts.map((result, i) => {
-                  const index = (currentPage - 1) * perPage + i + 1
-                  return (
-                    <ConceptCard
-                      key={ `${query}_result_${index}` }
-                      index={ index }
-                      result={ result }
-                      openModalHandler={ () => setSelectedResult(result) }
-                    />
-                  )
-                })
-              }
+              <div className={gridClass}>
+                {
+                  concepts.map((result, i) => {
+                    const index = (currentPage - 1) * perPage + i + 1
+                    return (
+                      <ConceptCard
+                        key={ `${query}_result_${index}` }
+                        index={ index }
+                        result={ result }
+                        openModalHandler={ () => setSelectedResult(result) }
+                      />
+                    )
+                  })
+                }
+              </div>
             </div>
-          </div>
-        )
-      }
-
-      <br/><br/>
-
-      { pageCount > 1 && <PaginationTray /> }
-
+            <br/><br/>
+            { pageCount > 1 && <PaginationTray /> }
+            </Fragment>
+          )
+        }
+        </Fragment>
+      )}
     </Fragment>
   )
 }

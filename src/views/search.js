@@ -22,7 +22,6 @@ export const SearchView = () => {
       {context.workspaces_enabled === 'true' && <Title level={1}>Search</Title>}
 
       <HelxSearch>
-        <SearchForm />
         <ConceptSearchResults />
       </HelxSearch>
 

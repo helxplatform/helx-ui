@@ -1,4 +1,6 @@
 .results {
+  display: flex;
+  flex-direction: column;
 }
 
 .results .header {

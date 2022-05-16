@@ -1,0 +1,25 @@
+.expanded-results-layout {
+    flex-grow: 1;
+    align-items: stretch !important;
+    /* display: flex; */
+}
+.expanded-results-layout .results {
+    white-space: nowrap;
+    min-width: 200px;
+    flex: 0%;
+}
+.expanded-results-layout .results .expanded-result-option {
+    transition: background-color 0.25s, color 0.25s;
+}
+.expanded-results-layout .results .expanded-result-option:hover {
+    /* filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.1)); */
+    z-index: 1000;
+    background-color: inherit !important;
+}
+.expanded-results-layout .results .expanded-result-option.selected {
+    background-color: #1890ff !important;
+    color: white;
+}
+.expanded-result-container {
+    flex-grow: 1;
+}
