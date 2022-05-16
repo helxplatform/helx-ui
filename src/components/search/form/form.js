@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Form, Input } from 'antd'
+import { Button, Form, Input, Typography } from 'antd'
+import { SearchOutlined } from '@ant-design/icons'
 import { useDebouncedCallback } from 'use-debounce'
 import { useHelxSearch } from '../'
 import './form.css'
+
+const { Link } = Typography
 
 // If search is minimal (used in expanded view), remove the search button and automatically execute search on a debounce.
 const MINIMAL = 'minimal'
@@ -24,6 +27,8 @@ export const SearchForm = ({ type=FULL }) => {
     }
   }
 
+  const submitSearch = () => doSearch(searchTerm)
+
   useEffect(() => {
     // if (type === MINIMAL) executeDebouncedSearch()
   }, [searchTerm])
@@ -36,7 +41,7 @@ export const SearchForm = ({ type=FULL }) => {
   useEffect(() => setSearchTerm(query), [query])
 
   return (
-    <Form onFinish={ () => doSearch(searchTerm) } className={ `search-form ${ totalConcepts ? 'with-results' : 'without-results' }` }>
+    <Form onFinish={ submitSearch } className={ `search-form ${ totalConcepts ? 'with-results' : 'without-results' }` }>
       <Form.Item>
         <Input
           allowClear
@@ -48,11 +53,15 @@ export const SearchForm = ({ type=FULL }) => {
           onKeyDown={handleKeyDown}
         />
       </Form.Item>
-      {type === FULL && (
-        <Form.Item>
-          <Button htmlType="submit">Search</Button>
-        </Form.Item>
-      )}
+      <Form.Item>
+        {
+          type === FULL ? (
+            <Button htmlType="submit">Search</Button>
+          ) : (
+            <Link type="secondary" onClick={ submitSearch }><SearchOutlined style={{ fontSize: "16px" }} /></Link>
+          )
+        }
+      </Form.Item>
     </Form>
   )
 }

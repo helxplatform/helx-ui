@@ -9,12 +9,14 @@
     flex: 0%;
 }
 .expanded-results-layout .results .expanded-result-option {
-    transition: background-color 0.25s, color 0.25s;
+    cursor: pointer;
+    transition: filter 0.25s, background-color 0.25s, color 0.25s;
 }
 .expanded-results-layout .results .expanded-result-option:hover {
     /* filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.1)); */
     z-index: 1000;
-    background-color: inherit !important;
+    /* background-color: rgb(240, 242, 245) */
+    background-color: #e1e5eb;
 }
 .expanded-results-layout .results .expanded-result-option.selected {
     background-color: #1890ff !important;

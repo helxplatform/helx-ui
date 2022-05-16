@@ -55,9 +55,7 @@ export const HelxSearch = ({ children }) => {
     if (layout !== newLayout) {
       analyticsEvents.searchLayoutChanged(query, newLayout, layout)
     }
-    if (newLayout === SearchLayout.EXPANDED_RESULT) {
-      if (totalConcepts > 0) setSelectedResult(concepts[0])
-    } else {
+    if (newLayout !== SearchLayout.EXPANDED_RESULT) {
       setSelectedResult(null)
     }
     _setLayout(newLayout)
