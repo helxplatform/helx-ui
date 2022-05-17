@@ -15,7 +15,7 @@ import { useAnalytics, useEnvironment } from '../../../contexts'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
-export const ConceptModal = ({ result, visible, closeHandler }) => {
+export const ConceptModalBody = ({ result }) => {
   const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
@@ -69,6 +69,38 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
     getKgs()
   }, [fetchKnowledgeGraphs, fetchStudyVariables, result, query])
 
+  return (
+    <Space align="start" className="concept-modal-body">
+      <Menu
+        defaultSelectedKeys={ ['overview'] }
+        mode="inline"
+        theme="light"
+        selectedKeys={ [currentTab] }
+      >
+        {
+          Object.keys(tabs).map(key => (
+            <Menu.Item className="tab-menu-item" key={ key } onClick={ () => setCurrentTab(key) }>
+              <span className="tab-icon">{ tabs[key].icon }</span> &nbsp; <span className="tab-name">{ tabs[key].title }</span>
+            </Menu.Item>
+          ))
+        }
+        {Object.keys(links).length !== 0 && <Menu.Divider/>}
+        {
+          Object.keys(links).map(key => (
+            <Menu.Item className="tab-menu-item" key={ key } onClick={null}>
+              <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
+                <span className="tab-icon">{ <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
+              </a>
+            </Menu.Item>
+          ))
+        }
+      </Menu>
+      <div className="modal-content-container" children={ tabs[currentTab].content } />
+    </Space>
+  )
+}
+
+export const ConceptModal = ({ result, visible, closeHandler }) => {
   if (!result) {
     return null
   }
@@ -85,33 +117,7 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
       bodyStyle={{ padding: `0`, minHeight: `50vh` }}
       cancelButtonProps={{ hidden: true }}
     >
-      <Space direction="horizontal" align="start">
-        <Menu
-          defaultSelectedKeys={ ['overview'] }
-          mode="inline"
-          theme="light"
-          selectedKeys={ [currentTab] }
-        >
-          {
-            Object.keys(tabs).map(key => (
-              <Menu.Item className="tab-menu-item" key={ key } onClick={ () => setCurrentTab(key) }>
-                <span className="tab-icon">{ tabs[key].icon }</span> &nbsp; <span className="tab-name">{ tabs[key].title }</span>
-              </Menu.Item>
-            ))
-          }
-          {Object.keys(links).length !== 0 && <Menu.Divider/>}
-          {
-            Object.keys(links).map(key => (
-              <Menu.Item className="tab-menu-item" key={ key } onClick={null}>
-                <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
-                  <span className="tab-icon">{ <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
-                </a>
-              </Menu.Item>
-            ))
-          }
-        </Menu>
-        <div className="modal-content-container" children={ tabs[currentTab].content } />
-      </Space>
+      <ConceptModalBody result={ result } />
     </Modal>
   )
 }

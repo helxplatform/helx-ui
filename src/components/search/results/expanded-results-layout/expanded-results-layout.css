@@ -44,7 +44,7 @@
 .expanded-result-option-card.selected {
     background-color: #1890ff !important;
     color: #fff;
-    /* filter: brightness(0.95) drop-shadow(0 0 8px rgba(0, 0, 0, 0)); */
+    filter: brightness(0.925) drop-shadow(0 0 2px rgba(0, 0, 0, 0.05));
     /* border-color: #1890ff !important; */
 }
 .expanded-result-option-card.selected .ant-card-head-title {
@@ -67,10 +67,18 @@
 }
 .expanded-result-option-concept-card.selected {
     border-color: #1890ff;
-    /* filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05)) brightness(0.925) !important; */
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05)) brightness(0.925) !important;
 }
 
 
 .expanded-result-container {
     flex: 1;
+    background: #fff;
+    padding: 0 8px;
+}
+.expanded-result-container > .ant-card-body {
+    padding: 0;
+}
+.expanded-result-container > .ant-space > .ant-space-item > .ant-menu {
+    /* background: none; */
 }

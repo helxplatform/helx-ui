@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { Space, Divider, Menu, List, Typography, Card, Button, Spin } from 'antd'
 import { ArrowRightOutlined, ArrowLeftOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { ResultsHeader } from '..'
-import { ConceptCard, PaginationTray, SearchForm, useHelxSearch } from '../..'
+import { ConceptCard, ConceptModalBody, PaginationTray, SearchForm, useHelxSearch } from '../..'
 import { OverviewTab } from '../../concept-card/overview-tab'
 import './expanded-results-layout.css'
 import classNames from 'classnames'
@@ -89,12 +89,9 @@ export const ExpandedResultsLayout = () => {
             </Space>
             <Divider type="vertical" style={{ height: "auto", marginLeft: "24px", marginRight: "24px" }}/>
             {selectedResult && (
-                <div className="expanded-result-container">
-                    <Title level={5}>{selectedResult.name}</Title>
-                    <Text>
-                        {selectedResult.description}
-                    </Text>
-                </div>
+                <Card className="expanded-result-container" title={ `${ selectedResult.name } (${ selectedResult.type })` }>
+                    <ConceptModalBody result={ selectedResult } />
+                </Card>
             )}
         </div>
     )
