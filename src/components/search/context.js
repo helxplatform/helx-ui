@@ -24,9 +24,10 @@ const tempSearchFacets = [
 
 
 export const SearchLayout = Object.freeze({
+  DEFAULT: 'GRID',
   GRID: 'GRID',
   LIST: 'LIST',
-  EXPANDED_RESULT: 'EXPANDED_RESULT'
+  EXPANDED_RESULT: 'EXPANDED_RESULT',
 })
 
 const validateResult = result => {
@@ -59,6 +60,12 @@ export const HelxSearch = ({ children }) => {
       setSelectedResult(null)
     }
     _setLayout(newLayout)
+  }
+
+  const setFullscreenResult = (result) => {
+    // setSelectedResult(null)
+    setLayout(SearchLayout.EXPANDED_RESULT)
+    setSelectedResult(result)
   }
 
   useEffect(() => {
@@ -112,11 +119,13 @@ export const HelxSearch = ({ children }) => {
               `were removed from the ${ hits.valid.length + hits.invalid.length } ` +
               `concepts in the response.`, hits.invalid)
           }
+          setSelectedResult(null)
           setConcepts(hits.valid)
           setTotalConcepts(response.data.result.total_items)
           setIsLoadingConcepts(false)
           analyticsEvents.searchExecuted(query, Date.now() - startTime, response.data.result.total_items)
         } else {
+          setSelectedResult(null)
           setConcepts([])
           setTotalConcepts(0)
           setIsLoadingConcepts(false)
@@ -182,7 +191,6 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
-
   return (
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
@@ -191,7 +199,7 @@ export const HelxSearch = ({ children }) => {
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
-      layout, setLayout
+      layout, setLayout, setFullscreenResult
     }}>
       { children }
       <ConceptModal

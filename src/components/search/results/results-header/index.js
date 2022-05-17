@@ -7,10 +7,14 @@ import {
 } from '@ant-design/icons'
 import { SearchLayout, useHelxSearch } from "../.."
 import { useAnalytics, useEnvironment } from "../../../../contexts"
+import { Fragment } from "react"
 
 const { Text, Link } = Typography
 
-export const ResultsHeader = () => {
+const MINIMAL = 'minimal'
+const FULL = 'full'
+
+export const ResultsHeader = ({ type=FULL }) => {
     const {
         query, totalConcepts,
         currentPage, pageCount,
@@ -35,13 +39,17 @@ export const ResultsHeader = () => {
 
     return (
         <div className="header">
-            <Text>
-                {totalConcepts} concepts ({pageCount} page{pageCount > 1 && 's'})
-            </Text>
-            <Tooltip title="Shareable link" placement="top">
-                {/* Just want anchor styling */}
-                <Link onClick={NotifyLinkCopied} style={{ marginLeft: '16px', marginRight: '16px' }}><LinkIcon /></Link>
-            </Tooltip>
+            {type === FULL && (
+                <Fragment>
+                <Text>
+                    {totalConcepts} concepts ({pageCount} page{pageCount > 1 && 's'})
+                </Text>
+                <Tooltip title="Shareable link" placement="top">
+                    {/* Just want anchor styling */}
+                    <Link onClick={NotifyLinkCopied} style={{ marginLeft: '16px', marginRight: '16px' }}><LinkIcon /></Link>
+                </Tooltip>
+                </Fragment>
+            )}
             <Tooltip title="Toggle Layout" placement="top">
                 <Radio.Group value={layout} onChange={handleChangeLayout}>
                 <Radio.Button value={SearchLayout.GRID}><GridViewIcon /></Radio.Button>

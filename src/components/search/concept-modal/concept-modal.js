@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Menu, Modal, Space } from 'antd'
+import { Button, Menu, Modal, Space } from 'antd'
 import './concept-modal.css'
 import { useHelxSearch } from '../'
 import CustomIcon, {
@@ -8,10 +8,12 @@ import CustomIcon, {
   ShareAltOutlined as KnowledgeGraphsIcon,
   CodeOutlined as TranQLIcon,
   PlayCircleOutlined as RobokopIcon,
-  ExportOutlined as ExternalLinkIcon
+  ExportOutlined as ExternalLinkIcon,
+  FullscreenOutlined as FullscreenLayoutIcon
 } from '@ant-design/icons'
 import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
 import { useAnalytics, useEnvironment } from '../../../contexts'
+import { SearchLayout } from '../context'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
@@ -101,6 +103,26 @@ export const ConceptModalBody = ({ result }) => {
 }
 
 export const ConceptModal = ({ result, visible, closeHandler }) => {
+  const { setFullscreenResult } = useHelxSearch()
+  const [doFullscreen, setDoFullscreen] = useState(null)
+
+  /**
+   * Essentially peforming the same thing as what a this.setState call using a callback would do.
+   * Need to render the modal as closed for one render in order for the modal to actually close
+   * before redirecting to the fullscreen layout.
+   */
+  useEffect(() => {
+    if (doFullscreen !== null) {
+      setFullscreenResult(doFullscreen)
+      setDoFullscreen(null)
+    }
+  }, [doFullscreen])
+
+  const openFullscreen = () => {
+    setDoFullscreen(result)
+    closeHandler()
+  }
+
   if (!result) {
     return null
   }
@@ -116,6 +138,12 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
       style={{ top: 135 }}
       bodyStyle={{ padding: `0`, minHeight: `50vh` }}
       cancelButtonProps={{ hidden: true }}
+      footer={(
+        <Space style={{ justifyContent: "flex-end" }}>
+          <Button type="ghost" onClick={ openFullscreen }>Fullscreen</Button>
+          <Button type="primary" onClick={ closeHandler }>Close</Button>
+        </Space>
+      )}
     >
       <ConceptModalBody result={ result } />
     </Modal>

@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Space, Divider, Menu, List, Typography, Card, Button, Spin } from 'antd'
-import { ArrowRightOutlined, ArrowLeftOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Space, Divider, Menu, List, Typography, Card, Button, Spin, Empty } from 'antd'
+import { ArrowRightOutlined, ArrowLeftOutlined, LeftOutlined, RightOutlined, ShrinkOutlined, CloseOutlined } from '@ant-design/icons'
 import { ResultsHeader } from '..'
-import { ConceptCard, ConceptModalBody, PaginationTray, SearchForm, useHelxSearch } from '../..'
+import { ConceptCard, ConceptModalBody, PaginationTray, SearchForm, SearchLayout, useHelxSearch } from '../..'
 import { OverviewTab } from '../../concept-card/overview-tab'
 import './expanded-results-layout.css'
 import classNames from 'classnames'
@@ -12,12 +12,39 @@ const { Text, Paragraph, Title, Link } = Typography
 export const ExpandedResultsLayout = () => {
     const {
         concepts, selectedResult, setSelectedResult,
-        pageCount, isLoadingConcepts
+        pageCount, isLoadingConcepts, setLayout
     } = useHelxSearch()
+
     const [expanded, setExpanded] = useState(true)
+    const [doCloseFullscreen, setDoCloseFullscreen] = useState(null)
+
+    // useEffect(() => {
+    //     if (concepts.length > 0 && selectedResult === null) setSelectedResult(concepts[0])
+    // }, [concepts])
     useEffect(() => {
-        if (concepts.length > 0) setSelectedResult(concepts[0])
-    }, [concepts])
+        if (selectedResult !== null) {
+            // Indicates a "redirect" to this layout with an active result already selected.
+            setExpanded(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (doCloseFullscreen) {
+            setSelectedResult(doCloseFullscreen)
+            setDoCloseFullscreen(null)
+        }
+    }, [doCloseFullscreen])
+
+    const closeFullscreen = () => {
+        setDoCloseFullscreen(selectedResult)
+        setLayout(SearchLayout.DEFAULT)
+    }
+
+    const closeSelected = () => {
+        setSelectedResult(null)
+        setExpanded(true)
+    }
+
     return (
         <div className="expanded-results-layout">
             <Space direction="vertical" className="results results-sidebar">
@@ -50,48 +77,57 @@ export const ExpandedResultsLayout = () => {
                     style={{ display: concepts.length === 0 ? "none" : undefined }}
                 /> */}
                 <Spin spinning={isLoadingConcepts}>
-                <div className="results-list grid" style={{ whiteSpace: "normal", display: !expanded ? "none" : undefined }}>
-                    {
-                        concepts.map((result, i) => (
-                            // <Card
-                            //     hoverable
-                            //     title={`${result.name} (${result.type})`}
-                            //     onClick={() => setSelectedResult(result)}
-                            //     className={"expanded-result-option-card" + (result.id === selectedResult?.id ? " selected" : "")}
-                            // >
-                            //     <Paragraph type="secondary" style={{ whiteSpace: "normal" }}>
-                            //         {result.description}
-                            //     </Paragraph>
-                            //     <Divider/>
-                            //     <Button
-                            //         size="middle"
-                            //         type="primary"
-                            //         disabled={result.id === selectedResult?.id}
-                            //         onClick={() => setSelectedResult(result)}
-                            //         style={{ float: "right" }}
-                            //     >
-                            //         View
-                            //     </Button>
-                            // </Card>
-                            <ConceptCard
-                                key={result.id}
-                                className={classNames("expanded-result-option-concept-card", result.id === selectedResult?.id && "selected")}
-                                result={result}
-                                icon={result.id === selectedResult?.id ? Fragment : ArrowRightOutlined}
-                                openModalHandler={ () => setSelectedResult(result) }
-                            />
-                        ))
-                    }
-                </div>
+                    <div className="results-list grid" style={{ whiteSpace: "normal", display: !expanded ? "none" : undefined }}>
+                        {
+                            concepts.map((result, i) => (
+                                // <Card
+                                //     hoverable
+                                //     title={`${result.name} (${result.type})`}
+                                //     onClick={() => setSelectedResult(result)}
+                                //     className={"expanded-result-option-card" + (result.id === selectedResult?.id ? " selected" : "")}
+                                // >
+                                //     <Paragraph type="secondary" style={{ whiteSpace: "normal" }}>
+                                //         {result.description}
+                                //     </Paragraph>
+                                //     <Divider/>
+                                //     <Button
+                                //         size="middle"
+                                //         type="primary"
+                                //         disabled={result.id === selectedResult?.id}
+                                //         onClick={() => setSelectedResult(result)}
+                                //         style={{ float: "right" }}
+                                //     >
+                                //         View
+                                //     </Button>
+                                // </Card>
+                                <ConceptCard
+                                    key={result.id}
+                                    className={classNames("expanded-result-option-concept-card", result.id === selectedResult?.id && "selected")}
+                                    result={result}
+                                    icon={result.id === selectedResult?.id ? Fragment : ArrowRightOutlined}
+                                    openModalHandler={ () => setSelectedResult(result) }
+                                />
+                            ))
+                        }
+                    </div>
                 </Spin>
-                {/* <Divider/> */}
                 { expanded && pageCount > 1 && <div style={{ marginTop: "8px" }}><PaginationTray showTotal={false} /></div> }
             </Space>
             <Divider type="vertical" style={{ height: "auto", marginLeft: "24px", marginRight: "24px" }}/>
-            {selectedResult && (
-                <Card className="expanded-result-container" title={ `${ selectedResult.name } (${ selectedResult.type })` }>
+            {selectedResult ? (
+                <Card
+                    className="expanded-result-container"
+                    title={ `${ selectedResult.name } (${ selectedResult.type })` }
+                    extra={[
+                        <Button icon={ <CloseOutlined /> } type="text" onClick={ closeSelected } />
+                    ]}
+                >
                     <ConceptModalBody result={ selectedResult } />
                 </Card>
+            ) : (
+                    <div className="" style={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <Empty />
+                    </div>
             )}
         </div>
     )
