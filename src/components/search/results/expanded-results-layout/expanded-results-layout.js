@@ -1,28 +1,39 @@
-import { Fragment, useEffect } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Space, Divider, Menu, List, Typography, Card, Button, Spin } from 'antd'
-import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons'
+import { ArrowRightOutlined, ArrowLeftOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { ResultsHeader } from '..'
 import { ConceptCard, PaginationTray, SearchForm, useHelxSearch } from '../..'
 import { OverviewTab } from '../../concept-card/overview-tab'
 import './expanded-results-layout.css'
 import classNames from 'classnames'
 
-const { Text, Paragraph, Title } = Typography
+const { Text, Paragraph, Title, Link } = Typography
 
 export const ExpandedResultsLayout = () => {
     const {
         concepts, selectedResult, setSelectedResult,
         pageCount, isLoadingConcepts
     } = useHelxSearch()
-
+    const [expanded, setExpanded] = useState(true)
     useEffect(() => {
         if (concepts.length > 0) setSelectedResult(concepts[0])
     }, [concepts])
     return (
         <div className="expanded-results-layout">
             <Space direction="vertical" className="results results-sidebar">
-                <SearchForm type="minimal"/>
-                <ResultsHeader />
+                <div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}>
+                    <Link type="secondary">
+                        {
+                            expanded ? (
+                                <LeftOutlined onClick={ () => setExpanded(false) } style={{ fontSize: "16px" }} />
+                                ) : (
+                                <RightOutlined onClick={ () => setExpanded(true) } style={{ fontSize: "16px" }}/>
+                            )
+                        }
+                    </Link>
+                    {expanded && <SearchForm type="minimal" style={{ marginLeft: "16px" }}/>}
+                </div>
+                {expanded && <ResultsHeader />}
                 {/* <List
                     loading={isLoadingConcepts}
                     dataSource={concepts}
@@ -39,7 +50,7 @@ export const ExpandedResultsLayout = () => {
                     style={{ display: concepts.length === 0 ? "none" : undefined }}
                 /> */}
                 <Spin spinning={isLoadingConcepts}>
-                <div className="results-list grid" style={{ whiteSpace: "normal" }}>
+                <div className="results-list grid" style={{ whiteSpace: "normal", display: !expanded ? "none" : undefined }}>
                     {
                         concepts.map((result, i) => (
                             // <Card
@@ -74,7 +85,7 @@ export const ExpandedResultsLayout = () => {
                 </div>
                 </Spin>
                 {/* <Divider/> */}
-                { pageCount > 1 && <div style={{ marginTop: "8px" }}><PaginationTray showTotal={false} /></div> }
+                { expanded && pageCount > 1 && <div style={{ marginTop: "8px" }}><PaginationTray showTotal={false} /></div> }
             </Space>
             <Divider type="vertical" style={{ height: "auto", marginLeft: "24px", marginRight: "24px" }}/>
             {selectedResult && (

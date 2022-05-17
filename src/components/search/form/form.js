@@ -11,7 +11,7 @@ const { Link } = Typography
 const MINIMAL = 'minimal'
 const FULL = 'full'
 
-export const SearchForm = ({ type=FULL }) => {
+export const SearchForm = ({ type=FULL, ...props }) => {
   const { doSearch, inputRef, query, totalConcepts } = useHelxSearch()
   const [searchTerm, setSearchTerm] = useState(query)
   
@@ -41,7 +41,7 @@ export const SearchForm = ({ type=FULL }) => {
   useEffect(() => setSearchTerm(query), [query])
 
   return (
-    <Form onFinish={ submitSearch } className={ `search-form ${ totalConcepts ? 'with-results' : 'without-results' }` }>
+    <Form onFinish={ submitSearch } className={ `search-form ${ totalConcepts ? 'with-results' : 'without-results' }` } {...props}>
       <Form.Item>
         <Input
           allowClear
