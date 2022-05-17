@@ -126,7 +126,7 @@ export const ExpandedResultsLayout = () => {
                 </Card>
             ) : (
                     <div className="" style={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        <Empty />
+                        <Empty description="No result selected" />
                     </div>
             )}
         </div>

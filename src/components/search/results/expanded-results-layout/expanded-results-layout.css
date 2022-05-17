@@ -1,4 +1,5 @@
 .expanded-results-layout {
+    /* margin: -2rem; */
     flex-grow: 1;
     display: flex;
     align-items: stretch;
@@ -23,6 +24,15 @@
     height: 0;
     flex-grow: 1;
     overflow-y: auto;
+    /**
+     * Cancel out parent/sibling padding & margins and instead apply it as inner padding
+     * This allows for easier scrolling (since the scroll bar isn't overlapping with the children
+     * and also allows prevents shadows from cutting off by allowing them to "overflow".
+     */
+    margin-left: -2rem;
+    padding-left: 2rem;
+    margin-right: -24px;
+    padding-right: 24px;
 }
 .expanded-result-option {
     cursor: pointer;
