@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Form, Input, Typography } from 'antd'
+import { Button, Form, Input, Typography, Divider } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
 import { useDebouncedCallback } from 'use-debounce'
 import { useHelxSearch } from '../'
@@ -51,15 +51,22 @@ export const SearchForm = ({ type=FULL, ...props }) => {
           value={searchTerm}
           onChange={handleChangeQuery}
           onKeyDown={handleKeyDown}
+          suffix={
+            type === MINIMAL ? (
+              <div style={{ display: "flex", alignItems: "center", height: "100%"}}>
+                <Divider type="vertical" style={{ height: "100%" }} />
+                <SearchOutlined style={{ fontSize: "16px", marginLeft: "4px" }} />
+              </div>
+            ) : undefined
+          }
         />
       </Form.Item>
       <Form.Item>
         {
-          type === FULL ? (
-            <Button htmlType="submit">Search</Button>
-          ) : (
-            <Link type="secondary" onClick={ submitSearch }><SearchOutlined style={{ fontSize: "16px" }} /></Link>
+          type === FULL && (
+            <Button htmlType="submit" style={{ marginLeft: "16px" }}>Search</Button>
           )
+          // <Link type="secondary" onClick={ submitSearch }><SearchOutlined style={{ fontSize: "16px" }} /></Link>
         }
       </Form.Item>
     </Form>

@@ -49,6 +49,7 @@ export const ExpandedResultsLayout = () => {
         <div className="expanded-results-layout">
             <Space direction="vertical" className="results results-sidebar">
                 <div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}>
+                    {expanded && <SearchForm type="minimal" style={{ marginRight: "16px" }}/>}
                     <Link type="secondary">
                         {
                             expanded ? (
@@ -58,7 +59,6 @@ export const ExpandedResultsLayout = () => {
                             )
                         }
                     </Link>
-                    {expanded && <SearchForm type="minimal" style={{ marginLeft: "16px" }}/>}
                 </div>
                 {expanded && <ResultsHeader />}
                 {/* <List
