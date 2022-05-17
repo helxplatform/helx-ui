@@ -35,10 +35,12 @@ export const ResultsHeader = () => {
 
     return (
         <div className="header">
-            <Text>{totalConcepts} concepts ({pageCount} page{pageCount > 1 && 's'})</Text>
+            <Text>
+                {totalConcepts} concepts ({pageCount} page{pageCount > 1 && 's'})
+            </Text>
             <Tooltip title="Shareable link" placement="top">
                 {/* Just want anchor styling */}
-                <Link onClick={NotifyLinkCopied}><LinkIcon /></Link>
+                <Link onClick={NotifyLinkCopied} style={{ marginLeft: '16px', marginRight: '16px' }}><LinkIcon /></Link>
             </Tooltip>
             <Tooltip title="Toggle Layout" placement="top">
                 <Radio.Group value={layout} onChange={handleChangeLayout}>

@@ -9,12 +9,13 @@ import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
 import './concept-card.css'
 import { useAnalytics } from '../../../contexts'
+import classNames from 'classnames'
 
 const { Meta } = Card
 const { CheckableTag: CheckableFacet } = Tag
 const { Text } = Typography
 
-export const ConceptCard = ({ index, result, openModalHandler }) => {
+export const ConceptCard = ({ index, result, openModalHandler, icon=ViewIcon, className="" }) => {
   const { analyticsEvents } = useAnalytics()
   const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
@@ -33,16 +34,18 @@ export const ConceptCard = ({ index, result, openModalHandler }) => {
     analyticsEvents.resultModalOpened(query, result)
   }
 
+  const IconComponent = icon
+
   return (
     <Fragment>
       <Card
-        className="result-card"
+        className={classNames("result-card", className)}
         title={`${result.name} (${result.type})`}
         tabList={tabList}
         tabProps={{size: 'small'}}
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
-        extra={ <ViewIcon onClick={ openModal } /> }
+        extra={ <IconComponent onClick={ openModal } /> }
         actions={ [<br />] }
       >
         { tabContents[currentTab] }
@@ -52,7 +55,6 @@ export const ConceptCard = ({ index, result, openModalHandler }) => {
 }
 
 ConceptCard.propTypes = {
-  index: PropTypes.number.isRequired,
   result: PropTypes.object.isRequired,
   openModalHandler: PropTypes.func.isRequired,
 }

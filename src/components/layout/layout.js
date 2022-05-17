@@ -57,7 +57,7 @@ export const Layout = ({ children }) => {
         {children}
         {context.workspaces_enabled === 'true' && <SidePanel />}
       </Content>
-      <Footer style={{ textAlign: 'center' }}>&copy; HeLx {new Date().getFullYear()}</Footer>
+      <Footer style={{ textAlign: 'center', paddingTop: 0 }}>&copy; HeLx {new Date().getFullYear()}</Footer>
     </AntLayout>
   )
 }

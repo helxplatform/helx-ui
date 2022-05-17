@@ -1,23 +1,29 @@
-import { Space, Divider, Menu, List, Typography } from 'antd'
-import { useEffect } from 'react/cjs/react.development'
+import { Fragment, useEffect } from 'react'
+import { Space, Divider, Menu, List, Typography, Card, Button, Spin } from 'antd'
+import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons'
 import { ResultsHeader } from '..'
-import { PaginationTray, SearchForm, useHelxSearch } from '../..'
+import { ConceptCard, PaginationTray, SearchForm, useHelxSearch } from '../..'
+import { OverviewTab } from '../../concept-card/overview-tab'
 import './expanded-results-layout.css'
+import classNames from 'classnames'
 
-const { Text } = Typography
+const { Text, Paragraph, Title } = Typography
 
 export const ExpandedResultsLayout = () => {
-    const { concepts, selectedResult, setSelectedResult, currentPage, perPage, isLoadingConcepts } = useHelxSearch()
+    const {
+        concepts, selectedResult, setSelectedResult,
+        pageCount, isLoadingConcepts
+    } = useHelxSearch()
 
     useEffect(() => {
         if (concepts.length > 0) setSelectedResult(concepts[0])
     }, [concepts])
     return (
-        <Space className="expanded-results-layout">
-            <Space direction="vertical" className="results">
+        <div className="expanded-results-layout">
+            <Space direction="vertical" className="results results-sidebar">
                 <SearchForm type="minimal"/>
                 <ResultsHeader />
-                <List
+                {/* <List
                     loading={isLoadingConcepts}
                     dataSource={concepts}
                     renderItem={(result) => (
@@ -31,15 +37,54 @@ export const ExpandedResultsLayout = () => {
                         </List.Item>
                     )}
                     style={{ display: concepts.length === 0 ? "none" : undefined }}
-                />
-                {/* { pageCount > 1 && <PaginationTray /> } */}
+                /> */}
+                <Spin spinning={isLoadingConcepts}>
+                <div className="results-list grid" style={{ whiteSpace: "normal" }}>
+                    {
+                        concepts.map((result, i) => (
+                            // <Card
+                            //     hoverable
+                            //     title={`${result.name} (${result.type})`}
+                            //     onClick={() => setSelectedResult(result)}
+                            //     className={"expanded-result-option-card" + (result.id === selectedResult?.id ? " selected" : "")}
+                            // >
+                            //     <Paragraph type="secondary" style={{ whiteSpace: "normal" }}>
+                            //         {result.description}
+                            //     </Paragraph>
+                            //     <Divider/>
+                            //     <Button
+                            //         size="middle"
+                            //         type="primary"
+                            //         disabled={result.id === selectedResult?.id}
+                            //         onClick={() => setSelectedResult(result)}
+                            //         style={{ float: "right" }}
+                            //     >
+                            //         View
+                            //     </Button>
+                            // </Card>
+                            <ConceptCard
+                                key={result.id}
+                                className={classNames("expanded-result-option-concept-card", result.id === selectedResult?.id && "selected")}
+                                result={result}
+                                icon={result.id === selectedResult?.id ? Fragment : ArrowRightOutlined}
+                                openModalHandler={ () => setSelectedResult(result) }
+                            />
+                        ))
+                    }
+                </div>
+                </Spin>
+                {/* <Divider/> */}
+                { pageCount > 1 && <div style={{ marginTop: "8px" }}><PaginationTray showTotal={false} /></div> }
             </Space>
-            <Divider type="vertical" style={{ height: "100%" }}/>
-            <div className="expanded-result-container">
-                <Text>
-                {JSON.stringify(selectedResult)}
-                </Text>
-            </div>
-        </Space>
+            <Divider type="vertical" style={{ height: "auto", marginLeft: "24px", marginRight: "24px" }}/>
+            {selectedResult && (
+                <div className="expanded-result-container">
+                    <Title level={5}>{selectedResult.name}</Title>
+                    <Text>
+                        {selectedResult.description}
+                    </Text>
+                </div>
+            )}
+        </div>
     )
 }
