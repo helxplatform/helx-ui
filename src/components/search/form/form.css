@@ -5,7 +5,7 @@
   align-items: center;
   width: 100%;
   max-width: 1080px;
-  transition:  min-height 500ms ease-out;
+  transition: min-height 500ms ease-out;
 }
 .search-form.ant-form {
   margin: 0 auto;
@@ -17,7 +17,9 @@
 }
 
 .search-form.without-results {
-  /* min-height: 20rem; */
+  min-height: 20rem;
+  /* flex-grow: 1;
+  margin-top: 8.25rem; */
 }
 
 .ant-form-item:first-child {

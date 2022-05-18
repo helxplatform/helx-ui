@@ -18,6 +18,9 @@
 .expanded-results-layout .results-sidebar .search-form {
     margin-bottom: 0 !important;
 }
+.expanded-results-layout .results-sidebar .search-form.without-results {
+    min-height: auto;
+}
 /* Target the result list `ant-space-item` container */
 .expanded-results-layout .results-sidebar > *:nth-child(3) {
     /* Force the overflowing list to obey the height specified by flex-grow */
@@ -73,11 +76,11 @@
 }
 .expanded-result-option-concept-card .ant-card-body::after {
     /* Remove blurring effect on cards */
-    display: none;
+    /* display: none; */
 }
 .expanded-result-option-concept-card.selected {
     border-color: #1890ff;
-    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05)) brightness(0.925) !important;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05)) brightness(0.95) !important;
 }
 
 

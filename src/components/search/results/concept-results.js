@@ -46,13 +46,7 @@ export const ConceptSearchResults = () => {
           query && !error.message && (
             <Fragment>
             <div className="results" style={{ flexGrow: 1 }}>
-              <ResultsHeader />
-              { concepts.length === 0 && (
-                <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  <Empty />
-                </div>
-              )}
-
+              {concepts.length > 0 && <ResultsHeader />}
               <div className={gridClass}>
                 {
                   concepts.map((result, i) => {

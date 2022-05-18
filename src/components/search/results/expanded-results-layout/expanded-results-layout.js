@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Space, Divider, Menu, List, Typography, Card, Button, Spin, Empty } from 'antd'
-import { ArrowRightOutlined, ArrowLeftOutlined, LeftOutlined, RightOutlined, ShrinkOutlined, CloseOutlined } from '@ant-design/icons'
+import { ArrowRightOutlined, ArrowLeftOutlined, LeftOutlined, RightOutlined, ShrinkOutlined, CloseOutlined, CompressOutlined } from '@ant-design/icons'
 import { ResultsHeader } from '..'
 import { ConceptCard, ConceptModalBody, PaginationTray, SearchForm, SearchLayout, useHelxSearch } from '../..'
 import { OverviewTab } from '../../concept-card/overview-tab'
@@ -119,6 +119,7 @@ export const ExpandedResultsLayout = () => {
                     className="expanded-result-container"
                     title={ `${ selectedResult.name } (${ selectedResult.type })` }
                     extra={[
+                        // <Button icon={ <CompressOutlined /> } type="text" style={{ marginRight: "12px" }} />,
                         <Button icon={ <CloseOutlined /> } type="text" onClick={ closeSelected } />
                     ]}
                 >
