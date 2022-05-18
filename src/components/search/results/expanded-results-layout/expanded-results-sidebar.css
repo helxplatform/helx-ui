@@ -1,0 +1,87 @@
+.expanded-results-layout .results-sidebar {
+    flex: 0;
+    white-space: nowrap;
+}
+.expanded-results-layout .results-sidebar .results-list {
+    display: flex;
+    flex-direction: column;
+    /* grid-template-columns: auto; */
+    /* grid-template-rows: auto; */
+}
+/* Target the result list `ant-space-item` container */
+.expanded-results-layout .results-sidebar > *:nth-child(2) {
+    /* Force the overflowing list to obey the height specified by flex-grow */
+    height: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    /**
+     * Cancel out parent/sibling padding & margins and instead apply it as inner padding
+     * This allows for easier scrolling (since the scroll bar isn't overlapping with the children
+     * and also allows prevents shadows from cutting off by allowing them to "overflow".
+     */
+    margin-left: -2rem;
+    padding-left: 2rem;
+    margin-right: -24px;
+    padding-right: 24px;
+}
+.expanded-results-layout .results-sidebar.minimized .results-list {
+    display: none;
+}
+
+/**
+ * Various iterations of the search result component displayed in the sidebar
+ *
+ */
+
+/* Version 1: ant-list-based component */
+.expanded-result-option {
+    cursor: pointer;
+    transition: filter 0.25s, background-color 0.25s, color 0.25s;
+}
+.expanded-result-option:hover {
+    /* filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.1)); */
+    z-index: 1000;
+    /* background-color: rgb(240, 242, 245) */
+    background-color: #e1e5eb;
+}
+.expanded-result-option.selected {
+    background-color: #1890ff !important;
+    color: white;
+}
+/* Version 2: custom card-based component */
+.expanded-result-option-card {
+    transition-property: all !important;
+}
+.expanded-result-option-card.selected {
+    background-color: #1890ff !important;
+    color: #fff;
+    filter: brightness(0.925) drop-shadow(0 0 2px rgba(0, 0, 0, 0.05));
+    /* border-color: #1890ff !important; */
+}
+.expanded-result-option-card.selected .ant-card-head-title {
+    /* color: #1890ff !important; */
+    color: #fff;
+}
+.expanded-result-option-card.selected .ant-card-body > .ant-typography {
+    /* color: rgba(0, 0, 0, 0.85); */
+    color: #fff;
+}
+
+/* Version 3: concept-card-based component */
+.expanded-result-option-concept-card {
+    /* min-width: min(400px, 90vw); */
+}
+.expanded-result-option-concept-card .ant-card-body {
+    min-height: 0 !important;
+}
+.expanded-result-option-concept-card .ant-card-body::after {
+    /* Remove blurring effect on cards */
+    /* display: none; */
+}
+.expanded-result-option-concept-card.selected {
+    border-color: #1890ff;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05)) brightness(.975) !important;
+}
+.expanded-result-option-concept-card:not(.selected) {
+    /* filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05)) brightness(.975) !important; */
+}

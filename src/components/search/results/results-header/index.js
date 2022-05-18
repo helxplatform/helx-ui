@@ -14,7 +14,7 @@ const { Text, Link } = Typography
 const MINIMAL = 'minimal'
 const FULL = 'full'
 
-export const ResultsHeader = ({ type=FULL }) => {
+export const ResultsHeader = ({ type=FULL, ...props }) => {
     const {
         query, totalConcepts,
         currentPage, pageCount,
@@ -38,7 +38,7 @@ export const ResultsHeader = ({ type=FULL }) => {
     }
 
     return (
-        <div className="header">
+        <div className="header" {...props}>
             {type === FULL && (
                 <Fragment>
                 <Text>
