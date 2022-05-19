@@ -15,13 +15,13 @@ spec:
     imagePullPolicy: Always
     resources:
       requests:
-        cpu: "500m"
-        memory: "1024Mi"
-        ephemeral-storage: "8Gi"
-      limits:
         cpu: "1000m"
         memory: "1024Mi"
-        ephemeral-storage: "8Gi"
+        ephemeral-storage: "5Gi"
+      limits:
+        cpu: "1000m"
+        memory: "2048Mi"
+        ephemeral-storage: "5Gi"
     command:
     - /busybox/cat
     tty: true
