@@ -33,3 +33,19 @@
 .expanded-result-container > .ant-card-body {
     padding: 0;
 }
+
+.expanded-results-layout.mobile > .expanded-results-upper-container {
+    flex-direction: column;
+}
+.expanded-results-layout.mobile > .expanded-results-upper-container > .header {
+    margin-left: 0;
+    margin-top: 24px;
+    display: flex;
+}
+.expanded-results-layout.mobile > .expanded-results-upper-container > .header > span:first-child {
+    white-space: normal;
+}
+.expanded-results-layout.mobile .expanded-result-container {
+    width: 100%;
+    overflow: scroll;
+}

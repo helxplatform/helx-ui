@@ -6,6 +6,7 @@
 .expanded-results-layout .results-sidebar .results-list {
     display: flex;
     flex-direction: column;
+    /* max-width: 500px; */
     /* grid-template-columns: auto; */
     /* grid-template-rows: auto; */
 }
@@ -32,7 +33,7 @@
     filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.15));
     right: 16px;
     top: 16px;
-    transform: translate(32px, -32px);
+    transform: translate(54px, -32px);
     /* The same border-radius antd applies to form inputs */
     border-radius: 2px;
     /* margin: 0 16px 0 -16px !important; */
@@ -83,46 +84,6 @@
     transform: translateX(calc(-100% + 30px));
 }
 
-/**
- * Various iterations of the search result component displayed in the sidebar
- *
- */
-
-/* Version 1: ant-list-based component */
-.expanded-result-option {
-    cursor: pointer;
-    transition: filter 0.25s, background-color 0.25s, color 0.25s;
-}
-.expanded-result-option:hover {
-    /* filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.1)); */
-    z-index: 1000;
-    /* background-color: rgb(240, 242, 245) */
-    background-color: #e1e5eb;
-}
-.expanded-result-option.selected {
-    background-color: #1890ff !important;
-    color: white;
-}
-/* Version 2: custom card-based component */
-.expanded-result-option-card {
-    transition-property: all !important;
-}
-.expanded-result-option-card.selected {
-    background-color: #1890ff !important;
-    color: #fff;
-    filter: brightness(0.925) drop-shadow(0 0 2px rgba(0, 0, 0, 0.05));
-    /* border-color: #1890ff !important; */
-}
-.expanded-result-option-card.selected .ant-card-head-title {
-    /* color: #1890ff !important; */
-    color: #fff;
-}
-.expanded-result-option-card.selected .ant-card-body > .ant-typography {
-    /* color: rgba(0, 0, 0, 0.85); */
-    color: #fff;
-}
-
-/* Version 3: concept-card-based component */
 .expanded-result-option-concept-card {
     /* min-width: min(400px, 90vw); */
 }
@@ -139,4 +100,21 @@
 }
 .expanded-result-option-concept-card:not(.selected) {
     /* filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05)) brightness(.975) !important; */
+}
+.results-sidebar.expanded.mobile .results-list-container {
+    width: 100%;
+}
+
+.results-sidebar.expanded.mobile {
+    flex: 1;
+}
+.results-sidebar.minimized.mobile .results-list-container {
+    display: none;
+}
+.results-sidebar.minimized.mobile .collapse-results {
+    transform: translate(24px, -28px);
+}
+.results-sidebar.expanded.mobile .collapse-results {
+    left: 16px;
+    transform: translate(-36px, -28px);
 }

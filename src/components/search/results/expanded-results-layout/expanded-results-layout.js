@@ -1,40 +1,34 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Divider, Typography } from 'antd'
+import { Divider, Typography, Grid } from 'antd'
 import { SearchForm, SearchLayout, useHelxSearch } from '../..'
 import { ExpandedResultsSidebar } from './expanded-results-sidebar'
-import './expanded-results-layout.css'
 import { ExpandedResultsContent } from './expanded-results-content'
 import { ResultsHeader } from '..'
+import classNames from 'classnames'
+import './expanded-results-layout.css'
 
 const { Text, Paragraph, Title, Link } = Typography
+const { useBreakpoint } = Grid
 
 export const ExpandedResultsLayout = () => {
     const { selectedResult, setSelectedResult, setLayout, concepts, totalConcepts } = useHelxSearch()
+    const { md } = useBreakpoint()
 
     const [expanded, setExpanded] = useState(true)
-    const [doCloseFullscreen, setDoCloseFullscreen] = useState(null)
 
-    // useEffect(() => {
-    //     if (concepts.length > 0 && selectedResult === null) setSelectedResult(concepts[0])
-    // }, [concepts])
     useEffect(() => {
         if (selectedResult !== null) {
-            // Indicates a "redirect" to this layout with an active result already selected.
+            // If the result isn't null, it indicates a "redirect" to this layout with an active result already selected.
             setExpanded(false)
         }
     }, [])
 
     useEffect(() => {
-        if (doCloseFullscreen) {
-            setSelectedResult(doCloseFullscreen)
-            setDoCloseFullscreen(null)
+        if (!md && selectedResult) {
+            // Mobile display and a result was selected
+            setExpanded(false)
         }
-    }, [doCloseFullscreen])
-
-    const closeFullscreen = () => {
-        setDoCloseFullscreen(selectedResult)
-        setLayout(SearchLayout.DEFAULT)
-    }
+    }, [selectedResult])
 
     const closeSelected = () => {
         setSelectedResult(null)
@@ -42,7 +36,7 @@ export const ExpandedResultsLayout = () => {
     }
 
     return (
-        <div className="expanded-results-layout">
+        <div className={classNames("expanded-results-layout", !md && "mobile")}>
             <div className="expanded-results-upper-container">
                 <SearchForm type={totalConcepts ? "minimal" : "full"} />
                 <ResultsHeader style={{ display: concepts.length > 0 ? undefined : "none" }} />
@@ -52,8 +46,20 @@ export const ExpandedResultsLayout = () => {
                     <Divider style={{ marginBottom: 0 }} />
                     <div className="expanded-results-lower-container">
                         <ExpandedResultsSidebar expanded={expanded} setExpanded={setExpanded} />
-                        <Divider type="vertical" style={{ height: "auto", marginLeft: "24px", marginRight: "24px", marginTop: "-24px", marginBottom: "-24px" }} />
-                        <ExpandedResultsContent closeSelected={closeSelected}/>
+                        <Divider
+                            type="vertical"
+                            style={{
+                                height: "auto",
+                                marginLeft: "24px",
+                                marginRight: "24px",
+                                marginTop: "0",
+                                marginBottom: "0",
+                                // You can only see the sidebar or concepts view at one time on mobile
+                                // so there's no need for a divider between the two.
+                                display: !md ? "none" : undefined
+                            }}
+                        />
+                        <ExpandedResultsContent expanded={expanded} closeSelected={closeSelected}/>
                     </div>
                     <Divider style={{ margin: 0 }}/>
                 </Fragment>

@@ -45,7 +45,7 @@ export const ConceptCard = ({ index, result, openModalHandler, icon=ViewIcon, cl
         tabProps={{size: 'small'}}
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
-        extra={ <IconComponent onClick={ openModal } /> }
+        extra={ icon && <IconComponent onClick={ openModal } /> }
         actions={ [<br />] }
       >
         { tabContents[currentTab] }

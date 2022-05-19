@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { Space, Spin, Typography } from 'antd'
+import { Grid, Space, Spin, Typography } from 'antd'
 import { ArrowRightOutlined, LeftOutlined, RightOutlined, MenuOutlined } from '@ant-design/icons'
 import { ResultsHeader } from '..'
 import { ConceptCard, PaginationTray, SearchForm, useHelxSearch } from "../.."
@@ -8,35 +8,20 @@ import "./expanded-results-sidebar.css"
 
 
 const { Title, Link } = Typography
+const { useBreakpoint } = Grid 
 
 export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
     const {
         concepts, selectedResult, setSelectedResult,
         pageCount, isLoadingConcepts, setLayout
     } = useHelxSearch()
+    const { md } = useBreakpoint()
 
     return (
-        <Space direction="vertical" className={classNames("results results-sidebar", expanded ? "expanded" : "minimized")}>
-            {/* {<div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}> */}
-                {/* {expanded && <SearchForm type="minimal" style={{ marginRight: "16px" }}/>} */}
-                {/* <Title level={4} style={{ fontWeight: "normal", margin: "0 auto" }}>Search results</Title> */}
-            {/* </div> */}
-            {/* {expanded && <ResultsHeader />} */}
-            {/* <List
-                loading={isLoadingConcepts}
-                dataSource={concepts}
-                renderItem={(result) => (
-                    <List.Item
-                        key={result.id}
-                        onClick={() => setSelectedResult(result)}
-                        className={"expanded-result-option" + (result.id === selectedResult?.id ? " selected" : "")}
-                        style={{ backgroundColor: "", padding: "12px 24px" }}
-                    >
-                        {result.name}
-                    </List.Item>
-                )}
-                style={{ display: concepts.length === 0 ? "none" : undefined }}
-            /> */}
+        <Space
+            direction="vertical"
+            className={classNames("results results-sidebar", expanded ? "expanded" : "minimized", !md && "mobile")}
+        >
             <div className="results-upper-side-container">
                 <Link className="collapse-results" type="secondary" onClick={ () => setExpanded(!expanded) }>
                     {
@@ -49,34 +34,14 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                 </Link>
                 <div className="results-list-container">
                     <Spin spinning={isLoadingConcepts}>
-                        <div className="results-list grid" style={{ whiteSpace: "normal" }}>
+                        <div className="results-list grid" style={{ whiteSpace: "normal", maxWidth: md ? "500px" : undefined }}>
                             {
                                 concepts.map((result, i) => (
-                                    // <Card
-                                    //     hoverable
-                                    //     title={`${result.name} (${result.type})`}
-                                    //     onClick={() => setSelectedResult(result)}
-                                    //     className={"expanded-result-option-card" + (result.id === selectedResult?.id ? " selected" : "")}
-                                    // >
-                                    //     <Paragraph type="secondary" style={{ whiteSpace: "normal" }}>
-                                    //         {result.description}
-                                    //     </Paragraph>
-                                    //     <Divider/>
-                                    //     <Button
-                                    //         size="middle"
-                                    //         type="primary"
-                                    //         disabled={result.id === selectedResult?.id}
-                                    //         onClick={() => setSelectedResult(result)}
-                                    //         style={{ float: "right" }}
-                                    //     >
-                                    //         View
-                                    //     </Button>
-                                    // </Card>
                                     <ConceptCard
                                         key={result.id}
                                         className={classNames("expanded-result-option-concept-card", result.id === selectedResult?.id && "selected")}
                                         result={result}
-                                        icon={result.id === selectedResult?.id ? Fragment : ArrowRightOutlined}
+                                        icon={result.id === selectedResult?.id ? null : ArrowRightOutlined}
                                         openModalHandler={ () => setSelectedResult(result) }
                                     />
                                 ))
