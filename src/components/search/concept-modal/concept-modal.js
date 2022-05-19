@@ -6,8 +6,8 @@ import CustomIcon, {
   InfoCircleOutlined as OverviewIcon,
   BookOutlined as StudiesIcon,
   ShareAltOutlined as KnowledgeGraphsIcon,
-  CodeOutlined as TranQLIcon,
-  PlayCircleOutlined as RobokopIcon,
+  ConsoleSqlOutlined as TranQLIcon,
+  RobotOutlined as RobokopIcon,
   ExportOutlined as ExternalLinkIcon,
   FullscreenOutlined as FullscreenLayoutIcon
 } from '@ant-design/icons'
@@ -91,7 +91,7 @@ export const ConceptModalBody = ({ result }) => {
           Object.keys(links).map(key => (
             <Menu.Item className="tab-menu-item" key={ key } onClick={null}>
               <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
-                <span className="tab-icon">{ <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
+                <span className="tab-icon">{ links[key].icon || <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
               </a>
             </Menu.Item>
           ))
