@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment, useAnalytics } from '../../contexts'
 import './search.css'
 import { ConceptModal } from './'
+import { useLocalStorage } from '../../hooks/use-local-storage'
 
 //
 
@@ -45,7 +46,7 @@ export const HelxSearch = ({ children }) => {
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
   const [selectedResult, setSelectedResult] = useState(null)
-  const [layout, _setLayout] = useState(SearchLayout.GRID)
+  const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.EXPANDED_RESULT)
 
   const inputRef = useRef()
   const navigate = useNavigate()
