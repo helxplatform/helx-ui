@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { Space, Spin, Typography } from 'antd'
-import { ArrowRightOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { ArrowRightOutlined, LeftOutlined, RightOutlined, MenuOutlined } from '@ant-design/icons'
 import { ResultsHeader } from '..'
 import { ConceptCard, PaginationTray, SearchForm, useHelxSearch } from "../.."
 import classNames from 'classnames'
@@ -17,19 +17,10 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
 
     return (
         <Space direction="vertical" className={classNames("results results-sidebar", expanded ? "expanded" : "minimized")}>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}>
+            {/* {<div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}> */}
                 {/* {expanded && <SearchForm type="minimal" style={{ marginRight: "16px" }}/>} */}
                 {/* <Title level={4} style={{ fontWeight: "normal", margin: "0 auto" }}>Search results</Title> */}
-                <Link type="secondary">
-                    {
-                        expanded ? (
-                            <LeftOutlined onClick={ () => setExpanded(false) } style={{ fontSize: "16px" }} />
-                            ) : (
-                            <RightOutlined onClick={ () => setExpanded(true) } style={{ fontSize: "16px" }}/>
-                        )
-                    }
-                </Link>
-            </div>
+            {/* </div> */}
             {/* {expanded && <ResultsHeader />} */}
             {/* <List
                 loading={isLoadingConcepts}
@@ -46,41 +37,54 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                 )}
                 style={{ display: concepts.length === 0 ? "none" : undefined }}
             /> */}
-            <Spin spinning={isLoadingConcepts}>
-                <div className="results-list grid" style={{ whiteSpace: "normal" }}>
+            <div className="results-upper-side-container">
+                <Link className="collapse-results" type="secondary" onClick={ () => setExpanded(!expanded) }>
                     {
-                        concepts.map((result, i) => (
-                            // <Card
-                            //     hoverable
-                            //     title={`${result.name} (${result.type})`}
-                            //     onClick={() => setSelectedResult(result)}
-                            //     className={"expanded-result-option-card" + (result.id === selectedResult?.id ? " selected" : "")}
-                            // >
-                            //     <Paragraph type="secondary" style={{ whiteSpace: "normal" }}>
-                            //         {result.description}
-                            //     </Paragraph>
-                            //     <Divider/>
-                            //     <Button
-                            //         size="middle"
-                            //         type="primary"
-                            //         disabled={result.id === selectedResult?.id}
-                            //         onClick={() => setSelectedResult(result)}
-                            //         style={{ float: "right" }}
-                            //     >
-                            //         View
-                            //     </Button>
-                            // </Card>
-                            <ConceptCard
-                                key={result.id}
-                                className={classNames("expanded-result-option-concept-card", result.id === selectedResult?.id && "selected")}
-                                result={result}
-                                icon={result.id === selectedResult?.id ? Fragment : ArrowRightOutlined}
-                                openModalHandler={ () => setSelectedResult(result) }
-                            />
-                        ))
+                        expanded ? (
+                            <LeftOutlined style={{ fontSize: "16px" }} />
+                            ) : (
+                            <MenuOutlined style={{ fontSize: "16px" }}/>
+                        )
                     }
+                </Link>
+                <div className="results-list-container">
+                    <Spin spinning={isLoadingConcepts}>
+                        <div className="results-list grid" style={{ whiteSpace: "normal" }}>
+                            {
+                                concepts.map((result, i) => (
+                                    // <Card
+                                    //     hoverable
+                                    //     title={`${result.name} (${result.type})`}
+                                    //     onClick={() => setSelectedResult(result)}
+                                    //     className={"expanded-result-option-card" + (result.id === selectedResult?.id ? " selected" : "")}
+                                    // >
+                                    //     <Paragraph type="secondary" style={{ whiteSpace: "normal" }}>
+                                    //         {result.description}
+                                    //     </Paragraph>
+                                    //     <Divider/>
+                                    //     <Button
+                                    //         size="middle"
+                                    //         type="primary"
+                                    //         disabled={result.id === selectedResult?.id}
+                                    //         onClick={() => setSelectedResult(result)}
+                                    //         style={{ float: "right" }}
+                                    //     >
+                                    //         View
+                                    //     </Button>
+                                    // </Card>
+                                    <ConceptCard
+                                        key={result.id}
+                                        className={classNames("expanded-result-option-concept-card", result.id === selectedResult?.id && "selected")}
+                                        result={result}
+                                        icon={result.id === selectedResult?.id ? Fragment : ArrowRightOutlined}
+                                        openModalHandler={ () => setSelectedResult(result) }
+                                    />
+                                ))
+                            }
+                        </div>
+                    </Spin>
                 </div>
-            </Spin>
+            </div>
             { expanded && pageCount > 1 && <div style={{ marginTop: "8px" }}><PaginationTray showTotal={false} /></div> }
         </Space>
     )
