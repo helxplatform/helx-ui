@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from 'react'
+import { Fragment, useState, useEffect, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from '../../link'
 import { Card, List, Space, Tag, Typography } from 'antd'
@@ -37,20 +37,18 @@ export const ConceptCard = ({ index, result, openModalHandler, icon=ViewIcon, cl
   const IconComponent = icon
 
   return (
-    <Fragment>
-      <Card
-        className={classNames("result-card", className)}
-        title={`${result.name} (${result.type})`}
-        tabList={tabList}
-        tabProps={{size: 'small'}}
-        activeTabKey={currentTab}
-        onTabChange={key => setCurrentTab(key)}
-        extra={ icon && <IconComponent onClick={ openModal } /> }
-        actions={ [<br />] }
-      >
-        { tabContents[currentTab] }
-      </Card>
-   </Fragment>
+    <Card
+      className={classNames("result-card", className)}
+      title={`${result.name} (${result.type})`}
+      tabList={tabList}
+      tabProps={{size: 'small'}}
+      activeTabKey={currentTab}
+      onTabChange={key => setCurrentTab(key)}
+      extra={ icon && <IconComponent onClick={ openModal } /> }
+      actions={ [<br />] }
+    >
+      { tabContents[currentTab] }
+    </Card>
   )
 }
 

@@ -10,7 +10,7 @@ export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
     const { md } = useBreakpoint()
 
     const MobileWrapper = ({ children }) => !md && expanded ? (
-        <div style={{ width: "0", overflow: "hidden" }}>
+        <div style={{ display: "none", overflow: "hidden" }}>
             {children}
         </div>
     ) : (

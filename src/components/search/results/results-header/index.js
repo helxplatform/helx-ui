@@ -52,9 +52,9 @@ export const ResultsHeader = ({ type=FULL, ...props }) => {
             )}
             <Tooltip title="Toggle Layout" placement="top">
                 <Radio.Group value={layout} onChange={handleChangeLayout}>
-                <Radio.Button value={SearchLayout.GRID}><GridViewIcon /></Radio.Button>
-                <Radio.Button value={SearchLayout.LIST}><ListViewIcon /></Radio.Button>
                 <Radio.Button value={SearchLayout.EXPANDED_RESULT}><ExpandedResultIcon /></Radio.Button>
+                <Radio.Button value={SearchLayout.GRID}><GridViewIcon /></Radio.Button>
+                {/* <Radio.Button value={SearchLayout.LIST}><ListViewIcon /></Radio.Button> */}
                 </Radio.Group>
             </Tooltip>
         </div>

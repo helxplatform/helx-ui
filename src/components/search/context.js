@@ -24,7 +24,6 @@ const tempSearchFacets = [
 
 
 export const SearchLayout = Object.freeze({
-  DEFAULT: 'GRID',
   GRID: 'GRID',
   LIST: 'LIST',
   EXPANDED_RESULT: 'EXPANDED_RESULT',

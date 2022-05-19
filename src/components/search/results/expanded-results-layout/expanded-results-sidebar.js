@@ -1,5 +1,5 @@
-import { Fragment } from 'react'
-import { Grid, Space, Spin, Typography } from 'antd'
+import { Fragment, useEffect, useRef } from 'react'
+import { Grid, Space, Spin, Tooltip, Typography } from 'antd'
 import { ArrowRightOutlined, LeftOutlined, RightOutlined, MenuOutlined } from '@ant-design/icons'
 import { ResultsHeader } from '..'
 import { ConceptCard, PaginationTray, SearchForm, useHelxSearch } from "../.."
@@ -17,21 +17,32 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
     } = useHelxSearch()
     const { md } = useBreakpoint()
 
+    useEffect(() => {
+        if (selectedResult !== null) {
+            // If the result isn't null, it indicates a "redirect" to this layout with an active result already selected.
+            // Also want to scroll to the corresponding card in the result list, so the user is still where they were
+            // scrolled to in the previous layout.
+            // console.log(cardRefs)
+        }
+    }, [])
+
     return (
         <Space
             direction="vertical"
             className={classNames("results results-sidebar", expanded ? "expanded" : "minimized", !md && "mobile")}
         >
             <div className="results-upper-side-container">
-                <Link className="collapse-results" type="secondary" onClick={ () => setExpanded(!expanded) }>
-                    {
-                        expanded ? (
-                            <LeftOutlined style={{ fontSize: "16px" }} />
-                            ) : (
-                            <MenuOutlined style={{ fontSize: "16px" }}/>
-                        )
-                    }
-                </Link>
+                <Tooltip title={expanded ? "Close search results" : "Open search results"} placement="right">
+                    <Link className="collapse-results" type="secondary" onClick={ () => setExpanded(!expanded) }>
+                        {
+                            expanded ? (
+                                <LeftOutlined style={{ fontSize: "16px" }} />
+                                ) : (
+                                <MenuOutlined style={{ fontSize: "16px" }}/>
+                            )
+                        }
+                    </Link>
+                </Tooltip>
                 <div className="results-list-container">
                     <Spin spinning={isLoadingConcepts}>
                         <div className="results-list grid" style={{ whiteSpace: "normal", maxWidth: md ? "500px" : undefined }}>
