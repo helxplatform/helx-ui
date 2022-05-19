@@ -7,9 +7,9 @@ import { KnowledgeGraphs, useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
-import './concept-card.css'
 import { useAnalytics } from '../../../contexts'
 import classNames from 'classnames'
+import './concept-card.css'
 
 const { Meta } = Card
 const { CheckableTag: CheckableFacet } = Tag

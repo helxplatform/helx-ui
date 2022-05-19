@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef } from 'react'
 import { Grid, Space, Spin, Tooltip, Typography } from 'antd'
-import { ArrowRightOutlined, LeftOutlined, RightOutlined, MenuOutlined } from '@ant-design/icons'
+import { ArrowRightOutlined, LeftOutlined, RightOutlined, MoreOutlined } from '@ant-design/icons'
 import { ResultsHeader } from '..'
 import { ConceptCard, PaginationTray, SearchForm, useHelxSearch } from "../.."
 import classNames from 'classnames'
@@ -41,7 +41,7 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                             expanded ? (
                                 <LeftOutlined style={{ fontSize: "16px" }} />
                                 ) : (
-                                <MenuOutlined style={{ fontSize: "16px" }}/>
+                                <RightOutlined style={{ fontSize: "16px" }}/>
                             )
                         }
                     </Link>
