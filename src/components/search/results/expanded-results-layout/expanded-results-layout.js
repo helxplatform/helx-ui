@@ -43,7 +43,7 @@ export const ExpandedResultsLayout = () => {
             </div>
             {concepts.length > 0 && (
                 <Fragment>
-                    <Divider style={{ marginBottom: 0 }} />
+                    { md && <Divider style={{ marginBottom: 0 }} /> }
                     <div className="expanded-results-lower-container">
                         <ExpandedResultsSidebar expanded={expanded} setExpanded={setExpanded} />
                         <Divider
@@ -61,7 +61,7 @@ export const ExpandedResultsLayout = () => {
                         />
                         <ExpandedResultsContent expanded={expanded} closeSelected={closeSelected}/>
                     </div>
-                    <Divider style={{ margin: 0 }}/>
+                    { md && <Divider style={{ margin: 0 }}/> }
                 </Fragment>
             )}
         </div>

@@ -15,7 +15,7 @@ const { Meta } = Card
 const { CheckableTag: CheckableFacet } = Tag
 const { Text } = Typography
 
-export const ConceptCard = ({ index, result, openModalHandler, icon=ViewIcon, className="" }) => {
+export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
   const { analyticsEvents } = useAnalytics()
   const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
@@ -37,20 +37,21 @@ export const ConceptCard = ({ index, result, openModalHandler, icon=ViewIcon, cl
   const IconComponent = icon
 
   return (
-    <Card
-      className={classNames("result-card", className)}
-      title={`${result.name} (${result.type})`}
-      tabList={tabList}
-      tabProps={{size: 'small'}}
-      activeTabKey={currentTab}
-      onTabChange={key => setCurrentTab(key)}
-      extra={ icon && <IconComponent onClick={ openModal } /> }
-      actions={ [<br />] }
-    >
-      { tabContents[currentTab] }
-    </Card>
+    <div className={classNames("result-card", className)} ref={ref}>
+      <Card
+        title={`${result.name} (${result.type})`}
+        tabList={tabList}
+        tabProps={{size: 'small'}}
+        activeTabKey={currentTab}
+        onTabChange={key => setCurrentTab(key)}
+        extra={ icon && <IconComponent onClick={ openModal } /> }
+        actions={ [<br />] }
+      >
+        { tabContents[currentTab] }
+      </Card>
+    </div>
   )
-}
+})
 
 ConceptCard.propTypes = {
   result: PropTypes.object.isRequired,
