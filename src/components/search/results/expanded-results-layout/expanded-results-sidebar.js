@@ -17,12 +17,15 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
     } = useHelxSearch()
     const { md } = useBreakpoint()
 
+    const cardRefs = useRef({})
+
     useEffect(() => {
         if (selectedResult !== null) {
             // If the result isn't null, it indicates a "redirect" to this layout with an active result already selected.
             // Also want to scroll to the corresponding card in the result list, so the user is still where they were
             // scrolled to in the previous layout.
-            // console.log(cardRefs)
+            const selectedRef = cardRefs.current[selectedResult.id]
+            selectedRef.scrollIntoView()
         }
     }, [])
 
@@ -54,6 +57,7 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                                         result={result}
                                         icon={result.id === selectedResult?.id ? null : ArrowRightOutlined}
                                         openModalHandler={ () => setSelectedResult(result) }
+                                        ref={(ref) => cardRefs.current[result.id] = ref}
                                     />
                                 ))
                             }
