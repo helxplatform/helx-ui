@@ -20,3 +20,17 @@
 .ant-form-item:first-child {
   flex: 1;
 }
+
+.search-suggestion {
+  display: flex;
+  align-items: center;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+.search-suggestion.search-history-suggestion {
+  color: #531dab !important;
+}
+.search-suggestion .search-suggestion-remove-history:hover {
+  text-decoration: underline;
+}

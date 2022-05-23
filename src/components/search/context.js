@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment, useAnalytics } from '../../contexts'
 import './search.css'
 import { ConceptModal } from './'
+import { useLocalStorage } from '../../hooks'
 
 //
 
@@ -40,9 +41,10 @@ export const HelxSearch = ({ children }) => {
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
   const [selectedResult, setSelectedResult] = useState(null)
-
+  
   const inputRef = useRef()
   const navigate = useNavigate()
+  const [searchHistory, setSearchHistory] = useLocalStorage('search_history', [])
 
   useEffect(() => {
     // this lets the user press backslash to jump focus to the search box
@@ -162,6 +164,22 @@ export const HelxSearch = ({ children }) => {
       setQuery(trimmedQuery)
       setCurrentPage(1)
       navigate(`${basePath}search?q=${trimmedQuery}&p=1`)
+      const existingHistoryEntry = searchHistory.find((searchHistoryEntry) => searchHistoryEntry.search === trimmedQuery)
+      if (!existingHistoryEntry) {
+        setSearchHistory([...searchHistory, {
+          search: trimmedQuery,
+          time: Date.now()
+        }])
+      } else {
+        // If the user is searching something that's already in history, move it to the end and update its `time`.
+        setSearchHistory([
+          ...searchHistory.filter((entry) => entry !== existingHistoryEntry),
+          {
+            ...existingHistoryEntry,
+            time: Date.now()
+          }
+        ])
+      }
     }
   }
 
@@ -174,6 +192,7 @@ export const HelxSearch = ({ children }) => {
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
+      searchHistory, setSearchHistory
     }}>
       { children }
       <ConceptModal
