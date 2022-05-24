@@ -1,5 +1,5 @@
 import { Typography } from "antd"
-import { HistoryOutlined } from "@ant-design/icons"
+import { HistoryOutlined, SearchOutlined } from "@ant-design/icons"
 import { useHelxSearch } from ".."
 
 const { Text, Link } = Typography
@@ -15,11 +15,13 @@ export const SearchCompletion = ({ historyEntry, children=null }) => {
     const { searchHistory, setSearchHistory } = useHelxSearch()
     return (
         <div className={`search-suggestion ${historyEntry && 'search-history-suggestion'}`}>
-            { historyEntry && (
-                <Text type="secondary" style={{ marginRight: "16px" }}>
+            <Text type="secondary" style={{ marginRight: "16px" }}>
+                {historyEntry ? (
                     <HistoryOutlined className="search-suggestion-history-icon"/>
-                </Text>
-            )}
+                ) : (
+                    <SearchOutlined className="search-suggestion-search-icon"/>
+                )}
+            </Text>
             <div style={{ flexGrow: 1}}>
                 { children }
             </div>

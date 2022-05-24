@@ -9,6 +9,12 @@ import { useEnvironment } from '../../../contexts'
 import { useAbortController } from '../../../hooks'
 import './form.css'
 
+// LEVENSHTEIN_SENSITIVITY=1 disables approximate searching 
+const LEVENSHTEIN_SENSITIVITY = 0.8 // levenshtein_distance = ceil(search_length * (1 - sensitivity))
+const LEVENSHTEIN_MAX = 3 // levenshtein distance caps out at a distance of 3
+
+const MAX_SUGGESTIONS = 8
+
 const HighlightedText = ({ children }) => {
   return (
     <span style={{ fontWeight: "bold" }}>
@@ -72,6 +78,7 @@ export const SearchForm = () => {
         body: JSON.stringify({
           query: value,
           prefix_search: true,
+          // levenshtein_distance: Math.min(Math.ceil(value.length * (1 - LEVENSHTEIN_SENSITIVITY)), LEVENSHTEIN_MAX), 
           query_limit: 200
         }),
         signal
@@ -125,7 +132,7 @@ export const SearchForm = () => {
     if (searchTerm === "") return (
       // Search history is already naturally in order (since newest searchs are appended to the history)
       // though it can't hurt to sort them here anyways in case this changes in the future.
-      searchHistory.sort((a, b) => b.time - a.time).map((historyEntry) => (
+      searchHistory.sort((a, b) => b.time - a.time).slice(0, MAX_SUGGESTIONS).map((historyEntry) => (
         <Select.Option key={historyEntry.search} value={historyEntry.search}>
           <SearchCompletion historyEntry={historyEntry}>
             {historyEntry.search}
@@ -133,7 +140,7 @@ export const SearchForm = () => {
         </Select.Option>
       ))
     )
-    return searchSuggestionsWithHistory.map(({ searchHistoryEntry, ...hit }) => {
+    return searchSuggestionsWithHistory.slice(0, MAX_SUGGESTIONS).map(({ searchHistoryEntry, ...hit }) => {
       return (
         <Select.Option key={hit.node.id} value={hit.node.name}>
           <SearchCompletion historyEntry={searchHistoryEntry}>
