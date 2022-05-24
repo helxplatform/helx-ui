@@ -13,7 +13,7 @@ import './form.css'
 const LEVENSHTEIN_SENSITIVITY = 0.8 // levenshtein_distance = ceil(search_length * (1 - sensitivity))
 const LEVENSHTEIN_MAX = 3 // levenshtein distance caps out at a distance of 3
 
-const MAX_SUGGESTIONS = 8
+const MAX_SUGGESTIONS = 15
 
 const HighlightedText = ({ children }) => {
   return (
