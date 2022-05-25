@@ -1,0 +1,76 @@
+/* .support-page .ant-card {
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.05));
+}
+.support-page .ant-card .ant-card-head-title > * {
+    margin-bottom: 0 !important;
+    font-weight: normal;
+} */
+.support-card-grid {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+.support-card-grid > * {
+    max-width: 375px;
+    text-align: center;
+    font-size: 1rem;
+}
+.support-card-grid .ant-card {
+    display: flex;
+    flex-direction: column;
+}
+.support-card-grid .ant-card .ant-card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+.getting-started-card {
+    position: relative;
+}
+.getting-started-card img {
+    position: absolute;
+    z-index: 1;
+    height: 100px;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -100%);
+    /* pointer-events: none; */
+}
+.getting-started-card .ant-card-meta {
+    padding: 0 8px;
+}
+.getting-started-card .ant-card-meta-title > * {
+    font-weight: bolder;
+    font-size: 3rem;
+}
+.using-dug-card img {
+    width: 200px;
+    margin-bottom: 24px;
+}
+.using-dug-card .ant-card-meta-title > * {
+    font-weight: bolder;
+    font-size: 2rem;
+}
+.technical-docs-card img {
+    width: 100px;
+    margin-bottom: 24px;
+}
+.technical-docs-card .ant-card-meta-title > * {
+    font-weight: bolder;
+    font-size: 2rem;
+}
+
+.support-card-grid.mobile {
+    flex-direction: column;
+}
+.support-card-grid.mobile > * {
+    max-width: 100%;
+}
+.support-card-grid.mobile .getting-started-card {
+    /* image has height: 100px */
+    /* and additional margin spacing between cards vertically */
+    /* and negative translation on top of the card for the "overlay" effect */
+    margin-top: calc(100px + calc(8px - 0px));
+}
