@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { Typography, Card, Space, Divider, Button, Grid } from 'antd'
+import { Typography, Card, Space, Divider, Button, Grid, List } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
 import { useEnvironment } from '../../contexts'
 import { Breadcrumbs } from '../../components/layout'
@@ -11,24 +11,43 @@ const { useBreakpoint } = Grid
 // Support page sections can be hidden using hidden_sections in the configuration. <community, support>
 
 const CommunitySupport = () => (
-  <Card title={
-    <Title level={4} type="secondary">
-      <Link type="secondary" target="_blank" rel="noopener noreferrer" href="https://community.helx.renci.org/invites/B2dnCA8xRi">
-        <ExportOutlined />
-        <Text style={{ marginLeft: "12px" }}>Community Support</Text>
-      </Link>
-    </Title>
-  }>
-    {/* <Title level={1}>Community Support</Title> */}
-    <Space direction="vertical" size="middle">
-      <Typography>Your HeLx community has access to it's own Discourse, a community-driven forum that provides help and guidance to any HeLx question you may have. On Discourse, you will find members of the HeLx engineering and product management team, as well as other members of your community. Here you can ask questions, answer questions, and engage in community-building for your specific instance of HeLx.</Typography>
-      <Typography>Please visit <a href="https://community.helx.renci.org/invites/B2dnCA8xRi" target="_blank" rel="noopener noreferrer">community.helx.renci.org</a> today to create your account, and to join in the discourse!</Typography>
-    </Space>
+  <Card
+    bordered
+    hoverable
+    className="community-support-card"
+    actions={[
+      <Button icon={ <ExportOutlined /> }>Open</Button>
+    ]}
+  >
+    <img src="http://www.cniins.com/files/2018/01/community-image.gif"/>
+    <Card.Meta
+      title={
+        <Title level={3} style={{ whiteSpace: "normal", marginBottom: "8px" }}>Community Support</Title>
+      }
+      description={
+        <Text>Familiarize yourself with Dug, our semantic search tool.</Text>
+      }
+    />
   </Card>
+  // <Card title={
+  //   <Title level={4} type="secondary">
+  //     <Link type="secondary" target="_blank" rel="noopener noreferrer" href="https://community.helx.renci.org/invites/B2dnCA8xRi">
+  //       <ExportOutlined />
+  //       <Text style={{ marginLeft: "12px" }}>Community Support</Text>
+  //     </Link>
+  //   </Title>
+  // }>
+  //   {/* <Title level={1}>Community Support</Title> */}
+  //   <Space direction="vertical" size="middle">
+  //     <Typography>Your HeLx community has access to it's own Discourse, a community-driven forum that provides help and guidance to any HeLx question you may have. On Discourse, you will find members of the HeLx engineering and product management team, as well as other members of your community. Here you can ask questions, answer questions, and engage in community-building for your specific instance of HeLx.</Typography>
+  //     <Typography>Please visit <a href="https://community.helx.renci.org/invites/B2dnCA8xRi" target="_blank" rel="noopener noreferrer">community.helx.renci.org</a> today to create your account, and to join in the discourse!</Typography>
+  //   </Space>
+  // </Card>
 )
 
 const Documentation = () => (
   <Fragment>
+    <List.Item>
     <Card
       bordered
       hoverable
@@ -47,6 +66,8 @@ const Documentation = () => (
         }
       />
     </Card>
+    </List.Item>
+    <List.Item>
     <Card
       bordered
       hoverable
@@ -66,6 +87,8 @@ const Documentation = () => (
         }
       />
     </Card>
+    </List.Item>
+    <List.Item>
     <Card
       bordered
       hoverable
@@ -85,27 +108,9 @@ const Documentation = () => (
         }
       />
     </Card>
+    </List.Item>
   </Fragment>
 )
-  // <Card title={
-  //   <Title level={4} type="secondary">
-  //     <Link type="secondary" target="_blank" rel="noopener noreferrer" href="https://helx.gitbook.io/helx-documentation/">
-  //       <ExportOutlined />
-  //       <Text style={{ marginLeft: "12px" }}>Documentation</Text>
-  //     </Link>
-  //   </Title>
-  // }>
-  //   {/* <Title level={1}>Documentation</Title> */}
-  //   <Space direction="vertical">
-  //     <Typography>Our documentation is designed to help guide you through your first steps with HeLx. We encourage you to get started with these introductory guides</Typography>
-  //     <ul>
-  //       <li><a href="https://helx.gitbook.io/helx-documentation/helx/starting-an-existing-app" target="_blank" rel="noopener noreferrer"><b>Logging in and starting an app</b></a> - Authentication requires a <a href="https://github.com/" target="_blank" rel="noopener noreferrer"><b>Github</b></a> or <a href="https://accounts.google.com/SignUp?hl=en" target="_blank" rel="noopener noreferrer"><b>Google</b></a> account</li>
-  //       <li><a href="https://helx.gitbook.io/helx-documentation/helx/application-management" target="_blank" rel="noopener noreferrer"><b>Managing your apps</b></a> - Learn how to change GPU and CPU resources, rename an app instance, and delete your running apps</li>
-  //       <li><a href="https://helx.gitbook.io/helx-documentation/dug/using-search" target="_blank" rel="noopener noreferrer"><b>Using search</b></a> - Familiarize yourself with Dug, the HeLx search space</li>
-  //       <li><a href="https://helx.gitbook.io/helx-documentation/dug/technical-documents" target="_blank" rel="noopener noreferrer"><b>More technical documentation</b></a> - Dive deeper into the HeLx platform and the underlying architecture</li>
-  //     </ul>
-  //   </Space>
-  // </Card>
 
 export const SupportView = () => {
   const { context } = useEnvironment()
@@ -116,10 +121,10 @@ export const SupportView = () => {
   return (
     <Space direction="vertical" size="middle" className="support-page">
       <Title level={1}>Support</Title>
-      <div className={`support-card-grid ${!md && "mobile"}`}>
+      <List grid={{ gutter: 16 }} className={`support-card-grid ${!md ? "mobile" : ""}`}>
         {/* {!context.hidden_support_sections.includes('community') && <CommunitySupport />} */}
         {!context.hidden_support_sections.includes('documentation') && <Documentation />}
-      </div>
+      </List>
     </Space>
   )
 }

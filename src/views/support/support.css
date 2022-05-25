@@ -6,12 +6,11 @@
     font-weight: normal;
 } */
 .support-card-grid {
-    display: flex;
+    /* display: flex;
     justify-content: center;
-    gap: 16px;
+    gap: 16px; */
 }
 .support-card-grid > * {
-    max-width: 375px;
     text-align: center;
     font-size: 1rem;
 }
@@ -62,12 +61,6 @@
     font-size: 2rem;
 }
 
-.support-card-grid.mobile {
-    flex-direction: column;
-}
-.support-card-grid.mobile > * {
-    max-width: 100%;
-}
 .support-card-grid.mobile .getting-started-card {
     /* image has height: 100px */
     /* and additional margin spacing between cards vertically */
