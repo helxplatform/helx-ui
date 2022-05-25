@@ -14,6 +14,13 @@
     text-align: center;
     font-size: 1rem;
 }
+.support-card-grid .ant-row > * {
+    margin-bottom: 16px;
+}
+.support-card-grid .ant-col, .support-card-grid .ant-col > *, .support-card-grid .ant-col > * > * {
+    /* Make sure cards in list all have the same height as the tallest card. */
+    height: 100%;
+}
 .support-card-grid .ant-card {
     display: flex;
     flex-direction: column;
@@ -61,6 +68,9 @@
     font-size: 2rem;
 }
 
+.support-card-grid.mobile .ant-col, .support-card-grid.mobile .ant-col > *, .support-card-grid.mobile .ant-col > * > * {
+    height: auto;
+}
 .support-card-grid.mobile .getting-started-card {
     /* image has height: 100px */
     /* and additional margin spacing between cards vertically */
