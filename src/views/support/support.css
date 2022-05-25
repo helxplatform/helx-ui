@@ -77,3 +77,6 @@
     /* and negative translation on top of the card for the "overlay" effect */
     margin-top: calc(100px + calc(8px - 0px));
 }
+.community-support-card img {
+    width: 90%;
+}
