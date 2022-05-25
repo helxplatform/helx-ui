@@ -15,7 +15,7 @@ export const SplashScreenView = (props) => {
     const [count, setCount] = useState(0);
 
     const decoded_url = decodeURIComponent(props.app_url);
-    const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${props.app_name}/icon.png`
+    const app_icon = `https://github.com/helxplatform/helx-apps/raw/master/app-specs/${props.app_name}/icon.png`
 
     const getUrl = async () => {
         await axios.get(decoded_url)
