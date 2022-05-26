@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useMemo } from 'react'
-import { Link } from '../../link'
-import { Radio, notification, Spin, Tooltip, Typography, Grid as AntGrid } from 'antd'
+import { Radio, notification, Spin, Tooltip, Typography, Grid as AntGrid, Select, Space, Form } from 'antd'
 import {
   LinkOutlined as LinkIcon,
   TableOutlined as GridViewIcon,
@@ -9,8 +8,10 @@ import {
 import { PaginationTray, ConceptCard, ConceptModal, useHelxSearch } from '../'
 import './concept-results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
+import { Link } from '../../link'
 
 const { Text } = Typography
+const { Option } = Select
 const { useBreakpoint } = AntGrid
 
 const GRID = 'GRID'
@@ -22,6 +23,7 @@ export const ConceptSearchResults = () => {
   const { analyticsEvents } = useAnalytics()
   const { md } = useBreakpoint();
   const [layout, setLayout] = useState(GRID)
+  const [typeFilter, setTypeFilter] = useState(null)
 
   let gridClass = (layout === GRID) ? 'results-list grid' : 'results-list list'
   gridClass += md ? " md" : ""
@@ -41,12 +43,34 @@ export const ConceptSearchResults = () => {
     }
   }
 
+  const conceptTypes = useMemo(() => concepts.reduce((acc, cur) => {
+    if (!acc.includes(cur.type)) acc.push(cur.type)
+    return acc
+  }, []), [concepts])
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
       <Text>{totalConcepts} concepts ({pageCount} page{pageCount > 1 && 's'})</Text>
       <Tooltip title="Shareable link" placement="top">
         <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
+      <div>
+        Filter type:
+        <Select
+          value={typeFilter}
+          onChange={(value) => setTypeFilter(value)}
+          placeholder="Filter type"
+          dropdownMatchSelectWidth={false}
+          placement="bottomRight"
+          style={{ maxWidth: "125px", marginLeft: "8px" }}
+        >
+          <Option value={null}>All</Option>
+          {
+            conceptTypes.map((conceptType) => (
+              <Option key={conceptType} value={conceptType}>{conceptType}</Option>
+            ))
+          }
+        </Select>
+      </div>
       <Tooltip title="Toggle Layout" placement="top">
         <Radio.Group value={layout} onChange={handleChangeLayout}>
           <Radio.Button value={GRID}><GridViewIcon /></Radio.Button>
@@ -54,7 +78,7 @@ export const ConceptSearchResults = () => {
         </Radio.Group>
       </Tooltip>
     </div>
-  ), [currentPage, layout, pageCount, totalConcepts, query])
+  ), [currentPage, layout, pageCount, totalConcepts, query, typeFilter, conceptTypes])
 
   if (isLoadingConcepts) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
@@ -72,7 +96,7 @@ export const ConceptSearchResults = () => {
 
             <div className={gridClass}>
               {
-                concepts.map((result, i) => {
+                concepts.filter((concept) => typeFilter === null || concept.type === typeFilter).map((result, i) => {
                   const index = (currentPage - 1) * perPage + i + 1
                   return (
                     <ConceptCard
