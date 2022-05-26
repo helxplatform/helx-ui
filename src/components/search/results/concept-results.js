@@ -53,7 +53,7 @@ export const ConceptSearchResults = () => {
       <Tooltip title="Shareable link" placement="top">
         <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
-      <div>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
         Filter type:
         <Select
           value={typeFilter}
@@ -61,12 +61,12 @@ export const ConceptSearchResults = () => {
           placeholder="Filter type"
           dropdownMatchSelectWidth={false}
           placement="bottomRight"
-          style={{ maxWidth: "125px", marginLeft: "8px" }}
+          style={{ maxWidth: "125px" }}
         >
           <Option value={null}>All</Option>
           {
-            conceptTypes.map((conceptType) => (
-              <Option key={conceptType} value={conceptType}>{conceptType}</Option>
+            conceptTypes.sort((a, b) => concepts.filter((x) => x.type === b).length - concepts.filter((x) => x.type === a).length).map((conceptType) => (
+              <Option key={conceptType} value={conceptType}>{conceptType} ({concepts.filter((concept) => concept.type === conceptType).length})</Option>
             ))
           }
         </Select>
