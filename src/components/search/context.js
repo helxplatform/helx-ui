@@ -26,7 +26,7 @@ const tempSearchFacets = [
 
 export const SearchLayout = Object.freeze({
   GRID: 'GRID',
-  LIST: 'LIST',
+  // LIST: 'LIST',
   EXPANDED_RESULT: 'EXPANDED_RESULT',
 })
 
@@ -46,7 +46,7 @@ export const HelxSearch = ({ children }) => {
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
   const [selectedResult, setSelectedResult] = useState(null)
-  const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.EXPANDED_RESULT)
+  const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.GRID)
 
   const inputRef = useRef()
   const navigate = useNavigate()
