@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useMemo } from 'react'
+import React, { Fragment, useState, useMemo, useEffect } from 'react'
 import { Radio, notification, Spin, Tooltip, Typography, Grid as AntGrid, Select, Space, Form } from 'antd'
 import {
   LinkOutlined as LinkIcon,
@@ -24,6 +24,10 @@ export const ConceptSearchResults = () => {
   const { md } = useBreakpoint();
   const [layout, setLayout] = useState(GRID)
   const [typeFilter, setTypeFilter] = useState(null)
+
+  useEffect(() => {
+    setTypeFilter(null)
+  }, [query])
 
   let gridClass = (layout === GRID) ? 'results-list grid' : 'results-list list'
   gridClass += md ? " md" : ""
