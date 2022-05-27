@@ -53,11 +53,11 @@ export const Layout = ({ children }) => {
         </Menu>
         <MobileMenu menu={routes} />
       </Header>
-      <Content>
+      <Content className>
         {children}
         {context.workspaces_enabled === 'true' && <SidePanel />}
       </Content>
-      <Footer style={{ textAlign: 'center' }}>&copy; HeLx {new Date().getFullYear()}</Footer>
+      <Footer style={{ textAlign: 'center', paddingTop: 0 }}>&copy; HeLx {new Date().getFullYear()}</Footer>
     </AntLayout>
   )
 }
