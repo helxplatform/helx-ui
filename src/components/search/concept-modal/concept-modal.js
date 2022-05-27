@@ -67,7 +67,7 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
     }
     getVars()
     getKgs()
-  }, [fetchKnowledgeGraphs, fetchStudyVariables, result, query, setCurrentTab])
+  }, [fetchKnowledgeGraphs, fetchStudyVariables, result, query])
 
   if (!result) {
     return null
