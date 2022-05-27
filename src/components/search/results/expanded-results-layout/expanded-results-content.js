@@ -33,7 +33,7 @@ export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
     else return (
         <MobileWrapper>
             <div className="" style={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <Empty description="No result selected" />
+                <Empty description="Please select a concept from the drawer to view it in detail." />
             </div>
         </MobileWrapper>
     )
