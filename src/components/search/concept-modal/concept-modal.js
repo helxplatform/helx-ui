@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Menu, Modal, Space } from 'antd'
-import './concept-modal.css'
 import { useHelxSearch } from '../'
-import CustomIcon, {
+import {
   InfoCircleOutlined as OverviewIcon,
   BookOutlined as StudiesIcon,
   ShareAltOutlined as KnowledgeGraphsIcon,
@@ -10,8 +9,9 @@ import CustomIcon, {
   PlayCircleOutlined as RobokopIcon,
   ExportOutlined as ExternalLinkIcon
 } from '@ant-design/icons'
-import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
+import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
 import { useAnalytics, useEnvironment } from '../../../contexts'
+import './concept-modal.css'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
@@ -67,7 +67,7 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
     }
     getVars()
     getKgs()
-  }, [fetchKnowledgeGraphs, fetchStudyVariables, result, query])
+  }, [fetchKnowledgeGraphs, fetchStudyVariables, result, query, setCurrentTab])
 
   if (!result) {
     return null

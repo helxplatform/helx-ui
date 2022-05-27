@@ -1,11 +1,11 @@
 import React, { Fragment, useState, useMemo, useEffect } from 'react'
-import { Radio, notification, Spin, Tooltip, Typography, Grid as AntGrid, Select, Space, Form } from 'antd'
+import { Radio, notification, Spin, Tooltip, Typography, Grid as AntGrid, Select } from 'antd'
 import {
   LinkOutlined as LinkIcon,
   TableOutlined as GridViewIcon,
   UnorderedListOutlined as ListViewIcon,
 } from '@ant-design/icons'
-import { PaginationTray, ConceptCard, ConceptModal, useHelxSearch } from '../'
+import { PaginationTray, ConceptCard, useHelxSearch } from '../'
 import './concept-results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import { Link } from '../../link'
@@ -82,7 +82,7 @@ export const ConceptSearchResults = () => {
         </Radio.Group>
       </Tooltip>
     </div>
-  ), [currentPage, layout, pageCount, totalConcepts, query, typeFilter, conceptTypes])
+  ), [currentPage, layout, pageCount, totalConcepts, query, typeFilter, conceptTypes, basePath, concepts, handleChangeLayout])
 
   if (isLoadingConcepts) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />

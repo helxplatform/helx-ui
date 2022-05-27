@@ -1,18 +1,13 @@
-import { Fragment, useState, useEffect } from 'react'
+import { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from '../../link'
-import { Card, List, Space, Tag, Typography } from 'antd'
+import { Card } from 'antd'
 import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
-import { KnowledgeGraphs, useHelxSearch } from '../'
+import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
-import './concept-card.css'
 import { useAnalytics } from '../../../contexts'
-
-const { Meta } = Card
-const { CheckableTag: CheckableFacet } = Tag
-const { Text } = Typography
+import './concept-card.css'
 
 export const ConceptCard = ({ index, result, openModalHandler }) => {
   const { analyticsEvents } = useAnalytics()

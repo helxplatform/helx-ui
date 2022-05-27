@@ -1,4 +1,4 @@
-import React, { createContext, memo, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useEnvironment } from '../environment-context';
 import { AnalyticsEvents } from './events';
 import { MixPanelAnalytics, GAAnalytics, NoAnalytics } from 'helx-analytics';
@@ -8,7 +8,7 @@ import { getUser } from '../../api';
 export const AnalyticsContext = createContext();
 
 export const AnalyticsProvider = ({ children }) => {
-    const { helxAppstoreUrl, context, isLoadingContext } = useEnvironment();
+    const { helxAppstoreUrl, context } = useEnvironment();
     let analytics;
     if (context.analytics && context.analytics.enabled) {
         const { mixpanel_token, ga_property } = context.analytics.auth || {};

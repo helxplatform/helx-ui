@@ -115,7 +115,7 @@ export const HelxSearch = ({ children }) => {
     if (query) {
       fetchConcepts()
     }
-  }, [query, currentPage, helxSearchUrl, setConcepts, setError])
+  }, [query, currentPage, helxSearchUrl, analyticsEvents, setConcepts, setError])
 
   useEffect(() => {
     setPageCount(Math.ceil(totalConcepts / PER_PAGE))
@@ -136,7 +136,7 @@ export const HelxSearch = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }, [helxSearchUrl, concepts])
+  }, [helxSearchUrl, query])
 
   const fetchStudyVariables = useCallback(async (_id, _query) => {
     try {
@@ -154,7 +154,7 @@ export const HelxSearch = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }, [helxSearchUrl, concepts])
+  }, [helxSearchUrl])
 
   const doSearch = queryString => {
     const trimmedQuery = queryString.trim()
