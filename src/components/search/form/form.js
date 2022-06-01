@@ -12,8 +12,8 @@ import './form.css'
 // LEVENSHTEIN_SENSITIVITY=1 disables approximate searching 
 const LEVENSHTEIN_SENSITIVITY = 0.8 // levenshtein_distance = ceil(search_length * (1 - sensitivity))
 const LEVENSHTEIN_MAX = 3 // levenshtein distance caps out at a distance of 3
-
 const MAX_SUGGESTIONS = 15
+const DISALLOWED_SEARCH_CONCEPTS = ['biolink:Publication', 'biolink:ClinicalModifier']
 
 const HighlightedText = ({ children }) => {
   return (
@@ -85,7 +85,12 @@ export const SearchForm = () => {
       })
       // await new Promise((resolve) => setTimeout(resolve, 2500))
       if (res.ok) {
-        const hits = await res.json()
+        const hits = (
+          await res.json()
+        ).filter((hit) => (
+          // Ensure none of the hit's labels are found in DISALLOWED_SEARCH_CONCEPTS (no intersection).
+          !hit.labels.some((label) => DISALLOWED_SEARCH_CONCEPTS.includes(label))
+        ))
         setSearchSuggestions(hits)
       } else {
         console.log("Search autocomplete failed")
