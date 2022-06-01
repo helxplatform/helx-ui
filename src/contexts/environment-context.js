@@ -98,6 +98,12 @@ export const EnvironmentProvider = ({ children }) => {
       default:
         context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/helx.jpg'
     }
+
+    // Escape-hatch (intended for development purposes).
+    // Frequently, when tranql is hosted outside of production, the react app is not built into a bundle so that it can be served via an http server.
+    // Instead, it will be served via react-scripts on a different port than the api.
+    if (!context.tranql_api_url) context.tranql_api_url = context.tranql_url
+
     setContext(context);
     setIsLoadingContext(false);
   }

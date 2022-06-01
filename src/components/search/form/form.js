@@ -70,7 +70,7 @@ export const SearchForm = () => {
     setLoadingSuggestions(true)
     const signal = abortController.current.signal
     try {
-      const res = await fetch(`http://localhost:8001/tranql/autocomplete_term`, {
+      const res = await fetch(`${context.tranql_api_url}/tranql/autocomplete_term`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
