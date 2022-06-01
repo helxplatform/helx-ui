@@ -9,9 +9,7 @@ import { useEnvironment } from '../../../contexts'
 import { useAbortController } from '../../../hooks'
 import './form.css'
 
-// LEVENSHTEIN_SENSITIVITY=1 disables approximate searching 
-const LEVENSHTEIN_SENSITIVITY = 0.8 // levenshtein_distance = ceil(search_length * (1 - sensitivity))
-const LEVENSHTEIN_MAX = 3 // levenshtein distance caps out at a distance of 3
+const LEVENSHTEIN_DISTANCE = 2 // Note that Redisearch enforces a maximum LD of 3
 const MAX_SUGGESTIONS = 15
 const DISALLOWED_SEARCH_CONCEPTS = ['biolink:Publication', 'biolink:ClinicalModifier']
 
@@ -77,8 +75,9 @@ export const SearchForm = () => {
         },
         body: JSON.stringify({
           query: value,
-          prefix_search: true,
-          // levenshtein_distance: Math.min(Math.ceil(value.length * (1 - LEVENSHTEIN_SENSITIVITY)), LEVENSHTEIN_MAX), 
+          // prefix_search must be false in order to specify levenshtein_distance > 0.
+          prefix_search: false,
+          levenshtein_distance: LEVENSHTEIN_DISTANCE,
           query_limit: 200
         }),
         signal
