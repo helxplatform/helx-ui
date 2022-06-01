@@ -84,8 +84,13 @@ export const SearchForm = () => {
         signal
       })
       // await new Promise((resolve) => setTimeout(resolve, 2500))
-      const hits = await res.json()
-      setSearchSuggestions(hits)
+      if (res.ok) {
+        const hits = await res.json()
+        setSearchSuggestions(hits)
+      } else {
+        console.log("Search autocomplete failed")
+        setSearchSuggestions([])
+      }
       setLoadingSuggestions(false)
     } catch (e) {
       if (e.name !== "AbortError") {
