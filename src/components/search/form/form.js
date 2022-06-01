@@ -76,8 +76,8 @@ export const SearchForm = () => {
         body: JSON.stringify({
           query: value,
           // prefix_search must be false in order to specify levenshtein_distance > 0.
-          prefix_search: false,
-          levenshtein_distance: LEVENSHTEIN_DISTANCE,
+          prefix_search: true,
+          levenshtein_distance: 0,
           // Need to set a very high limit, since it will be split up between all of the concept types, some will likely return no results while some will return lots.
           // For example, if the limit is 200 and there are 100 different concept types, each concept type can only return 2 results. If user searches for the gene "ORMDL3",
           // it is unlikely that the "biolink:OrganismTaxon" index is going to return any results, but "biolink:Gene" will probably return lots (but only able to return 2).
@@ -125,7 +125,11 @@ export const SearchForm = () => {
       const suggestions = searchSuggestions.map((hit) => ({
           ...hit,
           searchHistoryEntry: searchHistory.find(({ search, time }) => hit.node.name === search.trim())
-      }))
+      })).reduce((acc, cur) => {
+        // Remove duplicates.
+        // Even if the suggestions are different concepts, their names are the same, which the only thing that matters for the search.
+        return acc.map((x) => x.node.name.trim().toLowerCase()).includes(cur.node.name.trim().toLowerCase()) ? acc : [...acc, cur]
+      }, [])
       const historySuggestions = suggestions
         .filter((x) => !!x.searchHistoryEntry)
         .sort((a, b) => b.score - a.score)
