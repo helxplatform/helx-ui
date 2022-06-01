@@ -9,7 +9,7 @@ import { useEnvironment } from '../../../contexts'
 import { useAbortController } from '../../../hooks'
 import './form.css'
 
-const LEVENSHTEIN_DISTANCE = 2 // Note that Redisearch enforces a maximum LD of 3
+const LEVENSHTEIN_DISTANCE = 1 // Note that Redisearch enforces a maximum LD of 3
 const MAX_SUGGESTIONS = 15
 const DISALLOWED_SEARCH_CONCEPTS = ['biolink:Publication', 'biolink:ClinicalModifier']
 
@@ -78,7 +78,10 @@ export const SearchForm = () => {
           // prefix_search must be false in order to specify levenshtein_distance > 0.
           prefix_search: false,
           levenshtein_distance: LEVENSHTEIN_DISTANCE,
-          query_limit: 200
+          // Need to set a very high limit, since it will be split up between all of the concept types, some will likely return no results while some will return lots.
+          // For example, if the limit is 200 and there are 100 different concept types, each concept type can only return 2 results. If user searches for the gene "ORMDL3",
+          // it is unlikely that the "biolink:OrganismTaxon" index is going to return any results, but "biolink:Gene" will probably return lots (but only able to return 2).
+          query_limit: 1000
         }),
         signal
       })
