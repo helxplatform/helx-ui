@@ -12,7 +12,7 @@ search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
 tranql_enabled="${REACT_APP_TRANQL_ENABLED:-false}"
 tranql_url="${REACT_APP_TRANQL_URL:-\/tranql}"
-analytics="${REACT_APP_ANALYTICS:-0c39f8410fd548bfa1976957d0248289}"
+analytics="${REACT_APP_ANALYTICS:-}"
 hidden_support_sections="${REACT_APP_HIDDEN_SUPPORT_SECTIONS}"
 deployment_namespace="${REACT_APP_DEPLOYMENT_NAMESPACE}"
 
