@@ -43,9 +43,9 @@ export const SearchForm = () => {
   const { context } = useEnvironment()
   const { doSearch, inputRef, query, totalConcepts, searchHistory } = useHelxSearch()
   const [searchTerm, setSearchTerm] = useState(query)
-  const [searchSuggestions, setSearchSuggestions] = useState([])
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
-  const [initialSuggestionsLoaded, setInitialSuggestionsLoaded] = useState(false)
+  const [searchSuggestions, setSearchSuggestions] = useState(null) // null = don't appear, [] = "no results found", [...] = show suggestions
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false) // true = loading...
+  // const [initialSuggestionsLoaded, setInitialSuggestionsLoaded] = useState(false)
 
   const abortController = useRef()
 
@@ -59,7 +59,8 @@ export const SearchForm = () => {
   const loadSearchSuggestions = async (value) => {
     if (abortController.current) abortController.current.abort()
     abortController.current = new AbortController()
-    if (value.length <= 3) {
+    if (value.length < 3) {
+      // setSearchSuggestions(null)
       setSearchSuggestions([])
       setLoadingSuggestions(false)
       return
@@ -145,17 +146,21 @@ export const SearchForm = () => {
 
   const searchCompletionDataSource = useMemo(() => {
     // Show previous searches as suggestions if the search query is empty.
-    if (searchTerm === "") return (
-      // Search history is already naturally in order (since newest searchs are appended to the history)
-      // though it can't hurt to sort them here anyways in case this changes in the future.
-      searchHistory.sort((a, b) => b.time - a.time).slice(0, MAX_SUGGESTIONS).map((historyEntry) => (
-        <Select.Option key={historyEntry.search} value={historyEntry.search}>
-          <SearchCompletion historyEntry={historyEntry}>
-            {historyEntry.search}
-          </SearchCompletion>
-        </Select.Option>
-      ))
-    )
+    if (searchTerm === "") {
+      if (searchHistory.length > 0) return (
+        // Search history is already naturally in order (since newest searchs are appended to the history)
+        // though it can't hurt to sort them here anyways in case this changes in the future.
+        searchHistory.sort((a, b) => b.time - a.time).slice(0, MAX_SUGGESTIONS).map((historyEntry) => (
+          <Select.Option key={historyEntry.search} value={historyEntry.search}>
+            <SearchCompletion historyEntry={historyEntry}>
+              {historyEntry.search}
+            </SearchCompletion>
+          </Select.Option>
+        ))
+      )
+      else return null
+    }
+    if (searchSuggestionsWithHistory === null) return null
     return searchSuggestionsWithHistory.slice(0, MAX_SUGGESTIONS).map(({ searchHistoryEntry, ...hit }) => {
       return (
         <Select.Option key={hit.node.id} value={hit.node.name}>
@@ -165,11 +170,11 @@ export const SearchForm = () => {
         </Select.Option>
       )
     })
-  }, [searchSuggestionsWithHistory])
+  }, [searchTerm, searchHistory, searchSuggestionsWithHistory])
 
   useEffect(() => {
-    if (searchTerm && !initialSuggestionsLoaded) {
-      setInitialSuggestionsLoaded(true)
+    if (searchTerm && searchSuggestions === null) {
+      // setInitialSuggestionsLoaded(true)
       loadSearchSuggestions(searchTerm)
     }
   }, [searchTerm])
@@ -188,6 +193,7 @@ export const SearchForm = () => {
           dataSource={searchCompletionDataSource}
           notFoundContent={loadingSuggestions ? "Loading" : "No results found"}
           onSelect={handleSelect}
+          dropdownStyle={{ display: searchCompletionDataSource === null ? "none" : undefined }}
           // onSearch={handleSearch}
         >
           <Input
