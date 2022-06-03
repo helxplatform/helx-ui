@@ -192,6 +192,7 @@ export const SearchForm = () => {
           value={searchTerm}
           dataSource={searchCompletionDataSource}
           notFoundContent={loadingSuggestions ? "Loading" : "No results found"}
+          defaultActiveFirstOption={false}
           onSelect={handleSelect}
           dropdownStyle={{ display: searchCompletionDataSource === null ? "none" : undefined }}
           // onSearch={handleSearch}
