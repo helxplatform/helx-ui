@@ -5,10 +5,11 @@ import {
   TableOutlined as GridViewIcon,
   UnorderedListOutlined as ListViewIcon,
 } from '@ant-design/icons'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import { PaginationTray, ConceptCard, useHelxSearch } from '../'
-import './concept-results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import { Link } from '../../link'
+import './concept-results.css'
 
 const { Text } = Typography
 const { Option } = Select
@@ -18,7 +19,7 @@ const GRID = 'GRID'
 const LIST = 'LIST'
 
 export const ConceptSearchResults = () => {
-  const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult } = useHelxSearch()
+  const { query, conceptPages, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult, setCurrentPage } = useHelxSearch()
   const { basePath } = useEnvironment()
   const { analyticsEvents } = useAnalytics()
   const { md } = useBreakpoint();
@@ -28,6 +29,8 @@ export const ConceptSearchResults = () => {
   useEffect(() => {
     setTypeFilter(null)
   }, [query])
+
+  const concepts = useMemo(() => Object.values(conceptPages).flat(), [conceptPages])
 
   let gridClass = (layout === GRID) ? 'results-list grid' : 'results-list list'
   gridClass += md ? " md" : ""
@@ -84,7 +87,7 @@ export const ConceptSearchResults = () => {
     </div>
   ), [currentPage, layout, pageCount, totalConcepts, query, typeFilter, conceptTypes, basePath, concepts, handleChangeLayout])
 
-  if (isLoadingConcepts) {
+  if (false && isLoadingConcepts) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
   }
 
@@ -97,29 +100,37 @@ export const ConceptSearchResults = () => {
         query && !error.message && (
           <div className="results">
             { concepts.length >= 1 && MemoizedResultsHeader }
-
-            <div className={gridClass}>
-              {
-                concepts.filter((concept) => typeFilter === null || concept.type === typeFilter).map((result, i) => {
-                  const index = (currentPage - 1) * perPage + i + 1
-                  return (
-                    <ConceptCard
-                      key={ `${query}_result_${index}` }
-                      index={ index }
-                      result={ result }
-                      openModalHandler={ () => setSelectedResult(result) }
-                    />
-                  )
-                })
-              }
-            </div>
+            <InfiniteScroll
+              dataLength={concepts.length}
+              next={() => setCurrentPage(currentPage + 1)}
+              hasMore={!isLoadingConcepts && (currentPage < pageCount || pageCount === 0)}
+            >
+              <div className={gridClass}>
+                {
+                  concepts.filter((concept) => typeFilter === null || concept.type === typeFilter).map((result, i) => {
+                    const index = (currentPage - 1) * perPage + i + 1
+                    return (
+                      <ConceptCard
+                        key={ result.id }
+                        index={ index }
+                        result={ result }
+                        openModalHandler={ () => setSelectedResult(result) }
+                      />
+                    )
+                  })
+                }
+              </div>
+            </InfiniteScroll>
+            {isLoadingConcepts && (
+              <Spin style={{ display: "block", margin: "32px" }} />
+            )}
           </div>
         )
       }
 
       <br/><br/>
 
-      { pageCount > 1 && <PaginationTray /> }
+      {/* { pageCount > 1 && <PaginationTray /> } */}
 
     </Fragment>
   )

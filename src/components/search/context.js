@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment, useAnalytics } from '../../contexts'
@@ -34,7 +34,8 @@ export const HelxSearch = ({ children }) => {
   const [query, setQuery] = useState('')
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
   const [error, setError] = useState({})
-  const [concepts, setConcepts] = useState([])
+  const [conceptPages, setConceptPages] = useState({})
+  // const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
@@ -43,6 +44,11 @@ export const HelxSearch = ({ children }) => {
 
   const inputRef = useRef()
   const navigate = useNavigate()
+
+  const concepts = useMemo(() => {
+    if (!conceptPages[currentPage]) return []
+    else return conceptPages[currentPage]
+  }, [conceptPages, currentPage])
 
   useEffect(() => {
     // this lets the user press backslash to jump focus to the search box
@@ -62,7 +68,7 @@ export const HelxSearch = ({ children }) => {
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search)
     setQuery(queryParams.get('q') || '')
-    setCurrentPage(+queryParams.get('p') || 1)
+    // setCurrentPage(+queryParams.get('p') || 1)
   }, [location.search])
 
   const validationReducer = (buckets, hit) => {
@@ -75,8 +81,17 @@ export const HelxSearch = ({ children }) => {
   }
 
   useEffect(() => {
+    setConceptPages({})
+  }, [query])
+
+  useEffect(() => {
     const fetchConcepts = async () => {
+      if (conceptPages[currentPage]) {
+        return
+      }
+      console.log("Load page", query, currentPage)
       setIsLoadingConcepts(true)
+      // await new Promise((resolve) => setTimeout(resolve, 2500))
       const startTime = Date.now()
       try {
         const params = {
@@ -95,12 +110,18 @@ export const HelxSearch = ({ children }) => {
               `were removed from the ${ hits.valid.length + hits.invalid.length } ` +
               `concepts in the response.`, hits.invalid)
           }
-          setConcepts(hits.valid)
+          const newConceptPages = { ...conceptPages }
+          newConceptPages[currentPage] = hits.valid
+          setConceptPages(newConceptPages)
           setTotalConcepts(response.data.result.total_items)
+          // setConcepts(hits.valid)
           setIsLoadingConcepts(false)
           analyticsEvents.searchExecuted(query, Date.now() - startTime, response.data.result.total_items)
         } else {
-          setConcepts([])
+          const newConceptPages = { ...conceptPages }
+          newConceptPages[currentPage] = []
+          setConceptPages(newConceptPages)
+          // setConcepts([])
           setTotalConcepts(0)
           setIsLoadingConcepts(false)
           analyticsEvents.searchExecuted(query, Date.now() - startTime, 0)
@@ -115,7 +136,7 @@ export const HelxSearch = ({ children }) => {
     if (query) {
       fetchConcepts()
     }
-  }, [query, currentPage, helxSearchUrl, analyticsEvents, setConcepts, setError])
+  }, [query, currentPage, conceptPages, helxSearchUrl, analyticsEvents, setConceptPages, setError])
 
   useEffect(() => {
     setPageCount(Math.ceil(totalConcepts / PER_PAGE))
@@ -170,7 +191,7 @@ export const HelxSearch = ({ children }) => {
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
       error, isLoadingConcepts,
-      concepts, totalConcepts,
+      concepts, totalConcepts, conceptPages,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
