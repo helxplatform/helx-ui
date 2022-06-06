@@ -9,7 +9,7 @@ import CustomIcon, {
   ConsoleSqlOutlined as TranQLIcon,
   RobotOutlined as RobokopIcon,
   ExportOutlined as ExternalLinkIcon,
-  FullscreenOutlined as FullscreenLayoutIcon
+  FullscreenOutlined as FullscreenLayoutIcon,
   UnorderedListOutlined as CdesIcon,
 } from '@ant-design/icons'
 import { CdesTab, OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
