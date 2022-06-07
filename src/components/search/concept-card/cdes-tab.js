@@ -29,11 +29,16 @@ export const CdesTab = ({ result }) => {
   return (
     <Space direction="vertical" className="tab-content">
       <List
-        className="studies-list"
+        className="cdes-list"
         dataSource={ cdes.elements }
         renderItem={ item => (
           <List.Item>
-            <Text className="study-name">{ item.name }{ ` ` }</Text>
+            <List.Item.Meta
+              className="item"
+              key={ `${ result.id }-cdes-${ item.name }` }
+              title={ item.name }
+              description={ item.description }
+            />
           </List.Item>
         ) }
       />
