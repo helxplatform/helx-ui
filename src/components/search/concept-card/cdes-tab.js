@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { List, Spin, Space, Tag, Typography } from 'antd'
+import { List, Spin, Space, Typography } from 'antd'
 import { useEnvironment } from '../../../contexts'
 import { useHelxSearch } from '../'
 import { Link } from '../../link'
@@ -24,7 +24,7 @@ export const CdesTab = ({ result }) => {
     }
     setLoading(true)
     getCDEs()
-  }, [fetchCDEs])
+  }, [fetchCDEs, result.id, query])
 
   if (loading) {
     return <Spin />
