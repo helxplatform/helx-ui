@@ -115,7 +115,7 @@ export const HelxSearch = ({ children }) => {
       }
       console.log("Load page", query, currentPage)
       setIsLoadingConcepts(true)
-      await new Promise((resolve) => setTimeout(resolve, 2500))
+      // await new Promise((resolve) => setTimeout(resolve, 2500))
       const startTime = Date.now()
       try {
         const params = {
