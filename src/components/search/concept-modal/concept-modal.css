@@ -12,8 +12,9 @@
   width: 100%;
 }
 
-.ant-modal-body > .ant-space > .ant-space-item:nth-child(2) {
+.concept-modal-body > .ant-space-item:nth-child(2) {
   width: 100% !important;
+  flex-grow: 1;
 }
 
 .study-variables-list {

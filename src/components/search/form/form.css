@@ -1,12 +1,15 @@
 .search-form {
   display: flex;
-  gap: 1rem;
+  /* gap: 1rem; */
   justify-content: center;
   align-items: center;
   width: 100%;
   max-width: 1080px;
-  margin: auto !important;
-  transition:  min-height 500ms ease-out;
+  transition: min-height 500ms ease-out;
+}
+.search-form.ant-form {
+  margin: 0 auto;
+  margin-bottom: 24px;
 }
 
 .search-form.with-results {
@@ -15,8 +18,14 @@
 
 .search-form.without-results {
   min-height: 20rem;
+  /* flex-grow: 1;
+  margin-top: 8.25rem; */
 }
 
 .ant-form-item:first-child {
   flex: 1;
+}
+
+.search-form .ant-form-item {
+  margin: 0;
 }

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment, useAnalytics } from '../../contexts'
 import './search.css'
 import { ConceptModal } from './'
+import { useLocalStorage } from '../../hooks/use-local-storage'
 
 //
 
@@ -22,7 +23,12 @@ const tempSearchFacets = [
   'PhenX',
 ].sort((f, g) => f.toLowerCase() < g.toLowerCase() ? -1 : 1)
 
-//
+
+export const SearchLayout = Object.freeze({
+  GRID: 'GRID',
+  // LIST: 'LIST',
+  EXPANDED_RESULT: 'EXPANDED_RESULT',
+})
 
 const validateResult = result => {
   return result.description.trim() && result.name.trim()
@@ -41,6 +47,7 @@ export const HelxSearch = ({ children }) => {
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
   const [selectedResult, setSelectedResult] = useState(null)
+  const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.GRID)
 
   const inputRef = useRef()
   const navigate = useNavigate()
@@ -49,6 +56,23 @@ export const HelxSearch = ({ children }) => {
     if (!conceptPages[currentPage]) return []
     else return conceptPages[currentPage]
   }, [conceptPages, currentPage])
+  
+  const setLayout = (newLayout) => {
+    // Only track when layout changes
+    if (layout !== newLayout) {
+      analyticsEvents.searchLayoutChanged(query, newLayout, layout)
+    }
+    if (newLayout !== SearchLayout.EXPANDED_RESULT) {
+      setSelectedResult(null)
+    }
+    _setLayout(newLayout)
+  }
+
+  const setFullscreenResult = (result) => {
+    // setSelectedResult(null)
+    setLayout(SearchLayout.EXPANDED_RESULT)
+    setSelectedResult(result)
+  }
 
   useEffect(() => {
     // this lets the user press backslash to jump focus to the search box
@@ -68,7 +92,7 @@ export const HelxSearch = ({ children }) => {
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search)
     setQuery(queryParams.get('q') || '')
-    // setCurrentPage(+queryParams.get('p') || 1)
+    setCurrentPage(+queryParams.get('p') || 1)
   }, [location.search])
 
   const validationReducer = (buckets, hit) => {
@@ -91,7 +115,7 @@ export const HelxSearch = ({ children }) => {
       }
       console.log("Load page", query, currentPage)
       setIsLoadingConcepts(true)
-      // await new Promise((resolve) => setTimeout(resolve, 2500))
+      await new Promise((resolve) => setTimeout(resolve, 2500))
       const startTime = Date.now()
       try {
         const params = {
@@ -112,6 +136,7 @@ export const HelxSearch = ({ children }) => {
           }
           const newConceptPages = { ...conceptPages }
           newConceptPages[currentPage] = hits.valid
+          setSelectedResult(null)
           setConceptPages(newConceptPages)
           setTotalConcepts(response.data.result.total_items)
           // setConcepts(hits.valid)
@@ -120,6 +145,7 @@ export const HelxSearch = ({ children }) => {
         } else {
           const newConceptPages = { ...conceptPages }
           newConceptPages[currentPage] = []
+          setSelectedResult(null)
           setConceptPages(newConceptPages)
           // setConcepts([])
           setTotalConcepts(0)
@@ -186,7 +212,6 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
-
   return (
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
@@ -195,11 +220,12 @@ export const HelxSearch = ({ children }) => {
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
+      layout, setLayout, setFullscreenResult
     }}>
       { children }
       <ConceptModal
         result={ selectedResult }
-        visible={ selectedResult !== null}
+        visible={ layout !== SearchLayout.EXPANDED_RESULT && selectedResult !== null }
         closeHandler={ () => setSelectedResult(null) }
       />
     </HelxSearchContext.Provider>

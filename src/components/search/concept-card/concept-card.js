@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { Card } from 'antd'
 import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
@@ -7,9 +7,10 @@ import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
 import { useAnalytics } from '../../../contexts'
+import classNames from 'classnames'
 import './concept-card.css'
 
-export const ConceptCard = ({ index, result, openModalHandler }) => {
+export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
   const { analyticsEvents } = useAnalytics()
   const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
@@ -28,26 +29,26 @@ export const ConceptCard = ({ index, result, openModalHandler }) => {
     analyticsEvents.resultModalOpened(query, result)
   }
 
+  const IconComponent = icon
+
   return (
-    <Fragment>
+    <div className={classNames("result-card", className)} ref={ref}>
       <Card
-        className="result-card"
         title={`${result.name} (${result.type})`}
         tabList={tabList}
         tabProps={{size: 'small'}}
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
-        extra={ <ViewIcon onClick={ openModal } /> }
+        extra={ icon && <IconComponent onClick={ openModal } /> }
         actions={ [<br />] }
       >
         { tabContents[currentTab] }
       </Card>
-   </Fragment>
+    </div>
   )
-}
+})
 
 ConceptCard.propTypes = {
-  index: PropTypes.number.isRequired,
   result: PropTypes.object.isRequired,
   openModalHandler: PropTypes.func.isRequired,
 }

@@ -1,0 +1,129 @@
+.expanded-results-layout .results-sidebar {
+    flex: 0;
+    white-space: nowrap;
+    position: relative;
+}
+.expanded-results-layout .results-sidebar .results-list {
+    display: flex;
+    flex-direction: column;
+    /* max-width: 500px; */
+    /* grid-template-columns: auto; */
+    /* grid-template-rows: auto; */
+}
+.expanded-results-layout .results-sidebar > *:first-child {
+    flex-grow: 1;
+}
+.expanded-results-layout .results-sidebar > *:first-child > * {
+    height: 100%;
+}
+
+.expanded-results-layout .results-sidebar .results-upper-side-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: flex-start;
+}
+.collapse-results {
+    position: absolute;
+    background: #f0f2f5;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.15));
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    right: 16px;
+    top: 16px;
+    transform: translate(54px, -32px);
+    /* The same border-radius antd applies to form inputs */
+    border-radius: 50%;
+    /* margin: 0 16px 0 -16px !important; */
+    /* margin-left: -16px;
+    margin-right: 16px; */
+    z-index: 1;
+}
+.results-list-container {
+    flex-grow: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.results-list-container .infinite-scroll-component__outerdiv {
+    /* display: flex;
+    flex-direction: column;
+    flex-grow: 1; */
+}
+.results-list-container .infinite-scroll-component__outerdiv .infinite-scroll-component {
+    /* flex-grow: 1;
+    height: 0 !important; */
+}
+.results-list-container > .results-list-scroll {
+    height: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    /**
+     * Cancel out parent/sibling padding & margins and instead apply it as inner padding
+     * This allows for easier scrolling (since the scroll bar isn't overlapping with the children
+     * and also allows prevents shadows from cutting off by allowing them to "overflow".
+     */
+    margin-left: -2rem;
+    padding-left: 2rem;
+    margin-right: -24px;
+    padding-right: 24px;
+}
+.results-sidebar.minimized {
+
+}
+/* .results-sidebar.minimized .results-upper-side-container {
+    flex-direction: row-reverse;
+}
+.results-sidebar.minimized .collapse-results {
+    margin-left: 16px;
+    margin-right: -8px;
+} */
+.results-sidebar.minimized .results-list-container {
+    width: 30px;
+    position: relative;
+}
+.results-sidebar.minimized .results-list {
+    position: absolute;
+}
+.results-sidebar.minimized .results-list > * {
+    /* The minimized results container is fixed at 30px, so translate the cards such that their right boundaries are touching the right boundary of the container. */
+    transform: translateX(calc(-100% + 30px));
+}
+
+.expanded-result-option-concept-card {
+    /* min-width: min(400px, 90vw); */
+}
+.expanded-result-option-concept-card .ant-card-body {
+    min-height: 0 !important;
+}
+.expanded-result-option-concept-card .ant-card-body::after {
+    /* Remove blurring effect on cards */
+    /* display: none; */
+}
+.expanded-result-option-concept-card.selected {
+    border-color: #1890ff;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05)) brightness(.975) !important;
+}
+.expanded-result-option-concept-card:not(.selected) {
+    /* filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05)) brightness(.975) !important; */
+}
+.results-sidebar.expanded.mobile .results-list-container {
+    width: 100%;
+}
+
+.results-sidebar.expanded.mobile {
+    flex: 1;
+}
+.results-sidebar.minimized.mobile .results-list-container {
+    display: none;
+}
+.results-sidebar.minimized.mobile .collapse-results {
+    transform: translate(24px, -28px);
+}
+.results-sidebar.expanded.mobile .collapse-results {
+    left: 16px;
+    transform: translate(-36px, -28px);
+}

@@ -51,7 +51,7 @@ const Router = () => {
   }, [])
 
   return (
-    <ReachRouter basepath={baseRouterPath}>
+    <ReachRouter basepath={baseRouterPath} className="routing-container">
       {routes !== undefined && routes.map(({ path, text, Component }) => <Component key={path} path={path}></Component>)}
       <NotFoundView default />
     </ReachRouter>
