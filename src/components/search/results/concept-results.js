@@ -121,7 +121,7 @@ export const ConceptSearchResults = () => {
                 }
               </div>
             </InfiniteScroll>
-            {isLoadingConcepts && (
+            {currentPage === 0 || currentPage < pageCount && (
               <Spin style={{ display: "block", margin: "32px" }} />
             )}
           </div>
