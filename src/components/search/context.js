@@ -112,8 +112,12 @@ export const HelxSearch = ({ children }) => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search)
-    setQuery(queryParams.get('q') || '')
+    const q = queryParams.get('q') || ''
+    setQuery(q)
     setCurrentPage(+queryParams.get('p') || 1)
+    if (q === '') {
+      setTotalConcepts(0)
+    }
   }, [location.search])
 
   const validationReducer = (buckets, hit) => {
