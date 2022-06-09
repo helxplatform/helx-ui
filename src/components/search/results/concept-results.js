@@ -10,7 +10,7 @@ const { useBreakpoint } = AntGrid
 
 export const ConceptSearchResults = () => {
   const {
-    query, conceptPages, perPage, currentPage, pageCount, typeFilter,
+    query, conceptPages, perPage, currentPage, pageCount, typeFilter, totalConcepts,
     isLoadingConcepts, error, layout, setCurrentPage, setSelectedResult } = useHelxSearch()
   const { md } = useBreakpoint();
   // const [isScrollable, ref, node] = useIsScrollable([conceptPages], document.querySelector('#root'))
@@ -48,6 +48,8 @@ export const ConceptSearchResults = () => {
       break;
   }
   gridClass += md ? " md" : ""
+
+  console.log(isLoadingConcepts, query, totalConcepts)
 
   if (layout === SearchLayout.EXPANDED_RESULT) return (
     <ExpandedResultsLayout/>

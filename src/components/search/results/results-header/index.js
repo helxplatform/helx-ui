@@ -1,17 +1,16 @@
-import { useState, useEffect, useMemo } from "react"
-import { notification, Radio, Tooltip, Typography, Select } from "antd"
+import { notification, Radio, Tooltip, Typography, Select, Grid } from "antd"
 import {
     LinkOutlined as LinkIcon,
     TableOutlined as GridViewIcon,
-    UnorderedListOutlined as ListViewIcon,
     LayoutOutlined as ExpandedResultIcon
 } from '@ant-design/icons'
 import { SearchLayout, useHelxSearch } from "../.."
-import { useAnalytics, useEnvironment } from "../../../../contexts"
+import { useAnalytics } from "../../../../contexts"
 import { Fragment } from "react"
 
 const { Text, Link } = Typography
 const { Option } = Select
+const { useBreakpoint } = Grid
 
 const MINIMAL = 'minimal'
 const FULL = 'full'
@@ -24,8 +23,8 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
         typeFilter, setTypeFilter,
         conceptTypeCounts
     } = useHelxSearch()
-    const { basePath } = useEnvironment()
     const { analyticsEvents } = useAnalytics()
+    const { md } = useBreakpoint()
 
     const NotifyLinkCopied = () => {
         notification.open({
@@ -42,7 +41,7 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
     }
 
     return (
-        <div className="header" {...props}>
+        <div className="results-header" {...props}>
             {type === FULL && (
                 <Fragment>
                 <Text>
@@ -54,8 +53,15 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
                 </Tooltip>
                 </Fragment>
             )}
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", marginRight: "8px" }}>
-                Filter type:
+            <div
+                style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginRight: "8px"
+                }}
+            >
+                <Text style={{ display: !md ? "none" : undefined }}>Filter type:</Text>
                 <Select
                     value={typeFilter}
                     onChange={(value) => setTypeFilter(value)}

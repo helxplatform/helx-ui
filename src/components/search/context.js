@@ -185,7 +185,7 @@ export const HelxSearch = ({ children }) => {
     if (query) {
       fetchConcepts()
     }
-  }, [query, currentPage, conceptPages, helxSearchUrl, analyticsEvents, setConceptPages, setError])
+  }, [query, currentPage, conceptPages, helxSearchUrl, analyticsEvents])
 
   useEffect(() => {
     setPageCount(Math.ceil(totalConcepts / PER_PAGE))

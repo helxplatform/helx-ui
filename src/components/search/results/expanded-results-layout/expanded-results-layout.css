@@ -14,9 +14,10 @@
 .expanded-results-layout .results-sidebar .search-form.with-results {
     margin-bottom: 0 !important;
 }
-.expanded-results-layout > .expanded-results-upper-container > .header {
+.expanded-results-layout > .expanded-results-upper-container > .results-header {
     white-space: nowrap;
-    margin-left: 32px;
+    margin-left: 24px;
+    margin-bottom: 0;
 }
 .expanded-results-layout > .expanded-results-lower-container {
     display: flex;
@@ -37,12 +38,13 @@
 .expanded-results-layout.mobile > .expanded-results-upper-container {
     flex-direction: column;
 }
-.expanded-results-layout.mobile > .expanded-results-upper-container > .header {
+.expanded-results-layout.mobile > .expanded-results-upper-container > .results-header {
     margin-left: 0;
     margin-top: 24px;
+    margin-bottom: 0;
     display: flex;
 }
-.expanded-results-layout.mobile > .expanded-results-upper-container > .header > span:first-child {
+.expanded-results-layout.mobile > .expanded-results-upper-container > .results-header > span:first-child {
     white-space: normal;
 }
 .expanded-results-layout.mobile .expanded-result-container {
