@@ -1,7 +1,8 @@
 pipeline {
-    agent {
-      kubernetes {
-            yaml '''
+  agent {
+    kubernetes {
+        label 'kaniko-build-agent'
+        yaml '''
 kind: Pod
 metadata:
   name: kaniko
@@ -28,6 +29,13 @@ spec:
     volumeMounts:
     - name: jenkins-docker-cfg
       mountPath: /kaniko/.docker
+  - name: crane
+    workingDir: /tmp/jenkins
+    image: gcr.io/go-containerregistry/crane:debug
+    imagePullPolicy: Always
+    command:
+    - /busybox/cat
+    tty: true
   volumes:
   - name: jenkins-docker-cfg
     projected:
@@ -40,29 +48,64 @@ spec:
 '''
         }
     }
+    environment {
+        PATH = "/busybox:/kaniko:/ko-app/:$PATH"
+        DOCKERHUB_CREDS = credentials("${env.REGISTRY_CREDS_ID_STR}")
+        REGISTRY = "${env.DOCKER_REGISTRY}"
+        REG_OWNER="helxplatform"
+        REG_APP="helx-ui"
+        COMMIT_HASH="${sh(script:"git rev-parse --short HEAD", returnStdout: true).trim()}"
+        VERSION_FILE="./package.json"
+        VERSION="${sh(script:'node -p "require(\'./package.json\').version"', returnStdout: true).trim()}"
+        IMAGE_NAME="${REG_OWNER}/${REG_APP}"
+        TAG1="$BRANCH_NAME"
+        TAG2="$COMMIT_HASH"
+        TAG3="$VERSION"
+    }
     stages {
-        // stage('Test') {
-        //     steps {
-        //         container('agent-docker') {
-        //             sh '''
-        //             make test
-        //             '''
-        //         }
-        //     }
-        // }
-        stage('Build and Push Image') {
-            environment {
-                PATH = "/busybox:/kaniko:$PATH"
-                DOCKERHUB_CREDS = credentials("${env.REGISTRY_CREDS_ID_STR}")
-                DOCKER_REGISTRY = "${env.DOCKER_REGISTRY}"
-                BUILD_NUMBER = "${env.BUILD_NUMBER}"
+        stage('Test') {
+            steps {
+                sh '''
+                echo "Stage test"
+                '''
             }
+        }
+        stage('Build') {
             steps {
                 container(name: 'kaniko', shell: '/busybox/sh') {
+                    sh '''#!/busybox/sh
+                        echo "Stage build"
+                        /kaniko/executor --dockerfile ./Dockerfile \
+                                         --context . \
+                                         --verbosity debug \
+                                         --no-push \
+                                         --destination $IMAGE_NAME:$TAG1 \
+                                         --destination $IMAGE_NAME:$TAG2 \
+                                         --tarPath image.tar
+                        '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'image.tar', onlyIfSuccessful: true
+                }
+            }
+        }
+        stage('Publish') {
+            steps {
+                container(name: 'crane', shell: '/busybox/sh') {
                     sh '''
-                    /kaniko/executor --dockerfile Dockerfile \
-                        --context . \
-                        --destination helxplatform/helx-ui:new-jenkins-test-$BUILD_NUMBER
+                    echo "Publish stage"
+                    echo "$DOCKERHUB_CREDS_PSW" | crane auth login -u $DOCKERHUB_CREDS_USR --password-stdin $REGISTRY
+                    crane push image.tar $IMAGE_NAME:$TAG1
+                    crane push image.tar $IMAGE_NAME:$TAG2
+                    '''
+                }
+            }
+            post {
+                cleanup {
+                    sh '''
+                    echo "Remove archived artifacts."
                     '''
                 }
             }
