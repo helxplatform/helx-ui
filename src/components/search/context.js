@@ -47,15 +47,36 @@ export const HelxSearch = ({ children }) => {
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
   const [selectedResult, setSelectedResult] = useState(null)
+  const [typeFilter, setTypeFilter] = useState(null)
   const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.GRID)
 
   const inputRef = useRef()
   const navigate = useNavigate()
 
+  const filteredConceptPages = useMemo(() => {
+    if (typeFilter === null) return conceptPages
+    return Object.fromEntries(Object.entries(conceptPages).map(([page, concepts]) => {
+      return [
+        page,
+        concepts.filter((concept) => concept.type === typeFilter)
+      ]
+    }))
+  }, [conceptPages, typeFilter])
+
+  const conceptTypes = useMemo(() => Object.values(conceptPages).flat().reduce((acc, cur) => {
+    if (!acc.includes(cur.type)) acc.push(cur.type)
+    return acc
+  }, []), [conceptPages])
+  const conceptTypeCounts = useMemo(() => Object.values(conceptPages).flat().reduce((acc, cur) => {
+    if (!acc.hasOwnProperty(cur.type)) acc[cur.type] = 0
+    acc[cur.type] += 1
+    return acc
+  }, {}), [conceptPages])
+
   const concepts = useMemo(() => {
-    if (!conceptPages[currentPage]) return []
-    else return conceptPages[currentPage]
-  }, [conceptPages, currentPage])
+    if (!filteredConceptPages[currentPage]) return []
+    else return filteredConceptPages[currentPage]
+  }, [filteredConceptPages, currentPage])
   
   const setLayout = (newLayout) => {
     // Only track when layout changes
@@ -106,6 +127,8 @@ export const HelxSearch = ({ children }) => {
 
   useEffect(() => {
     setConceptPages({})
+    setTypeFilter(null)
+    setSelectedResult(null)
   }, [query])
 
   useEffect(() => {
@@ -136,7 +159,7 @@ export const HelxSearch = ({ children }) => {
           }
           const newConceptPages = { ...conceptPages }
           newConceptPages[currentPage] = hits.valid
-          setSelectedResult(null)
+          // setSelectedResult(null)
           setConceptPages(newConceptPages)
           setTotalConcepts(response.data.result.total_items)
           // setConcepts(hits.valid)
@@ -145,7 +168,7 @@ export const HelxSearch = ({ children }) => {
         } else {
           const newConceptPages = { ...conceptPages }
           newConceptPages[currentPage] = []
-          setSelectedResult(null)
+          // setSelectedResult(null)
           setConceptPages(newConceptPages)
           // setConcepts([])
           setTotalConcepts(0)
@@ -216,11 +239,13 @@ export const HelxSearch = ({ children }) => {
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
       error, isLoadingConcepts,
-      concepts, totalConcepts, conceptPages,
+      concepts, totalConcepts, conceptPages: filteredConceptPages,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
-      layout, setLayout, setFullscreenResult
+      layout, setLayout, setFullscreenResult,
+      typeFilter, setTypeFilter,
+      conceptTypes, conceptTypeCounts
     }}>
       { children }
       <ConceptModal

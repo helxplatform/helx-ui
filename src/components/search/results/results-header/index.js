@@ -20,21 +20,12 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
     const {
         query, totalConcepts,
         currentPage, pageCount,
-        layout, setLayout
+        layout, setLayout,
+        typeFilter, setTypeFilter,
+        conceptTypeCounts
     } = useHelxSearch()
     const { basePath } = useEnvironment()
     const { analyticsEvents } = useAnalytics()
-
-    const [typeFilter, setTypeFilter] = useState(null)
-    
-    const conceptTypes = useMemo(() => concepts.reduce((acc, cur) => {
-        if (!acc.includes(cur.type)) acc.push(cur.type)
-        return acc
-      }, []), [concepts])
-
-    useEffect(() => {
-        setTypeFilter(null)
-      }, [query])
 
     const NotifyLinkCopied = () => {
         notification.open({
@@ -75,8 +66,8 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
                 >
                     <Option value={null}>All</Option>
                     {
-                        conceptTypes.sort((a, b) => concepts.filter((x) => x.type === b).length - concepts.filter((x) => x.type === a).length).map((conceptType) => (
-                        <Option key={conceptType} value={conceptType}>{conceptType} ({concepts.filter((concept) => concept.type === conceptType).length})</Option>
+                        Object.entries(conceptTypeCounts).sort((a, b) => b[1] - a[1]).map(([conceptType, count]) => (
+                        <Option key={conceptType} value={conceptType}>{conceptType} ({count})</Option>
                         ))
                     }
                 </Select>

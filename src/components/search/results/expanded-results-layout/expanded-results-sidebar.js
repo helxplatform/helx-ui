@@ -1,9 +1,10 @@
-import { Fragment, useEffect, useRef, useMemo } from 'react'
+import { Fragment, useEffect, useRef, useMemo, useCallback } from 'react'
 import { Grid, Space, Spin, Tooltip, Typography } from 'antd'
 import { ArrowRightOutlined, LeftOutlined, RightOutlined, MoreOutlined } from '@ant-design/icons'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { ResultsHeader } from '..'
 import { ConceptCard, PaginationTray, SearchForm, useHelxSearch } from "../.."
+import { useIsScrollable } from "../../../../hooks"
 import classNames from 'classnames'
 import "./expanded-results-sidebar.css"
 
@@ -15,13 +16,30 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
     const {
         conceptPages, selectedResult, setSelectedResult,
         pageCount, isLoadingConcepts, setLayout,
-        currentPage, setCurrentPage
+        currentPage, setCurrentPage, typeFilter
     } = useHelxSearch()
     const { md } = useBreakpoint()
-
     const cardRefs = useRef({})
+    // const [isScrollable, ref, node] = useIsScrollable([conceptPages])
     
     const concepts = useMemo(() => Object.values(conceptPages).flat(), [conceptPages])
+    const hasMore = useMemo(() => (
+        !typeFilter && !isLoadingConcepts && (currentPage < pageCount || pageCount === 0)
+    ), [typeFilter, isLoadingConcepts, currentPage, pageCount])
+
+    const getNextPage = useCallback(() => {
+        setCurrentPage(currentPage + 1)
+    }, [currentPage])
+
+    /*useEffect(() => {
+        // If the search/filter results in results that don't fill the page entirely, then the infinite scroller
+        // won't ever trigger to load new results. So manually check if the page isn't scrollable and load new results
+        // until it is either scrollable or out of results.
+        if (!node) return
+        if (!isScrollable && hasMore) {
+            getNextPage()
+        }
+    }, [node, isScrollable, hasMore])*/
 
     useEffect(() => {
         if (selectedResult !== null) {
@@ -29,7 +47,11 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
             // Also want to scroll to the corresponding card in the result list, so the user is still where they were
             // scrolled to in the previous layout.
             const selectedRef = cardRefs.current[selectedResult.id]
-            selectedRef.scrollIntoView()
+            window.requestAnimationFrame(() => {
+                // Something going on within the InfiniteScroll component messes with scrolling dimensions,
+                // so the document is not actually scroll-ready yet on mount.
+                selectedRef.scrollIntoView()
+            })
         }
     }, [])
 
@@ -55,8 +77,8 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                         <InfiniteScroll
                             scrollableTarget={"expandedResultScroller"}
                             dataLength={concepts.length}
-                            next={() => {console.log(currentPage + 1);setCurrentPage(currentPage + 1)}}
-                            hasMore={!isLoadingConcepts && (currentPage < pageCount || pageCount === 0)}
+                            next={getNextPage}
+                            hasMore={hasMore}
                         >
                             <div className="results-list grid" style={{ whiteSpace: "normal", maxWidth: md ? "500px" : undefined }}>
                                 {
@@ -71,11 +93,21 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                                         />
                                     ))
                                 }
+                                {
+                                    typeFilter ? (
+                                        null
+                                    ) : (
+                                        (currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
+                                            <Spin
+                                                className={classNames("results-list-spin", concepts.length === 0 && isLoadingConcepts && "full-load")}
+                                                style={{ display: "block", margin: "0 16px" }}
+                                            />
+                                        )
+                                    )
+                                }
                             </div>
                         </InfiniteScroll>
-                        {(currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
-                            <Spin style={{ display: "block", marginTop: "32px", marginBottom: "0" }} />
-                        )}
+                        
                     </div>
                 </div>
             </div>

@@ -11,7 +11,7 @@ const { Text, Paragraph, Title, Link } = Typography
 const { useBreakpoint } = Grid
 
 export const ExpandedResultsLayout = () => {
-    const { selectedResult, setSelectedResult, setLayout, concepts, totalConcepts, isLoadingConcepts } = useHelxSearch()
+    const { selectedResult, setSelectedResult, setLayout, concepts, totalConcepts, isLoadingConcepts, query } = useHelxSearch()
     const { md } = useBreakpoint()
 
     const [expanded, setExpanded] = useState(true)
@@ -22,6 +22,11 @@ export const ExpandedResultsLayout = () => {
             setExpanded(false)
         }
     }, [])
+
+    useEffect(() => {
+        // When a new search is executed, the layout should automatically be expanded to view the new results.
+        setExpanded(true)
+    }, [query])
 
     useEffect(() => {
         if (!md && selectedResult) {

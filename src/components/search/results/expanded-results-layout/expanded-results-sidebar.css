@@ -48,15 +48,6 @@
     display: flex;
     flex-direction: column;
 }
-.results-list-container .infinite-scroll-component__outerdiv {
-    /* display: flex;
-    flex-direction: column;
-    flex-grow: 1; */
-}
-.results-list-container .infinite-scroll-component__outerdiv .infinite-scroll-component {
-    /* flex-grow: 1;
-    height: 0 !important; */
-}
 .results-list-container > .results-list-scroll {
     height: 0;
     flex-grow: 1;
@@ -71,6 +62,13 @@
     margin-right: -24px;
     padding-right: 24px;
 }
+.results-sidebar .results-list-spin.full-load {
+    /* Have to disable in order to avoid a transition occuring on translateX */
+    transition: none;
+}
+.results-sidebar.minimized .results-list-spin.full-load {
+    transform: translateX(-50%) !important;
+}
 .results-sidebar.minimized {
 
 }
@@ -83,6 +81,13 @@
 } */
 .results-sidebar.minimized .results-list-container {
     width: 30px;
+}
+.results-sidebar.minimized .infinite-scroll-component__outerdiv {
+    height: 100%;
+}
+.results-sidebar.minimized .infinite-scroll-component__outerdiv .infinite-scroll-component {
+    height: 100% !important;
+    overflow: visible !important;
     position: relative;
 }
 .results-sidebar.minimized .results-list {
