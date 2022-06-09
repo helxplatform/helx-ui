@@ -1,11 +1,12 @@
 import React, { Fragment, useMemo, useCallback } from 'react'
-import { Spin, Grid as AntGrid } from 'antd'
+import { Spin, Grid as AntGrid, Typography } from 'antd'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { ResultsHeader } from './'
 import { ConceptCard, useHelxSearch, SearchLayout, ExpandedResultsLayout } from '../'
 import { SearchForm } from '../form'
 import './concept-results.css'
 
+const { Text } = Typography
 const { useBreakpoint } = AntGrid
 
 export const ConceptSearchResults = () => {
@@ -85,11 +86,16 @@ export const ConceptSearchResults = () => {
               </div>
             </InfiniteScroll>
             {
-              typeFilter ? (
+              currentPage === pageCount ? (
                 null
+                // <Text style={{ textAlign: "center", marginTop: "24px" }}>No more results.</Text>
               ) : (
-                (currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
-                  <Spin style={{ display: "block", margin: "32px" }} />
+                typeFilter ? (
+                  <Text style={{ textAlign: "center", marginTop: "24px" }}>Disable filters to load more results.</Text>
+                ) : (
+                  (currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
+                    <Spin style={{ display: "block", margin: "32px" }} />
+                  )
                 )
               )
             }

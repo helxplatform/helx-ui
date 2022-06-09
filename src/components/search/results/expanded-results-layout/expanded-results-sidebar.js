@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import "./expanded-results-sidebar.css"
 
 
-const { Title, Link } = Typography
+const { Text, Link } = Typography
 const { useBreakpoint } = Grid 
 
 export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
@@ -92,14 +92,18 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                                     ))
                                 }
                                 {
-                                    typeFilter ? (
-                                        null
+                                    currentPage === pageCount ? (
+                                         null
                                     ) : (
-                                        (currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
-                                            <Spin
-                                                className={classNames("results-list-spin", concepts.length === 0 && isLoadingConcepts && "full-load")}
-                                                style={{ display: "block", margin: "0 16px" }}
-                                            />
+                                        typeFilter ? (
+                                            <Text style={{ textAlign: "center" }}>Disable filters to load more results.</Text>
+                                        ) : (
+                                            (currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
+                                                <Spin
+                                                    className={classNames("results-list-spin", concepts.length === 0 && isLoadingConcepts && "full-load")}
+                                                    style={{ display: "block", margin: "0 16px" }}
+                                                />
+                                            )
                                         )
                                     )
                                 }

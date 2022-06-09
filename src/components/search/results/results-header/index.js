@@ -21,7 +21,7 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
         currentPage, pageCount,
         layout, setLayout,
         typeFilter, setTypeFilter,
-        conceptTypeCounts
+        conceptTypeCounts, conceptPages
     } = useHelxSearch()
     const { analyticsEvents } = useAnalytics()
     const { md } = useBreakpoint()
@@ -45,7 +45,7 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
             {type === FULL && (
                 <Fragment>
                 <Text>
-                    {totalConcepts} concepts ({pageCount} page{pageCount > 1 && 's'})
+                    {totalConcepts} concepts ({Object.keys(conceptPages).length} of {pageCount} pages)
                 </Text>
                 <Tooltip title="Shareable link" placement="top">
                     {/* Just want anchor styling */}
