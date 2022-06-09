@@ -1,17 +1,16 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Divider, Typography, Grid, Spin } from 'antd'
-import { SearchForm, SearchLayout, useHelxSearch } from '../..'
+import { Divider, Grid, Spin } from 'antd'
+import { SearchForm, useHelxSearch } from '../..'
 import { ExpandedResultsSidebar } from './expanded-results-sidebar'
 import { ExpandedResultsContent } from './expanded-results-content'
 import { ResultsHeader } from '..'
 import classNames from 'classnames'
 import './expanded-results-layout.css'
 
-const { Text, Paragraph, Title, Link } = Typography
 const { useBreakpoint } = Grid
 
 export const ExpandedResultsLayout = () => {
-    const { selectedResult, setSelectedResult, setLayout, concepts, totalConcepts, isLoadingConcepts, query } = useHelxSearch()
+    const { selectedResult, setSelectedResult, concepts, totalConcepts, isLoadingConcepts, query } = useHelxSearch()
     const { md } = useBreakpoint()
 
     const [expanded, setExpanded] = useState(true)
@@ -21,6 +20,7 @@ export const ExpandedResultsLayout = () => {
             // If the result isn't null, it indicates a "redirect" to this layout with an active result already selected.
             setExpanded(false)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -33,6 +33,7 @@ export const ExpandedResultsLayout = () => {
             // Mobile display and a result was selected
             setExpanded(false)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedResult])
 
     const closeSelected = () => {

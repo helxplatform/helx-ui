@@ -1,28 +1,17 @@
-import React, { Fragment, useState, useMemo, useEffect, useCallback } from 'react'
-import { Radio, notification, Spin, Tooltip, Typography, Grid as AntGrid, Select, Divider } from 'antd'
-import {
-  LinkOutlined as LinkIcon,
-  TableOutlined as GridViewIcon,
-  UnorderedListOutlined as ListViewIcon,
-} from '@ant-design/icons'
+import React, { Fragment, useMemo, useCallback } from 'react'
+import { Spin, Grid as AntGrid } from 'antd'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { useAnalytics, useEnvironment } from '../../../contexts'
-import { Link } from '../../link'
 import { ResultsHeader } from './'
-import { PaginationTray, ConceptCard, useHelxSearch, SearchLayout, ExpandedResultsLayout } from '../'
+import { ConceptCard, useHelxSearch, SearchLayout, ExpandedResultsLayout } from '../'
 import { SearchForm } from '../form'
 import './concept-results.css'
-import { useIsScrollable } from '../../../hooks'
 
-const { Text } = Typography
 const { useBreakpoint } = AntGrid
 
 export const ConceptSearchResults = () => {
   const {
-    query, conceptPages, totalConcepts, perPage, currentPage, pageCount, typeFilter,
-    isLoadingConcepts, error, layout, setLayout, setCurrentPage, setSelectedResult } = useHelxSearch()
-  const { basePath } = useEnvironment()
-  const { analyticsEvents } = useAnalytics()
+    query, conceptPages, perPage, currentPage, pageCount, typeFilter,
+    isLoadingConcepts, error, layout, setCurrentPage, setSelectedResult } = useHelxSearch()
   const { md } = useBreakpoint();
   // const [isScrollable, ref, node] = useIsScrollable([conceptPages], document.querySelector('#root'))
 
@@ -46,31 +35,16 @@ export const ConceptSearchResults = () => {
     }
 }, [node, isScrollable, hasMore])*/
 
-  const NotifyLinkCopied = useCallback(() => {
-    notification.open({ key: 'key', message: 'Link copied to clipboard' })
-    navigator.clipboard.writeText(window.location.href)
-    analyticsEvents.searchURLCopied(query)
-  }, [analyticsEvents])
-
-  const handleChangeLayout = useCallback((event) => {
-    const newLayout = event.target.value;
-    setLayout(newLayout)
-    // Only track when layout changes
-    if (layout !== newLayout) {
-      analyticsEvents.searchLayoutChanged(query, newLayout, layout)
-    }
-  }, [layout, analyticsEvents])
-
   let gridClass = 'results-list'
   switch (layout) {
     case SearchLayout.GRID:
-      gridClass += ' ' + 'grid'
+      gridClass += ' grid'
       break;
     case SearchLayout.LIST:
-      gridClass += ' ' + 'list'
+      gridClass += ' list'
       break;
     case SearchLayout.EXPANDED_RESULT:
-      gridClass += ' ' + 'expanded-result'
+      gridClass += ' expanded-result'
       break;
   }
   gridClass += md ? " md" : ""

@@ -1,10 +1,8 @@
-import { Fragment, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useEffect, useRef, useMemo, useCallback } from 'react'
 import { Grid, Space, Spin, Tooltip, Typography } from 'antd'
 import { ArrowRightOutlined, LeftOutlined, RightOutlined, MoreOutlined } from '@ant-design/icons'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { ResultsHeader } from '..'
-import { ConceptCard, PaginationTray, SearchForm, useHelxSearch } from "../.."
-import { useIsScrollable } from "../../../../hooks"
+import { ConceptCard, useHelxSearch } from "../.."
 import classNames from 'classnames'
 import "./expanded-results-sidebar.css"
 
