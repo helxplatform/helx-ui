@@ -5,19 +5,21 @@ import { ConceptModalBody, useHelxSearch } from "../.."
 
 const { useBreakpoint } = Grid
 
-export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
-    const { selectedResult } = useHelxSearch()
+const MobileWrapper = ({ expanded, children }) => {
     const { md } = useBreakpoint()
 
-    const MobileWrapper = ({ children }) => !md && expanded ? (
+    if (!md && expanded) return (
         <div style={{ display: "none", overflow: "hidden" }}>
             {children}
         </div>
-    ) : (
-        <Fragment>{children}</Fragment>
     )
+    else return <Fragment>{children}</Fragment>
+}
+
+export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
+    const { selectedResult } = useHelxSearch()
     if (selectedResult) return (
-        <MobileWrapper>
+        <MobileWrapper expanded={expanded}>
             <Card
                 className="expanded-result-container"
                 title={ `${ selectedResult.name } (${ selectedResult.type })` }
@@ -31,7 +33,7 @@ export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
         </MobileWrapper>
     )
     else return (
-        <MobileWrapper>
+        <MobileWrapper expanded={expanded}>
             <div className="" style={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
                 <Empty description="Please select a concept from the drawer to view it in detail." />
             </div>
