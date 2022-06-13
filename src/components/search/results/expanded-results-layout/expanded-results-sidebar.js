@@ -2,8 +2,9 @@ import { useEffect, useRef, useMemo, useCallback } from 'react'
 import { Grid, Space, Spin, Tooltip, Typography } from 'antd'
 import { ArrowRightOutlined, LeftOutlined, RightOutlined, MoreOutlined } from '@ant-design/icons'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { ConceptCard, useHelxSearch } from "../.."
 import classNames from 'classnames'
+import { ConceptCard, useHelxSearch } from "../.."
+import { BackTop } from '../../../layout'
 import "./expanded-results-sidebar.css"
 
 
@@ -109,6 +110,10 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                                 }
                             </div>
                         </InfiniteScroll>
+                        <BackTop
+                            target={ () => document.querySelector("#expandedResultScroller") }
+                            style={{ position: "absolute", top: "16px", left: "16px" }}
+                        />
                         
                     </div>
                 </div>

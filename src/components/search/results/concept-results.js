@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo, useCallback } from 'react'
-import { Spin, Grid as AntGrid, Typography, BackTop } from 'antd'
-import { ArrowUpOutlined } from '@ant-design/icons'
+import { Spin, Grid as AntGrid, Typography } from 'antd'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { BackTop } from '../../layout'
 import { ResultsHeader } from './'
 import { ConceptCard, useHelxSearch, SearchLayout, ExpandedResultsLayout } from '../'
 import { SearchForm } from '../form'
@@ -101,14 +101,7 @@ export const ConceptSearchResults = () => {
               )
             }
           </div>
-          <BackTop style={{ bottom: md ? "32px" : "16px", right: md ? "32px" : "16px" }}>
-            <div className="ant-back-top-content" style={{
-              color: "#fff",
-              backgroundColor: "#1088e9"
-            }}>
-              <ArrowUpOutlined className="ant-back-top-icon" style={{ fontSize: "20px", marginTop: "2px" }} />
-            </div>
-          </BackTop>
+          <BackTop />
           </Fragment>
         )
       }
