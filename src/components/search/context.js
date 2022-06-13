@@ -1,10 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
+import { message } from 'antd'
 import { useEnvironment, useAnalytics } from '../../contexts'
-import './search.css'
 import { ConceptModal } from './'
 import { useLocalStorage } from '../../hooks/use-local-storage'
+import './search.css'
 
 //
 
@@ -98,11 +99,20 @@ export const HelxSearch = ({ children }) => {
   useEffect(() => {
     // this lets the user press backslash to jump focus to the search box
     const handleKeyPress = event => {
-      if (event.keyCode === 220) { // backslash ("\") key 
-        if (inputRef.current) {
-          event.preventDefault()
-          inputRef.current.select()
-          window.scroll({ top: 40 })
+      if (inputRef.current) {
+        const inputFocus = inputRef.current.input === document.activeElement
+        if (!inputFocus) {
+          if (event.key === "\\" || event.key === "/") {
+            event.preventDefault()
+            inputRef.current.focus()
+            // inputRef.current.select()
+            window.scroll({ top: 40 })
+          } else {
+            // Keypress with no associated function has been fired on the page.
+            // message.open({
+            //   content: `use "/" to focus the search box.`
+            // })
+          }
         }
       }
     }
