@@ -112,7 +112,16 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                         </InfiniteScroll>
                         <BackTop
                             target={ () => document.querySelector("#expandedResultScroller") }
-                            style={{ position: "absolute", top: "16px", left: "16px" }}
+                            style={{
+                                position: "absolute",
+                                ...(md ? {
+                                    top: "16px",
+                                    left: "16px"
+                                } : {
+                                    bottom: "8px",
+                                    right: "8px"
+                                })
+                            }}
                         />
                         
                     </div>
