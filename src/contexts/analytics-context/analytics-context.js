@@ -26,18 +26,14 @@ export const AnalyticsProvider = ({ children }) => {
         };
         switch (context.analytics.platform) {
             case "mixpanel":
-                analytics = new MixPanelAnalytics({ projectToken : mixpanel_token }, globalEventParameters);
+                if (mixpanel_token) analytics = new MixPanelAnalytics({ projectToken : mixpanel_token }, globalEventParameters);
                 break;
             case "google_analytics":
-                analytics = new GAAnalytics({ trackingId: ga_property }, globalEventParameters);
-                break;
-            default:
-                analytics = new NoAnalytics();
+                if (ga_property) analytics = new GAAnalytics({ trackingId: ga_property }, globalEventParameters);
                 break;
         }
-    } else {
-        analytics = new NoAnalytics();
     }
+    if (!analytics) analytics = new NoAnalytics();
     const analyticsEvents = new AnalyticsEvents(analytics);
     return (
         <AnalyticsContext.Provider value={{
