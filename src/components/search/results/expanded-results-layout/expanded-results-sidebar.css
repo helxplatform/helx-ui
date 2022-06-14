@@ -80,7 +80,7 @@
     margin-right: -8px;
 } */
 .results-sidebar.minimized .results-list-container {
-    width: 30px;
+    width: 32px;
 }
 .results-sidebar.minimized .infinite-scroll-component__outerdiv {
     height: 100%;
@@ -93,9 +93,9 @@
 .results-sidebar.minimized .results-list {
     position: absolute;
 }
-.results-sidebar.minimized .results-list > * {
-    /* The minimized results container is fixed at 30px, so translate the cards such that their right boundaries are touching the right boundary of the container. */
-    transform: translateX(calc(-100% + 30px));
+.results-sidebar.minimized .results-list {
+    /* The minimized results container is fixed at 32px, so translate the cards such that their right boundaries are touching the right boundary of the container. */
+    transform: translateX(calc(-100% + 32px));
 }
 
 .expanded-result-option-concept-card {

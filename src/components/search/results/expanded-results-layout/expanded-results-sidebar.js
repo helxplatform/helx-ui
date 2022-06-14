@@ -9,7 +9,13 @@ import "./expanded-results-sidebar.css"
 
 
 const { Text, Link } = Typography
-const { useBreakpoint } = Grid 
+const { useBreakpoint } = Grid
+
+const AnimatedDiv = ({ show, children, ...props }) => (
+    <div {...props}>
+        {children}
+    </div>
+)
 
 export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
     const {
@@ -114,13 +120,20 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                             target={ () => document.querySelector("#expandedResultScroller") }
                             style={{
                                 position: "absolute",
-                                ...(md ? {
-                                    top: "16px",
-                                    left: "16px"
-                                } : {
-                                    bottom: "8px",
-                                    right: "8px"
-                                })
+                                ...(md ? (
+                                        expanded ? {
+                                            top: "16px",
+                                            left: "16px"
+                                        } : {
+                                            display: "none",
+                                            bottom: "8px",
+                                            right: "8px"
+                                        }
+                                    ) : {
+                                        bottom: "8px",
+                                        right: "8px"
+                                    }
+                                )
                             }}
                         />
                         

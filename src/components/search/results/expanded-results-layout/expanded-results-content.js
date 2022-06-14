@@ -1,6 +1,6 @@
 import { Fragment } from "react"
 import { Button, Card, Empty, Grid } from "antd"
-import { CloseOutlined } from "@ant-design/icons"
+import { CloseOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons"
 import { ConceptModalBody, useHelxSearch } from "../.."
 
 const { useBreakpoint } = Grid
@@ -27,6 +27,15 @@ export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
                     // <Button icon={ <CompressOutlined /> } type="text" style={{ marginRight: "12px" }} />,
                     <Button icon={ <CloseOutlined /> } type="text" onClick={ closeSelected } />
                 ]}
+                // Disabled for now, may be useful some time in the future to have this sort of functionality.
+                actions={false && [
+                    <Fragment>
+                        <Button style={{ float: "left", marginLeft: "16px" }}><LeftOutlined /> Prev</Button>
+                        <Button style={{ float: "right", marginRight: "16px" }}>Next <RightOutlined /></Button>
+                    </Fragment>
+                ]}
+                style={{ display: "flex", flexDirection: "column" }}
+                bodyStyle={{ flexGrow: 1 }}
             >
                 <ConceptModalBody result={ selectedResult } />
             </Card>
