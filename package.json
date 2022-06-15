@@ -1,6 +1,6 @@
 {
   "name": "helx-ui",
-  "version": "2.0.0-dev.13",
+  "version": "2.0.0-dev.14",
   "private": true,
   "homepage": "/static/frontend",
   "dependencies": {
@@ -8,13 +8,14 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "antd": "^4.20.5",
+    "antd": "^4.20.6",
     "axios": "^0.21.1",
     "classnames": "^2.3.1",
     "eslint": "^7.27.0",
     "helx-analytics": "^1.0.14",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-scripts": "4.0.3",
     "styled-components": "^5.3.0",
     "timeago-react": "^3.0.2",

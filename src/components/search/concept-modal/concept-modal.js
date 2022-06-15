@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Button, Menu, Modal, Space } from 'antd'
-import './concept-modal.css'
-import { useHelxSearch } from '../'
-import CustomIcon, {
+import { Menu, Modal, Space, Button } from 'antd'
+import {
   InfoCircleOutlined as OverviewIcon,
   BookOutlined as StudiesIcon,
   ShareAltOutlined as KnowledgeGraphsIcon,
@@ -11,9 +9,11 @@ import CustomIcon, {
   ExportOutlined as ExternalLinkIcon,
   FullscreenOutlined as FullscreenLayoutIcon
 } from '@ant-design/icons'
-import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
-import { useAnalytics, useEnvironment } from '../../../contexts'
+import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
+import { useHelxSearch } from '../'
 import { SearchLayout } from '../context'
+import { useAnalytics, useEnvironment } from '../../../contexts'
+import './concept-modal.css'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 

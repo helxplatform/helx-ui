@@ -12,17 +12,7 @@
 }
 
 .mobile-menu-toggle {
-    display: none;
+    display: block;
     right: 10px;
     position: absolute;
 }
-
-@media screen and (max-width: 767px) {
-    .mobile-menu-toggle {
-        display: block;
-    }
-    .menu-toggle {
-        display: none;
-    }
-}
-

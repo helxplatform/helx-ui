@@ -1,17 +1,16 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Divider, Typography, Grid } from 'antd'
-import { SearchForm, SearchLayout, useHelxSearch } from '../..'
+import { Divider, Grid, Spin } from 'antd'
+import { SearchForm, useHelxSearch } from '../..'
 import { ExpandedResultsSidebar } from './expanded-results-sidebar'
 import { ExpandedResultsContent } from './expanded-results-content'
 import { ResultsHeader } from '..'
 import classNames from 'classnames'
 import './expanded-results-layout.css'
 
-const { Text, Paragraph, Title, Link } = Typography
 const { useBreakpoint } = Grid
 
 export const ExpandedResultsLayout = () => {
-    const { selectedResult, setSelectedResult, setLayout, concepts, totalConcepts } = useHelxSearch()
+    const { selectedResult, setSelectedResult, concepts, totalConcepts, isLoadingConcepts, query } = useHelxSearch()
     const { md } = useBreakpoint()
 
     const [expanded, setExpanded] = useState(true)
@@ -21,13 +20,20 @@ export const ExpandedResultsLayout = () => {
             // If the result isn't null, it indicates a "redirect" to this layout with an active result already selected.
             setExpanded(false)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(() => {
+        // When a new search is executed, the layout should automatically be expanded to view the new results.
+        setExpanded(true)
+    }, [query])
 
     useEffect(() => {
         if (!md && selectedResult) {
             // Mobile display and a result was selected
             setExpanded(false)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedResult])
 
     const closeSelected = () => {
@@ -39,9 +45,12 @@ export const ExpandedResultsLayout = () => {
         <div className={classNames("expanded-results-layout", !md && "mobile")}>
             <div className="expanded-results-upper-container">
                 <SearchForm type={totalConcepts ? "minimal" : "full"} />
-                <ResultsHeader style={{ display: concepts.length > 0 ? undefined : "none" }} />
+                <ResultsHeader concepts={concepts} style={{ display: totalConcepts > 0 ? undefined : "none" }} />
             </div>
-            {concepts.length > 0 && (
+            {isLoadingConcepts && totalConcepts === 0 && (
+                <Spin style={{ display: 'block', margin: '4rem', flexGrow: 1 }} />
+            )}
+            {totalConcepts > 0 && (
                 <Fragment>
                     { md && <Divider style={{ marginBottom: 0 }} /> }
                     <div className="expanded-results-lower-container">

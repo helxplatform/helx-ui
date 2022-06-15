@@ -1,19 +1,14 @@
 import { Fragment, useState, useEffect, forwardRef } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from '../../link'
-import { Card, List, Space, Tag, Typography } from 'antd'
+import { Card } from 'antd'
 import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
-import { KnowledgeGraphs, useHelxSearch } from '../'
+import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
 import { useAnalytics } from '../../../contexts'
 import classNames from 'classnames'
 import './concept-card.css'
-
-const { Meta } = Card
-const { CheckableTag: CheckableFacet } = Tag
-const { Text } = Typography
 
 export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
   const { analyticsEvents } = useAnalytics()

@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState } from 'react'
-import { useEnvironment } from './environment-context';
+import { createContext, useContext, useState } from 'react'
 
 export const ActivityContext = createContext({});
 
