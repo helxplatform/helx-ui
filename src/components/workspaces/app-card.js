@@ -4,8 +4,8 @@ import { useApp } from '../../contexts/app-context';
 import { Link, navigate } from '@reach/router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
-import './app-card.css';
 import { useActivity, useInstance, useAnalytics } from "../../contexts";
+import './app-card.css';
 
 const { Meta } = Card;
 
@@ -23,10 +23,10 @@ const validateLocalstorageValue = (config, app_id, min, max) => {
 export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources, available }) => {
     const { launchApp } = useApp();
     const { addActivity } = useActivity();
-    const { analytics, analyticsEvents } = useAnalytics();
+    const { analyticsEvents } = useAnalytics();
     const [launchTab, setLaunchTab] = useState(true);
     const [isLaunching, setLaunching] = useState(false);
-    const { pollingInstance, addOrDeleteInstanceTab } = useInstance();
+    const { pollingInstance } = useInstance();
     const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
     const [currentCpu, setCpu] = useState(validateLocalstorageValue('cpu', app_id, minimum_resources.cpus, maximum_resources.cpus));
     const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpus, maximum_resources.gpus));
@@ -51,8 +51,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                 }
                 analyticsEvents.appLaunched(name, sid, currentCpu, currentGpu, currentMemory, false)
                 addActivity(newActivity)
+                // start polling service and navigate to active tab if the launch is successful
                 pollingInstance(app_id, sid, res.data.url, name);
-                // navigate to active tab when a launch is successful
                 navigate('/helx/workspaces/active');
             }).catch(e => {
                 let newActivity = {
@@ -66,6 +66,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                 analyticsEvents.appLaunched(name, null, currentCpu, currentGpu, currentMemory, true)
                 addActivity(newActivity)
             })
+            
+        // store user's preference of each app configuration in localStorage
         localStorage.setItem(`${app_id}-cpu`, currentCpu);
         localStorage.setItem(`${app_id}-gpu`, currentGpu);
         localStorage.setItem(`${app_id}-memory`, currentMemory);
@@ -73,7 +75,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     }
 
     const getLogoUrl = (app_id) => {
-        return `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${app_id}/icon.png`
+        return `https://github.com/helxplatform/helx-apps/raw/master/app-specs/${app_id}/icon.png`
     }
 
     return (

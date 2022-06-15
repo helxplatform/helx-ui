@@ -3,6 +3,8 @@ import { Spin } from "antd";
 
 import { useEffect, useState } from 'react';
 
+// This view is used when the UI is checking the readiness of an instance
+
 export const SplashScreenView = (props) => {
     const header = document.getElementById('helx-header');
     const sidePanel = document.getElementById('helx-side-panel');
@@ -13,12 +15,12 @@ export const SplashScreenView = (props) => {
     const [count, setCount] = useState(0);
 
     const decoded_url = decodeURIComponent(props.app_url);
-    const app_icon = `https://github.com/helxplatform/app-support-prototype/raw/master/dockstore-yaml-proposals/${props.app_name}/icon.png`
+    const app_icon = `https://github.com/helxplatform/helx-apps/raw/master/app-specs/${props.app_name}/icon.png`
 
     const getUrl = async () => {
         await axios.get(decoded_url)
             .then(response => {
-                if (response.status == 200) {
+                if (response.status === 200) {
                     setLoading(false);
                     setStatusCode("200");
                 }
@@ -34,7 +36,7 @@ export const SplashScreenView = (props) => {
             const callGetUrl = async () => {
                 await getUrl();
             }
-            if (statusCode != "200") {
+            if (statusCode !== "200") {
                 callGetUrl();
             }
         }

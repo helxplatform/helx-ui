@@ -47,7 +47,8 @@ export const SidePanel = () => {
                     <div>
                         <Tag icon={this_activity['status'] === 'processing' ? <SyncOutlined spin /> : (this_activity['status'] === 'success' ? <CheckCircleOutlined /> : <CloseCircleOutlined />)} color={this_activity['status']}>{this_activity['status']}</Tag>
                         <span><TimeAgo datetime={this_activity['timestamp']} /></span>
-                        <div>{this_activity['url'] ? <span><a onClick={() => openApp(this_activity['sid'], this_activity['app_id'], this_activity['url'])}>{this_activity['app_name']}</a> is up and ready for use.</span> : this_activity['message']}</div>
+                        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                        <div>{this_activity['url'] ? <span><a role="button" onClick={() => openApp(this_activity['sid'], this_activity['app_id'], this_activity['url'])}>{this_activity['app_name']}</a> is up and ready for use.</span> : this_activity['message']}</div>
                         <hr />
                     </div>
                 ) : <span>No activity</span>

@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row, Popconfirm } from 'antd';
+import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row } from 'antd';
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
@@ -54,7 +54,7 @@ export const ActiveView = () => {
             setLoading(false);
         }
         renderInstance();
-    }, [refresh])
+    }, [refresh, loadInstances])
 
     useEffect(() => {
         // load all app configuration for input validation
@@ -71,9 +71,10 @@ export const ActiveView = () => {
         if (instances && instances.length === 0) setTimeout(() => navigate('/helx/workspaces/available'), 1000)
         else loadAppsConfig();
 
-    }, [instances])
+    }, [instances, loadApps])
 
     const stopInstanceHandler = async () => {
+        // besides making requests to delete the instance, close its browser tab and stop polling service
         setIsStopping(true);
         addOrDeleteInstanceTab("close", currentRecord.sid);
         stopPolling(currentRecord.sid)
@@ -98,6 +99,7 @@ export const ActiveView = () => {
                     'timestamp': new Date(),
                     'message': ``
                 }
+                // catch error and update instance activity
                 switch (e.response.status) {
                     case 403: {
                         newActivity['status'] = 'error'
@@ -122,6 +124,7 @@ export const ActiveView = () => {
         setIsStopping(false);
     }
 
+    // stop all instances
     const stopAllInstanceHandler = async () => {
         setIsStoppingAll(true);
         for (let this_app of instances) {
@@ -228,6 +231,8 @@ export const ActiveView = () => {
         setStopModalVisibility(true);
     }
 
+
+    // config for the instance table
     const columns = [
         {
             title: 'App Name',

@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react'
-import { Menu, Modal, Space } from 'antd'
-import './concept-modal.css'
-import { useHelxSearch } from '../'
-import CustomIcon, {
+import { Menu, Modal, Space, Button } from 'antd'
+import {
   InfoCircleOutlined as OverviewIcon,
   BookOutlined as StudiesIcon,
   ShareAltOutlined as KnowledgeGraphsIcon,
-  CodeOutlined as TranQLIcon,
-  PlayCircleOutlined as RobokopIcon,
-  ExportOutlined as ExternalLinkIcon
+  ConsoleSqlOutlined as TranQLIcon,
+  RobotOutlined as RobokopIcon,
+  ExportOutlined as ExternalLinkIcon,
+  FullscreenOutlined as FullscreenLayoutIcon
 } from '@ant-design/icons'
-import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
+import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
+import { useHelxSearch } from '../'
+import { SearchLayout } from '../context'
 import { useAnalytics, useEnvironment } from '../../../contexts'
+import './concept-modal.css'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
-export const ConceptModal = ({ result, visible, closeHandler }) => {
+export const ConceptModalBody = ({ result }) => {
   const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
@@ -69,6 +71,58 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
     getKgs()
   }, [fetchKnowledgeGraphs, fetchStudyVariables, result, query])
 
+  return (
+    <Space align="start" className="concept-modal-body">
+      <Menu
+        defaultSelectedKeys={ ['overview'] }
+        mode="inline"
+        theme="light"
+        selectedKeys={ [currentTab] }
+      >
+        {
+          Object.keys(tabs).map(key => (
+            <Menu.Item className="tab-menu-item" key={ key } onClick={ () => setCurrentTab(key) }>
+              <span className="tab-icon">{ tabs[key].icon }</span> &nbsp; <span className="tab-name">{ tabs[key].title }</span>
+            </Menu.Item>
+          ))
+        }
+        {Object.keys(links).length !== 0 && <Menu.Divider/>}
+        {
+          Object.keys(links).map(key => (
+            <Menu.Item className="tab-menu-item" key={ key } onClick={null}>
+              <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
+                <span className="tab-icon">{ links[key].icon || <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
+              </a>
+            </Menu.Item>
+          ))
+        }
+      </Menu>
+      <div className="modal-content-container" children={ tabs[currentTab].content } />
+    </Space>
+  )
+}
+
+export const ConceptModal = ({ result, visible, closeHandler }) => {
+  const { setFullscreenResult } = useHelxSearch()
+  const [doFullscreen, setDoFullscreen] = useState(null)
+
+  /**
+   * Essentially peforming the same thing as what a this.setState call using a callback would do.
+   * Need to render the modal as closed for one render in order for the modal to actually close
+   * before redirecting to the fullscreen layout.
+   */
+  useEffect(() => {
+    if (doFullscreen !== null) {
+      setFullscreenResult(doFullscreen)
+      setDoFullscreen(null)
+    }
+  }, [doFullscreen])
+
+  const openFullscreen = () => {
+    setDoFullscreen(result)
+    closeHandler()
+  }
+
   if (!result) {
     return null
   }
@@ -84,34 +138,14 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
       style={{ top: 135 }}
       bodyStyle={{ padding: `0`, minHeight: `50vh` }}
       cancelButtonProps={{ hidden: true }}
+      footer={(
+        <Space style={{ justifyContent: "flex-end" }}>
+          <Button type="ghost" onClick={ openFullscreen }>Fullscreen</Button>
+          <Button type="primary" onClick={ closeHandler }>Close</Button>
+        </Space>
+      )}
     >
-      <Space direction="horizontal" align="start">
-        <Menu
-          defaultSelectedKeys={ ['overview'] }
-          mode="inline"
-          theme="light"
-          selectedKeys={ [currentTab] }
-        >
-          {
-            Object.keys(tabs).map(key => (
-              <Menu.Item className="tab-menu-item" key={ key } onClick={ () => setCurrentTab(key) }>
-                <span className="tab-icon">{ tabs[key].icon }</span> &nbsp; <span className="tab-name">{ tabs[key].title }</span>
-              </Menu.Item>
-            ))
-          }
-          {Object.keys(links).length !== 0 && <Menu.Divider/>}
-          {
-            Object.keys(links).map(key => (
-              <Menu.Item className="tab-menu-item" key={ key } onClick={null}>
-                <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
-                  <span className="tab-icon">{ <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
-                </a>
-              </Menu.Item>
-            ))
-          }
-        </Menu>
-        <div className="modal-content-container" children={ tabs[currentTab].content } />
-      </Space>
+      <ConceptModalBody result={ result } />
     </Modal>
   )
 }

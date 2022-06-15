@@ -30,20 +30,28 @@ const Router = () => {
 
   // Component mount
   useEffect(() => {
-    globalHistory.listen(({ location }) => {
+    const unlisten = globalHistory.listen(({ location }) => {
       analyticsEvents.trackLocation(location);
     });
-    // Track the initial location on page load (not captured in `globalHistory.listen`).
-    analyticsEvents.trackLocation(location);
+    return () => {
+      unlisten()
+    }
+  }, [analyticsEvents]);
 
-    // Component unmount
+  useEffect(() => {
     return () => {
       analytics.teardown();
     }
-  }, []);
+  }, [analytics])
+
+  useEffect(() => {
+    // Track the initial location on page load (not captured in `globalHistory.listen`).
+    analyticsEvents.trackLocation(location);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
-    <ReachRouter basepath={baseRouterPath}>
+    <ReachRouter basepath={baseRouterPath} className="routing-container">
       {routes !== undefined && routes.map(({ path, text, Component }) => <Component key={path} path={path}></Component>)}
       <NotFoundView default />
     </ReachRouter>

@@ -1,28 +1,17 @@
-import React, { Fragment, useCallback, useMemo, useState, useRef } from 'react'
-import ReactDOM from 'react-dom'
-import axios from 'axios'
-import { Button, Divider, Input, Spin, Space, Typography } from 'antd'
-import { useHelxSearch } from '../../../'
+import React, { Fragment, useMemo, useState, useRef } from 'react'
+import { Spin, Space, Typography } from 'antd'
 import { useAnalytics, useEnvironment } from '../../../../../contexts'
 import { Link } from '../../../../link'
-import { RocketOutlined as QueryIcon } from '@ant-design/icons'
-import { useDebounce } from 'use-debounce'
 import './tranql.css'
 
-axios.defaults.timeout = 30000
-
 const { Text, Title } = Typography
-const { TextArea } = Input
 
 const TRANQL_RESULT_LIMIT = 100;
 
 export const TranQLTab = ({ result, graphs }) => {
   const { analyticsEvents } = useAnalytics()
   const { context } = useEnvironment()
-  const { query } = useHelxSearch()
   const tranqlUrl = context.tranql_url
-
-  const robokopUrl = "https://robokop.renci.org"
 
   const trackLink = (name, url) => analyticsEvents.tranqlLinkClicked(name, url)
 
@@ -30,14 +19,11 @@ export const TranQLTab = ({ result, graphs }) => {
     const tranqlQueries = graphs.map(({ knowledge_graph, question_graph, knowledge_map }) => {
       // Each question_graph has one edge and two nodes.
       const [ edge ] = question_graph.edges
-      const [ n1, n2 ] = question_graph.nodes
+      // const [ n1, n2 ] = question_graph.nodes
       const boundNodes = question_graph.nodes.filter((n) => n.hasOwnProperty("curie"))
 
-      const findKGNode = (curie) => knowledge_graph.nodes.find((n) => n.id === curie);
       const getQGNodeIdentifier = (n) => {
         return n.curie;
-        /* Returns the English name of the curie */
-        // return findKGNode(n.curie[0]).name;
       }
 
       const SELECT = `SELECT ${edge.source_id}->${edge.target_id}`
@@ -60,18 +46,13 @@ export const TranQLTab = ({ result, graphs }) => {
     return tranqlQueries[0]
   }
 
-  const initialTranqlQuery = useMemo(makeTranqlQuery, [result, graphs])
-  const [tranqlQuery, setTranqlQuery] = useState(initialTranqlQuery)
-  const tranqlQueryUrl = useMemo(() => `${tranqlUrl}?q=${encodeURIComponent(tranqlQuery)}`, [tranqlQuery])
+  const tranqlQuery = useMemo(makeTranqlQuery, [graphs])
+  const tranqlQueryUrl = useMemo(() => `${tranqlUrl}?q=${encodeURIComponent(tranqlQuery)}`, [tranqlUrl, tranqlQuery])
   // const [debouncedQuery] = useDebounce(tranqlQuery, 250)
 
   const [iframeLoading, setIframeLoading] = useState(true)
 
   const tranqlIframe = useRef(null);
-
-  const handleChangeTranqlQuery = event => {
-    setTranqlQuery(event.target.value)
-  }
 
   if (tranqlQuery === undefined) return (
     <Fragment>
@@ -93,6 +74,7 @@ export const TranQLTab = ({ result, graphs }) => {
           <div style={{position: "relative", visibility: iframeLoading ? "hidden": "visible"}}>
             <iframe src={`${tranqlUrl}?embed=FULL&use_last_view&q=${encodeURIComponent(tranqlQuery)}`}
                     height="500"
+                    title="TranQL"
                     ref={tranqlIframe}
                     onLoad={() => setIframeLoading(false)}
                     style={{borderWidth: "0", width: "100%"}}

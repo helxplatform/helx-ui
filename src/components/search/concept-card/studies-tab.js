@@ -32,7 +32,7 @@ export const StudiesTab = ({ result }) => {
       setLoading(false)
     }
     getVars()
-  }, [fetchStudyVariables])
+  }, [fetchStudyVariables, query, result.id])
 
   if (loading) {
     return <Spin />
