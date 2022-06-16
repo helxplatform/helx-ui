@@ -47,8 +47,9 @@ export const HelxSearch = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
-  const [selectedResult, setSelectedResult] = useState(null)
+  const [selectedResult, _setSelectedResult] = useState(null)
   const [typeFilter, setTypeFilter] = useState(null)
+  const [breadcrumbs, setBreadcrumbs] = useState([])
   const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.GRID)
 
   const inputRef = useRef()
@@ -79,6 +80,35 @@ export const HelxSearch = ({ children }) => {
     else return filteredConceptPages[currentPage]
   }, [filteredConceptPages, currentPage])
   
+  const setSelectedResult = (result, fromBreadcrumb=false) => {
+    if (result && !fromBreadcrumb) {
+      const activeBreadcrumb = breadcrumbs[breadcrumbs.length - 1]
+      // Add it to the current breadcrumb's children
+      if (!activeBreadcrumb.children.find((x) => x === result)) setBreadcrumbs([
+        ...breadcrumbs.slice(0, -1),
+        {
+          ...activeBreadcrumb,
+          children: [
+            ...activeBreadcrumb.children,
+            result
+          ]
+        }
+      ])
+    }
+    _setSelectedResult(result)
+  }
+
+  const addBreadcrumb = (result) => {
+    setBreadcrumbs([ ...breadcrumbs, result ])
+  }
+
+  const goToBreadcrumb = (result) => {
+    // Jump to a specific breadcrumb in the history.
+    const resultIndex = breadcrumbs.indexOf(result)
+    if (resultIndex !== -1) setBreadcrumbs(breadcrumbs.slice(0, resultIndex + 1))
+    else console.error("Could not find breadcrumb for result:", result)
+  }
+
   const setLayout = (newLayout) => {
     // Only track when layout changes
     if (layout !== newLayout) {
@@ -178,6 +208,10 @@ export const HelxSearch = ({ children }) => {
           setTotalConcepts(response.data.result.total_items)
           // setConcepts(hits.valid)
           setIsLoadingConcepts(false)
+          addBreadcrumb({
+            parent: query,
+            children: []
+          })
           analyticsEvents.searchExecuted(query, Date.now() - startTime, response.data.result.total_items)
         } else {
           const newConceptPages = { ...conceptPages }
@@ -259,7 +293,9 @@ export const HelxSearch = ({ children }) => {
       selectedResult, setSelectedResult,
       layout, setLayout, setFullscreenResult,
       typeFilter, setTypeFilter,
-      conceptTypes, conceptTypeCounts
+      conceptTypes, conceptTypeCounts,
+      breadcrumbs, addBreadcrumb, goToBreadcrumb
+      // breadcrumbs: breadcrumbs.filter((x) => x !== null), addBreadcrumb, goToBreadcrumb
     }}>
       { children }
       <ConceptModal

@@ -2,7 +2,7 @@ import React, { Fragment, useMemo, useCallback } from 'react'
 import { Spin, Grid as AntGrid, Typography } from 'antd'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { BackTop } from '../../layout'
-import { ResultsHeader } from './'
+import { ResultsHeader, SearchBreadcrumbs } from './'
 import { ConceptCard, useHelxSearch, SearchLayout, ExpandedResultsLayout } from '../'
 import { SearchForm } from '../form'
 import './concept-results.css'
@@ -12,8 +12,9 @@ const { useBreakpoint } = AntGrid
 
 export const ConceptSearchResults = () => {
   const {
-    query, conceptPages, perPage, currentPage, pageCount, typeFilter,
-    isLoadingConcepts, error, layout, setCurrentPage, setSelectedResult } = useHelxSearch()
+    query, conceptPages, perPage, currentPage, pageCount,
+    typeFilter, isLoadingConcepts, error, layout,
+    setCurrentPage, setSelectedResult } = useHelxSearch()
   const { md } = useBreakpoint();
   // const [isScrollable, ref, node] = useIsScrollable([conceptPages], document.querySelector('#root'))
 
@@ -65,6 +66,7 @@ export const ConceptSearchResults = () => {
           <Fragment>
           <div className="results" style={{ flexGrow: 1 }}>
             {concepts.length > 0 && <ResultsHeader concepts={concepts}/>}
+            <SearchBreadcrumbs />
             <InfiniteScroll
               dataLength={concepts.length}
               next={getNextPage}
