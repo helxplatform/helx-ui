@@ -1,31 +1,36 @@
 import { useMemo } from "react"
 import { Breadcrumb, Menu } from "antd"
 import { useHelxSearch } from "../../"
+import "./search-breadcrumbs.css"
 
 export const SearchBreadcrumbs = ({}) => {
-    const { breadcrumbs, goToBreadcrumb, setSelectedResult } = useHelxSearch()
+    const { breadcrumbs, goToBreadcrumb, setSelectedResult, query } = useHelxSearch()
 
     const searchCrumbs = useMemo(() => (
         // The Breadcrumb component doesn't support custom components, children *have* to be Breadcrumb.Item.
         breadcrumbs.map((crumb, i) => {
             const { parent, children } = crumb
-            const isLastCrumb = i === breadcrumbs.length - 1
-            if (children.length === 0) {
-                if (isLastCrumb) return (
-                    <Breadcrumb.Item>
-                        <span>
-                            {parent}
-                        </span>
-                    </Breadcrumb.Item>
-                )
-                else return (
-                    <Breadcrumb.Item>
-                        <a role="button" onClick={() => null}>
-                            {parent}
-                        </a>
-                    </Breadcrumb.Item>
-                )
+            const isActiveCrumb = parent === query
+            let body
+            if (isActiveCrumb) body = (
+                <span>
+                    {parent}
+                </span>
+            )
+            else body = (
+                <a role="button" onClick={() => goToBreadcrumb(crumb)}>
+                    {parent}
+                </a>
+            )
+            const props = {
+                className: `ant-breadcrumb-link ${isActiveCrumb ? "active-crumb" : ""}`,
+                key: parent
             }
+            if (children.length === 0) return (
+                <Breadcrumb.Item {...props}>
+                    {body}
+                </Breadcrumb.Item>
+            )
             return (
                 <Breadcrumb.Item
                     overlay={(
@@ -35,8 +40,8 @@ export const SearchBreadcrumbs = ({}) => {
                                 return {
                                     key: crumbResult.id,
                                     label: (
-                                        <a role="button" onClick={() => setSelectedResult(crumbResult)}>
-                                            {crumbResult.name}{hasDuplicates && ` (${crumbResult.type})`}
+                                        <a role="button" onClick={() => setSelectedResult(crumbResult, true)}>
+                                            {crumbResult.name}{hasDuplicates || true && ` (${crumbResult.type})`}
                                         </a>
                                     )
                                 }
@@ -46,18 +51,19 @@ export const SearchBreadcrumbs = ({}) => {
                     dropdownProps={{
                         placement: "bottomLeft"
                     }}
+                    {...props}
                 >
-                    {parent}
+                    {body}
                 </Breadcrumb.Item>
             )
         })
-    ), [breadcrumbs])
+    ), [breadcrumbs, query])
 
-    if (breadcrumbs.length < 1) {
+    if (breadcrumbs.length <= 1) {
         return null
     }
     return (
-        <Breadcrumb separator=">" style={{ marginBottom: "16px" }}>
+        <Breadcrumb separator="/" className="search-breadcrumbs" style={{ marginBottom: "16px" }}>
             {searchCrumbs}
         </Breadcrumb>
     )

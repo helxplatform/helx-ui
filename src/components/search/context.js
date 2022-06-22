@@ -105,7 +105,10 @@ export const HelxSearch = ({ children }) => {
   const goToBreadcrumb = (result) => {
     // Jump to a specific breadcrumb in the history.
     const resultIndex = breadcrumbs.indexOf(result)
-    if (resultIndex !== -1) setBreadcrumbs(breadcrumbs.slice(0, resultIndex + 1))
+    if (resultIndex !== -1) {
+      setBreadcrumbs(breadcrumbs.slice(0, resultIndex + 1))
+      setQuery(result.parent)
+    }
     else console.error("Could not find breadcrumb for result:", result)
   }
 
@@ -208,7 +211,8 @@ export const HelxSearch = ({ children }) => {
           setTotalConcepts(response.data.result.total_items)
           // setConcepts(hits.valid)
           setIsLoadingConcepts(false)
-          addBreadcrumb({
+          const existingCrumb = breadcrumbs.find((crumb) => crumb.parent === query)
+          if (!existingCrumb) addBreadcrumb({
             parent: query,
             children: []
           })

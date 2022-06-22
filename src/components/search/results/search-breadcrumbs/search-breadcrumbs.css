@@ -1,0 +1,6 @@
+.search-breadcrumbs .ant-breadcrumb-link, .search-breadcrumbs .ant-breadcrumb-link a {
+    color: rgba(0, 0, 0, 0.45) !important;
+}
+.search-breadcrumbs .ant-breadcrumb-link.active-crumb {
+    color: rgba(0, 0, 0, 0.85) !important;
+}
