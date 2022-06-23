@@ -22,14 +22,16 @@ export const ConceptModalBody = ({ result }) => {
   const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
-  const { fetchKnowledgeGraphs, fetchStudyVariables, query } = useHelxSearch()
+  const { fetchKnowledgeGraphs, fetchStudyVariables, fetchCDEs, query } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studies, setStudies] = useState([])
+  const [cdes, setCdes] = useState(null)
+  const [cdeRelatedConcepts, setCdeRelatedConcepts] = useState(null)
 
   const tabs = {
     'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
     'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
-    'cdes':     { title: `CDEs`,                icon: <CdesIcon />,             content: <CdesTab /> },
+    'cdes':     { title: `CDEs`,                icon: <CdesIcon />,             content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } /> },
     'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
     'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> },
     // 'robokop':   { title: 'Robokop',            icon: <RobokopIcon/>,           content: <RobokopTab /> }
@@ -62,14 +64,65 @@ export const ConceptModalBody = ({ result }) => {
       return
     }
     const getVars = async () => {
-      const { result: data } = await fetchStudyVariables(result.id, query)
-      setStudies(data)
+      const data = await fetchStudyVariables(result.id, query)
+      setStudies(data.reduce((studies, study) => {
+        if (!studies.hasOwnProperty(study.type)) studies[study.type] = []
+        studies[study.type].push(study)
+        return studies
+      }, {}))
+    }
+    const getCdes = async () => {
+      const data = await fetchCDEs(result.id, query)
+      const loadRelatedConcepts = async (cdeId) => {
+        const formatCdeQuery = (conceptType) => {
+          return `\
+    SELECT publication-[mentions]->${conceptType}
+    FROM "/schema"
+    WHERE publication="${cdeId}"`
+        }
+        const tranqlUrl = context.tranql_api_url
+        const types = ['disease', 'anatomical_entity', 'phenotypic_feature', 'biological_process'] // add any others that you can think of, these are the main 4 found in heal results and supported by tranql
+        const kg = (await Promise.all(types.map(async (type) => {
+            const res = await fetch(
+                `${tranqlUrl}/tranql/query`,
+                {
+                    headers: { 'Content-Type': 'text/plain' },
+                    method: 'POST',
+                    body: formatCdeQuery(type)
+                }
+            )
+            const message = await res.json()
+            return message.message.knowledge_graph
+        }))).reduce((acc, kg) => ({
+            nodes: {
+                ...acc.nodes,
+                ...kg.nodes
+            },
+            edges: {
+                ...acc.edges,
+                ...kg.edges
+            }
+        }), {"nodes": {}, "edges": {}})
+        const cdeOutEdges = Object.values(kg.edges).filter((edge) => edge.subject ===  cdeId)
+        return cdeOutEdges.map(
+          (outEdge) =>
+            Object.entries(kg.nodes).find(([nodeId, node]) => nodeId === outEdge.object)[1]
+        )
+      }
+      const cdeIds = data.elements.map((cde) => cde.id)
+      const relatedConcepts = {}
+      await Promise.all(cdeIds.map(async (cdeId, i) => {
+        relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
+      }))
+      setCdes(data)
+      setCdeRelatedConcepts(relatedConcepts)
     }
     const getKgs = async () => {
       const kgs = await fetchKnowledgeGraphs(result.id)
       setGraphs(kgs)
     }
     getVars()
+    getCdes()
     getKgs()
   }, [fetchKnowledgeGraphs, fetchStudyVariables, result, query])
 

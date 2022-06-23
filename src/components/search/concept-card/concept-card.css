@@ -5,14 +5,18 @@
 .studies-list-item {
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
 }
 
 .study-name {
-  flex: 1 !important;
+  white-space: pre-line;
+  text-align: center;
+  padding: 0 8px;
 }
 
 .variables-count {
-  min-width: 100px;
-  text-align: right;
+  white-space: nowrap;
+  /* min-width: 100px; */
+  /* text-align: right; */
 }

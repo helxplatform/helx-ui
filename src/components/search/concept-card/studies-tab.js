@@ -30,12 +30,13 @@ export const StudiesTab = ({ result }) => {
         className="studies-list"
         dataSource={ studies }
         renderItem={ study => (
-          <List.Item>
-            <Text className="study-name">{ study.c_name }{ ` ` }</Text>
-            <Text className="variables-count">
-              { study.elements.length } variable{ study.elements.length === 1 ? '' : 's' }<br />
-              <Tag>{ study.type }</Tag> <Link to={ study.c_link }>{ study.c_id }</Link>
+          <List.Item className="studies-list-item">
+            <Tag>{ study.type }</Tag>
+            <Text className="study-name">
+              { study.c_name }{ ` ` }
+              (<Link to={ study.c_link }>{ study.c_id }</Link>)
             </Text>
+            <Text className="variables-count">{ study.elements.length } variable{ study.elements.length === 1 ? '' : 's' }</Text>
           </List.Item>
         ) }
       />

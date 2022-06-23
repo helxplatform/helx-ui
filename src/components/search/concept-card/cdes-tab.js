@@ -1,13 +1,14 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { List, Spin, Space, Typography } from 'antd'
+import { List, Spin, Space, Typography, Divider } from 'antd'
 import { useEnvironment } from '../../../contexts'
 import { useHelxSearch } from '../'
 import { Link } from '../../link'
 
-const { Text } = Typography
+const { Text, Paragraph } = Typography
+
 
 export const CdesTab = ({ result }) => {
-  const { basePath } = useEnvironment()
+  const { basePath, context } = useEnvironment()
   const { query, fetchCDEs } = useHelxSearch()
   const [cdes, setCDEs] = useState([])
   const [loading, setLoading] = useState(true)
@@ -37,14 +38,17 @@ export const CdesTab = ({ result }) => {
           <List
             className="cdes-list"
             dataSource={ cdes.elements }
-            renderItem={ item => (
+            renderItem={ (item, i) => (
               <List.Item
                 key={ `${ result.id }-cdes-${ item.name }` }
+                style={{ paddingTop: i === 0 ? 0 : undefined }}
               >
-                <List.Item.Meta
-                  title={ item.name }
-                  description={ item.description }
-                />
+                <Space direction="vertical" size="middle">
+                  <List.Item.Meta
+                    title={ item.name }
+                    description={ item.description }
+                  />
+                </Space>
               </List.Item>
             ) }
           />
