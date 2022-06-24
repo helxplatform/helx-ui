@@ -19,7 +19,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
       <Title level={ 4 }>CDEs</Title>
       <List
         loading={loading}
-        dataSource={cdes?.elements}
+        dataSource={!loading ? cdes.elements : []}
         renderItem={(cde) => (
           <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } />
         )}

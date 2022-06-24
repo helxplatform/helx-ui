@@ -109,11 +109,13 @@ export const ConceptModalBody = ({ result }) => {
             Object.entries(kg.nodes).find(([nodeId, node]) => nodeId === outEdge.object)[1]
         )
       }
-      const cdeIds = data.elements.map((cde) => cde.id)
       const relatedConcepts = {}
-      await Promise.all(cdeIds.map(async (cdeId, i) => {
-        relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
-      }))
+      if (data) {
+        const cdeIds = data.elements.map((cde) => cde.id)
+        await Promise.all(cdeIds.map(async (cdeId, i) => {
+          relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
+        }))
+      }
       setCdes(data)
       setCdeRelatedConcepts(relatedConcepts)
     }
