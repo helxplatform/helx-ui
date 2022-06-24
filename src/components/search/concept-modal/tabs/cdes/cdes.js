@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { Collapse, Divider, List, Space, Spin, Tag, Typography } from 'antd'
-import { ExpandAltOutlined } from '@ant-design/icons'
+import { Collapse, Divider, List, Space, Spin, Tag, Typography, Input } from 'antd'
+import { ExpandAltOutlined, SearchOutlined } from '@ant-design/icons'
 import { Link } from '../../../../link'
+import Elasticlunr from 'elasticlunr'
+import { useDebounce } from 'use-debounce'
 import { useEnvironment } from '../../../../../contexts'
 import { CdeItem } from './cde-item'
 import './cdes.css'
@@ -11,17 +13,75 @@ const { CheckableTag: CheckableFacet } = Tag
 const { Panel } = Collapse
 
 export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
+  const [_search, setSearch] = useState("")
+  const [search] = useDebounce(_search, 200)
   const { context } = useEnvironment()
+
   const loading = useMemo(() => cdes === null || cdeRelatedConcepts === null, [cdes, cdeRelatedConcepts])
+
+  const cdeIndex = useMemo(() => {
+    const index = new Elasticlunr(function () {
+      this.setRef("id")
+      this.addField("name")
+      this.addField("description")
+      this.addField("concepts")
+    })
+    if (!loading) {
+      cdes.elements.forEach((cde) => {
+        index.addDoc({
+          id: cde.id,
+          name: cde.name,
+          description: cde.description,
+          concepts: Object.values(cdeRelatedConcepts[cde.id]).map((concept) => concept.name)
+        })
+      })
+    }
+    return index
+  }, [loading, cdes, cdeRelatedConcepts])
+
+  const cdeSource = useMemo(() => {
+    if (loading) return []
+    if (search.length < 3) return cdes.elements
+
+    const doSearch = (searchQuery) => {
+      return cdeIndex.search(
+        searchQuery,
+        {
+          fields: {
+            name: { boost: 1 },
+            description: { boost: 1 },
+            concepts: { boost: 3 }
+          }
+        }
+      )
+    }
+    console.log("do search", Object.keys(cdeIndex.documentStore.docs).length)
+    const searchResults = doSearch(search)
+    return searchResults.map(({ ref: id, score }) => cdes.elements.find((cde) => cde.id === id))
+  }, [loading, cdeIndex, cdes, search])
 
   return (
     <Space direction="vertical">
-      <Title level={ 4 }>CDEs</Title>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Title level={ 4 } style={{ margin: 0 }}>CDEs</Title>
+        <Input
+          style={{ width: "auto" }}
+          allowClear
+          value={_search}
+          onChange={(e) => setSearch(e.target.value) }
+          suffix={
+            <div style={{ display: "flex", alignItems: "center", height: "100%"}}>
+              <Divider type="vertical" style={{ height: "100%" }} />
+              <SearchOutlined style={{ fontSize: "16px", marginLeft: "4px" }} />
+            </div>
+          }
+        />
+      </div>
       <List
         loading={loading}
-        dataSource={!loading ? cdes.elements : []}
+        dataSource={cdeSource}
         renderItem={(cde) => (
-          <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } />
+          <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } highlight={search.length >= 3 ? Elasticlunr.tokenizer(search) : []} />
         )}
       />
    </Space>

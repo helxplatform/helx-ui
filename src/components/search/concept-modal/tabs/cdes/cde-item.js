@@ -1,6 +1,7 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useCallback, useMemo, useState } from 'react'
 import { List, Collapse, Typography, Space, Tag, Button } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
+import _Highlighter from 'react-highlight-words'
 import { useHelxSearch } from '../../../'
 
 const { Text, Link } = Typography
@@ -9,7 +10,7 @@ const { Panel } = Collapse
 const Section = ({ title, children }) => (
     <Space size="small" direction="vertical">
         <div style={{ display: "flex", alignItems: "center" }}>
-            <Text type="" style={{ fontSize: "12px", marginRight: "8px", fontWeight: 500 }}>{title}</Text>
+            <Text type="" style={{ fontSize: "12px", marginRight: "8px", fontWeight: "normal" }}>{title}</Text>
             <div style={{ flexGrow: 1, borderTop: "1px solid #eee" }} />
         </div>
         {children}
@@ -18,7 +19,7 @@ const Section = ({ title, children }) => (
 
 const SHOW_COUNT_INCREMENT = 6
 
-export const CdeItem = ({ cde, cdeRelatedConcepts }) => {
+export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
     const [collapsed, setCollapsed] = useState(false)
     const [showCount, setShowCount] = useState(8)
     const { doSearch, setSelectedResult } = useHelxSearch()
@@ -26,6 +27,11 @@ export const CdeItem = ({ cde, cdeRelatedConcepts }) => {
     const relatedConceptsSource = useMemo(() => (
         cdeRelatedConcepts[cde.id].slice(0, showCount)
     ), [cdeRelatedConcepts, showCount])
+
+    const Highlighter = useCallback(({ ...props }) => (
+        <_Highlighter searchWords={highlight} {...props}/>
+    ), [highlight])
+
     return (
         <List.Item
             key={ `${cde.id}` }
@@ -35,7 +41,9 @@ export const CdeItem = ({ cde, cdeRelatedConcepts }) => {
                 key={`${cde.id}-panel`}
                     header={
                         <Fragment>
-                            <Text style={{ fontWeight: "500", fontSize: "14px" }}>{cde.name}</Text>
+                            <Text style={{ fontWeight: "500", fontSize: "14px" }}>
+                                <Highlighter textToHighlight={ cde.name } />
+                            </Text>
                             {/* Only show the "Open study" button if the CDE has a link attached to it. */}
                             {cde.e_link && (
                                 <Button
@@ -64,7 +72,9 @@ export const CdeItem = ({ cde, cdeRelatedConcepts }) => {
                             // title={ cde.name }
                             description={
                                 <Section title="Description">
-                                    <Text>{cde.description}</Text>
+                                    <Text type="secondary">
+                                        <Highlighter textToHighlight={ cde.description } />
+                                    </Text>
                                 </Section>
                             }
                         />
@@ -74,7 +84,9 @@ export const CdeItem = ({ cde, cdeRelatedConcepts }) => {
                                     <Tag style={{ margin: 0 }} onClick={() => {
                                         doSearch(concept.name)
                                     }}>
-                                        <a type="button" key={concept.name}>{concept.name}</a>
+                                        <a type="button" key={concept.name}>
+                                            <Highlighter textToHighlight={ concept.name } />
+                                        </a>
                                     </Tag>
                                 ))}
                                 {showCount < cdeRelatedConcepts[cde.id].length && (
