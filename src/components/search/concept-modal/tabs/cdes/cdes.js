@@ -2,9 +2,10 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Collapse, Divider, List, Space, Spin, Tag, Typography, Input } from 'antd'
 import { ExpandAltOutlined, SearchOutlined } from '@ant-design/icons'
 import { Link } from '../../../../link'
-import Elasticlunr from 'elasticlunr'
+import { tokenizer } from 'elasticlunr'
 import { useDebounce } from 'use-debounce'
 import { useEnvironment } from '../../../../../contexts'
+import { useElasticlunr } from '../../../../../hooks'
 import { CdeItem } from './cde-item'
 import './cdes.css'
 
@@ -19,13 +20,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
 
   const loading = useMemo(() => cdes === null || cdeRelatedConcepts === null, [cdes, cdeRelatedConcepts])
 
-  const cdeIndex = useMemo(() => {
-    const index = new Elasticlunr(function () {
-      this.setRef("id")
-      this.addField("name")
-      this.addField("description")
-      this.addField("concepts")
-    })
+  const populateIndex = useCallback((index) => {
     if (!loading) {
       cdes.elements.forEach((cde) => {
         index.addDoc({
@@ -36,8 +31,36 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
         })
       })
     }
-    return index
   }, [loading, cdes, cdeRelatedConcepts])
+  const { index: cdeIndex } = useElasticlunr(
+    function () {
+      this.setRef("id")
+      this.addField("name")
+      this.addField("description")
+      this.addField("concepts")
+    },
+    populateIndex
+  )
+
+  // const cdeIndex = useMemo(() => {
+  //   const index = new Elasticlunr(function () {
+  //     this.setRef("id")
+  //     this.addField("name")
+  //     this.addField("description")
+  //     this.addField("concepts")
+  //   })
+  //   if (!loading) {
+  //     cdes.elements.forEach((cde) => {
+  //       index.addDoc({
+  //         id: cde.id,
+  //         name: cde.name,
+  //         description: cde.description,
+  //         concepts: Object.values(cdeRelatedConcepts[cde.id]).map((concept) => concept.name)
+  //       })
+  //     })
+  //   }
+  //   return index
+  // }, [loading, cdes, cdeRelatedConcepts])
 
   const cdeSource = useMemo(() => {
     if (loading) return []
@@ -55,7 +78,6 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
         }
       )
     }
-    console.log("do search", Object.keys(cdeIndex.documentStore.docs).length)
     const searchResults = doSearch(search)
     return searchResults.map(({ ref: id, score }) => cdes.elements.find((cde) => cde.id === id))
   }, [loading, cdeIndex, cdes, search])
@@ -81,7 +103,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
         loading={loading}
         dataSource={cdeSource}
         renderItem={(cde) => (
-          <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } highlight={search.length >= 3 ? Elasticlunr.tokenizer(search) : []} />
+          <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } highlight={search.length >= 3 ? tokenizer(search) : []} />
         )}
       />
    </Space>
