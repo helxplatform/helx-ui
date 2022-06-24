@@ -17,11 +17,12 @@ const Section = ({ title, children }) => (
     </Space>
 )
 
+const DEFAULT_SHOW_COUNT = 8
 const SHOW_COUNT_INCREMENT = 6
 
 export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
     const [collapsed, setCollapsed] = useState(false)
-    const [showCount, setShowCount] = useState(8)
+    const [showCount, setShowCount] = useState(DEFAULT_SHOW_COUNT)
     const { doSearch, setSelectedResult } = useHelxSearch()
 
     const relatedConceptsSource = useMemo(() => (
@@ -89,16 +90,17 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                                         </a>
                                     </Tag>
                                 ))}
-                                {showCount < cdeRelatedConcepts[cde.id].length && (
-                                    <Button
-                                        size="small"
-                                        type="link"
-                                        style={{ fontSize: "12px" }}
-                                        onClick={ () => setShowCount(cdeRelatedConcepts[cde.id].length) }
-                                    >
-                                        Show all
-                                    </Button>
-                                )}
+                                <Button
+                                    size="small"
+                                    type="link"
+                                    style={{ fontSize: "12px" }}
+                                    onClick={ () => showCount < cdeRelatedConcepts[cde.id].length ?
+                                        setShowCount(cdeRelatedConcepts[cde.id].length)
+                                        : setShowCount(DEFAULT_SHOW_COUNT)
+                                    }
+                                >
+                                    { showCount < cdeRelatedConcepts[cde.id].length ? "Show all" : "Show less" }
+                                </Button>
                             </div>
                         </Section>
                         </Space>

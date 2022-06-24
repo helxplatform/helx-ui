@@ -42,26 +42,6 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
     populateIndex
   )
 
-  // const cdeIndex = useMemo(() => {
-  //   const index = new Elasticlunr(function () {
-  //     this.setRef("id")
-  //     this.addField("name")
-  //     this.addField("description")
-  //     this.addField("concepts")
-  //   })
-  //   if (!loading) {
-  //     cdes.elements.forEach((cde) => {
-  //       index.addDoc({
-  //         id: cde.id,
-  //         name: cde.name,
-  //         description: cde.description,
-  //         concepts: Object.values(cdeRelatedConcepts[cde.id]).map((concept) => concept.name)
-  //       })
-  //     })
-  //   }
-  //   return index
-  // }, [loading, cdes, cdeRelatedConcepts])
-
   const cdeSource = useMemo(() => {
     if (loading) return []
     if (search.length < 3) return cdes.elements
