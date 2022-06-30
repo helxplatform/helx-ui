@@ -51,24 +51,22 @@ export const SearchResults = () => {
     </div>
   ), [currentPage, pageCount, totalConcepts, query, totalStudyResults, totalVariableResults, conceptView])
   
+  const ConceptsList = useMemo(() => (
+    concepts.map((result, i) => {
+      const index = (currentPage - 1) * perPage + i + 1
+      return (
+        <ConceptCard
+          key={`${query}_result_${index}`}
+          index={index}
+          result={result}
+          openModalHandler={() => setSelectedResult(result)}
+        />
+      )
+    })
+  ), [concepts, setSelectedResult, query, currentPage, perPage])
+
   if (isLoadingConcepts || isLoadingVariableResults) {
     return <Spin style={{ display: 'block', margin: '4rem' }} />
-  }
-
-  const ConceptsList = () => {
-    return (
-      concepts.map((result, i) => {
-        const index = (currentPage - 1) * perPage + i + 1
-        return (
-          <ConceptCard
-            key={`${query}_result_${index}`}
-            index={index}
-            result={result}
-            openModalHandler={() => setSelectedResult(result)}
-          />
-        )
-      })
-    )
   }
 
   return (
@@ -82,7 +80,7 @@ export const SearchResults = () => {
             {concepts.length >= 1 && MemoizedResultsHeader}
 
             <div className='results-list grid'>
-              {conceptView ? <ConceptsList /> : <VariableSearchResults />}
+              {conceptView ? ConceptsList : <VariableSearchResults />}
             </div>
           </div>
         )
