@@ -4,7 +4,7 @@ import { Radio, notification, Spin, Tooltip, Typography } from 'antd'
 import {
   LinkOutlined as LinkIcon,
   DatabaseOutlined as ConceptViewIcon,
-  SmallDashOutlined as VariableViewIcon
+  BarChartOutlined as VariableViewIcon
 } from '@ant-design/icons'
 import { PaginationTray, ConceptCard, useHelxSearch } from '../'
 import './results.css'
