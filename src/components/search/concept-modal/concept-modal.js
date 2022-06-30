@@ -80,7 +80,7 @@ export const ConceptModalBody = ({ result }) => {
     FROM "/schema"
     WHERE publication="${cdeId}"`
         }
-        const tranqlUrl = context.tranql_api_url
+        const tranqlUrl = context.tranql_url
         const types = ['disease', 'anatomical_entity', 'phenotypic_feature', 'biological_process'] // add any others that you can think of, these are the main 4 found in heal results and supported by tranql
         const kg = (await Promise.all(types.map(async (type) => {
             const res = await fetch(
