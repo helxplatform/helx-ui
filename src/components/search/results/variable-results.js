@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
-import { Collapse, List, Typography, Button, Space } from 'antd'
+import { Collapse, List, Typography, Button, Space, Divider } from 'antd'
 import {
     PushpinOutlined as UnselectedIcon,
     PushpinFilled as SelectedIcon,
@@ -290,17 +290,16 @@ export const VariableSearchResults = () => {
 
     return (
         <div>
-            <Space direction="vertical">
+            <Space direction="vertical" size="middle">
                 <div>Variables according to DUG Score</div>
                 <Column
                     {...variableHistogramConfig}
                     ref={variablesHistogram}
                 />
                 <div>Filtered Variables Count: {filteredVariables.length}</div>
+                <Button onClick={startOverHandler}>Start Over</Button>
             </Space>
-            <Space direction="vertical">
-                <Button className="histogram-startover-btn" onClick={startOverHandler}>Start Over</Button>
-            </Space>
+            <Divider style={{ margin: "12px 0" }} />
             <Space direction="vertical">
                 <div className='list'>{VariablesTableByStudy}</div>
             </Space>
