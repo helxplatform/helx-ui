@@ -301,6 +301,7 @@ export const VariableSearchResults = () => {
             </Space>
             <Divider style={{ margin: "12px 0" }} />
             <Space direction="vertical">
+                <Text level={5}>Studies holding Variables shown above in Histogram</Text>
                 <div className='list'>{VariablesTableByStudy}</div>
             </Space>
         </div>
