@@ -290,7 +290,6 @@ export const VariableSearchResults = () => {
 
     return (
         <div>
-            <Button className="histogram-startover-btn" onClick={startOverHandler}>Start Over</Button>
             <Space direction="vertical">
                 <div>Variables according to DUG Score</div>
                 <Column
@@ -299,7 +298,12 @@ export const VariableSearchResults = () => {
                 />
                 <div>Filtered Variables Count: {filteredVariables.length}</div>
             </Space>
-            <div className='list'>{VariablesTableByStudy}</div>
+            <Space direction="vertical">
+                <Button className="histogram-startover-btn" onClick={startOverHandler}>Start Over</Button>
+            </Space>
+            <Space direction="vertical">
+                <div className='list'>{VariablesTableByStudy}</div>
+            </Space>
         </div>
     )
 }
