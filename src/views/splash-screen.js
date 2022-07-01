@@ -20,7 +20,7 @@ export const SplashScreenView = (props) => {
     const getUrl = async () => {
         await axios.get(decoded_url)
             .then(response => {
-                if (response.status == 200) {
+                if (response.status === 200) {
                     setLoading(false);
                     setStatusCode("200");
                 }
@@ -36,7 +36,7 @@ export const SplashScreenView = (props) => {
             const callGetUrl = async () => {
                 await getUrl();
             }
-            if (statusCode != "200") {
+            if (statusCode !== "200") {
                 callGetUrl();
             }
         }

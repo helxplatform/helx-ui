@@ -14,7 +14,7 @@ export const KnowledgeGraphsTab = ({ result }) => {
       setLoading(false)
     }
     getKgs()
-  }, [fetchKnowledgeGraphs, query])
+  }, [fetchKnowledgeGraphs, query, result.id])
 
   if (loading) {
     return <Spin />
