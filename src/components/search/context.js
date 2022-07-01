@@ -6,10 +6,6 @@ import './search.css'
 import { ConceptModal } from './'
 
 //
-// The following pulls in a json data dump that we will eventually drop
-// import { sampleResponseFromSearchVar } from '../../response-search-var'
-
-//
 
 export const HelxSearchContext = createContext({})
 export const useHelxSearch = () => useContext(HelxSearchContext)
