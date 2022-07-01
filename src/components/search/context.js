@@ -196,7 +196,7 @@ export const HelxSearch = ({ children }) => {
     }
   }, [helxSearchUrl, concepts])
 
-  const fetchStudyVariables = useCallback(async (_id, _query) => {
+  const fetchVariablesForConceptId = useCallback(async (_id, _query) => {
     try {
       const { data } = await axios.post(`${helxSearchUrl}/search_var`, {
         concept: _id,
@@ -270,7 +270,7 @@ export const HelxSearch = ({ children }) => {
 
   return (
     <HelxSearchContext.Provider value={{
-      query, setQuery, doSearch, fetchKnowledgeGraphs, fetchStudyVariables, inputRef,
+      query, setQuery, doSearch, fetchKnowledgeGraphs, fetchVariablesForConceptId, inputRef,
       error, isLoadingConcepts,
       variableError, variableResults, isLoadingVariableResults,
       concepts, totalConcepts,
