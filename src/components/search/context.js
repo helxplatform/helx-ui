@@ -176,42 +176,6 @@ export const HelxSearch = ({ children }) => {
   }, [query, currentPage, helxSearchUrl, setConcepts, setError])
 
   useEffect(() => {
-    const fetchVariableResults = async () => {
-      setIsLoadingVariableResults(true)
-      try {
-        const params = {
-          index: 'variables_index',
-          query: query,
-          size: 10000
-        }
-        const response = await axios.post(`${helxSearchUrl}/search_var`, params)
-        if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
-          const studies = response.data.result.DbGaP.map(r => r)
-          setStudyResults(studies);
-          setStudyResultCount(studies.length);
-
-          const variables = new Set(studies.map(s => s.elements.map(v => v.id)));
-          setVariableResultCount(variables.size);
-          setIsLoadingVariableResults(false);
-        } else {
-          setStudyResults([])
-          setStudyResultCount(0)
-          setVariableResultCount(0)
-          setIsLoadingVariableResults(false)
-        }
-      } catch (variableError) {
-        console.log(variableError)
-        setVariableError({ message: 'An variable error occurred!' })
-        setIsLoadingVariableResults(false)
-      }
-    }
-
-    if (query) {
-      fetchVariableResults()
-    }
-  }, [query, currentPage, helxSearchUrl, setStudyResults, setVariableError])
-
-  useEffect(() => {
     setPageCount(Math.ceil(totalConcepts / PER_PAGE))
   }, [totalConcepts])
 
