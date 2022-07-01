@@ -21,7 +21,7 @@ export const ConceptModalBody = ({ result }) => {
   const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
-  const { fetchKnowledgeGraphs, fetchStudyVariables, query } = useHelxSearch()
+  const { fetchKnowledgeGraphs, fetchVariablesForConceptId, query } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studies, setStudies] = useState([])
 
@@ -60,7 +60,7 @@ export const ConceptModalBody = ({ result }) => {
       return
     }
     const getVars = async () => {
-      const { result: data } = await fetchStudyVariables(result.id, query)
+      const { result: data } = await fetchVariablesForConceptId(result.id, query)
       setStudies(data)
     }
     const getKgs = async () => {
@@ -69,7 +69,7 @@ export const ConceptModalBody = ({ result }) => {
     }
     getVars()
     getKgs()
-  }, [fetchKnowledgeGraphs, fetchStudyVariables, result, query])
+  }, [fetchKnowledgeGraphs, fetchVariablesForConceptId, result, query])
 
   return (
     <Space align="start" className="concept-modal-body">

@@ -8,7 +8,7 @@ const { Text } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 
 export const StudiesTab = ({ result }) => {
-  const { query, fetchStudyVariables } = useHelxSearch()
+  const { query, fetchVariablesForConceptId } = useHelxSearch()
   const [studyVariables, setStudyVariables] = useState([])
   const [facets, setFacets] = useState([])
   const [selectedFacets, setSelectedFacets] = useState([])
@@ -26,14 +26,14 @@ export const StudiesTab = ({ result }) => {
 
   useEffect(() => {
     const getVars = async () => {
-      const { result: data } = await fetchStudyVariables(result.id, query)
+      const { result: data } = await fetchVariablesForConceptId(result.id, query)
       setStudyVariables(data)
       setFacets(Object.keys(data))
       setSelectedFacets(Object.keys(data))
       setLoading(false)
     }
     getVars()
-  }, [fetchStudyVariables, query, result.id])
+  }, [fetchVariablesForConceptId, query, result.id])
 
   if (loading) {
     return <Spin />
