@@ -11,8 +11,6 @@ import './results.css'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import { VariableSearchResults } from './'
 
-const { Text } = Typography
-
 export const SearchResults = () => {
   const { query, concepts, totalConcepts, perPage, currentPage, pageCount, isLoadingConcepts, error, setSelectedResult, totalStudyResults, totalVariableResults, variableError, isLoadingVariableResults } = useHelxSearch()
   const { basePath } = useEnvironment()
@@ -38,7 +36,6 @@ export const SearchResults = () => {
 
   const MemoizedResultsHeader = useMemo(() => (
     <div className="header">
-      <Text>{totalConcepts} concepts and {totalStudyResults} studies with {totalVariableResults} variables for "{query}" ({pageCount} page{pageCount > 1 && 's'})</Text>
       <Tooltip title="Results Toggle" placement="top">
         <Radio.Group value={conceptView} onChange={handleDataDisplayChange}>
           <Radio.Button value={true}><ConceptViewIcon /></Radio.Button>

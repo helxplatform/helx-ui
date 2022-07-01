@@ -43,21 +43,22 @@ export const HelxSearch = ({ children }) => {
   const [error, setError] = useState({})
   const [conceptPages, setConceptPages] = useState({})
   // const [concepts, setConcepts] = useState([])
-  const [variableError, setVariableError] = useState({})
+
   const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
-  const [studyResults, setStudyResults] = useState([])
-  const [totalStudyResults, setStudyResultCount] = useState(0)
-  const [variableStudyResults, setVariableStudyResults] = useState([])
-  const [variableStudyResultCount, setVariableStudyResultCount] = useState(0)
-  const [variableResults, setVariableResults] = useState([])
-  const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
-  const [variableError, setVariableError] = useState({})
-  const [totalVariableResults, setVariableResultCount] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
   const [selectedResult, setSelectedResult] = useState(null)
+
+  // The following serve the Variable Results view
+  const [variableStudyResults, setVariableStudyResults] = useState([])
+  const [variableStudyResultCount, setVariableStudyResultCount] = useState(0)
+  const [variableResults, setVariableResults] = useState([])
+  const [totalVariableResults, setVariableResultCount] = useState(0)
+  const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
+  const [variableError, setVariableError] = useState({})
+
   const [typeFilter, setTypeFilter] = useState(null)
   const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.GRID)
 
@@ -310,7 +311,7 @@ export const HelxSearch = ({ children }) => {
   }
 
   useEffect(() => {
-    const fetchVariableResults = async () => {
+    const fetchAllVariables = async () => {
       setIsLoadingVariableResults(true)
       try {
         const params = {
@@ -332,7 +333,6 @@ export const HelxSearch = ({ children }) => {
           setVariableResults(sortedVariables)
           setVariableResultCount(variablesCount)
 
-          // Possible TODO.... I don't know for sure if this is used anywhere
           setIsLoadingVariableResults(false)
         } else {
           setVariableStudyResults([])
@@ -349,7 +349,7 @@ export const HelxSearch = ({ children }) => {
     }
 
     if (query) {
-      fetchVariableResults()
+      fetchAllVariables()
     }
   }, [query, helxSearchUrl])
 
@@ -368,8 +368,7 @@ export const HelxSearch = ({ children }) => {
       layout, setLayout, setFullscreenResult,
       typeFilter, setTypeFilter,
       conceptTypes, conceptTypeCounts
-      variableError, isLoadingVariableResults,
-      studyResults, totalStudyResults, totalVariableResults
+      totalVariableResults
     }}>
       {children}
       <ConceptModal
