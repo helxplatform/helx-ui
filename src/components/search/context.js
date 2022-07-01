@@ -82,6 +82,41 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
+  function collectVariablesAndUpdateStudies(studies) {
+    const variables = []
+    const studiesWithVariablesMarked = []
+
+    studies.forEach((study, indexByStudy) => {
+      const studyToUpdate = Object.assign({}, study);
+      studyToUpdate["elements"] = [];
+
+      study.elements.forEach((variable, indexByVariable) => {
+        const variableToUpdate = Object.assign({}, variable);
+        variableToUpdate["study_name"] = study.c_name
+        variableToUpdate["withinFilter"] = "none"
+        variables.push(variableToUpdate)
+        
+        studyToUpdate["elements"].push(variableToUpdate)
+      })
+
+      studiesWithVariablesMarked.push(studyToUpdate)
+    });
+
+    const sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
+    const sortedVariablesWithIndexPosition = sortedVariables.map((v, i) =>  {
+      const rObj = v
+      rObj["indexPos"] = i
+      return rObj;
+    })
+
+    return {
+      "sortedVariables": sortedVariablesWithIndexPosition,
+      "variablesCount": sortedVariables.length,
+      "studiesWithVariablesMarked": studiesWithVariablesMarked,
+      "studiesCount": studiesWithVariablesMarked.length
+    };
+  }
+
   useEffect(() => {
     const trackSearch = (execTime, resultCount, error = undefined) => {
       analytics.trackEvent({
@@ -222,41 +257,6 @@ export const HelxSearch = ({ children }) => {
       setCurrentPage(1)
       navigate(`${basePath}search?q=${trimmedQuery}&p=1`)
     }
-  }
-
-  function collectVariablesAndUpdateStudies(studies) {
-    const variables = []
-    const studiesWithVariablesMarked = []
-
-    studies.forEach((study, indexByStudy) => {
-      const studyToUpdate = Object.assign({}, study);
-      studyToUpdate["elements"] = [];
-
-      study.elements.forEach((variable, indexByVariable) => {
-        const variableToUpdate = Object.assign({}, variable);
-        variableToUpdate["study_name"] = study.c_name
-        variableToUpdate["withinFilter"] = "none"
-        variables.push(variableToUpdate)
-        
-        studyToUpdate["elements"].push(variableToUpdate)
-      })
-
-      studiesWithVariablesMarked.push(studyToUpdate)
-    });
-
-    const sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
-    const sortedVariablesWithIndexPosition = sortedVariables.map((v, i) =>  {
-      const rObj = v
-      rObj["indexPos"] = i
-      return rObj;
-    })
-
-    return {
-      "sortedVariables": sortedVariablesWithIndexPosition,
-      "variablesCount": sortedVariables.length,
-      "studiesWithVariablesMarked": studiesWithVariablesMarked,
-      "studiesCount": studiesWithVariablesMarked.length
-    };
   }
 
   useEffect(() => {
