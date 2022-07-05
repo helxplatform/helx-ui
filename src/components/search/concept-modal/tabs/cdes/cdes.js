@@ -38,6 +38,11 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
     this.field("description")
     this.field("concepts")
     this.metadataWhitelist = ["position"]
+    // Lunr has really bad docs for how the engine tokenizes text.
+    // As far as I can tell, Lunr strictly uses pattern-based tokenization.
+    // All punctuation marks and whitespace separate fields into tokens (by default it is only whitespace and hyphens).
+    const separators = `\\s,\\.<>{}\\[\\]"':;!@#\\$%\\^&\\*\\(\\)-_\\+=~`
+    this.tokenizer.separator = new RegExp("[" + separators + "]")
   }, [docs])
   const populateIndex = useCallback((index) => {
     console.log("2) populate index")
@@ -56,12 +61,11 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
     if (loading) return [[], []]
     if (search.length < 3) return [cdes.elements, []]
 
-    const doSearch = (searchQuery) => {
-      return cdeIndex.search(
-        searchQuery
-      )
-    }
-    const searchResults = lexicalSearch(search)
+    const searchResults = lexicalSearch(search, {
+      prefixSearch: true,
+      // Give an extra edit of fuzziness to terms longer than 4 characters.
+      fuzziness: (term) => term.length >= 5 ? 2 : 1
+    })
     // const highlightedSearchTokens = searchResults.flatMap(({ matchData }) => Object.keys(matchData.metadata) )
 
     // This solution is quite resource heavy and just not very good.

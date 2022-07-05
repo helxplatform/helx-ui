@@ -23,10 +23,11 @@ export const useLunr = (initIndex, populateIndex) => {
    }, [initIndex, populateIndex])
    // Takes a lexical search, i.e. a user inputted search query, transforms it into a lunr search query, and executes the search.
    const lexicalSearch = useCallback((searchQuery, options={
-       fuzziness: 1,
-       prefixSearch: true
+      // Can be either a number or a function with signature (term: string) => number (e.g. if you want to increase fuzziness for longer terms)
+      fuzziness: 1,
+      prefixSearch: true
    }) => {
-      const { fuzziness, prefixSearch } = options
+      const { fuzziness=1, prefixSearch=true } = options
       const tokens = lunrTokenizer(searchQuery)
 
       // Build tokenized search terms into a generalized lunr query with fuzziness and prefix search.
@@ -39,8 +40,9 @@ export const useLunr = (initIndex, populateIndex) => {
                q.term(token, { boost: 10, usePipeline: false, wildcard: lunr.Query.wildcard.TRAILING })
             }
             if (fuzziness) {
+
                // Fuzzy search without prefix
-               q.term(token, { boost: 1, usePipeline: false, editDistance: fuzziness })
+               q.term(token, { boost: 1, usePipeline: false, editDistance: typeof fuzziness === 'function' ? fuzziness.call(null, token) : fuzziness })
             }
          })
       })
