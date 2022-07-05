@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Collapse, Divider, List, Space, Spin, Tag, Typography, Input } from 'antd'
 import { ExpandAltOutlined, SearchOutlined } from '@ant-design/icons'
 import { useEnvironment } from '../../../../../contexts'
-import { useLunr } from '../../../../../hooks'
+import { useLunrSearch } from '../../../../../hooks'
 import { CdeList } from './cde-list'
 import { CdeSearch } from './cde-search'
 import './cdes.css'
@@ -30,32 +30,14 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
       }))
     } else return []
   }, [loading, cdes, cdeRelatedConcepts])
-
-  const initIndex = useCallback(function () {
-    console.log("1) initialize index")
-    this.ref("id")
-    this.field("name")
-    this.field("description")
-    this.field("concepts")
-    this.metadataWhitelist = ["position"]
-    // Lunr has really bad docs for how the engine tokenizes text.
-    // As far as I can tell, Lunr strictly uses pattern-based tokenization.
-    // All punctuation marks and whitespace separate fields into tokens (by default it is only whitespace and hyphens).
-    const separators = `\\s,\\.<>{}\\[\\]"':;!@#\\$%\\^&\\*\\(\\)-_\\+=~`
-    this.tokenizer.separator = new RegExp("[" + separators + "]")
-  }, [docs])
-  const populateIndex = useCallback((index) => {
-    console.log("2) populate index")
-    docs.forEach((doc) => {
-      console.log("-- add doc")
-      index.add(doc)
-    })
-  }, [docs])
   
-  const { index: cdeIndex, lexicalSearch } = useLunr(
-    initIndex,
-    populateIndex
-  )
+  const { index: cdeIndex, lexicalSearch } = useLunrSearch({
+    docs,
+    index: {
+      ref: "id",
+      fields: ["name", "description", "concepts"]
+    }
+  })
 
   const [cdeSource, highlightTokens] = useMemo(() => {
     if (loading) return [[], []]

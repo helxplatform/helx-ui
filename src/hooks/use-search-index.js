@@ -14,7 +14,6 @@ export const useElasticlunr = (initIndex, populateIndex) => {
 }
 export const useLunr = (initIndex, populateIndex) => {
    const index = useMemo(() => {
-      console.log("--- remake index ---")
       const idx = lunr(function () {
          initIndex.call(this)
          populateIndex.call(null, this)
