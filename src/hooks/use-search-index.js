@@ -48,7 +48,7 @@ export const useLunr = (initIndex, populateIndex) => {
       return results
    }, [index])
    return {
-       index,
-       lexicalSearch
+      index,
+      lexicalSearch
    }
 }

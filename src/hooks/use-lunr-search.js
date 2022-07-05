@@ -30,13 +30,33 @@ export const useLunrSearch = ({
             this.tokenizer.separator = tokenSeparator
         } else this.tokenizer.separator = new RegExp("[" + separators + "]")
     }, [docs, ref, fields, tokenSeparator])
+
     const populateIndex = useCallback((index) => {
         docs.forEach((doc) => index.add(doc))
     }, [docs])
-    const { index, lexicalSearch } = useLunr(
+
+    const { index, lexicalSearch: lunrLexicalSearch } = useLunr(
         initIndex,
         populateIndex
     )
+
+    const lexicalSearch = useCallback((...args) => {
+        const result = lunrLexicalSearch(...args)
+        const searchTokens = []
+        result.forEach(({ ref: id, score, matchData: { metadata } }) => {
+            const doc = docs.find((doc) => doc.id === id)
+            Object.entries(metadata).forEach(([partialTerm, hitFields]) => {
+              Object.entries(hitFields).forEach(([ field, meta ]) => {
+                const { position: [[start, length]] } = meta
+                const fieldValue = doc[field]
+                const fullTerm = fieldValue.slice(start, start + length)
+                searchTokens.push(fullTerm)
+              })
+            })
+          })
+        return { hits: result, tokens: searchTokens }
+    }, [docs, lunrLexicalSearch])
+
     return {
         index, lexicalSearch
     }

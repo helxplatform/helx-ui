@@ -43,40 +43,14 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
     if (loading) return [[], []]
     if (search.length < 3) return [cdes.elements, []]
 
-    const searchResults = lexicalSearch(search, {
+    const { hits, tokens } = lexicalSearch(search, {
       prefixSearch: true,
       // Give an extra edit of fuzziness to terms longer than 4 characters.
       fuzziness: (term) => term.length >= 5 ? 2 : 1
     })
-    // const highlightedSearchTokens = searchResults.flatMap(({ matchData }) => Object.keys(matchData.metadata) )
-
-    // This solution is quite resource heavy and just not very good.
-    // const highlightedSearchTokens = tokenizer(search)
-    //   .flatMap(({ str: token }) => (
-    //     lunr.TokenSet.fromFuzzyString(token, 1).toArray()
-    //   ))
-    //   .filter((token) => token.length >= 3)
-    //   .map((token) => token.replace("*", "."))
-    //   .map((token) => new RegExp(token))
-    const highlightedSearchTokens = []
-    const matchedCdes = searchResults.map(({ ref: id, score, matchData: { metadata } }) => {
-      const cde = cdes.elements.find((cde) => cde.id === id)
-      const internalDoc = docs.find((doc) => doc.id === id)
-      Object.entries(metadata).forEach(([partialTerm, hitFields]) => {
-        Object.entries(hitFields).forEach(([ field, meta ]) => {
-          const { position: [[start, length]] } = meta
-          const fieldValue = internalDoc[field]
-          const fullTerm = fieldValue.slice(start, start + length)
-          highlightedSearchTokens.push(fullTerm)
-        })
-      })
-      return cde
-    })
-    console.log(highlightedSearchTokens)
-    console.log(searchResults)
-    return [ matchedCdes, highlightedSearchTokens ]
+    const matchedCdes = hits.map(({ ref: id }) => cdes.elements.find((cde) => cde.id === id))
+    return [ matchedCdes, tokens ]
   }, [loading, cdeIndex, cdes, search])
-  console.log("rerender")
   return (
     <Space direction="vertical">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
