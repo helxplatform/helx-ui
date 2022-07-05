@@ -85,9 +85,9 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                                     <Tag style={{ margin: 0 }} onClick={() => {
                                         doSearch(concept.name)
                                     }}>
-                                        <a type="button" key={concept.name}>
+                                        <Text key={concept.name}>
                                             <Highlighter textToHighlight={ concept.name } />
-                                        </a>
+                                        </Text>
                                     </Tag>
                                 ))}
                                 <Button

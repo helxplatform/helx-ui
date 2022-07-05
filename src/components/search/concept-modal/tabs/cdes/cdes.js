@@ -5,7 +5,7 @@ import { Link } from '../../../../link'
 import { tokenizer } from 'elasticlunr'
 import { useDebounce } from 'use-debounce'
 import { useEnvironment } from '../../../../../contexts'
-import { useElasticlunr } from '../../../../../hooks'
+import { useLunr } from '../../../../../hooks'
 import { CdeItem } from './cde-item'
 import './cdes.css'
 
@@ -23,43 +23,51 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
   const populateIndex = useCallback((index) => {
     if (!loading) {
       cdes.elements.forEach((cde) => {
-        index.addDoc({
+        const doc = {
           id: cde.id,
           name: cde.name,
           description: cde.description,
-          concepts: Object.values(cdeRelatedConcepts[cde.id]).map((concept) => concept.name)
-        })
+          // Lunr supports array fields, though it expects the user to tokenize the elements themselves.
+          // Instead, just join the concepts into a string and let lunr tokenize it instead.
+          // See: https://stackoverflow.com/a/43562885
+          concepts: Object.values(cdeRelatedConcepts[cde.id]).map((concept) => concept.name).join(" ")
+        }
+        index.add(doc)
       })
     }
   }, [loading, cdes, cdeRelatedConcepts])
-  const { index: cdeIndex } = useElasticlunr(
+  
+  const { index: cdeIndex, lexicalSearch } = useLunr(
     function () {
-      this.setRef("id")
-      this.addField("name")
-      this.addField("description")
-      this.addField("concepts")
+      this.ref("id")
+      this.field("name")
+      this.field("description")
+      this.field("concepts")
     },
     populateIndex
   )
 
-  const cdeSource = useMemo(() => {
-    if (loading) return []
-    if (search.length < 3) return cdes.elements
+  const [cdeSource, highlightTokens] = useMemo(() => {
+    if (loading) return [[], []]
+    if (search.length < 3) return [cdes.elements, []]
 
     const doSearch = (searchQuery) => {
       return cdeIndex.search(
-        searchQuery,
-        {
-          fields: {
-            name: { boost: 1 },
-            description: { boost: 1 },
-            concepts: { boost: 3 }
-          }
-        }
+        searchQuery
+        // {
+        //   fields: {
+        //     name: { boost: 1 },
+        //     description: { boost: 1 },
+        //     concepts: { boost: 3 }
+        //   }
+        // }
       )
     }
-    const searchResults = doSearch(search)
-    return searchResults.map(({ ref: id, score }) => cdes.elements.find((cde) => cde.id === id))
+    const searchResults = lexicalSearch(search)
+    const highlightedSearchTokens = searchResults.flatMap(({ matchData }) => Object.keys(matchData.metadata) )
+    const matchedCdes = searchResults.map(({ ref: id, score, matchData }) => cdes.elements.find((cde) => cde.id === id))
+
+    return [ matchedCdes, highlightedSearchTokens ]
   }, [loading, cdeIndex, cdes, search])
 
   return (
@@ -83,7 +91,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
         loading={loading}
         dataSource={cdeSource}
         renderItem={(cde) => (
-          <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } highlight={search.length >= 3 ? tokenizer(search) : []} />
+          <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } highlight={highlightTokens} />
         )}
       />
    </Space>
