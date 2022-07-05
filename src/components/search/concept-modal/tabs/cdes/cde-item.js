@@ -3,6 +3,7 @@ import { List, Collapse, Typography, Space, Tag, Button } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
 import _Highlighter from 'react-highlight-words'
 import { useHelxSearch } from '../../../'
+import { RelatedConceptsList } from './related-concepts'
 
 const { Text, Link } = Typography
 const { Panel } = Collapse
@@ -17,17 +18,12 @@ const Section = ({ title, children }) => (
     </Space>
 )
 
-const DEFAULT_SHOW_COUNT = 8
-const SHOW_COUNT_INCREMENT = 6
-
 export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
     const [collapsed, setCollapsed] = useState(false)
-    const [showCount, setShowCount] = useState(DEFAULT_SHOW_COUNT)
-    const { doSearch, setSelectedResult } = useHelxSearch()
 
     const relatedConceptsSource = useMemo(() => (
-        cdeRelatedConcepts[cde.id].slice(0, showCount)
-    ), [cdeRelatedConcepts, showCount])
+        cdeRelatedConcepts[cde.id]
+    ), [cdeRelatedConcepts, cde])
 
     const Highlighter = useCallback(({ ...props }) => (
         <_Highlighter searchWords={highlight} {...props}/>
@@ -80,28 +76,10 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                             }
                         />
                         <Section title="Related concepts">
-                            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", marginTop: "4px" }}>
-                                {relatedConceptsSource.map((concept) => (
-                                    <Tag style={{ margin: 0 }} onClick={() => {
-                                        doSearch(concept.name)
-                                    }}>
-                                        <Text key={concept.name}>
-                                            <Highlighter textToHighlight={ concept.name } />
-                                        </Text>
-                                    </Tag>
-                                ))}
-                                <Button
-                                    size="small"
-                                    type="link"
-                                    style={{ fontSize: "12px" }}
-                                    onClick={ () => showCount < cdeRelatedConcepts[cde.id].length ?
-                                        setShowCount(cdeRelatedConcepts[cde.id].length)
-                                        : setShowCount(DEFAULT_SHOW_COUNT)
-                                    }
-                                >
-                                    { showCount < cdeRelatedConcepts[cde.id].length ? "Show all" : "Show less" }
-                                </Button>
-                            </div>
+                            <RelatedConceptsList
+                                concepts={relatedConceptsSource}
+                                highlight={highlight}
+                            />
                         </Section>
                         </Space>
                     </div>
