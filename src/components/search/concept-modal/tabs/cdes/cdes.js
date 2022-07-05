@@ -1,23 +1,18 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Collapse, Divider, List, Space, Spin, Tag, Typography, Input } from 'antd'
 import { ExpandAltOutlined, SearchOutlined } from '@ant-design/icons'
-import { Link } from '../../../../link'
-import lunr, { tokenizer } from 'lunr'
-import { useDebounce } from 'use-debounce'
 import { useEnvironment } from '../../../../../contexts'
 import { useLunr } from '../../../../../hooks'
-import { CdeItem } from './cde-item'
+import { CdeList } from './cde-list'
+import { CdeSearch } from './cde-search'
 import './cdes.css'
-
-window.lunr = lunr
 
 const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 const { Panel } = Collapse
 
 export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
-  const [_search, setSearch] = useState("")
-  const [search] = useDebounce(_search, 200)
+  const [search, setSearch] = useState("")
   const { context } = useEnvironment()
 
   const loading = useMemo(() => cdes === null || cdeRelatedConcepts === null, [cdes, cdeRelatedConcepts])
@@ -95,31 +90,14 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
     console.log(searchResults)
     return [ matchedCdes, highlightedSearchTokens ]
   }, [loading, cdeIndex, cdes, search])
-
+  console.log("rerender")
   return (
     <Space direction="vertical">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Title level={ 4 } style={{ margin: 0 }}>CDEs</Title>
-        <Input
-          style={{ width: "auto" }}
-          allowClear
-          value={_search}
-          onChange={(e) => setSearch(e.target.value) }
-          suffix={
-            <div style={{ display: "flex", alignItems: "center", height: "100%"}}>
-              <Divider type="vertical" style={{ height: "100%" }} />
-              <SearchOutlined style={{ fontSize: "16px", marginLeft: "4px" }} />
-            </div>
-          }
-        />
+        <CdeSearch setSearch={setSearch}/>
       </div>
-      <List
-        loading={loading}
-        dataSource={cdeSource}
-        renderItem={(cde) => (
-          <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } highlight={highlightTokens} />
-        )}
-      />
+      <CdeList cdes={cdeSource} cdeRelatedConcepts={cdeRelatedConcepts} highlight={highlightTokens} loading={loading}/>
    </Space>
   )
 }
