@@ -13,37 +13,41 @@ export const useElasticlunr = (initIndex, populateIndex) => {
     }
 }
 export const useLunr = (initIndex, populateIndex) => {
-    const index = useMemo(() => {
-        const idx = lunr(function () {
-            initIndex.call(this)
-            populateIndex.call(null, this)
-        })
-        return idx
-    }, [initIndex, populateIndex])
-    // Takes a lexical search, i.e. a user inputted search query, transforms it into a lunr search query, and executes the search.
-    const lexicalSearch = useCallback((searchQuery, options={
-        fuzziness: 1
-    }) => {
-        const { fuzziness } = options
-        const tokens = lunrTokenizer(searchQuery)
+   const index = useMemo(() => {
+      console.log("--- remake index ---")
+      const idx = lunr(function () {
+         initIndex.call(this)
+         populateIndex.call(null, this)
+      })
+      return idx
+   }, [initIndex, populateIndex])
+   // Takes a lexical search, i.e. a user inputted search query, transforms it into a lunr search query, and executes the search.
+   const lexicalSearch = useCallback((searchQuery, options={
+       fuzziness: 1,
+       prefixSearch: true
+   }) => {
+      const { fuzziness, prefixSearch } = options
+      const tokens = lunrTokenizer(searchQuery)
 
-       // Build tokenized search terms into a generalized lunr query with fuzziness and prefix search.
-       const results = index.query(function (q) {
-           tokens.forEach(({ str: token }) => {
-               // Basic search
-               q.term(token, { boost: 100 })
+      // Build tokenized search terms into a generalized lunr query with fuzziness and prefix search.
+      const results = index.query(function (q) {
+         tokens.forEach(({ str: token }) => {
+            // Basic search
+            q.term(token, { boost: 100 })
+            if (prefixSearch) {
                // Trailing wildcard search (prefix search)
                q.term(token, { boost: 10, usePipeline: false, wildcard: lunr.Query.wildcard.TRAILING })
-               if (fuzziness) {
-                   // Fuzzy search without prefix
-                   q.term(token, { boost: 1, usePipeline: false, editDistance: fuzziness })
-               }
-           })
-       })
-       return results
-    }, [index])
-    return {
-        index,
-        lexicalSearch
-    }
+            }
+            if (fuzziness) {
+               // Fuzzy search without prefix
+               q.term(token, { boost: 1, usePipeline: false, editDistance: fuzziness })
+            }
+         })
+      })
+      return results
+   }, [index])
+   return {
+       index,
+       lexicalSearch
+   }
 }

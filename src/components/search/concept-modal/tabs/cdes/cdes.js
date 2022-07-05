@@ -2,12 +2,14 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Collapse, Divider, List, Space, Spin, Tag, Typography, Input } from 'antd'
 import { ExpandAltOutlined, SearchOutlined } from '@ant-design/icons'
 import { Link } from '../../../../link'
-import { tokenizer } from 'elasticlunr'
+import lunr, { tokenizer } from 'lunr'
 import { useDebounce } from 'use-debounce'
 import { useEnvironment } from '../../../../../contexts'
 import { useLunr } from '../../../../../hooks'
 import { CdeItem } from './cde-item'
 import './cdes.css'
+
+window.lunr = lunr
 
 const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
@@ -20,30 +22,38 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
 
   const loading = useMemo(() => cdes === null || cdeRelatedConcepts === null, [cdes, cdeRelatedConcepts])
 
-  const populateIndex = useCallback((index) => {
+  const docs = useMemo(() => {
     if (!loading) {
-      cdes.elements.forEach((cde) => {
-        const doc = {
-          id: cde.id,
-          name: cde.name,
-          description: cde.description,
-          // Lunr supports array fields, though it expects the user to tokenize the elements themselves.
-          // Instead, just join the concepts into a string and let lunr tokenize it instead.
-          // See: https://stackoverflow.com/a/43562885
-          concepts: Object.values(cdeRelatedConcepts[cde.id]).map((concept) => concept.name).join(" ")
-        }
-        index.add(doc)
-      })
-    }
+      return cdes.elements.map((cde) => ({
+        id: cde.id,
+        name: cde.name,
+        description: cde.description,
+        // Lunr supports array fields, though it expects the user to tokenize the elements themselves.
+        // Instead, just join the concepts into a string and let lunr tokenize it instead.
+        // See: https://stackoverflow.com/a/43562885
+        concepts: Object.values(cdeRelatedConcepts[cde.id]).map((concept) => concept.name).join(" ")
+      }))
+    } else return []
   }, [loading, cdes, cdeRelatedConcepts])
+
+  const initIndex = useCallback(function () {
+    console.log("1) initialize index")
+    this.ref("id")
+    this.field("name")
+    this.field("description")
+    this.field("concepts")
+    this.metadataWhitelist = ["position"]
+  }, [docs])
+  const populateIndex = useCallback((index) => {
+    console.log("2) populate index")
+    docs.forEach((doc) => {
+      console.log("-- add doc")
+      index.add(doc)
+    })
+  }, [docs])
   
   const { index: cdeIndex, lexicalSearch } = useLunr(
-    function () {
-      this.ref("id")
-      this.field("name")
-      this.field("description")
-      this.field("concepts")
-    },
+    initIndex,
     populateIndex
   )
 
@@ -54,19 +64,35 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
     const doSearch = (searchQuery) => {
       return cdeIndex.search(
         searchQuery
-        // {
-        //   fields: {
-        //     name: { boost: 1 },
-        //     description: { boost: 1 },
-        //     concepts: { boost: 3 }
-        //   }
-        // }
       )
     }
     const searchResults = lexicalSearch(search)
-    const highlightedSearchTokens = searchResults.flatMap(({ matchData }) => Object.keys(matchData.metadata) )
-    const matchedCdes = searchResults.map(({ ref: id, score, matchData }) => cdes.elements.find((cde) => cde.id === id))
+    // const highlightedSearchTokens = searchResults.flatMap(({ matchData }) => Object.keys(matchData.metadata) )
 
+    // This solution is quite resource heavy and just not very good.
+    // const highlightedSearchTokens = tokenizer(search)
+    //   .flatMap(({ str: token }) => (
+    //     lunr.TokenSet.fromFuzzyString(token, 1).toArray()
+    //   ))
+    //   .filter((token) => token.length >= 3)
+    //   .map((token) => token.replace("*", "."))
+    //   .map((token) => new RegExp(token))
+    const highlightedSearchTokens = []
+    const matchedCdes = searchResults.map(({ ref: id, score, matchData: { metadata } }) => {
+      const cde = cdes.elements.find((cde) => cde.id === id)
+      const internalDoc = docs.find((doc) => doc.id === id)
+      Object.entries(metadata).forEach(([partialTerm, hitFields]) => {
+        Object.entries(hitFields).forEach(([ field, meta ]) => {
+          const { position: [[start, length]] } = meta
+          const fieldValue = internalDoc[field]
+          const fullTerm = fieldValue.slice(start, start + length)
+          highlightedSearchTokens.push(fullTerm)
+        })
+      })
+      return cde
+    })
+    console.log(highlightedSearchTokens)
+    console.log(searchResults)
     return [ matchedCdes, highlightedSearchTokens ]
   }, [loading, cdeIndex, cdes, search])
 
