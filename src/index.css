@@ -1,4 +1,4 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/antd/4.6.6/antd.css');
+@import url('antd/dist/antd.css');
 
 *, *::before, *::after {
   box-sizing: border-box;

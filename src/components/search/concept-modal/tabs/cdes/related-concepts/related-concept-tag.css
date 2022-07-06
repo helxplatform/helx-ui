@@ -1,0 +1,28 @@
+.related-concept-tag {
+    margin: 0 !important;
+    cursor: pointer;
+}
+.related-concept-popover-overlay .ant-popover-inner-content {
+    padding: 0;
+}
+.related-concept-popover-overlay .ant-popover-title {
+    padding: 8px 12px;
+    /* text-align: center; */
+    text-transform: capitalize;
+}
+.related-concept-options {
+    padding-bottom: 4px !important;
+}
+.related-concept-options > .ant-menu-item {
+    margin: 0 !important;
+    padding: 5px 12px !important;
+    font-size: 14px !important;
+    line-height: 22px !important;
+    height: initial !important;
+}
+.related-concept-options > .ant-menu-item:hover {
+    background-color: #f5f5f5;
+}
+.related-concept-options > .ant-menu-item:hover > .anticon {
+    color: initial;
+}

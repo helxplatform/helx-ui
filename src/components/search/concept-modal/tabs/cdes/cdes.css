@@ -1,3 +1,17 @@
+.cde-item {
+    border-bottom: none !important;
+}
+.cde-content-container {
+    display: flex;
+}
+.cde-content {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+.cde-section {
+    /* This is a Space component, which uses inline-flex by default, which messes with spacing. */
+    display: flex !important;
+}
 .cde-collapse > .ant-collapse-content > .ant-collapse-content-box {
     padding-top: 0 !important;
 }

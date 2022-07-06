@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useMemo, useState } from 'react'
-import { List, Collapse, Typography, Space, Tag, Button } from 'antd'
+import { List, Collapse, Typography, Space, Button } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
 import _Highlighter from 'react-highlight-words'
 import { useHelxSearch } from '../../../'
@@ -9,9 +9,9 @@ const { Text, Link } = Typography
 const { Panel } = Collapse
 
 const Section = ({ title, children }) => (
-    <Space size="small" direction="vertical">
+    <Space size="small" direction="vertical" className="cde-section">
         <div style={{ display: "flex", alignItems: "center" }}>
-            <Text type="" style={{ fontSize: "12px", marginRight: "8px", fontWeight: "normal" }}>{title}</Text>
+            {title && <Text type="" style={{ fontSize: "12px", marginRight: "8px", fontWeight: "normal" }}>{title}</Text>}
             <div style={{ flexGrow: 1, borderTop: "1px solid #eee" }} />
         </div>
         {children}
@@ -32,6 +32,7 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
     return (
         <List.Item
             key={ `${cde.id}` }
+            className="cde-item"
         >
             <Collapse ghost activeKey={collapsed ? null : `${cde.id}-panel`} onChange={ () => setCollapsed(!collapsed) }>
                 <Panel
@@ -60,27 +61,31 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                     }
                     className="cde-collapse"
                 >
-                    <div style={{ display: "flex" }}>
+                    <div className="cde-content-container">
                         <div className="collapse-handle-container" onClick={ () => setCollapsed(true) }>
                             <div className="collapse-handle" />
                         </div>
-                        <Space direction="vertical" size="middle">
-                        <List.Item.Meta
-                            // title={ cde.name }
-                            description={
-                                <Section title="Description">
-                                    <Text type="secondary">
-                                        <Highlighter textToHighlight={ cde.description } />
-                                    </Text>
-                                </Section>
-                            }
-                        />
-                        <Section title="Related concepts">
-                            <RelatedConceptsList
-                                concepts={relatedConceptsSource}
-                                highlight={highlight}
+                        <Space direction="vertical" size="middle" className="cde-content">
+                            <List.Item.Meta
+                                // title={ cde.name }
+                                description={
+                                    <Section title="Description">
+                                        <Text type="secondary">
+                                            <Highlighter textToHighlight={ cde.description } />
+                                        </Text>
+                                    </Section>
+                                }
                             />
-                        </Section>
+                            <Section title="Related concepts">
+                                <RelatedConceptsList
+                                    concepts={relatedConceptsSource}
+                                    highlight={highlight}
+                                />
+                            </Section>
+                            {false && <Section>
+                                {/* Bottom button container */}
+                                <Button type="primary" size="small" style={{ marginTop: "8px" }}>Go</Button>
+                            </Section>}
                         </Space>
                     </div>
                 </Panel>
