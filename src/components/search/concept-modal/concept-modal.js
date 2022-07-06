@@ -33,6 +33,7 @@ export const ConceptModalBody = ({ result }) => {
   /** Abort controllers */
   const fetchVarsController = useRef()
   const fetchCdesController = useRef()
+  const fetchCdesTranqlController = useRef([])
   const fetchKgsController = useRef()
 
   const tabs = {
@@ -104,13 +105,18 @@ export const ConceptModalBody = ({ result }) => {
           }
           const tranqlUrl = context.tranql_url
           const types = ['disease', 'anatomical_entity', 'phenotypic_feature', 'biological_process'] // add any others that you can think of, these are the main 4 found in heal results and supported by tranql
+          fetchCdesTranqlController.current.forEach((controller) => controller.abort())
+          fetchCdesTranqlController.current = []
           const kg = (await Promise.all(types.map(async (type) => {
+              const controller = new AbortController()
+              fetchCdesTranqlController.current.push(controller)
               const res = await fetch(
                   `${tranqlUrl}/tranql/query`,
                   {
                       headers: { 'Content-Type': 'text/plain' },
                       method: 'POST',
-                      body: formatCdeQuery(type)
+                      body: formatCdeQuery(type),
+                      signal: controller.signal
                   }
               )
               const message = await res.json()
