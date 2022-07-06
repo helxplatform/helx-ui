@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment, useAnalytics } from '../../contexts'
@@ -55,6 +55,61 @@ export const HelxSearch = ({ children }) => {
   const inputRef = useRef()
   const navigate = useNavigate()
 
+  const selectedResultLoading = useMemo(() => selectedResult && selectedResult.loading === true, [selectedResult])
+  const selectedResultFailed = useMemo(() => selectedResult && selectedResult.failed === true, [selectedResult])
+
+  const validationReducer = (buckets, hit) => {
+    const valid = validateResult(hit)
+    if (valid) {
+      return { valid: [...buckets.valid, hit], invalid: buckets.invalid }
+    } else {
+      return { valid: buckets.valid, invalid: [...buckets.invalid, hit] }
+    }
+  }
+
+  const executeConceptSearch = async ({ query, offset, size }) => {
+    const params = {
+      index: 'concepts_index',
+      query,
+      offset,
+      size
+    }
+    const response = await axios.post(`${helxSearchUrl}/search`, params)
+    if (response.status === 200 && response.data.status === 'success' && response.data.result) {
+      return response.data.result
+    }
+    return null
+  }
+
+  /** Async search for a concept by name/id and set the selected result */
+  const searchSelectedResult = useCallback(async (name, id) => {
+    const tempResult = {
+      name,
+      loading: true
+    }
+    setSelectedResult(tempResult)
+
+    let foundConceptResult,
+        synonymousConcepts,
+        results
+    
+    const dugResult = await executeConceptSearch({
+      query: name,
+      offset: 0,
+      size: 200
+    })
+    if (dugResult && dugResult.hits) {
+      const hits = dugResult.hits.hits.map(r => r._source).reduce(validationReducer, { valid: [], invalid: [] })
+      results = hits.valid
+      foundConceptResult = results.find((result) => (
+        result.id === id ||
+        result.name === name
+        )
+      )
+      synonymousConcepts = results.filter((result) => result.identifiers.some((identifier) => identifier.equivalent_identifiers.includes(id)))
+    }
+  }, [executeConceptSearch, validationReducer])
+
   const setLayout = (newLayout) => {
     // Only track when layout changes
     if (layout !== newLayout) {
@@ -93,29 +148,18 @@ export const HelxSearch = ({ children }) => {
     setCurrentPage(+queryParams.get('p') || 1)
   }, [location.search])
 
-  const validationReducer = (buckets, hit) => {
-    const valid = validateResult(hit)
-    if (valid) {
-      return { valid: [...buckets.valid, hit], invalid: buckets.invalid }
-    } else {
-      return { valid: buckets.valid, invalid: [...buckets.invalid, hit] }
-    }
-  }
-
   useEffect(() => {
     const fetchConcepts = async () => {
       setIsLoadingConcepts(true)
       const startTime = Date.now()
       try {
-        const params = {
-          index: 'concepts_index',
+        const result = await executeConceptSearch({
           query: query,
           offset: (currentPage - 1) * PER_PAGE,
-          size: PER_PAGE,
-        }
-        const response = await axios.post(`${helxSearchUrl}/search`, params)
-        if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.hits) {
-          const unsortedHits = response.data.result.hits.hits.map(r => r._source)
+          size: PER_PAGE
+        })
+        if (result && result.hits) {
+          const unsortedHits = result.hits.hits.map(r => r._source)
           // gather invalid concepts: remove from rendered concepts and dump to console.
           let hits = unsortedHits.reduce(validationReducer, { valid: [], invalid: [] })
           if (hits.invalid.length) {
@@ -125,9 +169,9 @@ export const HelxSearch = ({ children }) => {
           }
           setSelectedResult(null)
           setConcepts(hits.valid)
-          setTotalConcepts(response.data.result.total_items)
+          setTotalConcepts(result.total_items)
           setIsLoadingConcepts(false)
-          analyticsEvents.searchExecuted(query, Date.now() - startTime, response.data.result.total_items)
+          analyticsEvents.searchExecuted(query, Date.now() - startTime, result.total_items)
         } else {
           setSelectedResult(null)
           setConcepts([])
@@ -221,6 +265,7 @@ export const HelxSearch = ({ children }) => {
   const doSearch = queryString => {
     const trimmedQuery = queryString.trim()
     if (trimmedQuery !== '') {
+      setSelectedResult(null)
       setQuery(trimmedQuery)
       setCurrentPage(1)
       navigate(`${basePath}search?q=${trimmedQuery}&p=1`)
@@ -236,7 +281,7 @@ export const HelxSearch = ({ children }) => {
       concepts, totalConcepts,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
-      selectedResult, setSelectedResult,
+      selectedResult, selectedResultLoading, selectedResultFailed, setSelectedResult,
       layout, setLayout, setFullscreenResult
     }}>
       { children }

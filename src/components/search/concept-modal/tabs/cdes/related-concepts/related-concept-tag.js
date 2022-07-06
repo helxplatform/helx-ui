@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Popover, Tag, Typography } from 'antd'
 import Highlighter from 'react-highlight-words'
 import { useHelxSearch } from '../../../../'
@@ -10,7 +10,13 @@ const { Text } = Typography
 export const RelatedConceptTag = ({ concept, highlight }) => {
     const { doSearch } = useHelxSearch()
     const [showOptions, setShowOptions] = useState(false)
-    
+
+    const openSearch = useCallback(() => {
+        doSearch(concept.name)
+    })
+    const openConcept = useCallback(() => {
+
+    })
     return (
         <Popover
             placement="right"
@@ -20,8 +26,8 @@ export const RelatedConceptTag = ({ concept, highlight }) => {
             content={
                 <RelatedConceptOptions
                     concept={concept}
-                    openSearch={() => {}}
-                    openConcept={() => {}}
+                    openSearch={openSearch}
+                    openConcept={openConcept}
                     setClosed={ () => setShowOptions(false) }
                 />
             }
@@ -29,7 +35,6 @@ export const RelatedConceptTag = ({ concept, highlight }) => {
             onVisibleChange={(visible) => setShowOptions(visible)}
         >
             <Tag className="related-concept-tag" onClick={() => {
-                // doSearch(concept.name)
                 setShowOptions(true)
             }}>
                 <Text key={concept.name}>

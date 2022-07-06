@@ -2,7 +2,6 @@ import { Fragment, useCallback, useMemo, useState } from 'react'
 import { List, Collapse, Typography, Space, Button } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
 import _Highlighter from 'react-highlight-words'
-import { useHelxSearch } from '../../../'
 import { RelatedConceptsList } from './related-concepts'
 
 const { Text, Link } = Typography

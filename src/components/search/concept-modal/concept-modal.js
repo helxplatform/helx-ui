@@ -105,8 +105,13 @@ export const ConceptModalBody = ({ result }) => {
         }), {"nodes": {}, "edges": {}})
         const cdeOutEdges = Object.values(kg.edges).filter((edge) => edge.subject ===  cdeId)
         return cdeOutEdges.map(
-          (outEdge) =>
-            Object.entries(kg.nodes).find(([nodeId, node]) => nodeId === outEdge.object)[1]
+          (outEdge) => {
+            const [nodeId, node] = Object.entries(kg.nodes).find(([nodeId, node]) => nodeId === outEdge.object)
+            return {
+              id: nodeId,
+              ...node
+            }
+          }
         )
       }
       const relatedConcepts = {}
