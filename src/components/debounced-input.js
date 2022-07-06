@@ -3,9 +3,13 @@ import { Divider, Input } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
 import { useDebounce } from 'use-debounce'
 
-export const CdeSearch = ({ setSearch: setOuterSearch }) => {
+export const DebouncedInput = ({
+    debounce=200,
+    inputProps={},
+    setValue: setOuterSearch
+}) => {
     const [_search, setSearch] = useState("")
-    const [search] = useDebounce(_search, 200)
+    const [search] = useDebounce(_search, debounce)
     useEffect(() => {
         setOuterSearch(search)
     }, [search])
@@ -20,7 +24,8 @@ export const CdeSearch = ({ setSearch: setOuterSearch }) => {
                     <Divider type="vertical" style={{ height: "100%" }} />
                     <SearchOutlined style={{ fontSize: "16px", marginLeft: "4px" }} />
                 </div>
-        }
+            }
+            {...inputProps}
         />
     )
 }

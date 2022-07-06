@@ -4,7 +4,7 @@ import { ExpandAltOutlined, SearchOutlined } from '@ant-design/icons'
 import { useEnvironment } from '../../../../../contexts'
 import { useLunrSearch } from '../../../../../hooks'
 import { CdeList } from './cde-list'
-import { CdeSearch } from './cde-search'
+import { DebouncedInput } from '../../../../'
 import './cdes.css'
 
 const { Text, Title } = Typography
@@ -51,11 +51,12 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
     const matchedCdes = hits.map(({ ref: id }) => cdes.elements.find((cde) => cde.id === id))
     return [ matchedCdes, tokens ]
   }, [loading, cdeIndex, cdes, search])
+
   return (
     <Space direction="vertical">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Title level={ 4 } style={{ margin: 0 }}>CDEs</Title>
-        <CdeSearch setSearch={setSearch}/>
+        <DebouncedInput setValue={setSearch}/>
       </div>
       <CdeList cdes={cdeSource} cdeRelatedConcepts={cdeRelatedConcepts} highlight={highlightTokens} loading={loading}/>
    </Space>
