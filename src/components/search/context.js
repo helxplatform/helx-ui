@@ -238,7 +238,9 @@ export const HelxSearch = ({ children }) => {
       }
       return data.result.hits.hits.map(graph => graph._source.knowledge_graph)
     } catch (error) {
-      console.error(error)
+      /** Forward AbortError upwards. Handle other errors here. */
+      if (error.name === "CanceledError") throw error
+      else console.error(error)
     }
   }, [helxSearchUrl, concepts])
 
@@ -264,7 +266,7 @@ export const HelxSearch = ({ children }) => {
       return filteredAndTypedStudies
     } catch (error) {
       /** Forward AbortError upwards. Handle other errors here. */
-      if (error.name === "AbortController") throw error
+      if (error.name === "CanceledError") throw error
       else console.error(error)
     }
   }, [helxSearchUrl, concepts])
@@ -291,7 +293,7 @@ export const HelxSearch = ({ children }) => {
       return cdesOnly[0]
     } catch (error) {
       /** Forward AbortError upwards. Handle other errors here. */
-      if (error.name === "AbortController") throw error
+      if (error.name === "CanceledError") throw error
       else console.error(error)
     }
   }, [helxSearchUrl, concepts])
