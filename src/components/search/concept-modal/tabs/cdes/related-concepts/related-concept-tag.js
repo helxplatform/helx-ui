@@ -8,14 +8,14 @@ import './related-concept-tag.css'
 const { Text } = Typography
 
 export const RelatedConceptTag = ({ concept, highlight }) => {
-    const { doSearch } = useHelxSearch()
+    const { doSearch, searchSelectedResult } = useHelxSearch()
     const [showOptions, setShowOptions] = useState(false)
 
     const openSearch = useCallback(() => {
         doSearch(concept.name)
     })
     const openConcept = useCallback(() => {
-
+        searchSelectedResult(concept.name, concept.id)
     })
     return (
         <Popover

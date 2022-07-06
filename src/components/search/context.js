@@ -49,14 +49,27 @@ export const HelxSearch = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
-  const [selectedResult, setSelectedResult] = useState(null)
+  const [selectedResult, _setSelectedResult] = useState(null)
   const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.GRID)
 
   const inputRef = useRef()
   const navigate = useNavigate()
+  
+  /** Abort controllers */
+  const searchSelectedResultController = useRef()
 
-  const selectedResultLoading = useMemo(() => selectedResult && selectedResult.loading === true, [selectedResult])
-  const selectedResultFailed = useMemo(() => selectedResult && selectedResult.failed === true, [selectedResult])
+  // const selectedResultLoading = useMemo(() => selectedResult && selectedResult.loading === true, [selectedResult])
+  // const selectedResultFailed = useMemo(() => selectedResult && selectedResult.failed === true, [selectedResult])
+  
+  /** Decorate `selectedResult` with fields:
+   * - previousResult: the previous value of `selectedResult`
+   * 
+   */
+  const setSelectedResult = useCallback((result) => _setSelectedResult((previousResult) => result === null ? null : ({
+    ...result,
+    previousResult: previousResult?.loading ? previousResult.previousResult : previousResult
+  })), [_setSelectedResult])
+
 
   const validationReducer = (buckets, hit) => {
     const valid = validateResult(hit)
@@ -67,14 +80,14 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
-  const executeConceptSearch = async ({ query, offset, size }) => {
+  const executeConceptSearch = async ({ query, offset, size }, axiosOptions) => {
     const params = {
       index: 'concepts_index',
       query,
       offset,
       size
     }
-    const response = await axios.post(`${helxSearchUrl}/search`, params)
+    const response = await axios.post(`${helxSearchUrl}/search`, params, axiosOptions)
     if (response.status === 200 && response.data.status === 'success' && response.data.result) {
       return response.data.result
     }
@@ -93,20 +106,35 @@ export const HelxSearch = ({ children }) => {
         synonymousConcepts,
         results
     
-    const dugResult = await executeConceptSearch({
-      query: name,
-      offset: 0,
-      size: 200
-    })
-    if (dugResult && dugResult.hits) {
-      const hits = dugResult.hits.hits.map(r => r._source).reduce(validationReducer, { valid: [], invalid: [] })
-      results = hits.valid
-      foundConceptResult = results.find((result) => (
-        result.id === id ||
-        result.name === name
+    
+    if (searchSelectedResultController.current) searchSelectedResultController.current.abort()
+    searchSelectedResultController.current = new AbortController()
+
+    try {
+      const dugResult = await executeConceptSearch({
+        query: name,
+        offset: 0,
+        size: 200
+      }, {
+        signal: searchSelectedResultController.current.signal
+      })
+      if (dugResult && dugResult.hits) {
+        const hits = dugResult.hits.hits.map(r => r._source).reduce(validationReducer, { valid: [], invalid: [] })
+        results = hits.valid
+        foundConceptResult = results.find((result) => (
+          result.id === id ||
+          result.name === name
+          )
         )
-      )
-      synonymousConcepts = results.filter((result) => result.identifiers.some((identifier) => identifier.equivalent_identifiers.includes(id)))
+        synonymousConcepts = results.filter((result) => result.identifiers.some((identifier) => identifier.equivalent_identifiers.includes(id)))
+      }
+      setSelectedResult(foundConceptResult ? foundConceptResult : {
+        name,
+        failed: true,
+        suggestions: synonymousConcepts.length > 0 ? synonymousConcepts : results
+      })
+    } catch (e) {
+      if (e.name !== "AbortError") throw e
     }
   }, [executeConceptSearch, validationReducer])
 
@@ -195,14 +223,14 @@ export const HelxSearch = ({ children }) => {
     setPageCount(Math.ceil(totalConcepts / PER_PAGE))
   }, [totalConcepts])
 
-  const fetchKnowledgeGraphs = useCallback(async (tag_id) => {
+  const fetchKnowledgeGraphs = useCallback(async (tag_id, axiosOptions) => {
     try {
       const { data } =  await axios.post(`${helxSearchUrl}/search_kg`, {
         index: 'kg_index',
         unique_id: tag_id,
         query: query,
         size: 100,
-      })
+      }, axiosOptions)
       if (!data || data.result.total_items === 0) {
         return []
       }
@@ -212,14 +240,14 @@ export const HelxSearch = ({ children }) => {
     }
   }, [helxSearchUrl, concepts])
 
-  const fetchStudyVariables = useCallback(async (_id, _query) => {
+  const fetchStudyVariables = useCallback(async (_id, _query, axiosOptions) => {
     try {
       const { data: { result } } = await axios.post(`${helxSearchUrl}/search_var`, {
         concept: _id,
         index: 'variables_index',
         query: _query,
         size: 1000
-      })
+      }, axiosOptions)
       if (!result) {
         return []
       }
@@ -233,18 +261,20 @@ export const HelxSearch = ({ children }) => {
         }, [])
       return filteredAndTypedStudies
     } catch (error) {
-      console.error(error)
+      /** Forward AbortError upwards. Handle other errors here. */
+      if (error.name === "AbortController") throw error
+      else console.error(error)
     }
   }, [helxSearchUrl, concepts])
 
-  const fetchCDEs = useCallback(async (_id, _query) => {
+  const fetchCDEs = useCallback(async (_id, _query, axiosOptions) => {
     try {
       const { data: { result } } = await axios.post(`${helxSearchUrl}/search_var`, {
         concept: _id,
         index: 'variables_index',
         query: _query,
         size: 1000
-      })
+      }, axiosOptions)
       if (!result) {
         return []
       }
@@ -258,7 +288,9 @@ export const HelxSearch = ({ children }) => {
         }, [])
       return cdesOnly[0]
     } catch (error) {
-      console.error(error)
+      /** Forward AbortError upwards. Handle other errors here. */
+      if (error.name === "AbortController") throw error
+      else console.error(error)
     }
   }, [helxSearchUrl, concepts])
 
@@ -281,7 +313,7 @@ export const HelxSearch = ({ children }) => {
       concepts, totalConcepts,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
-      selectedResult, selectedResultLoading, selectedResultFailed, setSelectedResult,
+      selectedResult, setSelectedResult, searchSelectedResult,
       layout, setLayout, setFullscreenResult
     }}>
       { children }

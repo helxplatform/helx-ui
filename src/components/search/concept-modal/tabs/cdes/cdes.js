@@ -19,7 +19,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
 
   const docs = useMemo(() => {
     if (!loading) {
-      return cdes.elements.map((cde) => ({
+      return cdes.elements.map((cde) => (console.log(cde.id, cdeRelatedConcepts[cde.id]), {
         id: cde.id,
         name: cde.name,
         description: cde.description,
