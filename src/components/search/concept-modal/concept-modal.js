@@ -73,7 +73,7 @@ export const ConceptModalBody = ({ result }) => {
     }
     const getVars = async () => {
       try {
-        if (fetchVarsController.current) fetchVarsController.current.abort()
+        fetchVarsController.current?.abort()
         fetchVarsController.current = new AbortController()
 
         const data = await fetchStudyVariables(result.id, query, {
@@ -85,13 +85,15 @@ export const ConceptModalBody = ({ result }) => {
           return studies
         }, {}))
       } catch (e) {
-        if (e.name !== "AbortError") throw e
+        if (e.name !== "CanceledError") throw e
       }
     }
     const getCdes = async () => {
       try {
-        if (fetchCdesController.current) fetchCdesController.current.abort()
+        fetchCdesController.current?.abort()
         fetchCdesController.current = new AbortController()
+        fetchCdesTranqlController.current.forEach((controller) => controller.abort())
+        fetchCdesTranqlController.current = []
 
         const data = await fetchCDEs(result.id, query, {
           signal: fetchCdesController.current.signal
@@ -105,8 +107,6 @@ export const ConceptModalBody = ({ result }) => {
           }
           const tranqlUrl = context.tranql_url
           const types = ['disease', 'anatomical_entity', 'phenotypic_feature', 'biological_process'] // add any others that you can think of, these are the main 4 found in heal results and supported by tranql
-          fetchCdesTranqlController.current.forEach((controller) => controller.abort())
-          fetchCdesTranqlController.current = []
           const kg = (await Promise.all(types.map(async (type) => {
               const controller = new AbortController()
               fetchCdesTranqlController.current.push(controller)
@@ -152,12 +152,13 @@ export const ConceptModalBody = ({ result }) => {
         setCdes(data)
         setCdeRelatedConcepts(relatedConcepts)
       } catch (e) {
-        if (e.name !== "AbortError") throw e
+        // Check both because this function uses both Fetch API & Axios
+        if (e.name !== "CanceledError" && e.name !== "AbortError") throw e
       }
     }
     const getKgs = async () => {
       try {
-        if (fetchKgsController.current) fetchKgsController.current.abort()
+        fetchKgsController.current?.abort()
         fetchKgsController.current = new AbortController()
 
         const kgs = await fetchKnowledgeGraphs(result.id, {
@@ -165,7 +166,7 @@ export const ConceptModalBody = ({ result }) => {
         })
         setGraphs(kgs)
       } catch (e) {
-        if (e.name !== "AbortError") throw e
+        if (e.name !== "CanceledError") throw e
       }
     }
     if (!result.loading && !result.failed) {
@@ -179,6 +180,17 @@ export const ConceptModalBody = ({ result }) => {
       getKgs()
     }
   }, [fetchKnowledgeGraphs, fetchStudyVariables, fetchCDEs, result, query])
+
+  useEffect(() => {
+    return () => {
+      // On unmount, cancel all pending fetch requests.
+      fetchVarsController.current?.abort()
+      fetchKgsController.current?.abort()
+      fetchCdesController.current?.abort()
+      fetchCdesTranqlController.current.forEach((controller) => controller.abort())
+      fetchCdesTranqlController.current = []
+    }
+  }, [])
   
   if (result.loading) return (
     <Spin style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }} />

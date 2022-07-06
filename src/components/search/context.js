@@ -2,16 +2,12 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
 import { useEnvironment, useAnalytics } from '../../contexts'
-import './search.css'
 import { ConceptModal } from './'
 import { useLocalStorage } from '../../hooks/use-local-storage'
-
-//
+import './search.css'
 
 export const HelxSearchContext = createContext({})
 export const useHelxSearch = () => useContext(HelxSearchContext)
-
-//
 
 const PER_PAGE = 20
 const tempSearchFacets = [
@@ -62,13 +58,19 @@ export const HelxSearch = ({ children }) => {
   // const selectedResultFailed = useMemo(() => selectedResult && selectedResult.failed === true, [selectedResult])
   
   /** Decorate `selectedResult` with fields:
-   * - previousResult: the previous value of `selectedResult`
+   * - previousResult: the last value of `selectedResult`
    * 
    */
-  const setSelectedResult = useCallback((result) => _setSelectedResult((previousResult) => result === null ? null : ({
-    ...result,
-    previousResult: previousResult?.loading ? previousResult.previousResult : previousResult
-  })), [_setSelectedResult])
+  const setSelectedResult = useCallback((result) => {
+    // Make sure to cancel searchSelectedResult requests so that calls to it don't override state with stale data.
+    searchSelectedResultController.current?.abort()
+    _setSelectedResult((previousResult) => {
+      return result === null ? null : ({
+        ...result,
+        previousResult: previousResult?.loading ? previousResult.previousResult : previousResult
+      })
+    })
+  }, [_setSelectedResult])
 
 
   const validationReducer = (buckets, hit) => {
@@ -134,7 +136,7 @@ export const HelxSearch = ({ children }) => {
         suggestions: synonymousConcepts.length > 0 ? synonymousConcepts : results
       })
     } catch (e) {
-      if (e.name !== "AbortError") throw e
+      if (e.name !== "CanceledError") throw e
     }
   }, [executeConceptSearch, validationReducer])
 
@@ -303,6 +305,13 @@ export const HelxSearch = ({ children }) => {
       navigate(`${basePath}search?q=${trimmedQuery}&p=1`)
     }
   }
+
+  useEffect(() => {
+    return () => {
+      // Unmount
+      searchSelectedResultController.current?.abort()
+    }
+  }, [])
 
   return (
     <HelxSearchContext.Provider value={{
