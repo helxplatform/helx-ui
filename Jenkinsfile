@@ -67,18 +67,19 @@ spec:
         stage('Build') {
             steps {
                 container(name: 'kaniko', shell: '/busybox/sh') {
-                    sh '''#!/busybox/sh
-                       echo "Build stage"
-                       /kaniko/executor --dockerfile ./Dockerfile \
-                                        --context . \
-                                        --verbosity debug \
-                                        --no-push \
-                                        --destination $IMAGE_NAME:$TAG1 \
-                                        --destination $IMAGE_NAME:$TAG2 \
-                                        --destination $IMAGE_NAME:$TAG3 \
-                                        --destination $IMAGE_NAME:$TAG4 \
-                                        --tarPath image.tar
-                       '''
+                    // sh '''#!/busybox/sh
+                    //    echo "Build stage"
+                    //    /kaniko/executor --dockerfile ./Dockerfile \
+                    //                     --context . \
+                    //                     --verbosity debug \
+                    //                     --no-push \
+                    //                     --destination $IMAGE_NAME:$TAG1 \
+                    //                     --destination $IMAGE_NAME:$TAG2 \
+                    //                     --destination $IMAGE_NAME:$TAG3 \
+                    //                     --destination $IMAGE_NAME:$TAG4 \
+                    //                     --tarPath image.tar
+                    //    '''
+                    kaniko.build(['$IMAGE_NAME:$TAG1', '$IMAGE_NAME:$TAG2', '$IMAGE_NAME:$TAG3', '$IMAGE_NAME:$TAG4'])
                 }
             }
             post {
