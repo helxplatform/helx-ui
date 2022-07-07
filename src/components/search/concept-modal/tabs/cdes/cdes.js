@@ -11,14 +11,15 @@ const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 const { Panel } = Collapse
 
-export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
+export const CdesTab = ({ cdes, cdeRelatedConcepts, loading }) => {
   const [search, setSearch] = useState("")
   const { context } = useEnvironment()
 
-  const loading = useMemo(() => cdes === null || cdeRelatedConcepts === null, [cdes, cdeRelatedConcepts])
+  /** CDEs have loaded, but there aren't any. */
+  const failed = useMemo(() => !loading && !cdes, [loading, cdes])
 
   const docs = useMemo(() => {
-    if (!loading) {
+    if (!loading && !failed) {
       return cdes.elements.map((cde) => ({
         id: cde.id,
         name: cde.name,
@@ -29,7 +30,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
         concepts: Object.values(cdeRelatedConcepts[cde.id]).map((concept) => concept.name).join(" ")
       }))
     } else return []
-  }, [loading, cdes, cdeRelatedConcepts])
+  }, [loading, failed, cdes, cdeRelatedConcepts])
   
   const { index: cdeIndex, lexicalSearch } = useLunrSearch({
     docs,
@@ -40,7 +41,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
   })
 
   const [cdeSource, highlightTokens] = useMemo(() => {
-    if (loading) return [[], []]
+    if (loading || failed) return [[], []]
     if (search.length < 3) return [cdes.elements, []]
 
     const { hits, tokens } = lexicalSearch(search, {
@@ -50,15 +51,15 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts }) => {
     })
     const matchedCdes = hits.map(({ ref: id }) => cdes.elements.find((cde) => cde.id === id))
     return [ matchedCdes, tokens ]
-  }, [loading, cdeIndex, cdes, search])
+  }, [loading, failed, cdeIndex, cdes, search])
 
   return (
     <Space direction="vertical">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Title level={ 4 } style={{ margin: 0 }}>CDEs</Title>
-        <DebouncedInput setValue={setSearch}/>
+        { !failed && <DebouncedInput setValue={setSearch}/> }
       </div>
-      <CdeList cdes={cdeSource} cdeRelatedConcepts={cdeRelatedConcepts} highlight={highlightTokens} loading={loading}/>
+      <CdeList cdes={cdeSource} cdeRelatedConcepts={cdeRelatedConcepts} highlight={highlightTokens} loading={loading} failed={failed}/>
    </Space>
   )
 }

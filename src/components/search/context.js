@@ -280,7 +280,7 @@ export const HelxSearch = ({ children }) => {
         size: 1000
       }, axiosOptions)
       if (!result) {
-        return []
+        return null
       }
       const cdesOnly = Object.keys(result)
         .reduce((studies, key) => {
@@ -290,7 +290,7 @@ export const HelxSearch = ({ children }) => {
           }
           return [...studies]
         }, [])
-      return cdesOnly[0]
+      return cdesOnly ? cdesOnly[0] : null
     } catch (error) {
       /** Forward AbortError upwards. Handle other errors here. */
       if (error.name === "CanceledError") throw error

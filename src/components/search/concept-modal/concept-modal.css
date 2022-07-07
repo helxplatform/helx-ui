@@ -40,6 +40,13 @@
   display: none;
 }
 
+.concept-modal-failed-result .ant-result-icon {
+  margin-top: 16px;
+}
+.concept-modal-failed-result .ant-result-content {
+  padding-bottom: 0;
+}
+
 @media (min-width: 600px) {
   .tab-name {
     display: inline;

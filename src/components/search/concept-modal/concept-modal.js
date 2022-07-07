@@ -29,6 +29,7 @@ export const ConceptModalBody = ({ result }) => {
   const [studies, setStudies] = useState([])
   const [cdes, setCdes] = useState(null)
   const [cdeRelatedConcepts, setCdeRelatedConcepts] = useState(null)
+  const [cdesLoading, setCdesLoading] = useState(true)
 
   /** Abort controllers */
   const fetchVarsController = useRef()
@@ -39,7 +40,7 @@ export const ConceptModalBody = ({ result }) => {
   const tabs = {
     'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
     'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
-    'cdes':     { title: `CDEs`,                icon: <CdesIcon />,             content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } /> },
+    'cdes':     { title: `CDEs`,                icon: <CdesIcon />,             content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } loading={ cdesLoading } /> },
     'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
     'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> },
     // 'robokop':   { title: 'Robokop',            icon: <RobokopIcon/>,           content: <RobokopTab /> }
@@ -90,12 +91,13 @@ export const ConceptModalBody = ({ result }) => {
     }
     const getCdes = async () => {
       try {
+        setCdesLoading(true)
+
         fetchCdesController.current?.abort()
         fetchCdesController.current = new AbortController()
         fetchCdesTranqlController.current.forEach((controller) => controller.abort())
         fetchCdesTranqlController.current = []
-
-        const data = await fetchCDEs(result.id, query, {
+        const cdeData = await fetchCDEs(result.id, query, {
           signal: fetchCdesController.current.signal
         })
         const loadRelatedConcepts = async (cdeId) => {
@@ -143,14 +145,16 @@ export const ConceptModalBody = ({ result }) => {
           )
         }
         const relatedConcepts = {}
-        if (data) {
-          const cdeIds = data.elements.map((cde) => cde.id)
+        if (cdeData) {
+          const cdeIds = cdeData.elements.map((cde) => cde.id)
           await Promise.all(cdeIds.map(async (cdeId, i) => {
             relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
           }))
         }
-        setCdes(data)
+        setCdes(cdeData)
+        /** Note that relatedConcepts are *TranQL* concepts/nodes, not DUG concepts. Both have the top level fields `id` and `name`. */
         setCdeRelatedConcepts(relatedConcepts)
+        setCdesLoading(false)
       } catch (e) {
         // Check both because this function uses both Fetch API & Axios
         if (e.name !== "CanceledError" && e.name !== "AbortError") throw e
@@ -200,21 +204,13 @@ export const ConceptModalBody = ({ result }) => {
       status="error"
       title="Result not found"
       subTitle="Sorry! It looks like we don't have this concept indexed."
-      // extra={[
-      //   <Button type="primary" onClick={() => {
-      //     // go back one crumb
-      //     goToResultBreadcrumb(resultCrumbs[resultCrumbs.indexOf(result) - 1])
-      //   }}>Go back</Button>
-      // ]}
-      style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        width: "100%",
-        height: "100%",
-        transform: "translate(-50%, -50%)",
-        overflowY: "auto"
-      }}
+      extra={[
+        <Button type="primary" onClick={() => {
+          // go back one crumb
+          setSelectedResult(result.previousResult)
+        }}>Go back</Button>
+      ]}
+      className="concept-modal-failed-result"
     >
       <Paragraph>
         <Text strong style={{ fontSize: 16 }}>Related concepts</Text>
@@ -295,7 +291,7 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
       onCancel={ closeHandler }
       width={ 1200 }
       style={{ top: 135 }}
-      bodyStyle={{ padding: `0`, minHeight: `50vh` }}
+      bodyStyle={{ padding: `0`, minHeight: `50vh`, position: `relative` }}
       cancelButtonProps={{ hidden: true }}
       footer={(
         <Space style={{ justifyContent: "flex-end" }}>
