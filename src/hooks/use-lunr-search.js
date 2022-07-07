@@ -5,7 +5,7 @@
  * 
  */
 
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useLunr } from './'
 
 export const useLunrSearch = ({
@@ -44,7 +44,8 @@ export const useLunrSearch = ({
         const result = lunrLexicalSearch(...args)
         const searchTokens = []
         result.forEach(({ ref: id, score, matchData: { metadata } }) => {
-            const doc = docs.find((doc) => doc.id === id)
+            // `ref` is always a string, so the doc ref needs to be converted to a string.
+            const doc = docs.find((doc) => doc[ref].toString() === id)
             Object.entries(metadata).forEach(([partialTerm, hitFields]) => {
               Object.entries(hitFields).forEach(([ field, meta ]) => {
                 const { position: [[start, length]] } = meta

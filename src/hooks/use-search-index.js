@@ -23,10 +23,14 @@ export const useLunr = (initIndex, populateIndex) => {
    // Takes a lexical search, i.e. a user inputted search query, transforms it into a lunr search query, and executes the search.
    const lexicalSearch = useCallback((searchQuery, options={
       // Can be either a number or a function with signature (term: string) => number (e.g. if you want to increase fuzziness for longer terms)
-      fuzziness: 1,
+      // By default, use fuzziness of 1 character and give an extra character of fuzziness to terms longer than 4 characters.
+      fuzziness: (term) => term.length >= 5 ? 2 : 1,
       prefixSearch: true
    }) => {
-      const { fuzziness=1, prefixSearch=true } = options
+      const {
+         prefixSearch=true,
+         fuzziness=(term) => term.length >= 5 ? 2 : 1
+      } = options
       const tokens = lunrTokenizer(searchQuery)
 
       // Build tokenized search terms into a generalized lunr query with fuzziness and prefix search.

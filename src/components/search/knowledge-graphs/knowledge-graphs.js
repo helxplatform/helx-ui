@@ -57,7 +57,19 @@ export const KnowledgeGraphs = ({ graphs: complete_graphs }) => {
         <div className="column-title">Ontological Term)</div>
         <div className="column-title">Interaction Type</div>
         <div className="column-title">Linked Term</div>
-        { graphs.map(graph => <KnowledgeGraph graph={graph} />)}
+        { graphs.map((graph) => {
+          const { nodes, edges } = graph
+
+          const edge = edges[0]
+          const subject = nodes.find((node) => node.id === edge.subject)
+          const object = nodes.find((node) => node.id === edge.object)
+
+          const key = `${subject.id}-[${edge.predicate}]->${object.id}`
+          
+          return  (
+            <KnowledgeGraph key={key} graph={graph} />
+          )
+        })}
       </div>
     )
   }

@@ -32,26 +32,23 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts, loading }) => {
     } else return []
   }, [loading, failed, cdes, cdeRelatedConcepts])
   
-  const { index: cdeIndex, lexicalSearch } = useLunrSearch({
+  const lunrConfig = useMemo(() => ({
     docs,
     index: {
       ref: "id",
       fields: ["name", "description", "concepts"]
     }
-  })
+  }), [docs])
+  const { index: cdeIndex, lexicalSearch } = useLunrSearch(lunrConfig)
 
   const [cdeSource, highlightTokens] = useMemo(() => {
     if (loading || failed) return [[], []]
     if (search.length < 3) return [cdes.elements, []]
 
-    const { hits, tokens } = lexicalSearch(search, {
-      prefixSearch: true,
-      // Give an extra edit of fuzziness to terms longer than 4 characters.
-      fuzziness: (term) => term.length >= 5 ? 2 : 1
-    })
+    const { hits, tokens } = lexicalSearch(search)
     const matchedCdes = hits.map(({ ref: id }) => cdes.elements.find((cde) => cde.id === id))
     return [ matchedCdes, tokens ]
-  }, [loading, failed, cdeIndex, cdes, search])
+  }, [loading, failed, cdes, search, lexicalSearch])
 
   return (
     <Space direction="vertical">
