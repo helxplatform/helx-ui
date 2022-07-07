@@ -11,7 +11,6 @@ export const KnowledgeGraphsTab = ({ graphs }) => {
 
   const docs = useMemo(() => {
     if (graphs) {
-      console.log("Regenerate graph docs")
       return graphs.map(({ knowledge_graph }, i) => {
         const { nodes, edges } = knowledge_graph
 
