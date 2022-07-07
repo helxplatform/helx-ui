@@ -66,6 +66,7 @@ spec:
     stages {
         stage('Build') {
             steps {
+              script {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     // sh '''#!/busybox/sh
                     //    echo "Build stage"
@@ -81,6 +82,7 @@ spec:
                     //    '''
                     kaniko.build(['$IMAGE_NAME:$TAG1', '$IMAGE_NAME:$TAG2', '$IMAGE_NAME:$TAG3', '$IMAGE_NAME:$TAG4'])
                 }
+              }
             }
             post {
                 always {
