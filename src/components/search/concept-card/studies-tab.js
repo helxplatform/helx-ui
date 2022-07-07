@@ -78,7 +78,6 @@ export const StudiesTab = ({ result }) => {
       {/* <Divider style={{ marginTop: "8px", marginBottom: "8px" }} /> */}
       <List
         className="studies-list"
-        locale={{ emptyText: "" }}
         dataSource={ studiesSource }
         renderItem={ study => (
           <List.Item className="studies-list-item">

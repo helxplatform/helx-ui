@@ -1,6 +1,9 @@
 .cde-item {
     border-bottom: none !important;
 }
+.cde-item > .ant-collapse {
+    width: 100%;
+}
 .cde-content-container {
     display: flex;
 }

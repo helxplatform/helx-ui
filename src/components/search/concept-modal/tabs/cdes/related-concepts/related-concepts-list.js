@@ -5,13 +5,14 @@ import { RelatedConceptTag } from './related-concept-tag'
 
 const { Text } = Typography
 
-const DEFAULT_SHOW_COUNT = 8
-const SHOW_COUNT_INCREMENT = 6
+const SHOW_COUNT = 8
 
 export const RelatedConceptsList = ({ concepts, highlight }) => {
-    const [showCount, setShowCount] = useState(DEFAULT_SHOW_COUNT)
-    
-    const showingAll = showCount === concepts.length
+    const [showingAll, setShowingAll] = useState(false)
+
+    const showCount = useMemo(() => showingAll ? concepts.length : SHOW_COUNT, [showingAll, concepts])
+    const hideShowAll = useMemo(() => concepts.length <= SHOW_COUNT, [concepts])
+
     const shownConcepts = concepts.slice(0, showCount)
     const hiddenConcepts = concepts.slice(showCount)
     const hiddenHighlighted = hiddenConcepts.filter((concept) => (
@@ -43,17 +44,17 @@ export const RelatedConceptsList = ({ concepts, highlight }) => {
                     }
                 </Fragment>
             )}
-            <Button
-                size="small"
-                type="link"
-                style={{ fontSize: "12px" }}
-                onClick={ () => !showingAll ?
-                    setShowCount(concepts.length) :
-                    setShowCount(DEFAULT_SHOW_COUNT)
-                }
-            >
-                { !showingAll ? "Show all" : "Show less" }
-            </Button>
+            {!hideShowAll && (
+                <Button
+                    size="small"
+                    type="link"
+                    style={{ fontSize: "12px" }}
+                    onClick={ () => setShowingAll(!showingAll)
+                    }
+                >
+                    { !showingAll ? `Show ${hiddenConcepts.length - hiddenHighlighted.length} more results` : "Show less" }
+                </Button>
+            )}
         </div>
     )
 }
