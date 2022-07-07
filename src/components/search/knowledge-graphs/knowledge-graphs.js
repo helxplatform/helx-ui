@@ -1,9 +1,10 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import _Highlighter from 'react-highlight-words'
 import { kgLink } from '../../../utils'
 import { Link } from '../../link'
 import './knowledge-graphs.css'
 
-const KnowledgeGraph = ({ graph }) => {
+const KnowledgeGraph = ({ graph, highlight }) => {
   const [interactions, setInteractions] = useState([])
 
   useEffect(() => {
@@ -19,15 +20,29 @@ const KnowledgeGraph = ({ graph }) => {
     }
   }, [graph])
 
+  const Highlighter = useCallback(({ ...props }) => (
+    <_Highlighter searchWords={highlight} {...props}/>
+), [highlight])
+
   return interactions.map((interaction, i) => (
     <Fragment key={ `kg-${i}` }>
-      <div className="source-label"><Link to={kgLink.get_curie_purl(interaction.source.id)}>{interaction.source.name}</Link></div>
+      <div className="source-label">
+        <Link to={kgLink.get_curie_purl(interaction.source.id)}>
+          <Highlighter textToHighlight={ interaction.source.name } />
+        </Link>
+      </div>
       <div />
-      <div className="target-label"><Link to={kgLink.get_curie_purl(interaction.target.id)}>{interaction.target.name}</Link></div>
+      <div className="target-label">
+        <Link to={kgLink.get_curie_purl(interaction.target.id)}>
+          <Highlighter textToHighlight={ interaction.target.name } />
+        </Link>
+      </div>
 
       <div className="source-node"><span className="node" /></div>
       <div className="edge">
-        <div className="edge-type">{interaction.type}</div>
+        <div className="edge-type">
+          <Highlighter textToHighlight={ interaction.type } />
+        </div>
         <div className="edge-references">
           {
             interaction.publications.map((publication, i) => (
@@ -49,7 +64,7 @@ const NoKnowledgeGraphsMessage = () => {
   )
 }
 
-export const KnowledgeGraphs = ({ graphs: complete_graphs }) => {
+export const KnowledgeGraphs = ({ graphs: complete_graphs, highlight }) => {
   if (complete_graphs.length) {
     const graphs = complete_graphs.map((graph) => graph.knowledge_graph);
     return (
@@ -67,7 +82,7 @@ export const KnowledgeGraphs = ({ graphs: complete_graphs }) => {
           const key = `${subject.id}-[${edge.predicate}]->${object.id}`
           
           return  (
-            <KnowledgeGraph key={key} graph={graph} />
+            <KnowledgeGraph key={key} graph={graph} highlight={ highlight } />
           )
         })}
       </div>

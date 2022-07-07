@@ -65,7 +65,7 @@ export const KnowledgeGraphsTab = ({ graphs }) => {
         <Title level={ 4 } style={{ margin: 0 }}>Knowledge Graphs</Title>
         <DebouncedInput setValue={setSearch}/>
       </div>
-      <KnowledgeGraphs graphs={ graphSource } />
+      <KnowledgeGraphs graphs={ graphSource } highlight={ highlightTokens } />
     </Space>    
   )
 }
