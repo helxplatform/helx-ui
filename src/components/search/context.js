@@ -67,7 +67,11 @@ export const HelxSearch = ({ children }) => {
     _setSelectedResult((previousResult) => {
       return result === null ? null : ({
         ...result,
-        previousResult: previousResult?.loading ? previousResult.previousResult : previousResult
+        previousResult: previousResult?.loading ?
+          // If the previousResult was loading, then use the previousResult of the loading result (the actual previous result)
+          previousResult.previousResult :
+            // If the result is the previousResult's previousResult (i.e. going from prev -> result -> prev) then set it to null.
+            result === previousResult?.previousResult ? null : previousResult
       })
     })
   }, [_setSelectedResult])

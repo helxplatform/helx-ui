@@ -11,6 +11,7 @@ import CustomIcon, {
   ExportOutlined as ExternalLinkIcon,
   FullscreenOutlined as FullscreenLayoutIcon,
   UnorderedListOutlined as CdesIcon,
+  ArrowLeftOutlined
 } from '@ant-design/icons'
 import { CdesTab, OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
 import { useAnalytics, useEnvironment } from '../../../contexts'
@@ -258,7 +259,7 @@ export const ConceptModalBody = ({ result }) => {
 }
 
 export const ConceptModal = ({ result, visible, closeHandler }) => {
-  const { setFullscreenResult } = useHelxSearch()
+  const { setFullscreenResult, setSelectedResult } = useHelxSearch()
   const [doFullscreen, setDoFullscreen] = useState(null)
 
   /**
@@ -284,7 +285,14 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
 
   return (
     <Modal
-      title={ `${ result.name }${ result.type ? " (" + result.type + ")" : "" }` }
+      title={
+        <Space size="middle">
+          {result.previousResult && <ArrowLeftOutlined className="previous-result-btn" onClick={ () => setSelectedResult(result.previousResult) } /> }
+          <Text>
+            { result.name }{ result.type ? " (" + result.type + ")" : "" }
+          </Text>
+        </Space>
+      }
       visible={ visible }
       onOk={ closeHandler }
       okText="Close"
