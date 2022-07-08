@@ -68,18 +68,6 @@ spec:
             steps {
               script {
                 container(name: 'kaniko', shell: '/busybox/sh') {
-                    // sh '''#!/busybox/sh
-                    //    echo "Build stage"
-                    //    /kaniko/executor --dockerfile ./Dockerfile \
-                    //                     --context . \
-                    //                     --verbosity debug \
-                    //                     --no-push \
-                    //                     --destination $IMAGE_NAME:$TAG1 \
-                    //                     --destination $IMAGE_NAME:$TAG2 \
-                    //                     --destination $IMAGE_NAME:$TAG3 \
-                    //                     --destination $IMAGE_NAME:$TAG4 \
-                    //                     --tarPath image.tar
-                    //    '''
                     kaniko.build(["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2", "$IMAGE_NAME:$TAG3", "$IMAGE_NAME:$TAG4"])
                 }
               }
@@ -99,34 +87,48 @@ spec:
         }
         stage('Publish') {
             steps {
-                container(name: 'crane', shell: '/busybox/sh') {
-                    sh '''
-                    echo "Publish stage"
-                    echo "$DOCKERHUB_CREDS_PSW" | crane auth login -u $DOCKERHUB_CREDS_USR --password-stdin $REGISTRY
-                    crane push image.tar $IMAGE_NAME:$TAG1
-                    crane push image.tar $IMAGE_NAME:$TAG2
-                    if [ $BRANCH_NAME == "develop" ]; then
-                        crane push image.tar $IMAGE_NAME:$TAG3
-                    elif [ $BRANCH_NAME == "master" ]; then
-                        crane push image.tar $IMAGE_NAME:$TAG3
-                        crane push image.tar $IMAGE_NAME:$TAG4
-                        if [ $(git tag -l "$VERSION") ]; then
-                            error "ERROR: Tag with version $VERSION already exists! Exiting."
-                        else
-                            # Recover some things we've lost since the build stage:
-                            git config --global user.email "helx-dev@lists"
-                            git config --global user.name "rencibuild rencibuild"
-                            grep url .git/config
-                            git checkout $BRANCH_NAME
+                script {
+                    container(name: 'crane', shell: '/busybox/sh') {
+                        image.publish([
+                            imageTagsPushAlways: ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2"],
+                            imageTagsPushForDevelopBranch: ["$IMAGE_NAME:$TAG3"],
+                            imageTagsPushForMasterBranch: ["$IMAGE_NAME:$TAG4"],
+                            registry: "$REGISTRY",
+                            registryUser: "$DOCKERHUB_CREDS_USR",
+                            registryPsw: "$DOCKERHUB_CREDS_PSW",
+                            repoRemoteUrl: "https://$GITHUB_CREDS_PSW@github.com/helxplatform/helx-ui.git"
+                            branchName: "$BRANCH_NAME",
+                            version: "$VERSION",
+                            sha: "$SHA"
+                        ])
+                        // sh '''
+                        // echo "Publish stage"
+                        // echo "$DOCKERHUB_CREDS_PSW" | crane auth login -u $DOCKERHUB_CREDS_USR --password-stdin $REGISTRY
+                        // crane push image.tar $IMAGE_NAME:$TAG1
+                        // crane push image.tar $IMAGE_NAME:$TAG2
+                        // if [ $BRANCH_NAME == "develop" ]; then
+                        //     crane push image.tar $IMAGE_NAME:$TAG3
+                        // elif [ $BRANCH_NAME == "master" ]; then
+                        //     crane push image.tar $IMAGE_NAME:$TAG3
+                        //     crane push image.tar $IMAGE_NAME:$TAG4
+                        //     if [ $(git tag -l "$VERSION") ]; then
+                        //         error "ERROR: Tag with version $VERSION already exists! Exiting."
+                        //     else
+                        //         # Recover some things we've lost since the build stage:
+                        //         git config --global user.email "helx-dev@lists"
+                        //         git config --global user.name "rencibuild rencibuild"
+                        //         grep url .git/config
+                        //         git checkout $BRANCH_NAME
 
-                            # Set the tag
-                            SHA=$(git log --oneline | head -1 | awk '{print $1}')
-                            git tag $VERSION "$SHA"
-                            git remote set-url origin https://$GITHUB_CREDS_PSW@github.com/helxplatform/helx-ui.git
-                            git push origin --tags
-                        fi
-                    fi
-                    '''
+                        //         # Set the tag
+                        //         SHA=$(git log --oneline | head -1 | awk '{print $1}')
+                        //         git tag $VERSION "$SHA"
+                        //         git remote set-url origin https://$GITHUB_CREDS_PSW@github.com/helxplatform/helx-ui.git
+                        //         git push origin --tags
+                        //     fi
+                        // fi
+                        // '''
+                    }
                 }
             }
         }
