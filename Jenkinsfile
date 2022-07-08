@@ -80,7 +80,7 @@ spec:
                     //                     --destination $IMAGE_NAME:$TAG4 \
                     //                     --tarPath image.tar
                     //    '''
-                    kaniko.build(['$IMAGE_NAME:$TAG1', '$IMAGE_NAME:$TAG2', '$IMAGE_NAME:$TAG3', '$IMAGE_NAME:$TAG4'])
+                    kaniko.build(["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2", "$IMAGE_NAME:$TAG3", "$IMAGE_NAME:$TAG4"])
                 }
               }
             }
