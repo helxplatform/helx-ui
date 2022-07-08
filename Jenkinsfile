@@ -96,7 +96,7 @@ spec:
                             registry: "$REGISTRY",
                             registryUser: "$DOCKERHUB_CREDS_USR",
                             registryPsw: "$DOCKERHUB_CREDS_PSW",
-                            repoRemoteUrl: "https://$GITHUB_CREDS_PSW@github.com/helxplatform/helx-ui.git"
+                            repoRemoteUrl: "https://$GITHUB_CREDS_PSW@github.com/helxplatform/helx-ui.git",
                             branchName: "$BRANCH_NAME",
                             version: "$VERSION",
                             sha: "$SHA"
