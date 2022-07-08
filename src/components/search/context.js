@@ -65,13 +65,18 @@ export const HelxSearch = ({ children }) => {
     // Make sure to cancel searchSelectedResult requests so that calls to it don't override state with stale data.
     searchSelectedResultController.current?.abort()
     _setSelectedResult((previousResult) => {
+      let newPreviousResult = previousResult
+      // The prev result has a prev result
+      if (previousResult?.loading) {
+        newPreviousResult = previousResult.previousResult
+      }
+      else if (result === previousResult?.previousResult) {
+        // Prevent circular loopbacks (i.e. prev -> current -> prev)
+        newPreviousResult = result?.previousResult
+      }
       return result === null ? null : ({
         ...result,
-        previousResult: previousResult?.loading ?
-          // If the previousResult was loading, then use the previousResult of the loading result (the actual previous result)
-          previousResult.previousResult :
-            // If the result is the previousResult's previousResult (i.e. going from prev -> result -> prev) then set it to null.
-            result === previousResult?.previousResult ? null : previousResult
+        previousResult: newPreviousResult
       })
     })
   }, [_setSelectedResult])
