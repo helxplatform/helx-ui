@@ -32,7 +32,7 @@ export const Study = ({ study, highlight, collapsed, ...panelProps }) => {
         { collapsed && highlightedVariables.length > 0 && (
           <div className="study-variables-list" style={{ marginLeft: "16px" }}>
             <Paragraph style={{ marginLeft: "2px", color: "", fontWeight: 500 }} type="secondary">
-                Showing {highlightedVariables.length} highlighted variables from search
+                Showing {highlightedVariables.length} highlighted {"variable" + (highlightedVariables.length > 1 ? "s" : "")} from search
             </Paragraph>
             {
               highlightedVariables.map((variable) => (
