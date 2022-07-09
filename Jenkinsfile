@@ -49,6 +49,7 @@ spec:
     }
     environment {
         PATH = "/busybox:/kaniko:/ko-app/:$PATH"
+        GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
         DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
         GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
         REGISTRY = "${env.REGISTRY}"
