@@ -100,7 +100,7 @@ spec:
                             repoRemoteUrl: "https://${GITHUB_CREDS_PSW}@github.com/helxplatform/helx-ui.git",
                             branchName: "$BRANCH_NAME",
                             version: "$VERSION",
-                            sha: "$SHA"
+                            commitHash: "$COMMIT_HASH"
                         ])
                     }
                 }
