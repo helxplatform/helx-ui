@@ -52,6 +52,7 @@ spec:
         GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
         DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
         GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
+        REPO_REMOTE_URL = "https://\${GITHUB_CREDS_PSW}@github.com/helxplatform/helx-ui.git"
         REGISTRY = "${env.REGISTRY}"
         REG_OWNER="helxplatform"
         REG_APP="helx-ui"
@@ -90,17 +91,13 @@ spec:
             steps {
                 script {
                     container(name: 'crane', shell: '/busybox/sh') {
+                        def imageTagsPushAlways = ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2"]
+                        def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:$TAG3"]
+                        def imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4"]
                         image.publish([
-                            imageTagsPushAlways: ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2"],
-                            imageTagsPushForDevelopBranch: ["$IMAGE_NAME:$TAG3"],
-                            imageTagsPushForMasterBranch: ["$IMAGE_NAME:$TAG4"],
-                            registry: "$REGISTRY",
-                            registryUser: "$DOCKERHUB_CREDS_USR",
-                            registryPsw: "$DOCKERHUB_CREDS_PSW",
-                            repoRemoteUrl: "https://${GITHUB_CREDS_PSW}@github.com/helxplatform/helx-ui.git",
-                            branchName: "$BRANCH_NAME",
-                            version: "$VERSION",
-                            commitHash: "$COMMIT_HASH"
+                            imageTagsPushAlways,
+                            imageTagsPushForDevelopBranch,
+                            imageTagsPushForMasterBranch
                         ])
                     }
                 }
