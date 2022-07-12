@@ -1,7 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { useLocation, useNavigate } from '@reach/router'
-import { message } from 'antd'
 import { useEnvironment, useAnalytics } from '../../contexts'
 import { ConceptModal } from './'
 import { useLocalStorage } from '../../hooks/use-local-storage'
@@ -43,13 +42,13 @@ export const HelxSearch = ({ children }) => {
   const [error, setError] = useState({})
   const [conceptPages, setConceptPages] = useState({})
   // const [concepts, setConcepts] = useState([])
-
-  const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(0)
   const location = useLocation()
   const [selectedResult, setSelectedResult] = useState(null)
+  const [typeFilter, setTypeFilter] = useState(null)
+  const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.GRID)
 
   // The following serve the Variable Results view
   const [variableStudyResults, setVariableStudyResults] = useState([])
@@ -58,9 +57,6 @@ export const HelxSearch = ({ children }) => {
   const [totalVariableResults, setVariableResultCount] = useState(0)
   const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
   const [variableError, setVariableError] = useState({})
-
-  const [typeFilter, setTypeFilter] = useState(null)
-  const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.GRID)
 
   const inputRef = useRef()
   const navigate = useNavigate()
@@ -150,41 +146,6 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
-  function collectVariablesAndUpdateStudies(studies) {
-    const variables = []
-    const studiesWithVariablesMarked = []
-
-    studies.forEach((study, indexByStudy) => {
-      const studyToUpdate = Object.assign({}, study);
-      studyToUpdate["elements"] = [];
-
-      study.elements.forEach((variable, indexByVariable) => {
-        const variableToUpdate = Object.assign({}, variable);
-        variableToUpdate["study_name"] = study.c_name
-        variableToUpdate["withinFilter"] = "none"
-        variables.push(variableToUpdate)
-        
-        studyToUpdate["elements"].push(variableToUpdate)
-      })
-
-      studiesWithVariablesMarked.push(studyToUpdate)
-    });
-
-    const sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
-    const sortedVariablesWithIndexPosition = sortedVariables.map((v, i) =>  {
-      const rObj = v
-      rObj["indexPos"] = i
-      return rObj;
-    })
-
-    return {
-      "sortedVariables": sortedVariablesWithIndexPosition,
-      "variablesCount": sortedVariables.length,
-      "studiesWithVariablesMarked": studiesWithVariablesMarked,
-      "studiesCount": studiesWithVariablesMarked.length
-    };
-  }
-
   useEffect(() => {
     setConceptPages({})
     setTypeFilter(null)
@@ -192,21 +153,6 @@ export const HelxSearch = ({ children }) => {
   }, [query])
 
   useEffect(() => {
-    const trackSearch = (execTime, resultCount, error = undefined) => {
-      analytics.trackEvent({
-        category: "UI Interaction",
-        action: "Search executed",
-        label: `User searched for "${query}"`,
-        value: execTime,
-        customParameters: {
-          "Execution time": execTime,
-          "Search term": query,
-          "Response count": resultCount,
-          "Caused error": error !== undefined,
-          "Error stack": error ? error.stack : undefined
-        }
-      });
-    }
     const fetchConcepts = async () => {
       if (conceptPages[currentPage]) {
         return
@@ -310,6 +256,41 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
+  function collectVariablesAndUpdateStudies(studies) {
+    const variables = []
+    const studiesWithVariablesMarked = []
+
+    studies.forEach((study, indexByStudy) => {
+      const studyToUpdate = Object.assign({}, study);
+      studyToUpdate["elements"] = [];
+
+      study.elements.forEach((variable, indexByVariable) => {
+        const variableToUpdate = Object.assign({}, variable);
+        variableToUpdate["study_name"] = study.c_name
+        variableToUpdate["withinFilter"] = "none"
+        variables.push(variableToUpdate)
+        
+        studyToUpdate["elements"].push(variableToUpdate)
+      })
+
+      studiesWithVariablesMarked.push(studyToUpdate)
+    });
+
+    const sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
+    const sortedVariablesWithIndexPosition = sortedVariables.map((v, i) =>  {
+      const rObj = v
+      rObj["indexPos"] = i
+      return rObj;
+    })
+
+    return {
+      "sortedVariables": sortedVariablesWithIndexPosition,
+      "variablesCount": sortedVariables.length,
+      "studiesWithVariablesMarked": studiesWithVariablesMarked,
+      "studiesCount": studiesWithVariablesMarked.length
+    };
+  }
+
   useEffect(() => {
     const fetchAllVariables = async () => {
       setIsLoadingVariableResults(true)
@@ -359,15 +340,14 @@ export const HelxSearch = ({ children }) => {
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchVariablesForConceptId, inputRef,
       error, isLoadingConcepts,
       concepts, totalConcepts, conceptPages: filteredConceptPages,
-      variableError, variableResults, isLoadingVariableResults,
-      concepts, totalConcepts,
-      variableStudyResults, variableStudyResultCount,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       facets: tempSearchFacets,
       selectedResult, setSelectedResult,
       layout, setLayout, setFullscreenResult,
       typeFilter, setTypeFilter,
-      conceptTypes, conceptTypeCounts
+      conceptTypes, conceptTypeCounts,
+      variableStudyResults, variableStudyResultCount,
+      variableError, variableResults, isLoadingVariableResults,
       totalVariableResults
     }}>
       {children}

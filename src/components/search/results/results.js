@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useMemo } from 'react'
 import { Link } from '../../link'
-import { Radio, notification, Spin, Tooltip, Typography } from 'antd'
+import { Radio, notification, Spin, Tooltip, Divider } from 'antd'
 import {
   LinkOutlined as LinkIcon,
   DatabaseOutlined as ConceptViewIcon,
@@ -35,13 +35,14 @@ export const SearchResults = () => {
   }
 
   const MemoizedResultsHeader = useMemo(() => (
-    <div className="header">
+    <div className="results-header">
       <Tooltip title="Results Toggle" placement="top">
         <Radio.Group value={conceptView} onChange={handleDataDisplayChange}>
           <Radio.Button value={true}><ConceptViewIcon /></Radio.Button>
           <Radio.Button value={false}><VariableViewIcon /></Radio.Button>
         </Radio.Group>
       </Tooltip>
+      <Divider type="vertical" />
       <Tooltip title="Shareable link" placement="top">
         <Link to={`${basePath}search?q=${query}&p=${currentPage}`} onClick={NotifyLinkCopied}><LinkIcon /></Link>
       </Tooltip>
