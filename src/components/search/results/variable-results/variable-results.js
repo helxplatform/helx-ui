@@ -6,7 +6,7 @@ import {
     PushpinFilled as SelectedIcon,
 } from '@ant-design/icons'
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useHelxSearch } from '..';
+import { useHelxSearch } from '../../';
 import './variable-results.css';
 
 const { Text } = Typography
