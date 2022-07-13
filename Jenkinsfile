@@ -53,7 +53,6 @@ spec:
         PATH = "/busybox:/kaniko:/ko-app/:$PATH"
         GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
         DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
-        GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
         REPO_REMOTE_URL = "https://\${GITHUB_CREDS_PSW}@github.com/helxplatform/helx-ui.git"
         REGISTRY = "${env.REGISTRY}"
         REG_OWNER="helxplatform"
