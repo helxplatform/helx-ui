@@ -1,3 +1,5 @@
+library 'pipeline-utils@master'
+
 pipeline {
   agent {
     kubernetes {
@@ -49,8 +51,9 @@ spec:
     }
     environment {
         PATH = "/busybox:/kaniko:/ko-app/:$PATH"
-        DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
         GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
+        DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
+        REPO_REMOTE_URL = "https://\${GITHUB_CREDS_PSW}@github.com/helxplatform/helx-ui.git"
         REGISTRY = "${env.REGISTRY}"
         REG_OWNER="helxplatform"
         REG_APP="helx-ui"
@@ -66,20 +69,11 @@ spec:
     stages {
         stage('Build') {
             steps {
+              script {
                 container(name: 'kaniko', shell: '/busybox/sh') {
-                    sh '''#!/busybox/sh
-                       echo "Build stage"
-                       /kaniko/executor --dockerfile ./Dockerfile \
-                                        --context . \
-                                        --verbosity debug \
-                                        --no-push \
-                                        --destination $IMAGE_NAME:$TAG1 \
-                                        --destination $IMAGE_NAME:$TAG2 \
-                                        --destination $IMAGE_NAME:$TAG3 \
-                                        --destination $IMAGE_NAME:$TAG4 \
-                                        --tarPath image.tar
-                       '''
+                    kaniko.build("./Dockerfile", ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2", "$IMAGE_NAME:$TAG3", "$IMAGE_NAME:$TAG4"])
                 }
+              }
             }
             post {
                 always {
@@ -96,34 +90,17 @@ spec:
         }
         stage('Publish') {
             steps {
-                container(name: 'crane', shell: '/busybox/sh') {
-                    sh '''
-                    echo "Publish stage"
-                    echo "$DOCKERHUB_CREDS_PSW" | crane auth login -u $DOCKERHUB_CREDS_USR --password-stdin $REGISTRY
-                    crane push image.tar $IMAGE_NAME:$TAG1
-                    crane push image.tar $IMAGE_NAME:$TAG2
-                    if [ $BRANCH_NAME == "develop" ]; then
-                        crane push image.tar $IMAGE_NAME:$TAG3
-                    elif [ $BRANCH_NAME == "master" ]; then
-                        crane push image.tar $IMAGE_NAME:$TAG3
-                        crane push image.tar $IMAGE_NAME:$TAG4
-                        if [ $(git tag -l "$VERSION") ]; then
-                            error "ERROR: Tag with version $VERSION already exists! Exiting."
-                        else
-                            # Recover some things we've lost since the build stage:
-                            git config --global user.email "helx-dev@lists"
-                            git config --global user.name "rencibuild rencibuild"
-                            grep url .git/config
-                            git checkout $BRANCH_NAME
-
-                            # Set the tag
-                            SHA=$(git log --oneline | head -1 | awk '{print $1}')
-                            git tag $VERSION "$SHA"
-                            git remote set-url origin https://$GITHUB_CREDS_PSW@github.com/helxplatform/helx-ui.git
-                            git push origin --tags
-                        fi
-                    fi
-                    '''
+                script {
+                    container(name: 'crane', shell: '/busybox/sh') {
+                        def imageTagsPushAlways = ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2"]
+                        def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:$TAG3"]
+                        def imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4"]
+                        image.publish(
+                            imageTagsPushAlways,
+                            imageTagsPushForDevelopBranch,
+                            imageTagsPushForMasterBranch
+                        )
+                    }
                 }
             }
         }
