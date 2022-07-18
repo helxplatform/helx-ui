@@ -20,7 +20,7 @@ export const DebouncedInput = ({
             value={_search}
             onChange={(e) => setSearch(e.target.value) }
             suffix={
-                <div style={{ display: "flex", alignItems: "center", height: "100%"}}>
+                <div style={{ display: "flex", alignItems: "center", height: "100%", marginLeft: "-4px" }}>
                     <Divider type="vertical" style={{ height: "100%" }} />
                     <SearchOutlined style={{ fontSize: "16px", marginLeft: "4px" }} />
                 </div>
