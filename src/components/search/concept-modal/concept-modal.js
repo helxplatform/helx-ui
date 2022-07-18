@@ -212,18 +212,18 @@ export const ConceptModalBody = ({ result }) => {
       ]}
       className="concept-modal-failed-result"
     >
-      <Paragraph>
+      <Paragraph style={{ marginBottom: 0 }}>
         <Text strong style={{ fontSize: 16 }}>Related concepts</Text>
       </Paragraph>
-      <Space size="large" wrap>
+      <div>
         {
           result.suggestions
             .slice(0, 8)
             .map((suggestedResult) => (
-              <a role="button" onClick={() => setSelectedResult(suggestedResult)}>{suggestedResult.name}</a>
+              <a role="button" style={{ display: "inline", marginRight: "12px", lineHeight: "36px" }} onClick={() => setSelectedResult(suggestedResult)}>{suggestedResult.name}</a>
             ))
         }
-      </Space>
+      </div>
     </Result>
   )
   return (
