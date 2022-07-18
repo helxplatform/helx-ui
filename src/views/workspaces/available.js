@@ -34,11 +34,12 @@ export const AvailableView = () => {
                 })
         }
         renderApp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
         const filterApps = async (a) => {
-            const instance_result = await loadInstances()
+            await loadInstances()
                 .then(r => {
                     setRunningInstances(r.data);
                 })
@@ -48,7 +49,7 @@ export const AvailableView = () => {
             setLoading(false);
         }
         filterApps()
-    }, [apps])
+    }, [apps, loadInstances])
 
     useEffect(() => {
         if (runningInstances !== undefined && runningInstances.length >= 0) {
@@ -73,7 +74,7 @@ export const AvailableView = () => {
             }
             setFilteredApps(currApps)
         }
-    }, [runningInstances])
+    }, [runningInstances, apps])
 
 
     return (

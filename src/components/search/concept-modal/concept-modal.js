@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button, Menu, Modal, Result, Space, Spin, Typography } from 'antd'
-import './concept-modal.css'
-import { useHelxSearch } from '../'
 import CustomIcon, {
   InfoCircleOutlined as OverviewIcon,
   BookOutlined as StudiesIcon,
@@ -13,9 +11,10 @@ import CustomIcon, {
   UnorderedListOutlined as CdesIcon,
   ArrowLeftOutlined
 } from '@ant-design/icons'
-import { CdesTab, OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, RobokopTab } from './tabs'
+import { CdesTab, OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
+import { useHelxSearch } from '../'
 import { useAnalytics, useEnvironment } from '../../../contexts'
-import { SearchLayout } from '../context'
+import './concept-modal.css'
 
 const { Text, Paragraph } = Typography
 

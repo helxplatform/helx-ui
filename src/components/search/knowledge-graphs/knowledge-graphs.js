@@ -69,7 +69,7 @@ export const KnowledgeGraphs = ({ graphs: complete_graphs, highlight }) => {
     const graphs = complete_graphs.map((graph) => graph.knowledge_graph);
     return (
       <div className="interactions-grid">
-        <div className="column-title">Ontological Term)</div>
+        <div className="column-title">Ontological Term</div>
         <div className="column-title">Interaction Type</div>
         <div className="column-title">Linked Term</div>
         { graphs.map((graph) => {

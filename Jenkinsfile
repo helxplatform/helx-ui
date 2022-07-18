@@ -1,7 +1,9 @@
+library 'pipeline-utils@master'
+
 pipeline {
-    agent {
-      kubernetes {
-            yaml '''
+  agent {
+    kubernetes {
+        yaml '''
 kind: Pod
 metadata:
   name: kaniko
@@ -15,19 +17,26 @@ spec:
     imagePullPolicy: Always
     resources:
       requests:
-        cpu: "1000m"
+        cpu: "512m"
         memory: "1024Mi"
-        ephemeral-storage: "5Gi"
+        ephemeral-storage: "2Gi"
       limits:
-        cpu: "1000m"
+        cpu: "1024m"
         memory: "2048Mi"
-        ephemeral-storage: "5Gi"
+        ephemeral-storage: "2Gi"
     command:
     - /busybox/cat
     tty: true
     volumeMounts:
     - name: jenkins-docker-cfg
       mountPath: /kaniko/.docker
+  - name: crane
+    workingDir: /tmp/jenkins
+    image: gcr.io/go-containerregistry/crane:debug
+    imagePullPolicy: Always
+    command:
+    - /busybox/cat
+    tty: true
   volumes:
   - name: jenkins-docker-cfg
     projected:
@@ -40,30 +49,58 @@ spec:
 '''
         }
     }
+    environment {
+        PATH = "/busybox:/kaniko:/ko-app/:$PATH"
+        GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
+        DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
+        REPO_REMOTE_URL = "https://\${GITHUB_CREDS_PSW}@github.com/helxplatform/helx-ui.git"
+        REGISTRY = "${env.REGISTRY}"
+        REG_OWNER="helxplatform"
+        REG_APP="helx-ui"
+        COMMIT_HASH="${sh(script:"git rev-parse --short HEAD", returnStdout: true).trim()}"
+        VERSION_FILE="./package.json"
+        VERSION="${sh(script: {'''sed \'3q;d\' package.json | awk \'{ print $2 }\' | tr -d \'\042 \054\' '''}, returnStdout: true).trim()}"
+        IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REG_APP}"
+        TAG1="$BRANCH_NAME"
+        TAG2="$COMMIT_HASH"
+        TAG3="$VERSION"
+        TAG4="latest"
+    }
     stages {
-        // stage('Test') {
-        //     steps {
-        //         container('agent-docker') {
-        //             sh '''
-        //             make test
-        //             '''
-        //         }
-        //     }
-        // }
-        stage('Build and Push Image') {
-            environment {
-                PATH = "/busybox:/kaniko:$PATH"
-                DOCKERHUB_CREDS = credentials("${env.REGISTRY_CREDS_ID_STR}")
-                DOCKER_REGISTRY = "${env.DOCKER_REGISTRY}"
-                BUILD_NUMBER = "${env.BUILD_NUMBER}"
-            }
+        stage('Build') {
             steps {
+              script {
                 container(name: 'kaniko', shell: '/busybox/sh') {
-                    sh '''
-                    /kaniko/executor --dockerfile Dockerfile \
-                        --context . \
-                        --destination helxplatform/helx-ui:new-jenkins-test-$BUILD_NUMBER
-                    '''
+                    kaniko.build("./Dockerfile", ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2", "$IMAGE_NAME:$TAG3", "$IMAGE_NAME:$TAG4"])
+                }
+              }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'image.tar', onlyIfSuccessful: true
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                sh '''
+                echo "Test stage"
+                '''
+            }
+        }
+        stage('Publish') {
+            steps {
+                script {
+                    container(name: 'crane', shell: '/busybox/sh') {
+                        def imageTagsPushAlways = ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2"]
+                        def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:$TAG3"]
+                        def imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4"]
+                        image.publish(
+                            imageTagsPushAlways,
+                            imageTagsPushForDevelopBranch,
+                            imageTagsPushForMasterBranch
+                        )
+                    }
                 }
             }
         }
