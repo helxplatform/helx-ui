@@ -1,7 +1,7 @@
 import { Fragment } from "react"
 import { Button, Card, Empty, Grid, Space, Typography } from "antd"
 import { CloseOutlined, LeftOutlined, RightOutlined, ArrowLeftOutlined } from "@ant-design/icons"
-import { ConceptModalBody, useHelxSearch } from "../.."
+import { ConceptModalBody, ConceptModalTitle, useHelxSearch } from "../../"
 
 const { useBreakpoint } = Grid
 const { Text } = Typography
@@ -18,19 +18,13 @@ const MobileWrapper = ({ expanded, children }) => {
 }
 
 export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
-    const { selectedResult,  setSelectedResult } = useHelxSearch()
+    const { selectedResult } = useHelxSearch()
+
     if (selectedResult) return (
         <MobileWrapper expanded={expanded}>
             <Card
                 className="expanded-result-container"
-                title={
-                    <Space size="middle">
-                        {selectedResult.previousResult && <ArrowLeftOutlined className="previous-result-btn" onClick={ () => setSelectedResult(selectedResult.previousResult) } /> }
-                        <Text>
-                            { selectedResult.name }{ selectedResult.type ? " (" + selectedResult.type + ")" : "" }
-                        </Text>
-                    </Space>
-                }
+                title={ <ConceptModalTitle result={ selectedResult } /> }
                 extra={[
                     // <Button icon={ <CompressOutlined /> } type="text" style={{ marginRight: "12px" }} />,
                     <Button icon={ <CloseOutlined /> } type="text" onClick={ closeSelected } />
@@ -42,7 +36,7 @@ export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
                         <Button style={{ float: "right", marginRight: "16px" }}>Next <RightOutlined /></Button>
                     </Fragment>
                 ]}
-                style={{ display: "flex", flexDirection: "column" }}
+                style={{ display: "flex", flexDirection: "column", border: "1px solid rgba(0, 0, 0, 0.1)" }}
                 bodyStyle={{ flexGrow: 1 }}
             >
                 <ConceptModalBody result={ selectedResult } />

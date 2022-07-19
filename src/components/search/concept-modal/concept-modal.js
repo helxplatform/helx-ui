@@ -20,6 +20,22 @@ const { Text, Paragraph } = Typography
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
+export const ConceptModalTitle = ({ result }) => {
+  const { setSelectedResult } = useHelxSearch()
+  let { name, type, previousResult } = result
+  
+  if (name.endsWith(`(${type})`)) name = name.slice(0, name.length - `(${type})`.length)
+  
+  return (
+    <Space size="middle">
+      {previousResult && <ArrowLeftOutlined className="previous-result-btn" onClick={ () => setSelectedResult(previousResult) } /> }
+      <Text>
+        { name }{ type ? " (" + type + ")" : "" }
+      </Text>
+    </Space>
+  )
+}
+
 export const ConceptModalBody = ({ result }) => {
   const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
@@ -284,14 +300,7 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
 
   return (
     <Modal
-      title={
-        <Space size="middle">
-          {result.previousResult && <ArrowLeftOutlined className="previous-result-btn" onClick={ () => setSelectedResult(result.previousResult) } /> }
-          <Text>
-            { result.name }{ result.type ? " (" + result.type + ")" : "" }
-          </Text>
-        </Space>
-      }
+      title={ <ConceptModalTitle result={ result } /> }
       visible={ visible }
       onOk={ closeHandler }
       okText="Close"

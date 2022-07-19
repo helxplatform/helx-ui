@@ -1,6 +1,6 @@
 import { Fragment, useState, useEffect, forwardRef } from 'react'
 import PropTypes from 'prop-types'
-import { Card } from 'antd'
+import { Badge, Card, Space, Typography } from 'antd'
 import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
 import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
@@ -10,7 +10,11 @@ import { useAnalytics } from '../../../contexts'
 import classNames from 'classnames'
 import './concept-card.css'
 
+const { Text } = Typography
+
 export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
+  let { name, type } = result
+
   const { analyticsEvents } = useAnalytics()
   const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
@@ -31,10 +35,18 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
 
   const IconComponent = icon
 
+  if (name.endsWith(`(${type})`)) name = name.slice(0, name.length - `(${type})`.length)
+
   return (
     <div className={classNames("result-card", className)} ref={ref}>
       <Card
-        title={`${result.name} (${result.type})`}
+        title={
+          <div>
+            <Text>{name} ({type})</Text>
+            {/* { name !== result.name && <Text type="warning"> *</Text> } */}
+            {/* <Text style={{ color: "rgba(0, 0, 0, 0.35)", marginLeft: 4, fontSize: 12, verticalAlign: "middle", fontWeight: "normal" }}>(edited)</Text> */}
+          </div>
+        }
         tabList={tabList}
         tabProps={{size: 'small'}}
         activeTabKey={currentTab}
