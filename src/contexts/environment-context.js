@@ -34,8 +34,10 @@ export const EnvironmentProvider = ({ children }) => {
   const [isLoadingContext, setIsLoadingContext] = useState(true);
   const [basePath, setBasePath] = useState('/');
 
+  // Routes are generated dynamically based on search and workspace configuration. 
+  // If workspace module is enabled, all relevant paths will be added. (/workspaces/active, workspace/available, ...)
+
   const generateRoutes = (searchEnabled, workspaceEnabled) => {
-    console.log("generate Routes")
     const baseRoutes = [];
     if (searchEnabled === 'true') {
       // route homepage to search if search is enabled
@@ -61,49 +63,52 @@ export const EnvironmentProvider = ({ children }) => {
     return baseRoutes;
   }
 
-  const loadEnvironmentContext = async () => {
-    let response = await axios({
-      method: 'GET',
-      url: `${relativeHost}/static/frontend/env.json`
-    })
-    let context = response.data;
-
-    // split the comma-separated string which tells ui the support section to hide
-    context.hidden_support_sections = context.hidden_support_sections.split(',')
-    switch (context.brand) {
-      case 'braini':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/braini/braini-lg-gray.png'
-        break;
-      case 'cat':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/2d04ee687913a03ce3cd030710a78541d6bef827/appstore/core/static/images/catalyst/bdc-logo.svg'
-        break;
-      case 'restartr':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/restartr/restartingresearch.png'
-        break;
-      case 'scidas':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/scidas/scidas-logo-sm.png'
-        break;
-      case 'eduhelx':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/eduhelx/logo.png'
-        break;
-      case 'heal':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/heal/logo.png'
-        break;
-      case 'argus':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/argus/argus-array-256.png'
-        break;
-      // display helx logo in case no brand is defined
-      default:
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/helx.jpg'
-    }
-    setContext(context);
-    setIsLoadingContext(false);
-  }
-
   useEffect(() => {
+    // fetch env.json for environment configuration
+    const loadEnvironmentContext = async () => {
+      let response = await axios({
+        method: 'GET',
+        url: `${relativeHost}/static/frontend/env.json`
+      })
+      let context = response.data;
+
+      // split the comma-separated string which tells ui the support section to hide
+      context.hidden_support_sections = context.hidden_support_sections.split(',')
+
+      // logos for different brands
+      switch (context.brand) {
+        case 'braini':
+          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/braini/braini-lg-gray.png'
+          break;
+        case 'cat':
+          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/2d04ee687913a03ce3cd030710a78541d6bef827/appstore/core/static/images/catalyst/bdc-logo.svg'
+          break;
+        case 'restartr':
+          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/restartr/restartingresearch.png'
+          break;
+        case 'scidas':
+          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/scidas/scidas-logo-sm.png'
+          break;
+        case 'eduhelx':
+          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/eduhelx/logo.png'
+          break;
+        case 'heal':
+          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/heal/logo.png'
+          break;
+        case 'argus':
+          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/argus/argus-array-256.png'
+          break;
+        // display helx logo in case no brand is defined
+        default:
+          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/helx.jpg'
+      }
+      setContext(context);
+      setIsLoadingContext(false);
+    }
     loadEnvironmentContext()
   }, [relativeHost])
 
+  // If workspace is enabled, all routes should have a '/helx' basePath as the ui is embedded in the appstore
   useEffect(() => {
     if (Object.keys(context).length !== 0) {
       const routes = generateRoutes(context.search_enabled, context.workspaces_enabled);

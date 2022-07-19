@@ -1,21 +1,17 @@
-import { Fragment, useState, useEffect } from 'react'
+import { Fragment, useState, useEffect, forwardRef } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from '../../link'
-import { Card, List, Space, Tag, Typography } from 'antd'
+import { Card } from 'antd'
 import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
-import { KnowledgeGraphs, useHelxSearch } from '../'
+import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
-import './result-card.css'
 import { useAnalytics } from '../../../contexts'
+import classNames from 'classnames'
+import './concept-card.css'
 
-const { Meta } = Card
-const { CheckableTag: CheckableFacet } = Tag
-const { Text } = Typography
-
-export const SearchResultCard = ({ index, result, openModalHandler }) => {
-  const analytics = useAnalytics()
+export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
+  const { analyticsEvents } = useAnalytics()
   const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
 
@@ -29,40 +25,30 @@ export const SearchResultCard = ({ index, result, openModalHandler }) => {
   const tabContents = Object.keys(tabs).reduce((obj, key) => tabs[key].content ? ({ ...obj, [key]: tabs[key].content }) : obj, {})
 
   const openModal = (...args) => {
-    openModalHandler(...args);
-    analytics.trackEvent({
-      category: "UI Interaction",
-      action: "Result modal opened",
-      label: `Opened modal from card for result "${result.name}"`,
-      customParameters: {
-        "Search term": query,
-        "Result name": result.name,
-        "Result type": result.type,
-        "Additional search terms": result.search_terms
-      }
-    })
+    openModalHandler(...args)
+    analyticsEvents.resultModalOpened(query, result)
   }
 
+  const IconComponent = icon
+
   return (
-    <Fragment>
+    <div className={classNames("result-card", className)} ref={ref}>
       <Card
-        className="result-card"
         title={`${result.name} (${result.type})`}
         tabList={tabList}
         tabProps={{size: 'small'}}
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
-        extra={ <ViewIcon onClick={ openModal } /> }
+        extra={ icon && <IconComponent onClick={ openModal } /> }
         actions={ [<br />] }
       >
         { tabContents[currentTab] }
       </Card>
-   </Fragment>
+    </div>
   )
-}
+})
 
-SearchResultCard.propTypes = {
-  index: PropTypes.number.isRequired,
+ConceptCard.propTypes = {
   result: PropTypes.object.isRequired,
   openModalHandler: PropTypes.func.isRequired,
 }

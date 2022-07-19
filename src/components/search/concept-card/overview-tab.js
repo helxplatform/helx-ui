@@ -1,10 +1,8 @@
-import { Card, Space, Spin } from 'antd'
-import { useHelxSearch } from '../'
+import { Card, Space } from 'antd'
 
 const { Meta } = Card
 
 export const OverviewTab = ({ result }) => {
-  const { query } = useHelxSearch()
 
   return (
     <Space direction="vertical" className="tab-content">

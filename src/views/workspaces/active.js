@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row, Popconfirm } from 'antd';
+import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row } from 'antd';
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
-import { useActivity, useApp, useInstance } from '../../contexts';
+import { useActivity, useApp, useInstance, useAnalytics } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
@@ -20,6 +20,7 @@ export const ActiveView = () => {
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
     const { addActivity, updateActivity } = useActivity();
+    const { analyticsEvents } = useAnalytics();
     const { loadApps } = useApp();
     const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
     const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
@@ -53,7 +54,7 @@ export const ActiveView = () => {
             setLoading(false);
         }
         renderInstance();
-    }, [refresh])
+    }, [refresh, loadInstances])
 
     useEffect(() => {
         // load all app configuration for input validation
@@ -70,9 +71,10 @@ export const ActiveView = () => {
         if (instances && instances.length === 0) setTimeout(() => navigate('/helx/workspaces/available'), 1000)
         else loadAppsConfig();
 
-    }, [instances])
+    }, [instances, loadApps])
 
     const stopInstanceHandler = async () => {
+        // besides making requests to delete the instance, close its browser tab and stop polling service
         setIsStopping(true);
         addOrDeleteInstanceTab("close", currentRecord.sid);
         stopPolling(currentRecord.sid)
@@ -85,6 +87,7 @@ export const ActiveView = () => {
                     'timestamp': new Date(),
                     'message': `${currentRecord.name} is stopped.`
                 }
+                analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, null);
                 updateActivity(newActivity)
                 setRefresh(!refresh)
             })
@@ -96,6 +99,7 @@ export const ActiveView = () => {
                     'timestamp': new Date(),
                     'message': ``
                 }
+                // catch error and update instance activity
                 switch (e.response.status) {
                     case 403: {
                         newActivity['status'] = 'error'
@@ -113,12 +117,14 @@ export const ActiveView = () => {
                         newActivity['message'] = `An error has occurred while stopping ${currentRecord.name}.`
                     }
                 }
+                analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, newActivity.message);
                 updateActivity(newActivity)
             })
         setStopModalVisibility(false);
         setIsStopping(false);
     }
 
+    // stop all instances
     const stopAllInstanceHandler = async () => {
         setIsStoppingAll(true);
         for (let this_app of instances) {
@@ -137,6 +143,7 @@ export const ActiveView = () => {
                     addActivity(newActivity)
                 })
         }
+        analyticsEvents.allAppsDeleted()
         setRefresh(!refresh)
         setStopAllModalVisibility(false);
         setIsStoppingAll(false);
@@ -150,6 +157,7 @@ export const ActiveView = () => {
             const connectTab = window.open(appUrl, connectTabRef);
             updateTabName(connectTab,name);
             addOrDeleteInstanceTab("add",sid,connectTab);
+            analyticsEvents.appOpened(name, sid);
         }
         catch(e) {
             // if invalid URL parse error do nothing
@@ -160,6 +168,9 @@ export const ActiveView = () => {
     //Update a running Instance.
     const updateOne = async (_workspace, _cpu, _gpu, _memory) => {
         setUpdating(true);
+        const appUpdatedAnalyticsEvent = (failed=false) => (
+            analyticsEvents.appUpdated(currentRecord.name, currentRecord.sid, _workspace, _cpu, _gpu, _memory, failed)
+        );
         await updateInstance(currentRecord.sid, _workspace, _cpu, _gpu, _memory)
             .then(res => {
                 if (res.data.status === "success") {
@@ -172,6 +183,7 @@ export const ActiveView = () => {
                         'timestamp': new Date(),
                         'message': `${currentRecord.name} is launching.`
                     }
+                    appUpdatedAnalyticsEvent(false)
                     addActivity(newActivity)
                     pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
                     setRefresh(!refresh);
@@ -186,6 +198,7 @@ export const ActiveView = () => {
                         'timestamp': new Date(),
                         'message': `Error occured when updating instance ${currentRecord.name}.`
                     }
+                    appUpdatedAnalyticsEvent(true)
                     addActivity(newActivity)
                 }
             }).catch(e => {
@@ -198,6 +211,7 @@ export const ActiveView = () => {
                     'timestamp': new Date(),
                     'message': `Error occured when updating instance ${currentRecord.name}.`
                 }
+                appUpdatedAnalyticsEvent(true)
                 addActivity(newActivity)
             })
     };
@@ -217,6 +231,8 @@ export const ActiveView = () => {
         setStopModalVisibility(true);
     }
 
+
+    // config for the instance table
     const columns = [
         {
             title: 'App Name',

@@ -1,7 +1,10 @@
-import React, { createContext, useContext, useState } from 'react'
-import { useEnvironment } from './environment-context';
+import { createContext, useContext, useState } from 'react'
 
 export const ActivityContext = createContext({});
+
+// This activity context provider is used to store and keep track of all latest workspace activities,
+// including launch app, update/delete instances, polling service.
+// Latest activity of each instance will be shown in the side panel component. 
 
 export const ActivityProvider = ({ children }) => {
     const [activityArray, setActivityArray] = useState([]);

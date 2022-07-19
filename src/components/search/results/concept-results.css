@@ -1,15 +1,17 @@
 .results {
+  display: flex;
+  flex-direction: column;
 }
 
-.results .header {
+.results-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 0 1rem 0;
-  gap: 1rem;
+  margin-bottom: 16px;
+  /* gap: 1rem; */
 }
 
-.results .header span:first-child {
+.results-header span:first-child {
   flex: 1;
 }
 
@@ -24,6 +26,13 @@
   grid-template-columns: 1fr;
 }
 .results .results-list.grid {
+  /* Phone screens can get as small as 300px wide, so it's necessary to adjust the
+   * minimum size of cards to below this so that they don't overflow the screen 
+   * (and have to adjust for the fact that about 50-75px of screen width is padding). */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.results .results-list.grid.md {
+  /* Medium or larger breakpoint */
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
 }
 .results .results-list .result-card {

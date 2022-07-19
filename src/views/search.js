@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { HelxSearch, SearchForm, SearchResults } from '../components/search'
+import { HelxSearch, SearchForm, ConceptSearchResults } from '../components/search'
 import { Typography } from 'antd'
 import { Breadcrumbs } from '../components/layout'
 import { useEnvironment } from '../contexts'
@@ -22,8 +22,7 @@ export const SearchView = () => {
       {context.workspaces_enabled === 'true' && <Title level={1}>Search</Title>}
 
       <HelxSearch>
-        <SearchForm />
-        <SearchResults />
+        <ConceptSearchResults />
       </HelxSearch>
 
     </Fragment>
