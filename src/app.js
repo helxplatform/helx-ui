@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { LocationProvider, Router as ReachRouter, globalHistory, useLocation } from '@reach/router'
 import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, AnalyticsProvider, useEnvironment, useAnalytics } from './contexts'
 import { Layout } from './components/layout'
-import { ShoppingCartProvider } from './components/shopping-cart'
+import { ShoppingCartProvider } from './contexts'
 import { NotFoundView } from './views'
 
 const ContextProviders = ({ children }) => {

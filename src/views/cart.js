@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { Typography } from 'antd'
-import { useShoppingCart } from '../components/shopping-cart'
+import { useShoppingCart } from '../contexts'
 
 const { Title } = Typography
 

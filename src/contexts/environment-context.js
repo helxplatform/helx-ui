@@ -59,7 +59,7 @@ export const EnvironmentProvider = ({ children }) => {
       baseRoutes.push({ path: '/', text: '', Component: SupportView })
     }
     baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
-    baseRoutes.push({ path: '/cart', text: <ShoppingCartIcon />, Component: ShoppingCartView })
+    baseRoutes.push({ path: '/cart', text: '', Component: ShoppingCartView })
     return baseRoutes;
   }
 

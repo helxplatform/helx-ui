@@ -24,6 +24,19 @@
     position: absolute;
 }
 
-.logout-button {
-    margin: 0 1rem 0 0.5rem;
+.shopping-cart-button {
+    margin-left: 8px;
+    margin-right: 20px;
+}
+
+.shopping-cart-button, .logout-button {
+    /* margin-left: 16px; */
+}
+
+.icon-btn {
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.icon-btn:hover {
+    color: #1890ff !important;
 }

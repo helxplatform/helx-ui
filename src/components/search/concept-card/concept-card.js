@@ -1,13 +1,14 @@
 import { Fragment, useState, useEffect, forwardRef } from 'react'
 import PropTypes from 'prop-types'
-import { Card } from 'antd'
-import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
+import classNames from 'classnames'
+import { Card, Space } from 'antd'
+import { ShoppingCartOutlined as ShoppingCartIcon, ExpandOutlined as ViewIcon } from '@ant-design/icons'
 import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
+import { AddToCart } from '../../shopping-cart'
 import { useAnalytics } from '../../../contexts'
-import classNames from 'classnames'
 import './concept-card.css'
 
 export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
@@ -39,7 +40,12 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
         tabProps={{size: 'small'}}
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
-        extra={ icon && <IconComponent onClick={ openModal } /> }
+        extra={
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <AddToCart asIcon />
+            { icon && <IconComponent className="icon-btn" onClick={ openModal } style={{ marginLeft: 20 }} /> }
+          </div>
+        }
         actions={ [<br />] }
       >
         { tabContents[currentTab] }
