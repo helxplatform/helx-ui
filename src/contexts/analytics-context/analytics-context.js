@@ -2,8 +2,9 @@ import React, { createContext, useContext } from 'react';
 import { useEnvironment } from '../environment-context';
 import { AnalyticsEvents } from './events';
 import { MixPanelAnalytics, GAAnalytics, NoAnalytics } from 'helx-analytics';
-import { version } from 'helx-analytics/package.json';
 import { getUser } from '../../api';
+
+const version = require('helx-analytics/package.json').version
 
 export const AnalyticsContext = createContext();
 
