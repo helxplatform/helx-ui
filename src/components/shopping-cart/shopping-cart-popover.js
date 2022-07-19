@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Badge, Button, Popover, Space, List, Typography, Input } from 'antd'
+import { Badge, Button, Popover, Space, List, Typography, Input, Form, Popconfirm, Modal } from 'antd'
 import { useShoppingCart } from '../../contexts/'
 import './shopping-cart-popover.css'
 
@@ -13,6 +13,17 @@ const ManageCarts = ({ close }) => {
     close()
   }
 
+  const confirmDelete = (cart) => {
+    Modal.confirm({
+      title: "Confirm delete",
+      content: "Are you sure you want to delete this cart?",
+      // To make modal appear above popovers, which hasn't been fixed yet.
+      maskStyle: { zIndex: 1031 },
+      zIndex: 1032,
+      onOk: () => removeCart(cart.name)
+    })
+  }
+
   return (
     <Fragment>
       <List
@@ -21,12 +32,12 @@ const ManageCarts = ({ close }) => {
         renderItem={(cart) => (
           <List.Item key={cart.name} className="manage-cart-item">
             <Text style={{ color: "rgba(0, 0, 0, 0.85)", fontWeight: cart === activeCart ? 600 : 400 }}>
-              {cart.name} ({cart.getCount()})
+              {cart.name}
             </Text>
             <Space style={{ flex: 0 }}>
               <Button type="primary" size="small" onClick={ () => selectCart(cart) }>Use</Button>
               {/* <Tooltip title="This cart cannot be deleted"> */}
-                <Button type="ghost" size="small" disabled={ !cart.canDelete } onClick={ () => removeCart(cart.name) }>Delete</Button>
+              <Button type="ghost" size="small" disabled={ !cart.canDelete } onClick={ () => confirmDelete(cart) }>Delete</Button>
               {/* </Tooltip> */}
               
             </Space>
@@ -37,12 +48,21 @@ const ManageCarts = ({ close }) => {
   )
 }
 
-const CartCreator = ({ cartName, setCartName }) => {
+const CartCreator = ({ cartName, setCartName, cartNameError }) => {
   return (
     <Space direction="vertical" size="middle" style={{ marginTop: 8 }}>
       <Space direction="vertical">
         Cart name
-        <Input size="small" value={ cartName } onchange={ (e) => setCartName(e.target.value) } />
+        <Form.Item
+          validateStatus={ cartNameError && "error" }
+          help={ cartNameError ? "Carts cannot have duplicate names." : undefined }
+          style={{ margin: 0 }}>
+          <Input
+            size="small"
+            value={ cartName }
+            onChange={ (e) => setCartName(e.target.value) }
+          />
+        </Form.Item>
       </Space>
       <Paragraph>
         Add items to a cart to...
@@ -64,6 +84,7 @@ const ShoppingCartPopoverContent = () => {
   const [creatingCart, setCreatingCart] = useState(false)
 
   const [cartName, setCartName] = useState("")
+  const [cartNameError, setCartNameError] = useState(false)
 
   useEffect(() => {
     if (creatingCart) {
@@ -75,11 +96,17 @@ const ShoppingCartPopoverContent = () => {
     setCartName(defaultName)}
   }, [creatingCart])
 
+  useEffect(() => setCartNameError(false), [cartName])
+
   const createShoppingCart = () => {
-    addCart(cartName)
-    setCreatingCart(false)
-    setManageCarts(false)
-    setActiveCart(cartName)
+    if (carts.find((cart) => cart.name === cartName)) {
+      setCartNameError(true)
+    } else {
+      addCart(cartName)
+      setCreatingCart(false)
+      setManageCarts(false)
+      setActiveCart(cartName)
+    }
   }
 
   return (
@@ -99,7 +126,11 @@ const ShoppingCartPopoverContent = () => {
         </div>
       )}
       { creatingCart ? (
-        <CartCreator cartName={ cartName } setCartName={ setCartName } />
+        <CartCreator
+          cartName={ cartName }
+          setCartName={ setCartName }
+          cartNameError={ cartNameError }
+        />
         ) : manageCarts ? (
         <ManageCarts close={ () => setManageCarts(false) } />
       ) : (

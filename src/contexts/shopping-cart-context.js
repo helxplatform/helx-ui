@@ -47,6 +47,7 @@ export const ShoppingCartProvider = ({ children }) => {
   }
   const removeCart = (name) => {
     setCarts(carts.filter((cart) => cart.name !== name))
+    if (name === activeCart.name) setActiveCart("My cart")
   }
   
   return (
