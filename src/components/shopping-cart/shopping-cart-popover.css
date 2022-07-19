@@ -1,0 +1,20 @@
+.shopping-cart-popover-buttons {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 16px;
+    justify-content: space-around;
+}
+
+.manage-cart-list {
+    /* border-left: 1px solid #f0f0f0; */
+}
+.manage-cart-item {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    border: none !important;
+    /* border-left: 1px solid #f0f0f0 !important; */
+}
+.manage-cart-item:first-child {
+    margin-top: 0;
+}
