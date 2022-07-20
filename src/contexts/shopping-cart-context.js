@@ -3,18 +3,15 @@ import { useLocalStorage } from '../hooks/use-local-storage'
 
 const ShoppingCartContext = createContext({})
 
-const cartUtilities = {
-  getCount() { return this.concepts.length + this.variables.length + this.studies.length }
-}
 const cartBlueprint = {
   name: undefined,
   createdTime: undefined,
   modifiedTime: undefined,
   canDelete: true,
+  favorited: false,
   concepts: [],
   variables: [],
-  studies: [],
-  ...cartUtilities
+  studies: []
 }
 
 export const ShoppingCartProvider = ({ children }) => {
@@ -31,13 +28,6 @@ export const ShoppingCartProvider = ({ children }) => {
   const [activeCartName, setActiveCart] = useState("My cart")
   const activeCart = useMemo(() => carts.find((cart) => cart.name === activeCartName), [carts, activeCartName])
 
-  useEffect(() => {
-    setCarts(carts.map((cart) => ({
-      ...cart,
-      ...cartUtilities
-    })))
-  }, [])
-
   const addCart = (name, props) => {
     if (carts.find((cart) => cart.name === name)) throw new Error("Cannot create a new cart with duplicate `name` key.")
     setCarts([
@@ -49,11 +39,16 @@ export const ShoppingCartProvider = ({ children }) => {
     setCarts(carts.filter((cart) => cart.name !== name))
     if (name === activeCart.name) setActiveCart("My cart")
   }
+
+  const cartUtilities = {
+    countCart: (cart) => cart.concepts.length + cart.variables.length + cart.studies.length
+  }
   
   return (
     <ShoppingCartContext.Provider value={{
       carts, addCart, removeCart,
-      activeCart, setActiveCart
+      activeCart, setActiveCart,
+      cartUtilities
      }}>
       { children }
     </ShoppingCartContext.Provider>
