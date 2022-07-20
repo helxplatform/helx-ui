@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Badge, Button, Popover, Space, List, Typography, Input, Form, Popconfirm, Modal, Dropdown, Menu, Divider } from 'antd'
+import { Badge, Button, Popover, Space, List, Typography, Input, Form, Popconfirm, Modal, Dropdown, Menu, Divider, Tooltip } from 'antd'
 import { DownOutlined } from '@ant-design/icons'
 import { useShoppingCart } from '../../../contexts/'
 import { CartList } from './cart-list'
@@ -9,59 +9,50 @@ import './shopping-cart-popover.css'
 
 const { Title, Text, Paragraph } = Typography
 
-const ShoppingCartPopoverContent = () => {
-  const { carts, activeCart, addCart, setActiveCart } = useShoppingCart()
+export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
+  const { activeCart, cartUtilities: { countCart } } = useShoppingCart()
   const [creatingCart, setCreatingCart] = useState(false)
 
-  return (
-    <Space direction="vertical">
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Text ellipsis type="" style={{ fontSize: 15, fontWeight: 500 }}>{ activeCart.name }</Text>
-          <CartSelectDropdown createNewCart={ () => setCreatingCart(true) }>
-            <a type="button" style={{ marginLeft: 8 }}>
-              <Space>
-                Change
-                <DownOutlined />
-              </Space>
-            </a>
-          </CartSelectDropdown>
-      </div>
-      <Divider style={{ marginTop: 4, marginBottom: -8 }} />
-      <CartList />
-      <Button type="primary" block>
-        Checkout
-      </Button>
-
-      <CreateCartModal visible={ creatingCart } onVisibleChange={ setCreatingCart } />
-    </Space>
-  )
-}
-
-export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
-  // useEffect(() => {
-  //   if (!visible) 
-  // }, [visible])
+  const checkoutDisabled = countCart(activeCart) === 0
+  
   return (
     <Badge count={0} offset={[-8, 0]}>
       <Popover
         overlayClassName="shopping-cart-popover"
         title={
-          <Title
-            level={5}
-            style={{
-              marginTop: 8,
-              marginBottom: 8,
-              fontSize: 12,
-              letterSpacing: "0.5px",
-              color: "#434343",
-              textTransform: "uppercase"
-            }}
-          >
-            Shopping Cart
-          </Title>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "8px 0" }}>
+            <Title
+              level={5}
+              style={{
+                margin: 0,
+                fontSize: 12,
+                letterSpacing: "0.5px",
+                color: "#434343",
+                textTransform: "uppercase"
+              }}
+            >
+              {activeCart.name}
+            </Title>
+            <CartSelectDropdown createNewCart={ () => setCreatingCart(true) }>
+              <a type="button" style={{ marginLeft: 8 }}>
+                <Space>
+                  Change
+                  <DownOutlined />
+                </Space>
+              </a>
+            </CartSelectDropdown>
+          </div>
         }
         content={
-          <ShoppingCartPopoverContent />
+          <Space direction="vertical">
+            <CartList />
+            <Tooltip placement="bottom" title={ checkoutDisabled ? "You need to add items to the cart." : undefined}>
+              <Button type="primary" block disabled={ checkoutDisabled }>
+                Checkout
+              </Button>
+            </Tooltip>
+            <CreateCartModal visible={ creatingCart } onVisibleChange={ setCreatingCart } />
+          </Space>
         }
         placement="bottomLeft"
         trigger="click"

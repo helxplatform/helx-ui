@@ -85,12 +85,12 @@ export const ShoppingCartProvider = ({ children }) => {
     }))
   }
 
-  const cartUtilities = {
+  const cartUtilities = useMemo(() => ({
     isConceptInCart: (cart, concept) => !!cart.concepts.find((_concept) => _concept.id === concept.id),
     isStudyInCart: (cart, study) => !!cart.studies.find((_study) => _study.c_id === study.c_id),
     isVariableInCart: (cart, variable) => !!cart.variables.find((_variable) => _variable.id === variable.id),
     countCart: (cart) => cart.concepts.length + cart.variables.length + cart.studies.length
-  }
+  }), [])
   
   return (
     <ShoppingCartContext.Provider value={{

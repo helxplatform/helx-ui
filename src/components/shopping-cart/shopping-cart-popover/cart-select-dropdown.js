@@ -49,7 +49,7 @@ export const CartSelectDropdown = ({ createNewCart, children }) => {
                   <Menu.Item key={cart.name} onClick={ (cart) => setActiveCart(cart.key) } disabled={cart === activeCart}>
                     <ShoppingCartIcon style={{ marginRight: 8 }} />
                     {/* &bull; */}
-                    <Text ellipsis disabled={cart === activeCart} style={{ flex: 1 }}>{ cart.name }</Text>
+                    <Text strong={cart === activeCart} ellipsis disabled={cart === activeCart} style={{ flex: 1 }}>{ cart.name }</Text>
                     <StarIcon
                       className="icon-btn"
                       style={{

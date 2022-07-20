@@ -10,6 +10,9 @@
     padding-left: 0 !important;
     padding-right: 0 !important;
 }
+.shopping-cart-list .ant-collapse-header .ant-collapse-header-text {
+    flex-grow: 1;
+}
 .shopping-cart-list .ant-collapse-content-box {
     padding: 0 !important;
 }
@@ -23,6 +26,7 @@
     margin-top: 0;
 }
 .shopping-cart-list .ant-collapse-content-box .ant-list-empty-text {
+    display: none;
     /* padding: 4px 0; */
     padding-left: 0;
     padding-right: 0;

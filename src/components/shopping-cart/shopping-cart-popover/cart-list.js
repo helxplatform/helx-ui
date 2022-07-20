@@ -20,7 +20,16 @@ const CartSection = ({ name, data, renderItem }) => {
             <Panel
                 key={name}
                 disabled={ disabled }
-                header={`${name} (${data.length})`}
+                header={
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <Text disabled={ disabled }>
+                            {name} ({data.length})
+                        </Text>
+                        {/* {!disabled && (
+                            <a type="button">Empty</a>
+                        )} */}
+                    </div>
+                }
             >
                 <div style={{ display: "flex" }}>
                     <List
