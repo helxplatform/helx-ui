@@ -32,12 +32,23 @@ export const ShoppingCartProvider = ({ children }) => {
     if (carts.find((cart) => cart.name === name)) throw new Error("Cannot create a new cart with duplicate `name` key.")
     setCarts([
       ...carts,
-      createCart(name)
+      createCart(name, props)
     ])
   }
   const removeCart = (name) => {
     setCarts(carts.filter((cart) => cart.name !== name))
     if (name === activeCart.name) setActiveCart("My cart")
+  }
+  const updateCart = (name, props) => {
+    const cart = carts.find((cart) => cart.name === name)
+    setCarts([
+      ...carts.filter((_cart) => _cart !== cart),
+      {
+        ...cart,
+        ...props,
+        modifiedTime: Date.now()
+      }
+    ])
   }
 
   const cartUtilities = {
@@ -46,7 +57,7 @@ export const ShoppingCartProvider = ({ children }) => {
   
   return (
     <ShoppingCartContext.Provider value={{
-      carts, addCart, removeCart,
+      carts, addCart, removeCart, updateCart,
       activeCart, setActiveCart,
       cartUtilities
      }}>

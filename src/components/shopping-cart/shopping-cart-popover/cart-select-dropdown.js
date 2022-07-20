@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Dropdown, Menu, Input, Typography, Space } from 'antd'
-import { PlusOutlined, SearchOutlined, ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined, ShoppingCartOutlined as ShoppingCartIcon, StarOutlined, StarFilled } from '@ant-design/icons'
 import { useShoppingCart } from '../../../contexts'
 
 const { Text } = Typography
 
 export const CartSelectDropdown = ({ createNewCart, children }) => {
-  const { carts, activeCart, addCart, setActiveCart } = useShoppingCart()
+  const { carts, activeCart, addCart, updateCart, setActiveCart } = useShoppingCart()
   const [cartSearch, setCartSearch] = useState("")
 
   const createShoppingCart = (name) => {
@@ -35,17 +35,37 @@ export const CartSelectDropdown = ({ createNewCart, children }) => {
             carts
               // .filter((cart) => cart !== activeCart)
               .filter((cart) => cart.name.toLowerCase().includes(cartSearch.toLowerCase()))
+              .sort((a, b) => b.modifiedTime - a.modifiedTime)
+              .sort((a, b) => (b.favorited) - (a.favorited))
               .sort((a, b) => (b === activeCart) - (a === activeCart))
-              .map((cart) => (
-                <Menu.Item key={cart.name} onClick={ (cart) => setActiveCart(cart.key) } disabled={cart === activeCart}>
-                  <ShoppingCartIcon style={{ marginRight: 8 }} />
-                  {/* &bull; */}
-                  <Text ellipsis disabled={cart === activeCart}>{ cart.name }</Text>
-                </Menu.Item>
-              ))
+              .map((cart) => {
+                const StarIcon = cart.favorited ? StarFilled : StarOutlined
+                return (
+                  <Menu.Item key={cart.name} onClick={ (cart) => setActiveCart(cart.key) } disabled={cart === activeCart}>
+                    <ShoppingCartIcon style={{ marginRight: 8 }} />
+                    {/* &bull; */}
+                    <Text ellipsis disabled={cart === activeCart} style={{ flex: 1 }}>{ cart.name }</Text>
+                    <StarIcon
+                      className="icon-btn"
+                      style={{
+                        marginLeft: 4,
+                        fontSize: 14,
+                        color: cart.favorited ? "#1890ff" : "rgba(0, 0, 0, 0.85)"
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        updateCart(cart.name, {
+                          favorited: !cart.favorited
+                        })
+                      }}
+                    />
+                  </Menu.Item>
+                )
+              })
           }
           {
-            cartSearch && !carts.find((cart) => cart.name.toLowerCase() === cartSearch.toLowerCase()) && (
+            cartSearch && !carts.find((cart) => cart.name === cartSearch) && (
               <Menu.Item onClick={ () => {
                 createShoppingCart(cartSearch)
                 setCartSearch("")

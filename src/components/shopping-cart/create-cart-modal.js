@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Modal, Space, Form, Input, Typography } from 'antd'
+import { StarOutlined, StarFilled, StarTwoTone } from '@ant-design/icons'
 import { useShoppingCart } from '../../contexts'
 
 const { Text, Paragraph } = Typography
@@ -7,10 +8,14 @@ const { Text, Paragraph } = Typography
 export const CreateCartModal = ({ visible, onVisibleChange }) => {
     const { carts, addCart, setActiveCart } = useShoppingCart()
   
+    /** Form state */
     const [cartName, setCartName] = useState("")
     const [cartNameError, setCartNameError] = useState(false)
+    const [favorited, setFavorited] = useState(false)
     
     useEffect(() => {
+      setCartName("")
+      setFavorited(false)
       if (visible) {
         const highestExistingDefault = carts
           .map((cart) => /Shopping Cart (?<num>\d+)/.exec(cart.name)?.groups.num)
@@ -26,12 +31,15 @@ export const CreateCartModal = ({ visible, onVisibleChange }) => {
       if (carts.find((cart) => cart.name === cartName)) {
         setCartNameError(true)
       } else {
-        addCart(cartName)
+        addCart(cartName, {
+          favorited
+        })
         setActiveCart(cartName)
         onVisibleChange(false)
       }
     }
-  
+
+    const StarIcon = favorited ? StarFilled : StarOutlined
   
     return (
       <Modal
@@ -53,12 +61,23 @@ export const CreateCartModal = ({ visible, onVisibleChange }) => {
               validateStatus={ cartNameError && "error" }
               help={ cartNameError ? "Carts cannot have duplicate names." : undefined }
               style={{ margin: 0 }}>
-              <Input
-                placeholder="Cart name..."
-                value={ cartName }
-                onChange={ (e) => setCartName(e.target.value) }
-                onKeyDown={ (e) => e.key === "Enter" && createShoppingCart() }
-              />
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Input
+                  placeholder="Cart name..."
+                  value={ cartName }
+                  onChange={ (e) => setCartName(e.target.value) }
+                  onKeyDown={ (e) => e.key === "Enter" && createShoppingCart() }
+                />
+                <StarIcon
+                  className="icon-btn"
+                  onClick={ () => setFavorited(!favorited) }
+                  style={{
+                    fontSize: 16,
+                    marginLeft: 16,
+                    color: favorited ? "#1890ff" : undefined
+                  }}
+                />
+              </div>
             </Form.Item>
           </Space>
           <Paragraph>
