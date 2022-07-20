@@ -44,10 +44,20 @@ export const AddToCart = ({
         ) : {}
     }
 
+    const removeFromCart = () => {
+        return concept ? (
+            removeConceptFromCart(cart, concept)
+        ) : study ? (
+            removeStudyFromCart(cart, study)
+        ) : variable ? (
+            removeVariableFromCart(cart, variable)
+        ) : {}
+    }
+
     if (asIcon) return (
         <ShoppingCartIcon
             className="icon-btn"
-            onClick={ addToCart }
+            onClick={ isInCart ? removeFromCart : addToCart }
             style={{
                 fontSize: 16,
                 color: isInCart ? "#1890ff" : undefined,
@@ -60,7 +70,7 @@ export const AddToCart = ({
         <Button
             type="text"
             icon={ <ShoppingCartIcon /> }
-            onClick={ addToCart }
+            onClick={ isInCart ? removeFromCart : addToCart }
             style={{
                 color: isInCart ? "#1890ff" : undefined,
                 ...style
