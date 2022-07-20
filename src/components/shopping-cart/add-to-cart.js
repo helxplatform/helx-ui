@@ -56,7 +56,7 @@ export const AddToCart = ({
 
     if (asIcon) return (
         <ShoppingCartIcon
-            className="icon-btn"
+            className="icon-btn no-hover"
             onClick={ isInCart ? removeFromCart : addToCart }
             style={{
                 fontSize: 16,

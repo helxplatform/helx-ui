@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
 import { List, Typography, Collapse, Space, Divider } from 'antd'
+import { CloseOutlined } from '@ant-design/icons'
 import { useShoppingCart } from '../../../contexts'
 import './shopping-cart-list.css'
 
@@ -33,8 +34,16 @@ const CartSection = ({ name, data, renderItem }) => {
     )
 }
 
+const RemoveItemButton = ({ onClick }) => (
+    <CloseOutlined
+        className="icon-btn"
+        style={{ fontSize: 16, marginLeft: 8 }}
+        onClick={ onClick }
+    />
+)
+
 export const CartList = () => {
-    const { activeCart } = useShoppingCart()
+    const { activeCart, removeConceptFromCart, removeStudyFromCart, removeVariableFromCart } = useShoppingCart()
     const { concepts, studies, variables } = activeCart
 
     return (
@@ -44,11 +53,17 @@ export const CartList = () => {
                 data={ concepts }
                 renderItem={(concept) => (
                     <List.Item key={concept.id}>
-                        <div style={{ display: "flex", width: "100%" }}>
-                            <Text ellipsis>
-                                {concept.name} ({concept.type})
-                            </Text>
-                        </div>
+                        <Space direction="vertical">
+                            <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
+                                <Text ellipsis style={{ flex: 1 }}>
+                                    { concept.name } ({ concept.type })
+                                </Text>
+                                <RemoveItemButton onClick={ () => removeConceptFromCart(activeCart, concept) }/>
+                            </div>
+                            {/* <Space>
+                                <Text type="secondary" italic>{ concept.id }</Text>
+                            </Space> */}
+                        </Space>
                     </List.Item>
                 )}
             />

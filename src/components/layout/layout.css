@@ -37,6 +37,9 @@
     cursor: pointer;
     transition: color 0.3s ease;
 }
-.icon-btn:hover {
-    color: #1890ff !important;
+.icon-btn:not(.no-hover):hover {
+    color: #40a9ff !important;
+}
+.icon-btn:active {
+    color: #096dd9 !important;
 }
