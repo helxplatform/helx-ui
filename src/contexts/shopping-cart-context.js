@@ -40,7 +40,9 @@ export const ShoppingCartProvider = ({ children }) => {
     if (name === activeCart.name) setActiveCart("My cart")
   }
   const updateCart = (name, props) => {
+    if (typeof name !== "string") ({ name } = name)
     const cart = carts.find((cart) => cart.name === name)
+    if (!cart) throw new Error(`Attempted update of unknown cart: ${name}`)
     setCarts([
       ...carts.filter((_cart) => _cart !== cart),
       {
@@ -50,14 +52,49 @@ export const ShoppingCartProvider = ({ children }) => {
       }
     ])
   }
+  const addConceptToCart = (cart, concept) => {
+    updateCart(cart, {
+      concepts: [...cart.concepts, concept]
+    })
+  }
+  const addStudyToCart = (cart, study) => {
+    updateCart(cart, {
+      studies: [...cart.studies, study]
+    })
+  }
+  const addVariableToCart = (cart, variable) => {
+    updateCart(cart, {
+      variables: [...cart.variables, variable]
+    })
+  }
+  const removeConceptFromCart = (cart, concept) => {
+    updateCart(cart, {
+      concepts: cart.concepts.filter((_concept) => _concept !== concept )
+    })
+  }
+  const removeStudyFromCart = (cart, study) => {
+    updateCart(cart, {
+      studies: cart.studies.filter((_study) => _study !== study)
+    })
+  }
+  const removeVariableFromCart = (cart, variable) => {
+    updateCart(cart, {
+      variables: cart.variables.filter((_variable) => _variable !== variable)
+    })
+  }
 
   const cartUtilities = {
+    isConceptInCart: (cart, concept) => cart.concepts.find((_concept) => _concept === concept),
+    isStudyInCart: (cart, study) => cart.studies.find((_study) => _study === study),
+    isVariableInCart: (cart, variable) => cart.variables.find((_variable) => _variable === variable),
     countCart: (cart) => cart.concepts.length + cart.variables.length + cart.studies.length
   }
   
   return (
     <ShoppingCartContext.Provider value={{
       carts, addCart, removeCart, updateCart,
+      addConceptToCart, addStudyToCart, addVariableToCart,
+      removeConceptFromCart, removeStudyFromCart, removeVariableFromCart,
       activeCart, setActiveCart,
       cartUtilities
      }}>

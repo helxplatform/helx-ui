@@ -42,7 +42,7 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
         onTabChange={key => setCurrentTab(key)}
         extra={
           <div style={{ display: "flex", alignItems: "center" }}>
-            <AddToCart asIcon />
+            <AddToCart asIcon concept={ result } />
             { icon && <IconComponent className="icon-btn" onClick={ openModal } style={{ marginLeft: 20 }} /> }
           </div>
         }

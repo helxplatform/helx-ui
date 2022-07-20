@@ -8,11 +8,20 @@ const { Text } = Typography
 export const CartSelectDropdown = ({ createNewCart, children }) => {
   const { carts, activeCart, addCart, updateCart, setActiveCart } = useShoppingCart()
   const [cartSearch, setCartSearch] = useState("")
+  const [showAll, setShowAll] = useState(false)
 
   const createShoppingCart = (name) => {
     addCart(name)
     setActiveCart(name)
   }
+
+  const cartSource = carts
+    // .filter((cart) => cart !== activeCart)
+    .filter((cart) => cart.name.toLowerCase().includes(cartSearch.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    // .sort((a, b) => b.modifiedTime - a.modifiedTime)
+    // .sort((a, b) => (b.favorited) - (a.favorited))
+    .sort((a, b) => (b === activeCart) - (a === activeCart))
 
   return (
     <Dropdown
@@ -32,12 +41,8 @@ export const CartSelectDropdown = ({ createNewCart, children }) => {
             onChange={(e) => setCartSearch(e.target.value)}
           />
           {
-            carts
-              // .filter((cart) => cart !== activeCart)
-              .filter((cart) => cart.name.toLowerCase().includes(cartSearch.toLowerCase()))
-              .sort((a, b) => b.modifiedTime - a.modifiedTime)
-              .sort((a, b) => (b.favorited) - (a.favorited))
-              .sort((a, b) => (b === activeCart) - (a === activeCart))
+            cartSource
+              .slice(0, showAll ? cartSource.length : 6)
               .map((cart) => {
                 const StarIcon = cart.favorited ? StarFilled : StarOutlined
                 return (
@@ -74,6 +79,15 @@ export const CartSelectDropdown = ({ createNewCart, children }) => {
                 <Text ellipsis strong>"{ cartSearch }"</Text>
                 &nbsp;
                 <Text style={{ whiteSpace: "nowrap" }}>(Create new)</Text>
+              </Menu.Item>
+            )
+          }
+          {
+            (showAll || cartSource.length > 6) && (
+              <Menu.Item onClick={ (e) => e.preventDefault() }>
+                <a type="button" style={{ color: "#1890ff" }} onClick={ () => setShowAll(!showAll) }>
+                  { showAll ? "Show less" : `Show ${ cartSource.length - 6 } more carts` }
+                </a>
               </Menu.Item>
             )
           }

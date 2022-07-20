@@ -24,6 +24,8 @@
 .cart-dropdown-menu {
     padding: 2px 0 2px 0 !important;
     width: 225px;
+    max-height: 400px;
+    overflow-y: auto;
 }
 .cart-dropdown-menu > .ant-dropdown-menu-item {
     padding: 7px 12px;
