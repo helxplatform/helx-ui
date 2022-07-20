@@ -26,7 +26,7 @@ const ShoppingCartPopoverContent = () => {
             </a>
           </CartSelectDropdown>
       </div>
-      <Divider style={{ marginTop: 4, marginBottom: 8, marginLeft: -16, marginRight: -16, width: "calc(100% + 32px)" }} />
+      <Divider style={{ marginTop: 4, marginBottom: -8 }} />
       <CartList />
       <Button type="primary" block>
         Checkout

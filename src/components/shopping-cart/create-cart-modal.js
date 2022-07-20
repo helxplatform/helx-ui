@@ -1,9 +1,56 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Modal, Space, Form, Input, Typography } from 'antd'
 import { StarOutlined, StarFilled, StarTwoTone } from '@ant-design/icons'
 import { useShoppingCart } from '../../contexts'
 
 const { Text, Paragraph } = Typography
+
+const CreateCardModalContent = ({ createShoppingCart, cartName, setCartName, cartNameError, favorited, setFavorited }) => {
+  const inputRef = useRef()
+
+  const StarIcon = favorited ? StarFilled : StarOutlined
+
+  useEffect(() => {
+    // Autofocus input
+    inputRef.current.focus({
+      cursor: "end"
+    })
+  }, [])
+
+  return (
+    <Space direction="vertical" size="middle">
+      <Space direction="vertical">
+        <Text style={{ fontWeight: 500 }}>Name</Text>
+        <Form.Item
+          validateStatus={ cartNameError && "error" }
+          help={ cartNameError ? "Carts cannot have duplicate names." : undefined }
+          style={{ margin: 0 }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Input
+              placeholder="Cart name..."
+              value={ cartName }
+              onChange={ (e) => setCartName(e.target.value) }
+              onKeyDown={ (e) => e.key === "Enter" && createShoppingCart() }
+              ref={inputRef}
+            />
+            <StarIcon
+              className="icon-btn"
+              onClick={ () => setFavorited(!favorited) }
+              style={{
+                fontSize: 16,
+                marginLeft: 16,
+                color: favorited ? "#1890ff" : undefined
+              }}
+            />
+          </div>
+        </Form.Item>
+      </Space>
+      <Paragraph>
+        Add items to a cart to...
+      </Paragraph>
+    </Space>
+  )
+}
 
 export const CreateCartModal = ({ visible, onVisibleChange }) => {
     const { carts, addCart, setActiveCart } = useShoppingCart()
@@ -38,14 +85,13 @@ export const CreateCartModal = ({ visible, onVisibleChange }) => {
         onVisibleChange(false)
       }
     }
-
-    const StarIcon = favorited ? StarFilled : StarOutlined
   
     return (
       <Modal
         title="Create a cart"
         okText="Create"
         cancelText="Cancel"
+        destroyOnClose={true}
         width={ 400 }
         visible={ visible }
         onVisibleChange={ onVisibleChange }
@@ -54,36 +100,14 @@ export const CreateCartModal = ({ visible, onVisibleChange }) => {
         zIndex={1032}
         maskStyle={{ zIndex: 1031 }}
       >
-        <Space direction="vertical" size="middle">
-          <Space direction="vertical">
-            <Text style={{ fontWeight: 500 }}>Name</Text>
-            <Form.Item
-              validateStatus={ cartNameError && "error" }
-              help={ cartNameError ? "Carts cannot have duplicate names." : undefined }
-              style={{ margin: 0 }}>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <Input
-                  placeholder="Cart name..."
-                  value={ cartName }
-                  onChange={ (e) => setCartName(e.target.value) }
-                  onKeyDown={ (e) => e.key === "Enter" && createShoppingCart() }
-                />
-                <StarIcon
-                  className="icon-btn"
-                  onClick={ () => setFavorited(!favorited) }
-                  style={{
-                    fontSize: 16,
-                    marginLeft: 16,
-                    color: favorited ? "#1890ff" : undefined
-                  }}
-                />
-              </div>
-            </Form.Item>
-          </Space>
-          <Paragraph>
-            Add items to a cart to...
-          </Paragraph>
-        </Space>
+        <CreateCardModalContent
+          cartName={cartName}
+          setCartName={setCartName}
+          cartNameError={cartNameError}
+          favorited={favorited}
+          setFavorited={setFavorited}
+          createShoppingCart={createShoppingCart}
+        />
       </Modal>
     )
   }
