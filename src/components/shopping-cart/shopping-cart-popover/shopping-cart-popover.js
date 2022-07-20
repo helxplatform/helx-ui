@@ -16,7 +16,7 @@ const ShoppingCartPopoverContent = () => {
   return (
     <Space direction="vertical">
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Text ellipsis type="secondary" style={{ fontSize: 15, fontWeight: 500 }}>{ activeCart.name }</Text>
+        <Text ellipsis type="" style={{ fontSize: 15, fontWeight: 500 }}>{ activeCart.name }</Text>
           <CartSelectDropdown createNewCart={ () => setCreatingCart(true) }>
             <a type="button" style={{ marginLeft: 8 }}>
               <Space>
@@ -26,7 +26,7 @@ const ShoppingCartPopoverContent = () => {
             </a>
           </CartSelectDropdown>
       </div>
-      <Divider style={{ marginTop: 8, marginBottom: 8, marginLeft: -16, marginRight: -16, width: "calc(100% + 32px)" }} />
+      <Divider style={{ marginTop: 4, marginBottom: 8, marginLeft: -16, marginRight: -16, width: "calc(100% + 32px)" }} />
       <CartList />
       <Button type="primary" block>
         Checkout

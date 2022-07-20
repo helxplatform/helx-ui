@@ -43,6 +43,8 @@ export const ShoppingCartProvider = ({ children }) => {
     if (typeof name !== "string") ({ name } = name)
     const cart = carts.find((cart) => cart.name === name)
     if (!cart) throw new Error(`Attempted update of unknown cart: ${name}`)
+
+    if (typeof props === "function") props = props.call(null, cart)
     setCarts([
       ...carts.filter((_cart) => _cart !== cart),
       {
@@ -52,41 +54,41 @@ export const ShoppingCartProvider = ({ children }) => {
       }
     ])
   }
-  const addConceptToCart = (cart, concept) => {
-    updateCart(cart, {
+  const addConceptToCart = (name, concept) => {
+    updateCart(name, (cart) => ({
       concepts: [...cart.concepts, concept]
-    })
+    }))
   }
-  const addStudyToCart = (cart, study) => {
-    updateCart(cart, {
+  const addStudyToCart = (name, study) => {
+    updateCart(name, (cart) => ({
       studies: [...cart.studies, study]
-    })
+    }))
   }
-  const addVariableToCart = (cart, variable) => {
-    updateCart(cart, {
+  const addVariableToCart = (name, variable) => {
+    updateCart(name, (cart) => ({
       variables: [...cart.variables, variable]
-    })
+    }))
   }
-  const removeConceptFromCart = (cart, concept) => {
-    updateCart(cart, {
-      concepts: cart.concepts.filter((_concept) => _concept !== concept )
-    })
+  const removeConceptFromCart = (name, concept) => {
+    updateCart(name, (cart) => ({
+      concepts: cart.concepts.filter((_concept) => _concept.id !== concept.id )
+    }))
   }
-  const removeStudyFromCart = (cart, study) => {
-    updateCart(cart, {
-      studies: cart.studies.filter((_study) => _study !== study)
-    })
+  const removeStudyFromCart = (name, study) => {
+    updateCart(name, (cart) => ({
+      studies: cart.studies.filter((_study) => _study.c_id !== study.c_id)
+    }))
   }
-  const removeVariableFromCart = (cart, variable) => {
-    updateCart(cart, {
-      variables: cart.variables.filter((_variable) => _variable !== variable)
-    })
+  const removeVariableFromCart = (name, variable) => {
+    updateCart(name, (cart) => ({
+      variables: cart.variables.filter((_variable) => _variable.id !== variable.id)
+    }))
   }
 
   const cartUtilities = {
-    isConceptInCart: (cart, concept) => cart.concepts.find((_concept) => _concept === concept),
-    isStudyInCart: (cart, study) => cart.studies.find((_study) => _study === study),
-    isVariableInCart: (cart, variable) => cart.variables.find((_variable) => _variable === variable),
+    isConceptInCart: (cart, concept) => !!cart.concepts.find((_concept) => _concept.id === concept.id),
+    isStudyInCart: (cart, study) => !!cart.studies.find((_study) => _study.c_id === study.c_id),
+    isVariableInCart: (cart, variable) => !!cart.variables.find((_variable) => _variable.id === variable.id),
     countCart: (cart) => cart.concepts.length + cart.variables.length + cart.studies.length
   }
   
