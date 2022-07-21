@@ -14,6 +14,7 @@
     "eslint": "^7.27.0",
     "helx-analytics": "^1.0.14",
     "rc-queue-anim": "^2.0.0",
+    "rc-texty": "^0.2.0",
     "rc-tween-one": "^3.0.6",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

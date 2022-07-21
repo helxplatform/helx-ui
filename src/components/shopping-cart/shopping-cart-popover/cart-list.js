@@ -9,18 +9,6 @@ import './shopping-cart-list.css'
 const { Text, Paragraph } = Typography
 const { Panel } = Collapse
 
-const DeleteAnimation =  [
-    {
-       duration: 250,
-       opacity: 0 
-    },
-    {
-        height: 0,
-        duration: 200,
-        ease: "easeOutQuad"
-    }
-]
-
 const CartSection = ({ name, data, renderItem }) => {
     const [expanded, setExpanded] = useState(true)
     const disabled = data.length === 0
@@ -32,22 +20,6 @@ const CartSection = ({ name, data, renderItem }) => {
     useEffect(() => {
         if (disabled) setExpanded(false)
     }, [disabled])
-
-    // const wrapper = useMemo(() => (
-    //     expanded ? (
-    //         <QueueAnim
-    //             className="ant-list-items"
-    //             component="ul"
-    //             type={["left", "right"]}
-    //             leaveReverse
-    //             delay={ 100 }
-    //         >
-    //             { data.map((item) => renderItem(item) ) }
-    //         </QueueAnim>
-    //     ) : (
-    //         null
-    //     )
-    // ), [expanded, data])
 
     return (
         <Fragment>
@@ -105,7 +77,7 @@ export const CartList = () => {
                     <List.Item key={concept.id}>
                         <Space direction="vertical" style={{ maxHeight: 400, gap: 4 }}>
                             <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
-                                <Text ellipsis style={{ flex: 1, fontWeight: 400 }}>
+                                <Text ellipsis style={{ flex: 1, fontWeight: 400, color: "#434343" }}>
                                     { concept.name } ({ concept.type })
                                 </Text>
                                 <RemoveItemButton onClick={ () => removeConceptFromCart(activeCart, concept) }/>

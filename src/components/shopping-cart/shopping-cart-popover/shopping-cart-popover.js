@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Badge, Button, Popover, Space, List, Typography, Input, Form, Popconfirm, Modal, Dropdown, Menu, Divider, Tooltip } from 'antd'
 import { DownOutlined } from '@ant-design/icons'
+import Texty from 'rc-texty'
+import TweenOne from 'rc-tween-one'
 import { useShoppingCart } from '../../../contexts/'
 import { CartList } from './cart-list'
 import { CartSelectDropdown } from './cart-select-dropdown'
@@ -12,8 +14,18 @@ const { Title, Text, Paragraph } = Typography
 export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
   const { activeCart, cartUtilities: { countCart } } = useShoppingCart()
   const [creatingCart, setCreatingCart] = useState(false)
+  const [name, setName] = useState("")
 
   const checkoutDisabled = countCart(activeCart) === 0
+
+  /* Forces   */
+  useEffect(() => {
+    setName("")
+  }, [activeCart.name])
+
+  useEffect(() => {
+    if (!name) setName(activeCart.name)
+  }, [name])
   
   return (
     <Badge count={0} offset={[-8, 0]}>
@@ -28,11 +40,13 @@ export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
                 fontSize: 12,
                 letterSpacing: "0.5px",
                 color: "#434343",
-                textTransform: "uppercase"
+                textTransform: "uppercase",
+                overflow: "hidden",
+                // border: "1px solid red"
               }}
             >
-              {activeCart.name}
-              {/* <> &bull; { countCart(activeCart) } items </> */}
+              <Texty type="right" mode="sync" duration={ 300 } component="span">{name}</Texty>
+            {/* <> &bull; { countCart(activeCart) } items </> */}
             </Title>
             <CartSelectDropdown createNewCart={ () => setCreatingCart(true) }>
               <a type="button" style={{ marginLeft: 8 }}>

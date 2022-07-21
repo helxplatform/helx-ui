@@ -1,4 +1,5 @@
 @import 'antd/dist/antd.css';
+@import 'rc-texty/assets/index.css';
 
 *, *::before, *::after {
   box-sizing: border-box;
