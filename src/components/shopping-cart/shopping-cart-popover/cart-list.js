@@ -1,11 +1,25 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { List, Typography, Collapse, Space, Divider } from 'antd'
-import { CloseOutlined } from '@ant-design/icons'
+import { CloseOutlined, DeleteOutlined  } from '@ant-design/icons'
+import { TweenOneGroup } from 'rc-tween-one'
+import QueueAnim from 'rc-queue-anim'
 import { useShoppingCart } from '../../../contexts'
 import './shopping-cart-list.css'
 
 const { Text } = Typography
 const { Panel } = Collapse
+
+const DeleteAnimation =  [
+    {
+       duration: 250,
+       opacity: 0 
+    },
+    {
+        height: 0,
+        duration: 200,
+        ease: "easeOutQuad"
+    }
+]
 
 const CartSection = ({ name, data, renderItem }) => {
     const [expanded, setExpanded] = useState(true)
@@ -15,38 +29,61 @@ const CartSection = ({ name, data, renderItem }) => {
         if (disabled) setExpanded(false)
     }, [disabled])
 
+    // const wrapper = useMemo(() => (
+    //     expanded ? (
+    //         <QueueAnim
+    //             className="ant-list-items"
+    //             component="ul"
+    //             type={["left", "right"]}
+    //             leaveReverse
+    //             delay={ 100 }
+    //         >
+    //             { data.map((item) => renderItem(item) ) }
+    //         </QueueAnim>
+    //     ) : (
+    //         null
+    //     )
+    // ), [expanded, data])
+
     return (
-        <Collapse ghost activeKey={expanded ? [name] : []} onChange={ () => setExpanded(!expanded) }>
-            <Panel
-                key={name}
-                disabled={ disabled }
-                header={
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <Text disabled={ disabled }>
-                            {name} ({data.length})
-                        </Text>
-                        {/* {!disabled && (
-                            <a type="button">Empty</a>
-                        )} */}
-                    </div>
-                }
+        <Fragment>
+            <Collapse ghost activeKey={expanded ? [name] : []} onChange={ () => setExpanded(!expanded) }>
+                <Panel
+                    key={name}
+                    disabled={ disabled }
+                    header={
+                        <div style={{ display: "flex", justifyContent: "space-between", userSelect: "none" }}>
+                            <Text disabled={ disabled }>
+                                {name} ({data.length})
+                            </Text>
+                            {/* {!disabled && (
+                                <a type="button">Empty</a>
+                            )} */}
+                        </div>
+                    }
+                />
+            </Collapse>
+            <List
+                style={{ overflow: "hidden" }}
             >
-                <div style={{ display: "flex" }}>
-                    <List
-                        dataSource={data}
-                        renderItem={renderItem}
-                        style={{ width: "100%" }}
-                    />
-                </div>
-            </Panel>
-        </Collapse>
+                <QueueAnim
+                    className="ant-list-items"
+                    component="ul"
+                    duration={ 300 }
+                    type={["right", "left"]}
+                    leaveReverse
+                >
+                    { expanded ? data.map((item) => renderItem(item) ) : null }
+                </QueueAnim>
+            </List>
+        </Fragment>
     )
 }
 
 const RemoveItemButton = ({ onClick }) => (
-    <CloseOutlined
+    <DeleteOutlined
         className="icon-btn"
-        style={{ fontSize: 16, marginLeft: 8 }}
+        style={{ fontSize: 14, marginLeft: 8 }}
         onClick={ onClick }
     />
 )

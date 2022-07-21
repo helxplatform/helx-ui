@@ -32,6 +32,7 @@ export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
               }}
             >
               {activeCart.name}
+              {/* <> &bull; { countCart(activeCart) } items </> */}
             </Title>
             <CartSelectDropdown createNewCart={ () => setCreatingCart(true) }>
               <a type="button" style={{ marginLeft: 8 }}>
@@ -47,9 +48,17 @@ export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
           <Space direction="vertical">
             <CartList />
             <Tooltip placement="bottom" title={ checkoutDisabled ? "You need to add items to the cart." : undefined}>
-              <Button type="primary" block disabled={ checkoutDisabled }>
-                Checkout
-              </Button>
+              {/* Button transitions don't currently work properly on Tooltip-wrapped buttons due to a bug in antd.  */}
+              <span style={ checkoutDisabled ? { display: "inline-block", cursor: "not-allowed", width: "100%" } : {} }>
+                <Button
+                  type="primary"
+                  block
+                  disabled={ checkoutDisabled }
+                  style={{ pointerEvents: checkoutDisabled ? "none" : undefined }}
+                >
+                  Checkout
+                </Button>
+              </span>
             </Tooltip>
             <CreateCartModal visible={ creatingCart } onVisibleChange={ setCreatingCart } />
           </Space>
