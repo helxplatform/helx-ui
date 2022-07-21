@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { List, Spin, Space, Tag, Typography } from 'antd'
 import { useHelxSearch } from '../'
 import { Link } from '../../link'
+import { AddToCartIcon } from '../../shopping-cart'
 
 const { Text } = Typography
 const { CheckableTag: CheckableFacet } = Tag
@@ -68,6 +69,7 @@ export const StudiesTab = ({ result }) => {
                 (<Link to={ item.c_link }>{ item.c_id }</Link>)
               </Text>
               <Text className="variables-count">{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
+              {/* <AddToCartIcon type="icon" study={ item } from={{ type: "concept", value: result }} style={{ marginLeft: 8 }} /> */}
             </div>
           </List.Item>
         ) }

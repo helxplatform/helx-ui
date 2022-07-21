@@ -7,13 +7,14 @@ import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
-import { AddToCart } from '../../shopping-cart'
-import { useAnalytics } from '../../../contexts'
+import { AddToCartIcon } from '../../shopping-cart'
+import { useAnalytics, useShoppingCart } from '../../../contexts'
 import './concept-card.css'
 
 export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
   const { analyticsEvents } = useAnalytics()
   const { query } = useHelxSearch()
+  const { activeCart, cartUtilities: { isConceptInCart } } = useShoppingCart()
   const [currentTab, setCurrentTab] = useState('overview')
 
   const tabs = {
@@ -42,11 +43,12 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
         onTabChange={key => setCurrentTab(key)}
         extra={
           <div style={{ display: "flex", alignItems: "center" }}>
-            <AddToCart asIcon concept={ result } />
+            <AddToCartIcon concept={ result } from={{ type: "search", value: query }} />
             { icon && <IconComponent className="icon-btn" onClick={ openModal } style={{ marginLeft: 20 }} /> }
           </div>
         }
         actions={ [<br />] }
+        // style={{ border: isConceptInCart(activeCart, result) ? "1px solid #91d5ff" : undefined }}
       >
         { tabContents[currentTab] }
       </Card>

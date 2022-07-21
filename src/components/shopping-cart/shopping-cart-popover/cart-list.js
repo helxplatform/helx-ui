@@ -17,13 +17,9 @@ const CartSection = ({ name, data, renderItem }) => {
         setExpanded(true)
     }, [data])
 
-    useEffect(() => {
-        if (disabled) setExpanded(false)
-    }, [disabled])
-
     return (
         <Fragment>
-            <Collapse ghost activeKey={expanded ? [name] : []} onChange={ () => setExpanded(!expanded) }>
+            <Collapse ghost activeKey={expanded && !disabled ? [name] : []} onChange={ () => setExpanded(!expanded) }>
                 <Panel
                     key={name}
                     disabled={ disabled }

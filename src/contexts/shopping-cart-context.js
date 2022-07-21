@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { CreateCartModal } from '../components/shopping-cart'
 import { useLocalStorage } from '../hooks/use-local-storage'
 
 const ShoppingCartContext = createContext({})
@@ -25,6 +26,7 @@ export const ShoppingCartProvider = ({ children }) => {
     }
   }
   const [carts, setCarts] = useLocalStorage("shopping_carts", [ createCart("My cart", { canDelete: false }) ])
+  const [showCreateCartModal, setShowCreateCartModal] = useState(false)
   const [activeCartName, setActiveCart] = useState("My cart")
   const activeCart = useMemo(() => carts.find((cart) => cart.name === activeCartName), [carts, activeCartName])
 
@@ -54,19 +56,31 @@ export const ShoppingCartProvider = ({ children }) => {
       }
     ])
   }
-  const addConceptToCart = (name, concept) => {
+
+  /** The `from` field will be appended to shopping cart elements to track where they originate from in the DUG UI.
+   * 
+   * Structure is { type: string, value: any } where `value` depends on `type`.
+   * - { type: "search", value: "<search_query>" }
+   * - { type: "concept", value: <dug_concept> }
+   * - { type: "study", value: <dug_study> }
+   * 
+   * It has been structured in this way in anticipation of future workflows beyond
+   * simply "searches yield concepts, concepts yield studies, studies yield variables"
+   * 
+  */
+  const addConceptToCart = (name, concept, from=null) => {
     updateCart(name, (cart) => ({
-      concepts: [...cart.concepts, concept]
+      concepts: [...cart.concepts, { ...concept, from }]
     }))
   }
-  const addStudyToCart = (name, study) => {
+  const addStudyToCart = (name, study, from=null) => {
     updateCart(name, (cart) => ({
-      studies: [...cart.studies, study]
+      studies: [...cart.studies, { ...study, from }]
     }))
   }
-  const addVariableToCart = (name, variable) => {
+  const addVariableToCart = (name, variable, from=null) => {
     updateCart(name, (cart) => ({
-      variables: [...cart.variables, variable]
+      variables: [...cart.variables, { ...variable, from }]
     }))
   }
   const removeConceptFromCart = (name, concept) => {
@@ -91,6 +105,10 @@ export const ShoppingCartProvider = ({ children }) => {
     isVariableInCart: (cart, variable) => !!cart.variables.find((_variable) => _variable.id === variable.id),
     countCart: (cart) => cart.concepts.length + cart.variables.length + cart.studies.length
   }), [])
+
+  const modals = useMemo(() => ({
+    createCart: () => setShowCreateCartModal(true)
+  }), [])
   
   return (
     <ShoppingCartContext.Provider value={{
@@ -98,9 +116,13 @@ export const ShoppingCartProvider = ({ children }) => {
       addConceptToCart, addStudyToCart, addVariableToCart,
       removeConceptFromCart, removeStudyFromCart, removeVariableFromCart,
       activeCart, setActiveCart,
+      modals,
       cartUtilities
      }}>
-      { children }
+       <Fragment>
+        { children }
+        <CreateCartModal visible={ showCreateCartModal } onVisibleChange={ setShowCreateCartModal } />
+      </Fragment>
     </ShoppingCartContext.Provider>
   )
 }

@@ -17,6 +17,25 @@ const CreateCardModalContent = ({ createShoppingCart, cartName, setCartName, car
     })
   }, [])
 
+  // Workaround for antd bug where Tooltip-based elements will close when interacting with a modal.
+  // Only occurs when the modal is not a child of the active Tooltip-based component.
+  useEffect(() => {
+    // This component is a child of the modal, so the modal wrapper is guarenteed to exist on mount.
+    const modalWrapper = document.querySelector(".cart-creation-modal-wrapper")
+    const modalMask = modalWrapper.parentNode
+    const modalRoot = modalMask.parentNode
+    const modalDOMRoot = modalRoot.parentNode
+
+    const stopPropagation = (e) => {
+      e.stopPropagation()
+    }
+    modalDOMRoot.addEventListener("mousedown", stopPropagation)
+    
+    return () => {
+      modalDOMRoot.removeEventListener("mousedown", stopPropagation)
+    }
+  }, [])
+
   return (
     <Space direction="vertical" size="middle">
       <Space direction="vertical">
@@ -74,7 +93,7 @@ export const CreateCartModal = ({ visible, onVisibleChange }) => {
   
     useEffect(() => setCartNameError(false), [cartName])
   
-    const createShoppingCart = () => {
+    const createShoppingCart = useCallback(() => {
       if (carts.find((cart) => cart.name === cartName)) {
         setCartNameError(true)
       } else {
@@ -84,14 +103,14 @@ export const CreateCartModal = ({ visible, onVisibleChange }) => {
         setActiveCart(cartName)
         onVisibleChange(false)
       }
-    }
+    }, [carts, cartName, addCart, setActiveCart, onVisibleChange])
   
     return (
       <Modal
         title="Create a cart"
         okText="Create"
         cancelText="Cancel"
-        destroyOnClose={true}
+        destroyOnClose={ true }
         width={ 400 }
         visible={ visible }
         onVisibleChange={ onVisibleChange }
@@ -99,6 +118,7 @@ export const CreateCartModal = ({ visible, onVisibleChange }) => {
         onCancel={ () => onVisibleChange(false) }
         zIndex={1032}
         maskStyle={{ zIndex: 1031 }}
+        wrapClassName="cart-creation-modal-wrapper"
       >
         <CreateCardModalContent
           cartName={cartName}

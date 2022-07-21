@@ -12,8 +12,7 @@ import './shopping-cart-popover.css'
 const { Title, Text, Paragraph } = Typography
 
 export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
-  const { activeCart, cartUtilities: { countCart } } = useShoppingCart()
-  const [creatingCart, setCreatingCart] = useState(false)
+  const { activeCart, setActiveCart, cartUtilities: { countCart } } = useShoppingCart()
   const [name, setName] = useState("")
 
   const checkoutDisabled = countCart(activeCart) === 0
@@ -45,10 +44,10 @@ export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
                 // border: "1px solid red"
               }}
             >
-              <Texty type="right" mode="sync" duration={ 300 } component="span">{name}</Texty>
+              <Texty type="alpha" mode="sync" duration={ 300 } component="span">{name}</Texty>
             {/* <> &bull; { countCart(activeCart) } items </> */}
             </Title>
-            <CartSelectDropdown createNewCart={ () => setCreatingCart(true) }>
+            <CartSelectDropdown onSelect={ (cart) => setActiveCart(cart.key) }>
               <a type="button" style={{ marginLeft: 8 }}>
                 <Space>
                   Change
@@ -74,7 +73,6 @@ export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
                 </Button>
               </span>
             </Tooltip>
-            <CreateCartModal visible={ creatingCart } onVisibleChange={ setCreatingCart } />
           </Space>
         }
         placement="bottomLeft"
