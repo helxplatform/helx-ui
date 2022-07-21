@@ -6,7 +6,7 @@ import QueueAnim from 'rc-queue-anim'
 import { useShoppingCart } from '../../../contexts'
 import './shopping-cart-list.css'
 
-const { Text } = Typography
+const { Text, Paragraph } = Typography
 const { Panel } = Collapse
 
 const DeleteAnimation =  [
@@ -24,6 +24,10 @@ const DeleteAnimation =  [
 const CartSection = ({ name, data, renderItem }) => {
     const [expanded, setExpanded] = useState(true)
     const disabled = data.length === 0
+
+    useEffect(() => {
+        setExpanded(true)
+    }, [data])
 
     useEffect(() => {
         if (disabled) setExpanded(false)
@@ -53,7 +57,7 @@ const CartSection = ({ name, data, renderItem }) => {
                     disabled={ disabled }
                     header={
                         <div style={{ display: "flex", justifyContent: "space-between", userSelect: "none" }}>
-                            <Text disabled={ disabled }>
+                            <Text style={{ fontWeight: 500 }} disabled={ disabled }>
                                 {name} ({data.length})
                             </Text>
                             {/* {!disabled && (
@@ -99,16 +103,16 @@ export const CartList = () => {
                 data={ concepts }
                 renderItem={(concept) => (
                     <List.Item key={concept.id}>
-                        <Space direction="vertical">
+                        <Space direction="vertical" style={{ maxHeight: 400, gap: 4 }}>
                             <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
-                                <Text ellipsis style={{ flex: 1 }}>
+                                <Text ellipsis style={{ flex: 1, fontWeight: 400 }}>
                                     { concept.name } ({ concept.type })
                                 </Text>
                                 <RemoveItemButton onClick={ () => removeConceptFromCart(activeCart, concept) }/>
                             </div>
-                            {/* <Space>
-                                <Text type="secondary" italic>{ concept.id }</Text>
-                            </Space> */}
+                            <Paragraph className="cart-concept-description" type="secondary" ellipsis>
+                                { concept.description }
+                            </Paragraph>
                         </Space>
                     </List.Item>
                 )}
