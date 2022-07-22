@@ -46,9 +46,13 @@ export const AddToCartDropdown =  ({
         <Dropdown.Button
             className={ classNames("add-to-cart-dropdown-button", buttonClassName) }
             size={small ? "small" : "middle"}
-            trigger="hover"
-            type={ isInCart(activeCart) ? "ghost" : "primary" }
-            placement="bottomRight"
+            trigger="click"
+            type={ small ? (
+                "ghost"
+            ) : (
+                isInCart(activeCart) ? "ghost" : "primary"
+            )}
+            placement={ "bottomRight" }
             overlay={
                 <CartSelectDropdownMenu
                     cartIconRender={ (cart) => isInCart(cart) ? (

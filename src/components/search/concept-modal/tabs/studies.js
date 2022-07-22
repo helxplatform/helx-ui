@@ -28,30 +28,22 @@ const StudyVariable = ({ variable, study }) => {
   }, [hovering])
 
   return (
-    <QueueAnim
-      component={Space}
-      componentProps={{
-        direction: "vertical",
-        className: "study-variables-list-item",
-        onMouseEnter: () => setHovering(true),
-        onMouseLeave: () => setHovering(false)
-      }}
-      type={ ["right", "left"] }
-      leaveReverse
-    >
-      <Text key="variable-name" className="variable-name">
-        { variable.name } &nbsp;
-        ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
-      </Text>
-      <Text key="variable-description" className="variable-description"> { variable.description }</Text>
-      <div key="add-to-cart-dropdown" style={{ marginTop: 4 }}>
+    <div className="study-variables-list-item">
+      <Space direction="vertical">
+        <Text key="variable-name" className="variable-name">
+          { variable.name } &nbsp;
+          ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
+        </Text>
+        <Text key="variable-description" className="variable-description"> { variable.description }</Text>
+      </Space>
+      <div key="add-to-cart-dropdown">
         <AddToCartDropdown
           small
           variable={ variable }
           from={{ type: "study", value: study }}
         />
       </div>
-    </QueueAnim>
+    </div>
   )
 }
 
@@ -120,11 +112,14 @@ export const StudiesTab = ({ studies }) => {
                       <StudyVariable variable={ variable } study={ item } />
                     ) }
                   />
-                  <AddToCartDropdown
-                    study={ item }
-                    from={{ type: "concept", value: selectedResult }}
-                    buttonProps={{ style: { marginLeft: 8 } }}
-                  />
+                  <Space style={{ marginLeft: 8 }}>
+                    <AddToCartDropdown
+                      study={ item }
+                      from={{ type: "concept", value: selectedResult }}
+                      buttonProps={{ }}
+                    />
+                    {/* <Button>Add all variables</Button> */}
+                  </Space>
                 </Space>
               </Panel>
             ))
