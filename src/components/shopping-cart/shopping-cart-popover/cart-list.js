@@ -98,7 +98,7 @@ export const CartList = () => {
                                 <Text type="secondary" style={{ marginLeft: 8 }}>({ study.elements.length } variables)</Text>
                                 <RemoveItemButton
                                     style={{ marginLeft: 12 }}
-                                    onClick={ () => removeConceptFromCart(activeCart, study) }
+                                    onClick={ () => removeStudyFromCart(activeCart, study) }
                                 />
                             </div>
                             {/* <Text type="secondary" ellipsis>
