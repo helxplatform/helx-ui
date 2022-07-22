@@ -6,7 +6,6 @@ import TweenOne from 'rc-tween-one'
 import { useShoppingCart } from '../../../contexts/'
 import { CartList } from './cart-list'
 import { CartSelectDropdown } from './cart-select-dropdown'
-import { CreateCartModal } from '../create-cart-modal'
 import './shopping-cart-popover.css'
 
 const { Title, Text, Paragraph } = Typography

@@ -1,5 +1,5 @@
 import { createContext, Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { CreateCartModal } from '../components/shopping-cart'
+import { CreateCartModal } from '../components/shopping-cart/create-cart-modal'
 import { useLocalStorage } from '../hooks/use-local-storage'
 
 const ShoppingCartContext = createContext({})
@@ -14,17 +14,17 @@ const cartBlueprint = {
   variables: [],
   studies: []
 }
+const createCart = (name, props) => {
+  return {
+    ...cartBlueprint,
+    ...props,
+    name,
+    createdTime: Date.now(),
+    modifiedTime: Date.now()
+  }
+}
 
 export const ShoppingCartProvider = ({ children }) => {
-  const createCart = (name, props) => {
-    return {
-      ...cartBlueprint,
-      ...props,
-      name,
-      createdTime: Date.now(),
-      modifiedTime: Date.now()
-    }
-  }
   const [carts, setCarts] = useLocalStorage("shopping_carts", [ createCart("My cart", { canDelete: false }) ])
   const [showCreateCartModal, setShowCreateCartModal] = useState(false)
   const [activeCartName, setActiveCartName] = useState("My cart")
@@ -139,7 +139,19 @@ export const ShoppingCartProvider = ({ children }) => {
      }}>
        <Fragment>
         { children }
-        <CreateCartModal visible={ showCreateCartModal } onVisibleChange={ setShowCreateCartModal } />
+        <CreateCartModal
+          carts={ carts }
+          onConfirm={ (cartName, favorited) => {
+            addCart(cartName, {
+              favorited
+            })
+            setActiveCart(cartName)
+            setShowCreateCartModal(false)
+            
+          } }
+          visible={ showCreateCartModal }
+          onVisibleChange={ setShowCreateCartModal }
+        />
       </Fragment>
     </ShoppingCartContext.Provider>
   )

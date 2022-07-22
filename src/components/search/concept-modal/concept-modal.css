@@ -26,6 +26,9 @@
   padding-left: 1rem !important;
   border-left:  2px solid #eee;
   margin-bottom: 0.5rem;
+  gap: 2px !important;
+  overflow: hidden;
+  min-height: 80px;
 }
 
 .variable-name {

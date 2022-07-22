@@ -9,7 +9,6 @@ import {
   SplashScreenView,
   ShoppingCartView,
 } from '../views'
-import { ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
 
 // Setup global csrf token
 axios.defaults.xsrfHeaderName = "X-CSRFToken";

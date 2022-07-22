@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Button, Collapse, Divider, List, Space, Tag, Typography } from 'antd'
+import { ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
+import QueueAnim from 'rc-queue-anim'
 import { useHelxSearch } from '../../'
 import { Link } from '../../../link'
 import { AddToCartIcon, AddToCartDropdown } from '../../../shopping-cart'
@@ -7,6 +9,51 @@ import { AddToCartIcon, AddToCartDropdown } from '../../../shopping-cart'
 const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 const { Panel } = Collapse
+
+const StudyVariable = ({ variable, study }) => {
+  const [hovering, setHovering] = useState(false)
+  const [active, setActive] = useState(false)
+
+  useEffect(() => {
+    let timeout
+    if (hovering)  {
+      timeout = setTimeout(() => {
+        setActive(true)
+      }, 300)
+    } else setActive(false)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [hovering])
+
+  return (
+    <QueueAnim
+      component={Space}
+      componentProps={{
+        direction: "vertical",
+        className: "study-variables-list-item",
+        onMouseEnter: () => setHovering(true),
+        onMouseLeave: () => setHovering(false)
+      }}
+      type={ ["right", "left"] }
+      leaveReverse
+    >
+      <Text key="variable-name" className="variable-name">
+        { variable.name } &nbsp;
+        ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
+      </Text>
+      <Text key="variable-description" className="variable-description"> { variable.description }</Text>
+      <div key="add-to-cart-dropdown" style={{ marginTop: 4 }}>
+        <AddToCartDropdown
+          small
+          variable={ variable }
+          from={{ type: "study", value: study }}
+        />
+      </div>
+    </QueueAnim>
+  )
+}
 
 export const StudiesTab = ({ studies }) => {
   const { selectedResult } = useHelxSearch()
@@ -70,13 +117,7 @@ export const StudiesTab = ({ studies }) => {
                     className="study-variables-list"
                     dataSource={ item.elements }
                     renderItem={ variable => (
-                      <div className="study-variables-list-item">
-                        <Text className="variable-name">
-                          { variable.name } &nbsp;
-                          ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
-                        </Text><br />
-                        <Text className="variable-description"> { variable.description }</Text>
-                      </div>
+                      <StudyVariable variable={ variable } study={ item } />
                     ) }
                   />
                   <AddToCartDropdown

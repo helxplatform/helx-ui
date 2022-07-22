@@ -1,13 +1,13 @@
-import { Fragment, useState, useEffect, forwardRef } from 'react'
+import { useState, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
-import { Card, Space } from 'antd'
+import { Card } from 'antd'
 import { ShoppingCartOutlined as ShoppingCartIcon, ExpandOutlined as ViewIcon } from '@ant-design/icons'
 import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
-import { AddToCartIcon } from '../../shopping-cart'
+import { AddToCartIconButton } from '../../shopping-cart'
 import { useAnalytics, useShoppingCart } from '../../../contexts'
 import './concept-card.css'
 
@@ -43,7 +43,7 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
         onTabChange={key => setCurrentTab(key)}
         extra={
           <div style={{ display: "flex", alignItems: "center" }}>
-            <AddToCartIcon concept={ result } from={{ type: "search", value: query }} />
+            <AddToCartIconButton concept={ result } from={{ type: "search", value: query }} />
             { icon && <IconComponent className="icon-btn" onClick={ openModal } style={{ marginLeft: 20 }} /> }
           </div>
         }

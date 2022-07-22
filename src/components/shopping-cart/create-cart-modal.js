@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Modal, Space, Form, Input, Typography } from 'antd'
 import { StarOutlined, StarFilled, StarTwoTone } from '@ant-design/icons'
-import { useShoppingCart } from '../../contexts'
 
 const { Text, Paragraph } = Typography
 
@@ -71,9 +70,7 @@ const CreateCardModalContent = ({ createShoppingCart, cartName, setCartName, car
   )
 }
 
-export const CreateCartModal = ({ visible, onVisibleChange }) => {
-    const { carts, addCart, setActiveCart } = useShoppingCart()
-  
+export const CreateCartModal = ({ carts, visible, onVisibleChange, onConfirm }) => {
     /** Form state */
     const [cartName, setCartName] = useState("")
     const [cartNameError, setCartNameError] = useState(false)
@@ -97,13 +94,9 @@ export const CreateCartModal = ({ visible, onVisibleChange }) => {
       if (carts.find((cart) => cart.name === cartName)) {
         setCartNameError(true)
       } else {
-        addCart(cartName, {
-          favorited
-        })
-        setActiveCart(cartName)
-        onVisibleChange(false)
+        onConfirm(cartName, favorited)
       }
-    }, [carts, cartName, addCart, setActiveCart, onVisibleChange])
+    }, [carts, cartName, onConfirm])
   
     return (
       <Modal
