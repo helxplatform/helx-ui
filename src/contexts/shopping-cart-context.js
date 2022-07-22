@@ -27,8 +27,20 @@ export const ShoppingCartProvider = ({ children }) => {
   }
   const [carts, setCarts] = useLocalStorage("shopping_carts", [ createCart("My cart", { canDelete: false }) ])
   const [showCreateCartModal, setShowCreateCartModal] = useState(false)
-  const [activeCartName, setActiveCart] = useState("My cart")
+  const [activeCartName, setActiveCartName] = useState("My cart")
   const activeCart = useMemo(() => carts.find((cart) => cart.name === activeCartName), [carts, activeCartName])
+
+  const getCart = useCallback((name) => {
+    if (typeof name !== "string") ({ name } = name)
+    const cart = carts.find((cart) => cart.name === name)
+    return cart
+  }, [carts])
+
+  const setActiveCart = useCallback((name) => {
+    const cart = getCart(name)
+    console.log(name, cart)
+    setActiveCartName(cart.name)
+  }, [carts])
 
   const addCart = (name, props) => {
     if (carts.find((cart) => cart.name === name)) throw new Error("Cannot create a new cart with duplicate `name` key.")
@@ -42,8 +54,7 @@ export const ShoppingCartProvider = ({ children }) => {
     if (name === activeCart.name) setActiveCart("My cart")
   }
   const updateCart = (name, props) => {
-    if (typeof name !== "string") ({ name } = name)
-    const cart = carts.find((cart) => cart.name === name)
+    const cart = getCart(name)
     if (!cart) throw new Error(`Attempted update of unknown cart: ${name}`)
 
     if (typeof props === "function") props = props.call(null, cart)

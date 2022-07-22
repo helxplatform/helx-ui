@@ -71,7 +71,7 @@ export const CartList = () => {
                 data={ concepts }
                 renderItem={(concept) => (
                     <List.Item key={concept.id}>
-                        <Space direction="vertical" style={{ maxHeight: 400, gap: 4 }}>
+                        <Space direction="vertical" style={{ gap: 2 }}>
                             <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
                                 <Text ellipsis style={{ flex: 1, fontWeight: 400, color: "#434343" }}>
                                     { concept.name } ({ concept.type })

@@ -47,7 +47,7 @@ export const ShoppingCartPopover = ({ visible, onVisibleChange, children }) => {
               <Texty type="alpha" mode="sync" duration={ 300 } component="span">{name}</Texty>
             {/* <> &bull; { countCart(activeCart) } items </> */}
             </Title>
-            <CartSelectDropdown onSelect={ (cart) => setActiveCart(cart.key) }>
+            <CartSelectDropdown onSelect={ (cart) => setActiveCart(cart) }>
               <a type="button" style={{ marginLeft: 8 }}>
                 <Space>
                   Change

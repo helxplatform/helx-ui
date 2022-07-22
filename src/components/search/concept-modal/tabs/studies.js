@@ -79,7 +79,11 @@ export const StudiesTab = ({ studies }) => {
                       </div>
                     ) }
                   />
-                  <AddToCartDropdown study={ item } from={{ type: "concept", value: selectedResult }} />
+                  <AddToCartDropdown
+                    study={ item }
+                    from={{ type: "concept", value: selectedResult }}
+                    buttonProps={{ style: { marginLeft: 8 } }}
+                  />
                 </Space>
               </Panel>
             ))
