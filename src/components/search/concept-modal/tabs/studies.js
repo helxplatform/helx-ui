@@ -4,7 +4,7 @@ import { ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
 import QueueAnim from 'rc-queue-anim'
 import { useHelxSearch } from '../../'
 import { Link } from '../../../link'
-import { AddToCartIcon, AddToCartDropdown } from '../../../shopping-cart'
+import { AddToCartIconButton, AddToCartDropdown } from '../../../shopping-cart'
 
 const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
@@ -100,7 +100,7 @@ export const StudiesTab = ({ studies }) => {
                 extra={
                   <Space>
                     <Text>{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
-                    {/* <AddToCartIcon study={ item } from={{ type: "concept", value: selectedResult }} style={{ marginLeft: 8 }} /> */}
+                    <AddToCartIconButton study={ item } from={{ type: "concept", value: selectedResult }} style={{ marginLeft: 8 }} />
                   </Space>
                 }
               >

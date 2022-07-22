@@ -10,8 +10,10 @@ const { Text, Paragraph } = Typography
 const { Panel } = Collapse
 
 const CartSection = ({ name, data, renderItem }) => {
-    const [expanded, setExpanded] = useState(true)
-    const disabled = data.length === 0
+    const [_expanded, setExpanded] = useState(true)
+    
+    const disabled = useMemo(() => data.length === 0, [data])
+    const expanded = useMemo(() => _expanded && !disabled, [_expanded, disabled])
 
     useEffect(() => {
         setExpanded(true)
@@ -19,7 +21,7 @@ const CartSection = ({ name, data, renderItem }) => {
 
     return (
         <Fragment>
-            <Collapse ghost activeKey={expanded && !disabled ? [name] : []} onChange={ () => setExpanded(!expanded) }>
+            <Collapse ghost activeKey={expanded ? [name] : []} onChange={ () => setExpanded(!expanded) }>
                 <Panel
                     key={name}
                     disabled={ disabled }
@@ -61,6 +63,25 @@ const RemoveItemButton = ({ style={}, onClick, ...props }) => (
     />
 )
 
+const CartItem = ({ name, nameSecondary, description, onRemove }) => (
+    <Space direction="vertical" style={{ gap: 2 }}>
+        <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
+            <Text style={{  flex: 1, color: "#434343" }} ellipsis>
+                { name }
+            </Text>
+            <Text type="secondary" style={{ marginLeft: 8 }}>
+                { nameSecondary }
+            </Text>
+            <RemoveItemButton onClick={ onRemove }/>
+        </div>
+        {description && (
+            <Paragraph className="cart-concept-description" type="secondary" ellipsis>
+                { description }
+            </Paragraph>
+        )}
+    </Space>
+)
+
 export const CartList = () => {
     const { activeCart, removeConceptFromCart, removeStudyFromCart, removeVariableFromCart } = useShoppingCart()
     const { concepts, studies, variables } = activeCart
@@ -72,17 +93,11 @@ export const CartList = () => {
                 data={ concepts }
                 renderItem={(concept) => (
                     <List.Item key={ concept.id }>
-                        <Space direction="vertical" style={{ gap: 2 }}>
-                            <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
-                                <Text ellipsis style={{ flex: 1, fontWeight: 400, color: "#434343" }}>
-                                    { concept.name } ({ concept.type })
-                                </Text>
-                                <RemoveItemButton onClick={ () => removeConceptFromCart(activeCart, concept) }/>
-                            </div>
-                            <Paragraph className="cart-concept-description" type="secondary" ellipsis>
-                                { concept.description }
-                            </Paragraph>
-                        </Space>
+                        <CartItem
+                            name={ `${ concept.name } (${ concept.type })` }
+                            description={ concept.description }
+                            onRemove={ () => removeConceptFromCart(activeCart, concept) }
+                        />
                     </List.Item>
                 )}
             />
@@ -91,23 +106,13 @@ export const CartList = () => {
                 name="Studies"
                 data={ studies }
                 renderItem={(study) => (
-                    <List.Item key={ study.c_id }>
-                        <Space direction="vertical" style={{ gap: 2 }}>
-                            <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
-                                <Text style={{  flex: 1, color: "#434343" }} ellipsis>{ study.c_name }</Text>
-                                <Text type="secondary" style={{ marginLeft: 8 }}>
-                                    ({ study.elements.length } variable{study.elements.length !== 1 && "s"})
-                                </Text>
-                                <RemoveItemButton
-                                    style={{ marginLeft: 12 }}
-                                    onClick={ () => removeStudyFromCart(activeCart, study) }
-                                />
-                            </div>
-                            {/* <Text type="secondary" ellipsis>
-                                { study.elements.map((variable) => variable.name).join(", ") }
-                            </Text> */}
-                            {/* <Text type="secondary">{ study.c_id }</Text> */}
-                        </Space>
+                    <List.Item key={ study.c_id  }>
+                        <CartItem
+                            key={ study.c_id }
+                            name={ study.c_name }
+                            nameSecondary={ `(${ study.elements.length } variable${study.elements.length !== 1 && "s"})` }
+                            onRemove={ () => removeStudyFromCart(activeCart, study) }
+                        />
                     </List.Item>
                 )}
             />
@@ -117,7 +122,11 @@ export const CartList = () => {
                 data={ variables }
                 renderItem={(variable) => (
                     <List.Item key={ variable.id }>
-                        { variable.name }
+                        <CartItem
+                            name={ variable.name }
+                            description={ variable.description }
+                            onRemove={ () => removeVariableFromCart(activeCart, variable) }
+                        />
                     </List.Item>
                 )}
             />
