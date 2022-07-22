@@ -6,11 +6,12 @@ export const AddToCartIcon = ({
     concept=undefined,
     study=undefined,
     variable=undefined,
+    from=null,
     style={},
     ...props
 }) => {
     const { activeCart } = useShoppingCart()
-    const { isInCart, toggleCart } = useUtilities({ concept, study, variable })
+    const { isInCart, toggleCart } = useUtilities({ concept, study, variable, from })
 
     return (
         <ShoppingCartIcon

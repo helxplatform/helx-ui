@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Menu, Modal, Space, Button } from 'antd'
 import {
   InfoCircleOutlined as OverviewIcon,
@@ -14,6 +14,7 @@ import { useHelxSearch } from '../'
 import { SearchLayout } from '../context'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import './concept-modal.css'
+import { AddToCartDropdown } from '../../shopping-cart'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
@@ -103,7 +104,7 @@ export const ConceptModalBody = ({ result }) => {
 }
 
 export const ConceptModal = ({ result, visible, closeHandler }) => {
-  const { setFullscreenResult } = useHelxSearch()
+  const { setFullscreenResult, query } = useHelxSearch()
   const [doFullscreen, setDoFullscreen] = useState(null)
 
   /**
@@ -139,10 +140,17 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
       bodyStyle={{ padding: `0`, minHeight: `50vh` }}
       cancelButtonProps={{ hidden: true }}
       footer={(
-        <Space style={{ justifyContent: "flex-end" }}>
-          <Button type="ghost" onClick={ openFullscreen }>Fullscreen</Button>
-          <Button type="primary" onClick={ closeHandler }>Close</Button>
-        </Space>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <AddToCartDropdown
+            concept={ result }
+            from={{ type: "search", value: query }}
+            buttonProps={{  }}
+          />
+          <Space style={{ justifyContent: "flex-end" }}>
+            <Button type="ghost" onClick={ openFullscreen }>Fullscreen</Button>
+            <Button type="primary" onClick={ closeHandler }>Close</Button>
+          </Space>
+        </div>
       )}
     >
       <ConceptModalBody result={ result } />

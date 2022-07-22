@@ -52,11 +52,12 @@ const CartSection = ({ name, data, renderItem }) => {
     )
 }
 
-const RemoveItemButton = ({ onClick }) => (
+const RemoveItemButton = ({ style={}, onClick, ...props }) => (
     <DeleteOutlined
         className="icon-btn"
-        style={{ fontSize: 14, marginLeft: 8 }}
+        style={{ fontSize: 14, marginLeft: 8, ...style }}
         onClick={ onClick }
+         {...props }
     />
 )
 
@@ -70,7 +71,7 @@ export const CartList = () => {
                 name="Concepts"
                 data={ concepts }
                 renderItem={(concept) => (
-                    <List.Item key={concept.id}>
+                    <List.Item key={ concept.id }>
                         <Space direction="vertical" style={{ gap: 2 }}>
                             <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
                                 <Text ellipsis style={{ flex: 1, fontWeight: 400, color: "#434343" }}>
@@ -85,27 +86,40 @@ export const CartList = () => {
                     </List.Item>
                 )}
             />
-            <Divider />
+            <Divider className="cart-section-divider" />
             <CartSection
                 name="Studies"
                 data={ studies }
                 renderItem={(study) => (
-                    <List.Item key={study.c_id}>
-                        {study.name}
+                    <List.Item key={ study.c_id }>
+                        <Space direction="vertical" style={{ gap: 2 }}>
+                            <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
+                                <Text style={{  flex: 1, color: "#434343" }} ellipsis>{ study.c_name }</Text>
+                                <Text type="secondary" style={{ marginLeft: 8 }}>({ study.elements.length } variables)</Text>
+                                <RemoveItemButton
+                                    style={{ marginLeft: 12 }}
+                                    onClick={ () => removeConceptFromCart(activeCart, study) }
+                                />
+                            </div>
+                            {/* <Text type="secondary" ellipsis>
+                                { study.elements.map((variable) => variable.name).join(", ") }
+                            </Text> */}
+                            {/* <Text type="secondary">{ study.c_id }</Text> */}
+                        </Space>
                     </List.Item>
                 )}
             />
-            <Divider />
+            <Divider className="cart-section-divider" />
             <CartSection
                 name="Variables"
                 data={ variables }
                 renderItem={(variable) => (
-                    <List.Item key={variable.id}>
-                        {variable.name}
+                    <List.Item key={ variable.id }>
+                        { variable.name }
                     </List.Item>
                 )}
             />
-            <Divider />
+            {/* <Divider style={{ margin: "2px 0" }} /> */}
         </div>
     )
 }

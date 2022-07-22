@@ -3,9 +3,12 @@
     flex-direction: column;
     margin-top: -16px;
 }
-.shopping-cart-list .ant-divider {
-    margin: 2px 0;
-    display: none;
+.shopping-cart-list .cart-section-divider {
+    /* margin: 2px 0;
+    display: none; */
+    margin: 0;
+    /* These dividers need to be slightly more defined than the dividers between individual list items, since they are separating the lists themselves. */
+    background: rgba(0, 0, 0, 0.05);
 }
 .shopping-cart-list .ant-collapse-header {
     padding-left: 0 !important;
@@ -33,7 +36,7 @@
     margin-top: 0;
 }
 .shopping-cart-list .ant-list-item:last-child {
-    padding-bottom: 0;
+    padding-bottom: 12px;
 }
 .shopping-cart-list .ant-list-empty-text {
     display: none;

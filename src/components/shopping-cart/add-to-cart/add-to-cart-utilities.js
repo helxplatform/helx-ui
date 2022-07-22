@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useShoppingCart } from '../../../contexts'
 
-export const useUtilities = ({ concept, study, variable }) => {
+export const useUtilities = ({ concept, study, variable, from=null }) => {
     const {
         carts,
         activeCart,
@@ -30,14 +30,14 @@ export const useUtilities = ({ concept, study, variable }) => {
 
     const addToCart = useCallback((cart) => {
         return concept ? (
-            addConceptToCart(cart, concept)
+            addConceptToCart(cart, concept, from)
         ) : study ? (
-            addStudyToCart(cart, study)
+            addStudyToCart(cart, study, from)
         ) : variable ? (
-            addVariableToCart(cart, variable)
+            addVariableToCart(cart, variable, from)
         ) : {}
     }, [
-        concept, study, variable,
+        concept, study, variable, from,
         addConceptToCart, addStudyToCart, addVariableToCart
     ])
 

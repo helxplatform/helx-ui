@@ -13,11 +13,12 @@ export const AddToCartDropdown =  ({
     concept=undefined,
     study=undefined,
     variable=undefined,
+    from=null,
     buttonProps: _buttonProps={},
     cartSelectDropdownProps={}
 }) => {
     const { carts, activeCart, addCart, setActiveCart } = useShoppingCart()
-    const { isInCart, toggleCart } = useUtilities({ concept, study, variable })
+    const { isInCart, toggleCart } = useUtilities({ concept, study, variable, from })
     
     const {
         className:  buttonClassName,
