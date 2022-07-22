@@ -109,6 +109,13 @@ export const ShoppingCartProvider = ({ children }) => {
       variables: cart.variables.filter((_variable) => _variable.id !== variable.id)
     }))
   }
+  const emptyCart = (name) => {
+    updateCart(name, (cart) => ({
+      concepts: [],
+      studies: [],
+      variables: []
+    }))
+  }
 
   const cartUtilities = useMemo(() => ({
     isConceptInCart: (cart, concept) => !!cart.concepts.find((_concept) => _concept.id === concept.id),
@@ -123,7 +130,7 @@ export const ShoppingCartProvider = ({ children }) => {
   
   return (
     <ShoppingCartContext.Provider value={{
-      carts, addCart, removeCart, updateCart,
+      carts, addCart, removeCart, updateCart, emptyCart,
       addConceptToCart, addStudyToCart, addVariableToCart,
       removeConceptFromCart, removeStudyFromCart, removeVariableFromCart,
       activeCart, setActiveCart,

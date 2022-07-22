@@ -6,7 +6,9 @@
     padding-top: 16px;
     justify-content: space-around;
 }
-
+.clear-cart-confirm .ant-popover-message-title {
+    padding-left: 0 !important;
+}
 .manage-cart-list {
     /* border-left: 1px solid #f0f0f0; */
 }

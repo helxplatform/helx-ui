@@ -95,7 +95,9 @@ export const CartList = () => {
                         <Space direction="vertical" style={{ gap: 2 }}>
                             <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
                                 <Text style={{  flex: 1, color: "#434343" }} ellipsis>{ study.c_name }</Text>
-                                <Text type="secondary" style={{ marginLeft: 8 }}>({ study.elements.length } variables)</Text>
+                                <Text type="secondary" style={{ marginLeft: 8 }}>
+                                    ({ study.elements.length } variable{study.elements.length !== 1 && "s"})
+                                </Text>
                                 <RemoveItemButton
                                     style={{ marginLeft: 12 }}
                                     onClick={ () => removeStudyFromCart(activeCart, study) }
