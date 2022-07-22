@@ -56,7 +56,7 @@ export const useUtilities = ({ concept, study, variable, from=null }) => {
         const name = concept ? concept.name : study ? study.c_name : variable ? variable.name : ""
         const id = concept ? concept.id : study ? study.c_id : variable ? variable.id : ""
         message.info({
-            content: `Removed ${name} to ${cart.name}`,
+            content: `Removed ${name} from ${cart.name}`,
             icon: <MinusOutlined />,
             key: `cart-alert-${cart.name}-${id}`
         })
