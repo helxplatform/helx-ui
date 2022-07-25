@@ -2,7 +2,7 @@ const createConceptCartItem = (concept, fromSearch) => ({
   id: concept.id,
   name: `${concept.name} (${concept.type})`,
   description: concept.description,
-  price: Math.random() * 99,
+  price: null,
   tax: null,
   from: { type: "search", value: fromSearch },
   bucketId: "concepts",
