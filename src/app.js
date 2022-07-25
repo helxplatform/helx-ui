@@ -1,9 +1,13 @@
 import { useEffect } from 'react'
 import { LocationProvider, Router as ReachRouter, globalHistory, useLocation } from '@reach/router'
-import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, AnalyticsProvider, useEnvironment, useAnalytics } from './contexts'
+import {
+  EnvironmentProvider, ActivityProvider, AppProvider,
+  InstanceProvider, AnalyticsProvider, ShoppingCartProvider,
+  useEnvironment, useAnalytics
+} from './contexts'
 import { Layout } from './components/layout'
-import { ShoppingCartProvider } from './contexts'
 import { NotFoundView } from './views'
+import 'antd-shopping-cart/dist/bundle.css'
 
 const ContextProviders = ({ children }) => {
   return (

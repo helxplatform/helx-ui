@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { List, Spin, Space, Tag, Typography } from 'antd'
 import { useHelxSearch } from '../'
 import { Link } from '../../link'
-import { AddToCartIcon } from '../../shopping-cart'
+import { AddToCartIcon } from 'antd-shopping-cart'
 
 const { Text } = Typography
 const { CheckableTag: CheckableFacet } = Tag

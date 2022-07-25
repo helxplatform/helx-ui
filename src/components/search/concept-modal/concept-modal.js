@@ -13,8 +13,9 @@ import { OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
 import { useHelxSearch } from '../'
 import { SearchLayout } from '../context'
 import { useAnalytics, useEnvironment } from '../../../contexts'
+import { useShoppingCartUtilities } from '../../../hooks'
 import './concept-modal.css'
-import { AddToCartDropdown } from '../../shopping-cart'
+import { AddToCartDropdown } from 'antd-shopping-cart'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
@@ -107,6 +108,8 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
   const { setFullscreenResult, query } = useHelxSearch()
   const [doFullscreen, setDoFullscreen] = useState(null)
 
+  const { createConceptCartItem } = useShoppingCartUtilities()
+
   /**
    * Essentially peforming the same thing as what a this.setState call using a callback would do.
    * Need to render the modal as closed for one render in order for the modal to actually close
@@ -142,9 +145,7 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
       footer={(
         <div style={{ display: "flex", alignItems: "center" }}>
           <AddToCartDropdown
-            concept={ result }
-            from={{ type: "search", value: query }}
-            buttonProps={{  }}
+            item={ createConceptCartItem(result, query) }
           />
           <Space style={{ justifyContent: "flex-end" }}>
             <Button type="ghost" onClick={ openFullscreen }>Fullscreen</Button>

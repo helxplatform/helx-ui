@@ -6,7 +6,7 @@ import { useEnvironment, useAnalytics } from '../../contexts';
 import { logoutHandler } from '../../api/';
 import { MobileMenu } from './menu';
 import { SidePanel } from '../side-panel/side-panel';
-import { ShoppingCartPopover } from '../shopping-cart';
+import { CartPopoverButton } from 'antd-shopping-cart';
 import './layout.css';
 
 const { Text, Title } = Typography
@@ -14,8 +14,6 @@ const { Header, Content, Footer } = AntLayout
 const { useBreakpoint } = Grid
 
 export const Layout = ({ children }) => {
-  const [showShoppingCart, setShowShoppingCart] = useState(false)
-
   const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
   const { analyticsEvents } = useAnalytics()
   const { md } = useBreakpoint()
@@ -52,18 +50,9 @@ export const Layout = ({ children }) => {
               }}
             /> */}
             <div style={{ height: "100%" }}>
-              <ShoppingCartPopover visible={showShoppingCart} onVisibleChange={setShowShoppingCart}>
-                <Button
-                  className="shopping-cart-button"
-                  type="primary"
-                  size="middle"
-                  icon={ <ShoppingCartIcon style={{ fontSize: 16 }} /> }
-                  onClick={ () => setShowShoppingCart(true) }
-                  style={{ marginRight: !logoutButton ? 8 : undefined }}
-                >
-                  Cart
-                </Button>
-              </ShoppingCartPopover>
+              <CartPopoverButton
+                buttonProps={{ style: { marginRight: !logoutButton ? 8 : undefined } }}
+              />
             </div>
             {logoutButton && (
               <div style={{ height: "100%" }}>

@@ -1,10 +1,11 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Button, Collapse, Divider, List, Space, Tag, Typography } from 'antd'
 import { ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
+import { AddToCartIconButton, AddToCartDropdown } from 'antd-shopping-cart'
 import QueueAnim from 'rc-queue-anim'
 import { useHelxSearch } from '../../'
 import { Link } from '../../../link'
-import { AddToCartIconButton, AddToCartDropdown } from '../../../shopping-cart'
+import { useShoppingCartUtilities } from '../../../../hooks'
 
 const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
@@ -13,6 +14,8 @@ const { Panel } = Collapse
 const StudyVariable = ({ variable, study }) => {
   const [hovering, setHovering] = useState(false)
   const [active, setActive] = useState(false)
+
+  const { createVariableCartItem } = useShoppingCartUtilities()
 
   useEffect(() => {
     let timeout
@@ -38,9 +41,8 @@ const StudyVariable = ({ variable, study }) => {
       </Space>
       <div key="add-to-cart-dropdown">
         <AddToCartDropdown
+          item={ createVariableCartItem(variable, study) }
           small
-          variable={ variable }
-          from={{ type: "study", value: study }}
         />
       </div>
     </div>
@@ -51,6 +53,8 @@ export const StudiesTab = ({ studies }) => {
   const { selectedResult } = useHelxSearch()
   const [facets, setFacets] = useState([])
   const [selectedFacets, setSelectedFacets] = useState([])
+  
+  const { createStudyCartItem } = useShoppingCartUtilities()
 
   const handleSelectFacet = (facet, checked) => {
     const newSelection = new Set(selectedFacets)
@@ -100,7 +104,10 @@ export const StudiesTab = ({ studies }) => {
                 extra={
                   <Space>
                     <Text>{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
-                    <AddToCartIconButton study={ item } from={{ type: "concept", value: selectedResult }} style={{ marginLeft: 8 }} />
+                    <AddToCartIconButton
+                      item={ createStudyCartItem(item, selectedResult) }
+                      style={{ marginLeft: 8 }}
+                    />
                   </Space>
                 }
               >
@@ -114,9 +121,7 @@ export const StudiesTab = ({ studies }) => {
                   />
                   <Space style={{ marginLeft: 8 }}>
                     <AddToCartDropdown
-                      study={ item }
-                      from={{ type: "concept", value: selectedResult }}
-                      buttonProps={{ }}
+                      item={ createStudyCartItem(item, selectedResult) }
                     />
                     {/* <Button>Add all variables</Button> */}
                   </Space>

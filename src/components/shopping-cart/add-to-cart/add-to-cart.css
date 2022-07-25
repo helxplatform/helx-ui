@@ -1,5 +1,0 @@
-.add-to-cart-dropdown-button > button:first-child {
-    /* Make the first button of the dropdown-button grow. */
-    flex-grow: 1;
-    text-align: left
-}

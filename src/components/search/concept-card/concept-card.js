@@ -7,15 +7,17 @@ import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
-import { AddToCartIconButton } from '../../shopping-cart'
-import { useAnalytics, useShoppingCart } from '../../../contexts'
+import { AddToCartIconButton, useShoppingCart } from 'antd-shopping-cart'
+import { useAnalytics } from '../../../contexts'
+import { useShoppingCartUtilities } from '../../../hooks'
 import './concept-card.css'
 
 export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
   const { analyticsEvents } = useAnalytics()
   const { query } = useHelxSearch()
-  const { activeCart, cartUtilities: { isConceptInCart } } = useShoppingCart()
   const [currentTab, setCurrentTab] = useState('overview')
+
+  const { createConceptCartItem } = useShoppingCartUtilities()
 
   const tabs = {
     'overview': { title: 'Overview',         content: <OverviewTab result={ result } /> },
@@ -43,7 +45,7 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
         onTabChange={key => setCurrentTab(key)}
         extra={
           <div style={{ display: "flex", alignItems: "center" }}>
-            <AddToCartIconButton concept={ result } from={{ type: "search", value: query }} />
+            <AddToCartIconButton item={ createConceptCartItem(result, query) } />
             { icon && <IconComponent className="icon-btn" onClick={ openModal } style={{ marginLeft: 20 }} /> }
           </div>
         }
