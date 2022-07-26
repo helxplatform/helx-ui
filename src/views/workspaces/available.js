@@ -22,6 +22,10 @@ export const AvailableView = () => {
     ]
 
     useEffect(() => {
+        document.title = `Workspaces · HeLx UI`
+    }, [])
+
+    useEffect(() => {
         const renderApp = async () => {
             setLoading(true)
             await loadApps()

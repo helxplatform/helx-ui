@@ -1,18 +1,21 @@
 import { useState, forwardRef } from 'react'
+import { Badge, Card, Space, Typography } from 'antd'
+import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
+import { AddToCartIconButton, useShoppingCart } from 'antd-shopping-cart'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
-import { Card } from 'antd'
-import { ShoppingCartOutlined as ShoppingCartIcon, ExpandOutlined as ViewIcon } from '@ant-design/icons'
-import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
-import { KnowledgeGraphsTab } from './knowledge-graphs-tab'
-import { AddToCartIconButton, useShoppingCart } from 'antd-shopping-cart'
+import { useHelxSearch } from '../'
 import { useAnalytics } from '../../../contexts'
 import { useShoppingCartUtilities } from '../../../hooks'
 import './concept-card.css'
 
+const { Text } = Typography
+
 export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
+  let { name, type } = result
+
   const { analyticsEvents } = useAnalytics()
   const { query } = useHelxSearch()
   const [currentTab, setCurrentTab] = useState('overview')
@@ -22,7 +25,7 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
   const tabs = {
     'overview': { title: 'Overview',         content: <OverviewTab result={ result } /> },
     'studies':  { title: `Studies`,          content: <StudiesTab result={ result } /> },
-    'kgs':      { title: `Knowledge Graphs`, content: <KnowledgeGraphsTab result={ result } /> },
+    // 'cdes':     { title: `CDEs`,             content: <CdesTab result={ result } /> },
   }
 
   const tabList = Object.keys(tabs).map(key => tabs[key].content ? ({ key, tab: tabs[key].title }) : null).filter(tab => tab !== null)
@@ -35,10 +38,18 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
 
   const IconComponent = icon
 
+  if (name.endsWith(`(${type})`)) name = name.slice(0, name.length - `(${type})`.length)
+
   return (
     <div className={classNames("result-card", className)} ref={ref}>
       <Card
-        title={`${result.name} (${result.type})`}
+        title={
+          <div>
+            <Text>{name} ({type})</Text>
+            {/* { name !== result.name && <Text type="warning"> *</Text> } */}
+            {/* <Text style={{ color: "rgba(0, 0, 0, 0.35)", marginLeft: 4, fontSize: 12, verticalAlign: "middle", fontWeight: "normal" }}>(edited)</Text> */}
+          </div>
+        }
         tabList={tabList}
         tabProps={{size: 'small'}}
         activeTabKey={currentTab}

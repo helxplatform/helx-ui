@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import axios from 'axios';
+import axios, { CanceledError } from 'axios';
 import {
   ActiveView,
   AvailableView,
@@ -18,7 +18,10 @@ axios.defaults.xsrfCookieName = 'csrftoken';
 axios.interceptors.response.use(function (response) {
   return response;
 }, function (error) {
-  if (error.response.status === 403) {
+  if (error instanceof CanceledError) {
+    // The `error` object for cancelled requests does not have a `response` property.
+  }
+  else if (error.response.status === 403) {
     window.location.href = window.location.origin + '/helx/login/';
   }
   return Promise.reject(error)

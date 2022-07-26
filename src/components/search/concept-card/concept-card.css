@@ -5,15 +5,20 @@
 .studies-list-item {
   width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center !important;
+  align-items: center !important;
 }
-
+.study-tag {
+}
 .study-name {
-  flex: 1 !important;
+  flex: 1;
+  white-space: pre-line;
+  text-align: center;
+  padding: 0 16px;
 }
 
 .variables-count {
-  min-width: 100px;
+  white-space: nowrap;
+  /* min-width: 100px; */
   text-align: right;
 }

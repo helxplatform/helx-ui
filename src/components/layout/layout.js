@@ -32,8 +32,17 @@ export const Layout = ({ children }) => {
       <Header className="helx-header" style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>
         {context !== undefined ? <Link to={basePath}><img className="brand_img" src={'' + context.logo_url} alt={context.brand}></img></Link> : <span />}
         {md ? (
-          <div style={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "flex-end", marginRight: "16px" }}>
-            <Menu className="menu-toggle" theme="light" mode="horizontal" selectedKeys={[location.pathname]}>
+          <div style={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}>
+            <Menu
+              className="menu-toggle"
+              theme="light"
+              mode="horizontal"
+              selectedKeys={[location.pathname]}
+              style={{ display: "flex", flexGrow: 1, justifyContent: "flex-end" }}
+            >
+              <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
+              <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
+              <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               {routes.map(m => m['text'] !== '' && (
                 <Menu.Item key={`${baseLinkPath}${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>
               ))}
@@ -57,7 +66,7 @@ export const Layout = ({ children }) => {
             </div>
             {logoutButton && (
               <div style={{ height: "100%" }}>
-                <Button type="primary" ghost className="logout-button" onClick={logout}>LOG OUT</Button>
+                <Button style={{ marginRight: 14 }} type="primary" ghost className="logout-button" onClick={logout}>LOG OUT</Button>
               </div>
             )}
           </div>
