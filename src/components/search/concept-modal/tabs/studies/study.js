@@ -39,6 +39,11 @@ export const Study = ({ concept, study, highlight, collapsed, ...panelProps }) =
           {...panelProps}
         >
           <StudyVariables variables={ study.elements } highlight={ highlight } />
+          <Space style={{ marginTop: 4, marginLeft: 4 }}>
+            <AddToCartDropdownButton
+              item={ createStudyCartItem(study, concept) }
+            />
+          </Space>
         </Panel>
         { collapsed && highlightedVariables.length > 0 && (
           <div className="study-variables-list" style={{ marginLeft: "16px" }}>
@@ -54,11 +59,6 @@ export const Study = ({ concept, study, highlight, collapsed, ...panelProps }) =
                   highlight={ highlight }
                 />
             ))}
-            <Space style={{ marginLeft: 8 }}>
-              <AddToCartDropdownButton
-                item={ createStudyCartItem(study, concept) }
-              />
-            </Space>
           </div>
         )}
       </Fragment>

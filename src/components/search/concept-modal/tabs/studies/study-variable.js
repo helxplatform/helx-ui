@@ -13,11 +13,11 @@ export const StudyVariable = ({ study, variable, highlight, ...props }) => {
       <Text className="variable-name">
       <Highlighter searchWords={ highlight } textToHighlight={ variable.name } /> &nbsp;
         ({ variable.e_link ? <a href={ variable.e_link }>{ variable.id }</a> : variable.id })
-      </Text><br />
+      </Text>
       <Text className="variable-description">
         <Highlighter searchWords={ highlight } textToHighlight={ variable.description } />
       </Text>
-      <div key="add-to-cart-dropdown">
+      <div style={{ marginTop: 4 }}>
         <AddToCartDropdownButton
           item={ createVariableCartItem(variable, study) }
           small

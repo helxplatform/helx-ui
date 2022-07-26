@@ -33,6 +33,7 @@
 
 .study-variables-list-item {
   display: flex;
+  flex-direction: column;
   margin-left: 4px;
   padding-left: 1rem !important;
   border-left:  2px solid #eee;
