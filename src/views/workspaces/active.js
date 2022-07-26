@@ -41,6 +41,10 @@ export const ActiveView = () => {
     ]
 
     useEffect(() => {
+        document.title = `Active Workspaces · HeLx UI`
+    }, [])
+
+    useEffect(() => {
         const renderInstance = async () => {
             setLoading(true);
             await loadInstances()
