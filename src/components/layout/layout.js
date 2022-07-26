@@ -27,7 +27,13 @@ export const Layout = ({ children }) => {
         {context !== undefined ? <Link to={basePath}><img className="brand_img" src={'' + context.logo_url} alt={context.brand}></img></Link> : <span />}
         {md ? (
           <div style={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}>
-            <Menu className="menu-toggle" theme="light" mode="horizontal" selectedKeys={[location.pathname]}>
+            <Menu
+              className="menu-toggle"
+              theme="light"
+              mode="horizontal"
+              selectedKeys={[location.pathname]}
+              style={{ display: "flex", flexGrow: 1, justifyContent: "flex-end" }}
+            >
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
