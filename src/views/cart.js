@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import { Typography } from 'antd'
 import { useShoppingCart } from 'antd-shopping-cart'
 
@@ -6,6 +6,10 @@ const { Title } = Typography
 
 export const ShoppingCartView = () => {
   const { cart } = useShoppingCart()
+
+  useEffect(() => {
+    document.title = `Shopping Cart · HeLx UI`
+  }, [])
 
   return (
     <Fragment>

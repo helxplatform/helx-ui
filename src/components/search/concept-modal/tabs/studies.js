@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Button, Collapse, Divider, List, Space, Tag, Typography } from 'antd'
 import { ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
-import { AddToCartIconButton, AddToCartDropdown } from 'antd-shopping-cart'
+import { AddToCartIconButton, AddToCartDropdownButton } from 'antd-shopping-cart'
 import QueueAnim from 'rc-queue-anim'
 import { useHelxSearch } from '../../'
 import { Link } from '../../../link'
@@ -40,7 +40,7 @@ const StudyVariable = ({ variable, study }) => {
         <Text key="variable-description" className="variable-description"> { variable.description }</Text>
       </Space>
       <div key="add-to-cart-dropdown">
-        <AddToCartDropdown
+        <AddToCartDropdownButton
           item={ createVariableCartItem(variable, study) }
           small
         />
@@ -120,7 +120,7 @@ export const StudiesTab = ({ studies }) => {
                     ) }
                   />
                   <Space style={{ marginLeft: 8 }}>
-                    <AddToCartDropdown
+                    <AddToCartDropdownButton
                       item={ createStudyCartItem(item, selectedResult) }
                     />
                     {/* <Button>Add all variables</Button> */}

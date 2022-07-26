@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Layout as AntLayout, Button, Menu, Grid, Divider, Badge, Popover, Typography, Tag, Space } from 'antd'
 import { ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
-import { useLocation, Link } from '@reach/router'
+import { useLocation, Link, redirectTo, navigate } from '@reach/router'
 import { useEnvironment, useAnalytics } from '../../contexts';
 import { logoutHandler } from '../../api/';
 import { MobileMenu } from './menu';
@@ -51,6 +51,7 @@ export const Layout = ({ children }) => {
             /> */}
             <div style={{ height: "100%" }}>
               <CartPopoverButton
+                onCheckout={ () => navigate(`${baseLinkPath}/cart`) }
                 buttonProps={{ style: { marginRight: !logoutButton ? 8 : undefined } }}
               />
             </div>

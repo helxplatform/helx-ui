@@ -15,7 +15,7 @@ import { SearchLayout } from '../context'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import { useShoppingCartUtilities } from '../../../hooks'
 import './concept-modal.css'
-import { AddToCartDropdown } from 'antd-shopping-cart'
+import { AddToCartDropdownButton } from 'antd-shopping-cart'
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
@@ -144,7 +144,7 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
       cancelButtonProps={{ hidden: true }}
       footer={(
         <div style={{ display: "flex", alignItems: "center" }}>
-          <AddToCartDropdown
+          <AddToCartDropdownButton
             item={ createConceptCartItem(result, query) }
           />
           <Space style={{ justifyContent: "flex-end" }}>
