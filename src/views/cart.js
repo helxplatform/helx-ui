@@ -1,11 +1,22 @@
 import { Fragment, useEffect } from 'react'
-import { Typography } from 'antd'
+import { Space, Layout, Typography, Menu } from 'antd'
+import { ShoppingCartOutlined } from '@ant-design/icons'
 import { useShoppingCart } from 'antd-shopping-cart'
+import { useEnvironment } from '../contexts'
+import { Breadcrumbs } from '../components/layout'
 
-const { Title } = Typography
+const { Title, Text } = Typography
+const { Sider, Content } = Layout
 
 export const ShoppingCartView = () => {
-  const { cart } = useShoppingCart()
+  const { context } = useEnvironment()
+  const { carts, activeCart, setActiveCart } = useShoppingCart()
+
+  const breadcrumbs = [
+    { text: 'Home', path: '/helx' },
+    // { text: 'Search', path: '/helx/search' },
+    { text: 'Cart', path: '/cart' },
+  ]
 
   useEffect(() => {
     document.title = `Shopping Cart · HeLx UI`
@@ -13,10 +24,48 @@ export const ShoppingCartView = () => {
 
   return (
     <Fragment>
-      <Title level={ 1 }>Shopping Cart</Title>
-      <pre style={{ fontSize: '80%', backgroundColor: '#333', color: '#eee', padding: '1rem' }}>
-        { JSON.stringify(cart, null, 2) }
-      </pre>
+      { context.workspaces_enabled === 'true' && <Breadcrumbs crumbs={breadcrumbs} /> }
+      <Layout>
+        <Sider>
+          <Menu
+            mode="inline"
+            selectedKeys={[ activeCart.name ]}
+            style={{ height: "100%" }}
+            items={ carts.sort((a, b) => a.name.localeCompare(b.name)).map((cart) => ({
+              key: cart.name,
+              name: cart.name,
+              label: cart.name,
+              icon: <ShoppingCartOutlined />
+            }) )}
+            onSelect={ ({ key: name }) => setActiveCart(name) }
+          />
+        </Sider>
+        <Content style={{ background: "#fff" }}>
+          <div style={{ display: "flex" }}>
+            <Space style={{ flex: 1 }}>
+              <Title
+                level={ 4 }
+                style={{
+                  marginTop: 0,
+                  marginBottom: 0,
+                  textTransform: "uppercase",
+                  fontSize: 18,
+                  fontWeight: 600,
+                  letterSpacing: 0.5
+                }}
+              >
+                { activeCart.name }
+              </Title>
+              <Text type="secondary" style={{ textTransform: "uppercase", letterSpacing: 0.25, fontWeight: 400, fontSize: 16 }}>
+                { activeCart.items.length } items
+              </Text>
+            </Space>
+            <Space style={{ flex: 0 }}>
+              <a type="button">Manage</a>
+            </Space>
+          </div>
+        </Content>
+      </Layout>
     </Fragment>
   )
 }

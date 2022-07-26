@@ -60,8 +60,8 @@ export const Layout = ({ children }) => {
             /> */}
             <div style={{ height: "100%" }}>
               <CartPopoverButton
+                badgeProps={{ overflowCount: 99 }}
                 onCheckout={ () => navigate(`${baseLinkPath}/cart`) }
-                buttonProps={{ style: { marginRight: !logoutButton ? 8 : undefined } }}
               />
             </div>
             {logoutButton && (
