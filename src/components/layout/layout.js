@@ -74,7 +74,7 @@ export const Layout = ({ children }) => {
           <MobileMenu menu={routes} />
         )}
       </Header>
-      <Content className>
+      <Content data-active-route={ routes.find((route) => location.pathname === `${ baseLinkPath }${ route.path }`).path }>
         {children}
         {context.workspaces_enabled === 'true' && <SidePanel />}
       </Content>

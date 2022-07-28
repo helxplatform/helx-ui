@@ -1,16 +1,17 @@
 import { Fragment, useEffect } from 'react'
-import { Space, Layout, Typography, Menu } from 'antd'
+import { Space, Layout, Typography, Menu, Tabs, List } from 'antd'
 import { ShoppingCartOutlined } from '@ant-design/icons'
-import { useShoppingCart } from 'antd-shopping-cart'
+import { CartList, useShoppingCart } from 'antd-shopping-cart'
 import { useEnvironment } from '../contexts'
 import { Breadcrumbs } from '../components/layout'
 
 const { Title, Text } = Typography
 const { Sider, Content } = Layout
+const { TabPane } = Tabs
 
 export const ShoppingCartView = () => {
   const { context } = useEnvironment()
-  const { carts, activeCart, setActiveCart } = useShoppingCart()
+  const { buckets, carts, activeCart, setActiveCart } = useShoppingCart()
 
   const breadcrumbs = [
     { text: 'Home', path: '/helx' },
@@ -25,7 +26,7 @@ export const ShoppingCartView = () => {
   return (
     <Fragment>
       { context.workspaces_enabled === 'true' && <Breadcrumbs crumbs={breadcrumbs} /> }
-      <Layout>
+      <Layout className="cart-layout" style={{ height: 0 }}>
         <Sider>
           <Menu
             mode="inline"
@@ -42,14 +43,14 @@ export const ShoppingCartView = () => {
         </Sider>
         <Content style={{ background: "#fff" }}>
           <div style={{ display: "flex" }}>
-            <Space style={{ flex: 1 }}>
+            <Space align="end" style={{ flex: 1 }}>
               <Title
                 level={ 4 }
                 style={{
                   marginTop: 0,
                   marginBottom: 0,
                   textTransform: "uppercase",
-                  fontSize: 18,
+                  fontSize: 19,
                   fontWeight: 600,
                   letterSpacing: 0.5
                 }}
@@ -64,6 +65,10 @@ export const ShoppingCartView = () => {
               <a type="button">Manage</a>
             </Space>
           </div>
+          <Space className="cart-layout-content" direction="vertical" style={{ marginTop: 8 }}>
+            <CartList small={ false } />
+          </Space>
+          <div className="cart-content-footer" style={{ paddingTop: 24, marginBottom: -8, borderTop: "1px solid #f0f0f0" }}>footer</div>
         </Content>
       </Layout>
     </Fragment>
