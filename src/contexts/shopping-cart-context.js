@@ -21,7 +21,7 @@ export const ShoppingCartProvider = ({ children }) => {
                 {
                     id: "variables",
                     name: "Variables",
-                    itemName: "variables"
+                    itemName: "variable"
                 }
             ]}
         >
