@@ -95,7 +95,7 @@ export const StudiesTab = ({ result }) => {
             <Text className="variables-count">
               { study.elements && `${ study.elements.length } variable${ study.elements.length === 1 ? '' : 's'}` }
             </Text>
-4          </List.Item>
+          </List.Item>
         ) }
       />
     </Space>
