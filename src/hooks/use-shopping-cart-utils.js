@@ -12,7 +12,7 @@ const createConceptCartItem = (concept, fromSearch) => ({
 const createStudyCartItem = (study, fromConcept) => ({
   id: study.c_id,
   name: study.c_name,
-  nameSecondary: `(${ study.elements.length } variable${study.elements.length !== 1 && "s"})`,
+  nameSecondary: `(${ study.elements.length } variable${study.elements.length !== 1 ? "s" : ""})`,
   price: null,
   tax: null,
   quantity: 1,
