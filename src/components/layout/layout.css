@@ -34,22 +34,6 @@
     /* margin-left: 16px; */
 }
 
-.layout .ant-layout-content[data-active-route="/cart"] {
-    flex-grow: 1;
-}
-
-/** Rules for getting overflow into the flex display. */
-.cart-layout .cart-layout-content {
-    flex-grow: 1;
-    height: 0;
-}
-.cart-layout .cart-layout-content > *, .cart-layout .cart-layout-content > * > *, .cart-layout .cart-layout-content > * > * > * {
-    height: 100%;
-}
-.cart-layout .cart-layout-content .shopping-cart-list .ant-tabs-content-holder {
-    overflow: auto;
-}
-
 .icon-btn {
     cursor: pointer;
     transition: color 0.3s ease;

@@ -1,0 +1,22 @@
+/** Rules for getting overflow into the flex display rather than the page itself. */
+.layout .ant-layout-content[data-active-route="/cart"] {
+    flex-grow: 1;
+}
+.cart-layout .cart-layout-content {
+    flex-grow: 1;
+    height: 0;
+    /* margin-bottom: -16px; */
+}
+.cart-layout .cart-layout-content > *, .cart-layout .cart-layout-content > * > * {
+    height: 100%;
+}
+.cart-layout .cart-layout-content .shopping-cart-list .ant-tabs {
+    height: 0;
+}
+
+.cart-layout .cart-layout-content .shopping-cart-list .ant-tabs-content-holder {
+    margin-left: -20px;
+}
+.cart-layout .cart-list-extra {
+    margin-bottom: -16px;
+}
