@@ -1,14 +1,16 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { List, Spin, Space, Tag, Typography, Divider } from 'antd'
+import { AddToCartIcon, AddToCartIconButton } from 'antd-shopping-cart'
 import { useHelxSearch } from '../'
 import { Link } from '../../link'
-import { AddToCartIcon } from 'antd-shopping-cart'
+import { useShoppingCartUtilities } from '../../../hooks'
 
 const { Text } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 
 export const StudiesTab = ({ result }) => {
   const { query, fetchStudyVariables, fetchCDEs } = useHelxSearch()
+  const { createStudyCartItem } = useShoppingCartUtilities()
   const [studies, setStudies] = useState([])
   const [loading, setLoading] = useState(true)
   const [facets, setFacets] = useState([])
@@ -95,6 +97,7 @@ export const StudiesTab = ({ result }) => {
             <Text className="variables-count">
               { study.elements && `${ study.elements.length } variable${ study.elements.length === 1 ? '' : 's'}` }
             </Text>
+            <AddToCartIconButton item={ createStudyCartItem(study, result) } style={{ marginLeft: 24 }} />
           </List.Item>
         ) }
       />
