@@ -5,8 +5,8 @@
 .cart-list-layout {
     height: 0;
 }
-.cart-list-layout .cart-list-layout-content {
-    background: #fff;
+.cart-list-layout > * {
+    background: #fff !important;
 }
 .cart-list-layout .cart-layout-content > *, .cart-list-layout .cart-layout-content > * > * {
     height: 100%;
