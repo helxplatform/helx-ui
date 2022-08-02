@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Space, Layout, Typography, Menu, Modal, Checkbox, Select, notification } from 'antd'
 import { ShoppingCartOutlined, LoadingOutlined } from '@ant-design/icons'
-import { CartList, CartListExtra, useShoppingCart } from 'antd-shopping-cart'
+import { CartListLayout, useShoppingCart } from 'antd-shopping-cart'
 import YAML from 'yaml'
 import download from 'js-file-download'
 import './shopping-cart.css'
@@ -40,62 +40,18 @@ export const ShoppingCart = () => {
   }, [showExportModal])
 
   return (
-    <Layout className="cart-layout" style={{ height: 0 }}>
-      <Sider>
-        <Menu
-          mode="inline"
-          selectedKeys={[ activeCart.name ]}
-          style={{ height: "100%" }}
-          items={ carts.sort((a, b) => a.name.localeCompare(b.name)).map((cart) => ({
-            key: cart.name,
-            name: cart.name,
-            label: cart.name,
-            icon: <ShoppingCartOutlined />
-          }) )}
-          onSelect={ ({ key: name }) => setActiveCart(name) }
-        />
-      </Sider>
-      <Content style={{ background: "#fff" }}>
-        <div style={{ display: "flex" }}>
-          <Space align="end" style={{ flex: 1 }}>
-            <Title
-              level={ 4 }
-              style={{
-                marginTop: 0,
-                marginBottom: 0,
-                textTransform: "uppercase",
-                fontSize: 19,
-                fontWeight: 600,
-                letterSpacing: 0.5
-              }}
-            >
-              { activeCart.name }
-            </Title>
-            <Text type="secondary" style={{ textTransform: "uppercase", letterSpacing: 0.25, fontWeight: 400, fontSize: 16 }}>
-              { activeCart.items.length } item{ activeCart.items.length !== 1 ? "s" : "" }
-            </Text>
-          </Space>
-          <Space style={{ flex: 0 }}>
-            <a type="button">Manage</a>
-          </Space>
-        </div>
-        <Space className="cart-layout-content" direction="vertical" style={{ marginTop: 8 }}>
-          <CartList
-            small={ false }
-            checkableItems={ true }
-            cartItemProps={{
-              showQuantity: false
-            }}
-            onCheckout={ (selectedItems) => {
-              setExportItems(selectedItems.length === 0 ? activeCart.items : selectedItems )
-              setShowExportModal(true)
-            } }
-            extraProps={{
-              renderCheckoutText: (selectedCount) => selectedCount > 0 ? `Export ${ selectedCount } selected item${ selectedCount !== 1 ? "s" : "" }` : "Export"
-            }}
-          />
-        </Space>
-      </Content>
+    <Fragment>
+      <CartListLayout
+        onCheckout={ (selectedItems) => {
+          setExportItems(selectedItems.length === 0 ? activeCart.items : selectedItems )
+          setShowExportModal(true)
+        } }
+        cartListProps={{
+          extraProps: {
+            renderCheckoutText: (selectedCount) => selectedCount > 0 ? `Export ${ selectedCount } selected item${ selectedCount !== 1 ? "s" : "" }` : "Export"
+          }
+        }}
+      />
       <Modal
         title="Export items"
         okText="Confirm"
@@ -125,9 +81,9 @@ export const ShoppingCart = () => {
           if (exportFormat === "JSON") {
             fileName = `${ name }.json`
             data = exportReadable ? JSON.stringify(
-              cart,
-              undefined,
-              4
+            cart,
+            undefined,
+            4
             ) : JSON.stringify(cart)
           } else if (exportFormat === "YAML") {
             fileName = `${ name }.yaml`
@@ -136,7 +92,7 @@ export const ShoppingCart = () => {
 
           if (deleteItemsAfterExport) {
             updateCart(activeCart, {
-              items: activeCart.items.filter((item) => !exportItems.find((_item) => _item.id === item.id))
+            items: activeCart.items.filter((item) => !exportItems.find((_item) => _item.id === item.id))
             })
           }
 
@@ -144,7 +100,6 @@ export const ShoppingCart = () => {
             data,
             fileName
           ), 2000)
-
         } }
         onCancel={ () => setShowExportModal(false) }
         zIndex={1032}
@@ -163,25 +118,25 @@ export const ShoppingCart = () => {
         </Title>
         <Space direction="vertical" size="middle">
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Text>
-              Export format:
-            </Text>
-            <Select value={ exportFormat } onChange={ setExportFormat } style={{ marginLeft: 8 }}>
-              { Object.keys(ExportFormats).map((formatKey) => <Option value={ formatKey }>{ ExportFormats[formatKey].name }</Option> ) }
-            </Select>
+              <Text>
+                Export format:
+              </Text>
+              <Select value={ exportFormat } onChange={ setExportFormat } style={{ marginLeft: 8 }}>
+                { Object.keys(ExportFormats).map((formatKey) => <Option value={ formatKey }>{ ExportFormats[formatKey].name }</Option> ) }
+              </Select>
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Checkbox checked={ exportReadable } onChange={ () => setExportReadable(!exportReadable) }>
-              Export in human-readable format
-            </Checkbox>
+              <Checkbox checked={ exportReadable } onChange={ () => setExportReadable(!exportReadable) }>
+                Export in human-readable format
+              </Checkbox>
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Checkbox checked={ deleteItemsAfterExport } onChange={ () => setDeleteItemsAfterExport(!deleteItemsAfterExport) }>
-              { exportingFullCart ? "Empty cart after export" : "Remove items from cart after export" }
-            </Checkbox>
+              <Checkbox checked={ deleteItemsAfterExport } onChange={ () => setDeleteItemsAfterExport(!deleteItemsAfterExport) }>
+                { exportingFullCart ? "Empty cart after export" : "Remove items from cart after export" }
+              </Checkbox>
           </div>
         </Space>
       </Modal>
-    </Layout>
+    </Fragment>
   )
 }
