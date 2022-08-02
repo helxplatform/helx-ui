@@ -1,7 +1,5 @@
 import { ShoppingCartProvider as _ShoppingCartProvider } from 'antd-shopping-cart'
 
-const prices = {}
-
 export const ShoppingCartProvider = ({ children }) => {
     return (
         <_ShoppingCartProvider
