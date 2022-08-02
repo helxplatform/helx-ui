@@ -21,7 +21,7 @@ const ExportFormats = {
 
 
 export const ShoppingCart = () => {
-  const { buckets, carts, activeCart, setActiveCart } = useShoppingCart()
+  const { buckets, carts, activeCart, setActiveCart, updateCart } = useShoppingCart()
   const [exportItems, setExportItems] = useState([])
   const [exportFormat, setExportFormat] = useState("JSON")
   const [exportReadable, setExportReadable] = useState(true)
@@ -134,10 +134,17 @@ export const ShoppingCart = () => {
             data = YAML.stringify(cart)
           }
 
+          if (deleteItemsAfterExport) {
+            updateCart(activeCart, {
+              items: activeCart.items.filter((item) => !exportItems.find((_item) => _item.id === item.id))
+            })
+          }
+
           setTimeout(() => download(
             data,
             fileName
           ), 2000)
+
         } }
         onCancel={ () => setShowExportModal(false) }
         zIndex={1032}
