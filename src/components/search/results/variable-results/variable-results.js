@@ -1,16 +1,13 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
-import { Collapse, List, Typography, Button, Space, Divider } from 'antd'
-import {
-    PushpinOutlined as UnselectedIcon,
-    PushpinFilled as SelectedIcon,
-} from '@ant-design/icons'
+import { List, Typography, Button, Space, Divider } from 'antd'
+
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHelxSearch } from '../../';
+import { VariablesTableByStudy } from '.'
 import './variable-results.css';
 
 const { Text } = Typography
-const { Panel } = Collapse
 
 /** Component that handles display of Variable Results */
 export const VariableSearchResults = () => {
@@ -92,7 +89,6 @@ export const VariableSearchResults = () => {
             return updatedStudy;
         })
     }
-
 
     /**
      * Triggered by the Start Over button.
@@ -247,46 +243,6 @@ export const VariableSearchResults = () => {
             </InfiniteScroll>
         </div>
     )
-
-    const VariablesTableByStudy = useMemo(() => (
-        <Collapse ghost className="variables-collapse">
-            {
-                studyResultsForDisplay.map((study, i) => {
-                    return (
-                        <Panel
-                            key={`panel_${study.c_name}_${i}`}
-                            className={ [
-                                'study-panel ',
-                                studyNamesForDisplay.includes(study.c_name) ? 'selected' : 'unselected',
-                            ] }
-                            header={
-                                <span className="study-panel-header">
-                                    <Text>{study.c_name}{` `}</Text>
-                                    <Button
-                                      type="link"
-                                      className="study-selection-button"
-                                      onClick={ toggleStudyHighlightingInHistogram(study.c_name) }
-                                    >
-                                      {
-                                        studyNamesForDisplay.includes(study.c_name)
-                                            ? <SelectedIcon />
-                                            : <UnselectedIcon />
-                                      }
-                                    </Button> 
-                                </span>
-                            }
-                            extra={ [
-                                <Text key={`text_${study.c_name}_${i}`}
-                                >{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
-                            ] }
-                        >   
-                            {study.elements.length > 7 ? < ScrollableVariableList study={study}/> : < VariableList study={study}/> }
-                        </Panel>
-                    )
-                })
-            }
-        </Collapse>
-    ), [studyNamesForDisplay, studyResultsForDisplay])
 
     return (
         <div>
