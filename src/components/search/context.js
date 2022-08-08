@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
-import { useLocation, useNavigate } from '@reach/router'
+import { useLocation, useNavigate } from '@gatsbyjs/reach-router'
 import { useEnvironment, useAnalytics } from '../../contexts'
 import { ConceptModal } from './'
 import { useLocalStorage } from '../../hooks/use-local-storage'
