@@ -169,44 +169,40 @@ export const VariableSearchResults = () => {
      *  - Updates the contents of studyNamesForDisplay
      */
     function toggleStudyHighlightingInHistogram(studyName) {
-        return function(e) {
-            e.stopPropagation()
-
-            /** Check in studyName is in the array of studyNamesForDisplay, then either add or
-             * remove the study.
-            */
-            let idx = studyNamesForDisplay.indexOf(studyName)
-            let newStudyNamesForDisplay = [...studyNamesForDisplay]
-            if (idx > -1) {
-                newStudyNamesForDisplay.splice(idx, 1)
-            } else {
-                newStudyNamesForDisplay = [...newStudyNamesForDisplay, studyName]
-            }
-
-            /** If newStudyNamesForDisplay isn't empty:
-            *       - Filter the variables by study,
-            *       - Otherwise, collect all IDs to one Array */
-            const variableIdsFilteredByStudy = newStudyNamesForDisplay.length > 0 ?
-                variableResults.filter(_var => newStudyNamesForDisplay.includes(_var.study_name)).map(el => el.id) :
-                []
-                
-
-            /** Use `variableIdsFilteredByStudy` to determine which variables need to have their
-             * state set to 'active' */
-            let histogramObj = variablesHistogram.current.getChart()
-            if (variableIdsFilteredByStudy.length === 0) {
-                /** If there are no filtered variables,
-                 *      Remove "active" from all places where it has been set */
-                histogramObj.setState('active', () => true, false);
-            } else {
-                /** If a variable is in the filtered variables array, it should be tagged as 'active' in
-                 * the histogram object. */
-                histogramObj.setState("active", (d) => variableIdsFilteredByStudy.includes(d.id));
-                histogramObj.setState("active", (d) => !variableIdsFilteredByStudy.includes(d.id), false);
-            }
-    
-            setStudyNamesForDisplay(newStudyNamesForDisplay);
+        /** Check in studyName is in the array of studyNamesForDisplay, then either add or
+         * remove the study.
+        */
+        let idx = studyNamesForDisplay.indexOf(studyName)
+        let newStudyNamesForDisplay = [...studyNamesForDisplay]
+        if (idx > -1) {
+            newStudyNamesForDisplay.splice(idx, 1)
+        } else {
+            newStudyNamesForDisplay = [...newStudyNamesForDisplay, studyName]
         }
+
+        /** If newStudyNamesForDisplay isn't empty:
+        *       - Filter the variables by study,
+        *       - Otherwise, collect all IDs to one Array */
+        const variableIdsFilteredByStudy = newStudyNamesForDisplay.length > 0 ?
+            variableResults.filter(_var => newStudyNamesForDisplay.includes(_var.study_name)).map(el => el.id) :
+            []
+            
+
+        /** Use `variableIdsFilteredByStudy` to determine which variables need to have their
+         * state set to 'active' */
+        let histogramObj = variablesHistogram.current.getChart()
+        if (variableIdsFilteredByStudy.length === 0) {
+            /** If there are no filtered variables,
+             *      Remove "active" from all places where it has been set */
+            histogramObj.setState('active', () => true, false);
+        } else {
+            /** If a variable is in the filtered variables array, it should be tagged as 'active' in
+             * the histogram object. */
+            histogramObj.setState("active", (d) => variableIdsFilteredByStudy.includes(d.id));
+            histogramObj.setState("active", (d) => !variableIdsFilteredByStudy.includes(d.id), false);
+        }
+
+        setStudyNamesForDisplay(newStudyNamesForDisplay);
     }
 
     return (
@@ -224,7 +220,10 @@ export const VariableSearchResults = () => {
             <Space direction="vertical">
                 <Text level={5}>Studies holding Variables shown above in Histogram</Text>
                 <div className='list'>
-                    <VariablesTableByStudy studyResultsForDisplay={studyResultsForDisplay} studyNamesForDisplay={studyNamesForDisplay}/>
+                    <VariablesTableByStudy
+                        studyResultsForDisplay={studyResultsForDisplay}
+                        studyNamesForDisplay={studyNamesForDisplay}
+                        toggleStudyHighlightingInHistogram={toggleStudyHighlightingInHistogram}/>
                 </div>
             </Space>
         </div>

@@ -9,7 +9,7 @@ const { Text } = Typography
 const { Panel } = Collapse
 
 
-export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisplay}) => {
+export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisplay, toggleStudyHighlightingInHistogram}) => {
     const VariableList = ({ study }) => {
         return (
             <List
@@ -59,7 +59,7 @@ export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisp
                                     <Button
                                         type="link"
                                         className="study-selection-button"
-                                        onClick={ toggleStudyHighlightingInHistogram(study.c_name) }
+                                        onClick={ (e) => { e.stopPropagation(); toggleStudyHighlightingInHistogram(study.c_name)} }
                                     >
                                     {
                                         studyNamesForDisplay.includes(study.c_name)
