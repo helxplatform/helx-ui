@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Column } from '@ant-design/plots';
 import { List, Typography, Button, Space, Divider } from 'antd'
 
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHelxSearch } from '../../';
 import { VariablesTableByStudy } from '.'
 import './variable-results.css';
@@ -12,11 +11,9 @@ const { Text } = Typography
 /** Component that handles display of Variable Results */
 export const VariableSearchResults = () => {
     const { variableResults, variableStudyResults } = useHelxSearch()
-    // console.log(variableStudyResults.length)
 
     /** studyResultsForDisplay holds variables grouped by study for the studies table */
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
-    // console.log(studyResultsForDisplay.length)
 
     /** filteredVariables holds the variables displayed in the histogram */
     const [filteredVariables, setFilteredVariables] = useState(variableResults)
@@ -212,38 +209,6 @@ export const VariableSearchResults = () => {
         }
     }
 
-    const VariableList = ({ study }) => {
-        return (
-            <List
-                className="study-variables-list"
-                dataSource={study.elements}
-                renderItem={variable => (
-                    <div className={`study-variables-list-item within-filter-${variable.withinFilter}`}>
-                        <Text className="variable-name">
-                            {variable.name} &nbsp;
-                            ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
-                        </Text><br />
-                        <Text className="variable-description"> {variable.description}</Text>
-                    </div>
-                )}
-            />
-        )
-    }
-
-    const ScrollableVariableList = ({ study }) => (
-        <div
-            id="scrollableDiv"
-            className="scrollable-div"
-        >
-            <InfiniteScroll
-                dataLength={study.elements.length}
-                scrollableTarget="scrollableDiv"
-            >
-                <VariableList study={study}/>
-            </InfiniteScroll>
-        </div>
-    )
-
     return (
         <div>
             <Space direction="vertical" size="middle">
@@ -258,7 +223,9 @@ export const VariableSearchResults = () => {
             <Divider style={{ margin: "12px 0" }} />
             <Space direction="vertical">
                 <Text level={5}>Studies holding Variables shown above in Histogram</Text>
-                <div className='list'>{VariablesTableByStudy}</div>
+                <div className='list'>
+                    <VariablesTableByStudy studyResultsForDisplay={studyResultsForDisplay} studyNamesForDisplay={studyNamesForDisplay}/>
+                </div>
             </Space>
         </div>
     )
