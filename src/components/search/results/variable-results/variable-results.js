@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
+import { Typography, Button, Space, Divider } from 'antd'
 import { Column } from '@ant-design/plots';
-import { List, Typography, Button, Space, Divider } from 'antd'
 
 import { useHelxSearch } from '../../';
-import { VariablesTableByStudy } from '.'
-import { variableHistogramConfigStatic } from '.'
+import {
+    VariablesTableByStudy, variableHistogramConfigStatic,
+    updateStudyResults, resetFilterPropertyToNone
+} from '.'
 import './variable-results.css';
 
 const { Text } = Typography
@@ -25,7 +27,6 @@ export const VariableSearchResults = () => {
         setStudyResultsForDisplay(variableStudyResults);
         setFilteredVariables(variableResults);
     }, [variableResults, variableStudyResults]);
-    // console.log(studyResultsForDisplay.length)
 
     /** studyNamesForDisplay holds names of user selected studies to highlight in histogram */
     const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
@@ -36,30 +37,6 @@ export const VariableSearchResults = () => {
     ), [filteredVariables])
 
     /**
-     * Helper function called from startOverHandler().
-     *
-     * The withinFilter property on each variable determines how the variable row is
-     * displayed within the Studies table when the histogram brush filter/zoom function
-     * is active.
-     *
-     * This function resets the  the withinFilter property back to none so styles are
-     * dropped.
-     */
-    function resetFilterPropertyToNone() {
-        return variableStudyResults.map(study => {
-            const updatedStudy = Object.assign({}, study);
-            const updatedVariables = []
-            study.elements.forEach(variable => {
-                variable.withinFilter = "none"
-                updatedVariables.push(variable)
-            })
-            updatedStudy["elements"] = updatedVariables
-
-            return updatedStudy;
-        })
-    }
-
-    /**
      * Triggered by the Start Over button.
      */
     const startOverHandler = () => {
@@ -67,7 +44,7 @@ export const VariableSearchResults = () => {
         setFilteredVariables(variableResults)
 
         /** Restores the variables and studies in the Studies Table to original inputs */
-        const studyResultsWithVariablesUpdated = resetFilterPropertyToNone()
+        const studyResultsWithVariablesUpdated = resetFilterPropertyToNone(variableStudyResults)
         setStudyResultsForDisplay(studyResultsWithVariablesUpdated)
 
 
@@ -82,42 +59,6 @@ export const VariableSearchResults = () => {
     }
 
     /**
-     * Called whenever the brush effect is used to zoom in on histogram
-     */
-    function updateStudyResults(filtered_variables) {
-        // Determine the studies that should be displayed in table
-        const studiesInFilter = [...new Set(filtered_variables.map(obj => obj.study_name))]
-        const studyResultsFiltered = studyResultsForDisplay.filter(obj => {
-            return studiesInFilter.includes(obj.c_name)
-        })
-
-        // Update how variables are displayed under studies depending on whether they were filtered within the histogram
-        const indicesForFilteredVariables = filtered_variables.map(obj => obj.indexPos)
-        const studyResultsWithVariablesUpdated = []
-        const filteredVarsInStudies = []
-        studyResultsFiltered.forEach(study => {
-            const updatedStudy = Object.assign({}, study);
-            const updatedVariables = []
-            study.elements.forEach(variable => {
-                const indexForVariableInStudy = variable.indexPos;
-                const studyVarInFilteredVars = indicesForFilteredVariables.includes(indexForVariableInStudy)
-
-                if (studyVarInFilteredVars) {
-                    filteredVarsInStudies.push(indexForVariableInStudy)
-                    variable.withinFilter = true
-                } else {
-                    variable.withinFilter = false
-                }
-                updatedVariables.push(variable)
-            })
-            updatedStudy["elements"] = updatedVariables
-            studyResultsWithVariablesUpdated.push(updatedStudy)
-        })
-
-        setStudyResultsForDisplay(studyResultsWithVariablesUpdated)
-    }
-
-    /**
      * Whenever the brush filter is used, the value of filtered Variables &
      * studyResults gets updated based on the filteredData in the histogram
      */
@@ -127,7 +68,8 @@ export const VariableSearchResults = () => {
         histogramObj.on('mouseup', (e) => {
             let filteredVariables = e.view.filteredData
 
-            updateStudyResults(filteredVariables)
+            let updatedStudyResults = updateStudyResults(filteredVariables, studyResultsForDisplay);
+            setStudyResultsForDisplay(updatedStudyResults)
             setFilteredVariables(filteredVariables)
         })
     })
