@@ -32,6 +32,10 @@ export const SplashScreenView = (props) => {
     }
 
     useEffect(() => {
+        document.title = `Connecting · HeLx UI`
+    }, [])
+
+    useEffect(() => {
         try {
             const callGetUrl = async () => {
                 await getUrl();

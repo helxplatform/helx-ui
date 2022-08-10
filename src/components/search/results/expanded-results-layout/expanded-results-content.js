@@ -1,9 +1,10 @@
 import { Fragment } from "react"
-import { Button, Card, Empty, Grid } from "antd"
-import { CloseOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons"
-import { ConceptModalBody, useHelxSearch } from "../.."
+import { Button, Card, Empty, Grid, Space, Typography } from "antd"
+import { CloseOutlined, LeftOutlined, RightOutlined, ArrowLeftOutlined } from "@ant-design/icons"
+import { ConceptModalBody, ConceptModalTitle, useHelxSearch } from "../../"
 
 const { useBreakpoint } = Grid
+const { Text } = Typography
 
 const MobileWrapper = ({ expanded, children }) => {
     const { md } = useBreakpoint()
@@ -18,11 +19,12 @@ const MobileWrapper = ({ expanded, children }) => {
 
 export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
     const { selectedResult } = useHelxSearch()
+
     if (selectedResult) return (
         <MobileWrapper expanded={expanded}>
             <Card
                 className="expanded-result-container"
-                title={ `${ selectedResult.name } (${ selectedResult.type })` }
+                title={ <ConceptModalTitle result={ selectedResult } /> }
                 extra={[
                     // <Button icon={ <CompressOutlined /> } type="text" style={{ marginRight: "12px" }} />,
                     <Button icon={ <CloseOutlined /> } type="text" onClick={ closeSelected } />
@@ -34,7 +36,7 @@ export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
                         <Button style={{ float: "right", marginRight: "16px" }}>Next <RightOutlined /></Button>
                     </Fragment>
                 ]}
-                style={{ display: "flex", flexDirection: "column" }}
+                style={{ display: "flex", flexDirection: "column", border: "1px solid rgba(0, 0, 0, 0.1)" }}
                 bodyStyle={{ flexGrow: 1 }}
             >
                 <ConceptModalBody result={ selectedResult } />
