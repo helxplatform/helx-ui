@@ -472,7 +472,7 @@ export const HelxSearch = ({ children }) => {
     <HelxSearchContext.Provider value={{
       query, setQuery, doSearch, fetchKnowledgeGraphs, fetchVariablesForConceptId, inputRef,
       query, setQuery, doSearch,
-      fetchKnowledgeGraphs, fetchStudyVariables, fetchCDEs,
+      fetchKnowledgeGraphs, fetchCDEs,
       inputRef,
       error, isLoadingConcepts,
       concepts, totalConcepts, conceptPages: filteredConceptPages,
