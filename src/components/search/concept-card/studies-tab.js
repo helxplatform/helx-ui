@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { List, Spin, Space, Tag, Typography, Divider } from 'antd'
-import { AddToCartIcon, AddToCartIconButton } from 'antd-shopping-cart'
+import { AddToCartIconButton } from 'antd-shopping-cart'
 import { useHelxSearch } from '../'
 import { Link } from '../../link'
 import { useShoppingCartUtilities } from '../../../hooks'
@@ -97,7 +97,7 @@ export const StudiesTab = ({ result }) => {
             <Text className="variables-count">
               { study.elements && `${ study.elements.length } variable${ study.elements.length === 1 ? '' : 's'}` }
             </Text>
-            <AddToCartIconButton item={ createStudyCartItem(study, result) } style={{ marginLeft: 24 }} />
+            { study.elements && <AddToCartIconButton item={ createStudyCartItem(study, result) } style={{ marginLeft: 24 }} /> }
           </List.Item>
         ) }
       />
