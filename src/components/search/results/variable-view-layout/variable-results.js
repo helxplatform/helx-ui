@@ -125,8 +125,15 @@ export const VariableSearchResults = () => {
 
     return (
         <div style={{ flexGrow: 1, display: noResults ? "none" : undefined }}>
+            {/* The results header has a bottom margin of 16, so the divider shouldn't have a top margin. */}
+            <Divider orientation="left" orientationMargin={ 0 } style={{
+                marginTop: 0,
+                marginBottom: 16,
+                fontSize: 15
+            }}>
+                Variables according to DUG score
+            </Divider>
             <Space direction="vertical" size="middle">
-                <div>Variables according to DUG Score</div>
                 <Column
                     {...variableHistogramConfig}
                     ref={variablesHistogram}

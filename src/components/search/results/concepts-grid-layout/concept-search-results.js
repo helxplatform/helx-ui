@@ -28,7 +28,7 @@ export const ConceptSearchResults = () => {
 				query && !error.message && (
 					<Fragment>
 					<div className="results" style={{ flexGrow: 1 }}>
-						{concepts.length > 0 && <ResultsHeader concepts={concepts}/>}
+						{concepts.length > 0 && <ResultsHeader />}
 						<InfiniteScroll
 							dataLength={concepts.length}
 							next={getNextPage}
