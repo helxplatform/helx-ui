@@ -7,7 +7,7 @@ const { Text } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 
 export const StudiesTab = ({ result }) => {
-  const { query, fetchStudyVariables, fetchCDEs } = useHelxSearch()
+  const { query, fetchVariablesForConceptId, fetchCDEs } = useHelxSearch()
   const [studies, setStudies] = useState([])
   const [loading, setLoading] = useState(true)
   const [facets, setFacets] = useState([])
@@ -36,7 +36,7 @@ export const StudiesTab = ({ result }) => {
   
   useEffect(() => {
     const getStudies = async () => {
-      const studies = await fetchStudyVariables(result.id, query)
+      const studies = await fetchVariablesForConceptId(result.id, query)
       const cdes = await fetchCDEs(result.id, query)
       const cdesAsStudies = cdes ? cdes.elements.map((cde) => ({
         // c_id: cde.id,
@@ -53,7 +53,7 @@ export const StudiesTab = ({ result }) => {
     }
     setLoading(true)
     getStudies()
-  }, [fetchStudyVariables])
+  }, [fetchVariablesForConceptId])
 
   if (loading) {
     return <Spin />
