@@ -123,6 +123,8 @@ export const VariableSearchResults = () => {
         setStudyNamesForDisplay(newStudyNamesForDisplay);
     }
 
+    window.x = variablesHistogram
+
     return (
         <div style={{ flexGrow: 1, display: noResults ? "none" : undefined }}>
             {/* The results header has a bottom margin of 16, so the divider shouldn't have a top margin. */}
@@ -136,9 +138,12 @@ export const VariableSearchResults = () => {
             <Space direction="vertical" size="middle">
                 <Column
                     {...variableHistogramConfig}
+                    style={{ padding: "0px 0" }}
                     ref={variablesHistogram}
                 />
-                <div>Filtered Variables Count: {filteredVariables.length}</div>
+                { filteredVariables.length < totalVariableResults && (
+                    <Text type="secondary">Filtered Variables Count: {filteredVariables.length}</Text>
+                ) }
                 <Button onClick={startOverHandler}>Start Over</Button>
             </Space>
             <Divider style={{ margin: "12px 0" }} />
