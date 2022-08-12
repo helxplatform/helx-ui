@@ -4,12 +4,12 @@ import { ResultsHeader } from '../'
 import { useHelxSearch, SearchForm } from '../../'
 
 export const VariableViewLayout = () => {
-    const { error, variableResults } = useHelxSearch()
+    const { error, totalVariableResults } = useHelxSearch()
     
     return (
         <Fragment>
             <SearchForm />
-            {variableResults.length > 0 && <ResultsHeader concepts={[]}/>}
+            {totalVariableResults > 0 && <ResultsHeader variables={ true } />}
             { error && <span>{ error.message }</span> }
             <VariableSearchResults />
         </Fragment>

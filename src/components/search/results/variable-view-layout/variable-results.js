@@ -13,7 +13,7 @@ const { Text } = Typography
 
 /** Component that handles display of Variable Results */
 export const VariableSearchResults = () => {
-    const { variableResults, variableStudyResults } = useHelxSearch()
+    const { variableResults, variableStudyResults, totalVariableResults } = useHelxSearch()
 
     /** studyResultsForDisplay holds variables grouped by study for the studies table */
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
@@ -22,7 +22,7 @@ export const VariableSearchResults = () => {
     const [filteredVariables, setFilteredVariables] = useState(variableResults)
 
     /** noResults indicates that the search yielded no variables. The layout should be hidden. */
-    const noResults = useMemo(() => variableResults.length === 0, [variableResults])
+    const noResults = useMemo(() => totalVariableResults === 0, [totalVariableResults])
     
     /** useEffect added to address bug whereby displayed results were not updating when a new
      * search term was entered */
