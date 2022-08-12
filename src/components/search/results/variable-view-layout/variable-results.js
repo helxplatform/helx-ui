@@ -20,6 +20,9 @@ export const VariableSearchResults = () => {
 
     /** filteredVariables holds the variables displayed in the histogram */
     const [filteredVariables, setFilteredVariables] = useState(variableResults)
+
+    /** noResults indicates that the search yielded no variables. The layout should be hidden. */
+    const noResults = useMemo(() => variableResults.length === 0, [variableResults])
     
     /** useEffect added to address bug whereby displayed results were not updating when a new
      * search term was entered */
@@ -121,7 +124,7 @@ export const VariableSearchResults = () => {
     }
 
     return (
-        <div>
+        <div style={{ flexGrow: 1, display: noResults ? "none" : undefined }}>
             <Space direction="vertical" size="middle">
                 <div>Variables according to DUG Score</div>
                 <Column
