@@ -16,7 +16,6 @@ export const Results = () => {
 
 
   const handleDataDisplayChange = (event) => {
-    console.log("toggled")
     setConceptView(event.target.value)
   }
 
@@ -28,6 +27,7 @@ export const Results = () => {
   if (layout === SearchLayout.EXPANDED_RESULT) return (
     <ExpandedResultsLayout/>
   )
+
   return (
     <Fragment>
       <SearchForm />
