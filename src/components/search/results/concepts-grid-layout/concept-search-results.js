@@ -20,23 +20,7 @@ export const ConceptSearchResults = () => {
 		setCurrentPage(currentPage + 1)
 	}, [currentPage])
 
-	let gridClass = 'results-list'
-	switch (layout) {
-		case SearchLayout.GRID:
-			gridClass += ' grid'
-			break;
-		case SearchLayout.LIST:
-			gridClass += ' list'
-			break;
-		case SearchLayout.EXPANDED_RESULT:
-			gridClass += ' expanded-result'
-			break;
-	}
-	gridClass += md ? " md" : ""
-
-	if (layout === SearchLayout.EXPANDED_RESULT) return (
-    <ExpandedResultsLayout/>
-  )
+	const gridClass = useMemo(() => `results-list grid${md ? " md" : ""}`, [md])
     
 	return (
 		<Fragment>

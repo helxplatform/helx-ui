@@ -2,7 +2,8 @@ import { notification, Radio, Tooltip, Typography, Select, Grid } from "antd"
 import {
     LinkOutlined as LinkIcon,
     TableOutlined as GridViewIcon,
-    LayoutOutlined as ExpandedResultIcon
+    LayoutOutlined as ExpandedResultIcon,
+    BarChartOutlined as VariableViewIcon
 } from '@ant-design/icons'
 import { SearchLayout, useHelxSearch } from "../.."
 import { useAnalytics } from "../../../../contexts"
@@ -82,7 +83,7 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
                 <Radio.Group value={layout} onChange={handleChangeLayout}>
                     <Radio.Button value={SearchLayout.GRID}><GridViewIcon /></Radio.Button>
                     <Radio.Button value={SearchLayout.EXPANDED_RESULT}><ExpandedResultIcon /></Radio.Button>
-                    {/* <Radio.Button value={SearchLayout.LIST}><ListViewIcon /></Radio.Button> */}
+                    <Radio.Button value={SearchLayout.VARIABLE_VIEW}><VariableViewIcon /></Radio.Button>
                 </Radio.Group>
             </Tooltip>
         </div>

@@ -28,6 +28,7 @@ export const SearchLayout = Object.freeze({
   GRID: 'GRID',
   // LIST: 'LIST',
   EXPANDED_RESULT: 'EXPANDED_RESULT',
+  VARIABLE_VIEW: 'VARIABLE_VIEW'
 })
 
 const validateResult = result => {
