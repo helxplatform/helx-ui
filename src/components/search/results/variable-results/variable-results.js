@@ -32,9 +32,10 @@ export const VariableSearchResults = () => {
     const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
 
     const variablesHistogram = useRef()
-    const variableHistogramConfig = useMemo(() => (
-        Object.assign(variableHistogramConfigStatic, { data: filteredVariables})
-    ), [filteredVariables])
+    const variableHistogramConfig = useMemo(() => ({
+        ...variableHistogramConfigStatic,
+        data: filteredVariables
+    }), [filteredVariables])
 
     /**
      * Triggered by the Start Over button.
