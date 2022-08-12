@@ -36,8 +36,8 @@ export const Results = () => {
 
       <Tooltip title="Results Toggle" placement="top">
         <Radio.Group value={conceptView} onChange={handleDataDisplayChange}>
-          <Radio.Button value={true}><ConceptViewIcon /></Radio.Button>
-          <Radio.Button value={false}><VariableViewIcon /></Radio.Button>
+          <Radio.Button value={true}>Concepts</Radio.Button>
+          <Radio.Button value={false}>Variables</Radio.Button>
         </Radio.Group>
       </Tooltip>
       <Fragment>
