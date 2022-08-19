@@ -3,10 +3,11 @@ import axios, { CanceledError } from 'axios';
 import {
   ActiveView,
   AvailableView,
+  WorkspaceLoginView,
   SupportView,
   LoadingView,
   SearchView,
-  SplashScreenView
+  SplashScreenView,
 } from '../views'
 
 // Setup global csrf token
@@ -21,7 +22,7 @@ axios.interceptors.response.use(function (response) {
     // The `error` object for cancelled requests does not have a `response` property.
   }
   else if (error.response.status === 403) {
-    window.location.href = window.location.origin + '/helx/login/';
+    // window.location.href = window.location.origin + '/helx/login/';
   }
   return Promise.reject(error)
 })
@@ -51,6 +52,7 @@ export const EnvironmentProvider = ({ children }) => {
         baseRoutes.push({ path: '/', text: '', Component: AvailableView })
       }
       baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
+      baseRoutes.push({ path: '/workspaces/login', text: '', Component: WorkspaceLoginView })
       baseRoutes.push({ path: '/workspaces/available', text: '', Component: AvailableView })
       baseRoutes.push({ path: '/workspaces/active', text: '', Component: ActiveView })
       baseRoutes.push({ path: '/connect/:app_name/:app_url', text: '', Component: SplashScreenView })
