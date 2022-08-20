@@ -1,15 +1,37 @@
-import { useState } from 'react'
-import { Button, Typography, Form } from 'antd'
-import { AppstoreOutlined } from '@ant-design/icons'
+import { Fragment, useState } from 'react'
+import { Button, Typography, Form, Divider, Space } from 'antd'
+import Icon, { AppstoreOutlined, GoogleCircleFilled, GithubFilled } from '@ant-design/icons'
 import { LoginForm } from '@ant-design/pro-form'
 import classNames from 'classnames'
 import { FormWrapper } from './form-wrapper'
 import { UsernameInput, PasswordInput } from './form-fields'
+import { GithubSSO, GoogleSSO, UNCSSO } from './sso'
 import '@ant-design/pro-form/dist/form.css'
 import  './login.css'
 
 const { Text, Paragraph } = Typography
 const { useForm } = Form
+
+const SSOLoginOptions = ({main, unc, google, github }) => (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+        <Divider plain style={{ marginTop: main ? 0 : undefined }}>
+            <Text style={{ color: main ? "rgba(0, 0, 0, 0.45)" : "rgba(0, 0, 0, 0.25)", fontWeight: "normal", fontSize: 14 }}>
+                { main ? "Please sign in with one of the following options" : "Or sign in with one of the following" }
+            </Text>
+        </Divider>
+        <Space size="large" style={{ justifyContent: "center", marginTop: 8 }}>
+            { unc && (
+                <UNCSSO />
+            ) }
+            { google && (
+                <GoogleSSO />
+            ) }
+            { github && (
+                <GithubSSO />
+            ) }
+        </Space>
+    </div>
+)
 
 export const WorkspaceLoginView = ({
     // If true, changes the presentation so that it can be embedded within a view rather than as its own standalone page view.
@@ -18,6 +40,11 @@ export const WorkspaceLoginView = ({
     const [currentlyValidating, setCurrentlyValidating] = useState(false)
     const [errors, setErrors] = useState([])
     const [form] = useForm()
+
+    const allowBasicLogin = true
+    const allowUncLogin =  true
+    const allowGoogleLogin = true
+    const allowGithubLogin =  true
 
     const validateForm = async () => {
         setCurrentlyValidating(true)
@@ -60,10 +87,12 @@ export const WorkspaceLoginView = ({
         }
     }
     // If full page, make fields large.
-    if (!asComponent) formFieldProps.overrides.fieldProps.size = "large"
+    // if (!asComponent) formFieldProps.overrides.fieldProps.size = "large"
+
+    // if (allowBasicLogin) return <SSOLoginOptions unc={ allowUncLogin } google={ allowGoogleLogin } github={ allowGithubLogin } />
 
     return (
-        <div className={ classNames("login-form", asComponent ? "component" : "page") }>
+        <div className={ classNames("login-form", asComponent ? "component" : "page", !allowBasicLogin && "no-basic-login") }>
             <FormWrapper asComponent={ asComponent } loading={ currentlyValidating }>
                 <LoginForm
                     submitter={{
@@ -72,7 +101,7 @@ export const WorkspaceLoginView = ({
                                 key="submit"
                                 htmlType="submit"
                                 type="primary"
-                                size={ asComponent ? "middle" : "large" }
+                                size={ "middle" }
                                 block
                                 onClick={ (e) => {
                                     e.preventDefault()
@@ -93,7 +122,9 @@ export const WorkspaceLoginView = ({
                         </Paragraph> : null
                     }
                     logo={ <AppstoreOutlined /> }
-                    // actions={}
+                    actions={
+                        <SSOLoginOptions main={ !allowBasicLogin } unc={ allowUncLogin } google={ allowGoogleLogin } github={ allowGithubLogin } />
+                    }
                     onFinish={ async () => {
 
                     } }
