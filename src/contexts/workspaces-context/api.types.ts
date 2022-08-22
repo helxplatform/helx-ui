@@ -39,6 +39,17 @@ export const Throws403: IAPIError = {
     status: 403
 }
 
+export class SAMLRejectedError extends ExtendableError {
+    constructor() {
+        super("SAML authentication was rejected or cancelled")
+    }
+}
+export class SAMLActiveError extends ExtendableError {
+    constructor() {
+        super("SAML authentication is already active")
+    }
+}
+
 export type LoginResponse = null
 export type LogoutResponse = null
 
@@ -75,6 +86,13 @@ export interface IWorkspacesAPI {
 
     /** API methods */
     login(username: string, password: string, fetchOptions?: AxiosRequestConfig): Promise<LoginResponse>
+    /**
+     * Void if successful.
+     * Throws SAMLRejectedError if unsuccessful.
+     * Throws SAMLActiveError if SAML request is already active.
+     */
+    loginSAMLUNC(): Promise<void>
+    loginSAMLGoogle(): Promise<void>
     logout(fetchOptions?: AxiosRequestConfig): Promise<LogoutResponse>
     getActiveUser(fetchOptions?: AxiosRequestConfig): Promise<UsersResponse>
     getLoginProviders(fetchOptions?: AxiosRequestConfig): Promise<ProvidersResponse>

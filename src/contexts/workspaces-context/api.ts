@@ -9,7 +9,9 @@ import {
     ProvidersResponse,
     IAPIError,
     Throws400,
-    Throws403
+    Throws403,
+    SAMLRejectedError,
+    SAMLActiveError
 } from './api.types'
 
 /**
@@ -40,6 +42,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
 
     private _user: User | null | undefined = undefined
     private axios: AxiosInstance
+    private _samlWindows: { [id: string]: WindowProxy } = {}
 
     private lastActivityWarningTimeout: number | undefined = undefined
     private lastActivitySessionTimeout: number | undefined = undefined
@@ -77,6 +80,10 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         this.onApiError = onApiError
         this.onSessionTimeoutWarning = onSessionTimeoutWarning
         this.updateLoginState()
+    }
+
+    private get apiUrl(): string {
+        return this.axios.defaults.baseURL!
     }
 
     get user(): User | null | undefined {
@@ -214,6 +221,70 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         console.log(res.data)
         await this.updateLoginState()
         return null
+    }
+
+    @APIRequest()
+    private loginSAML(url: string, width: number, height: number): Promise<void> {
+        const left = (window.screen.width / 2) - (width / 2)
+        const top = (window.screen.height / 2) - (height / 2)
+        const existingWindow = this._samlWindows[url]
+        if (existingWindow && !existingWindow.closed) {
+            existingWindow.focus()
+            throw new SAMLActiveError()
+        }
+        const promise = new Promise<void>((resolve, reject) => {
+            let success = false
+            const SAMLWindow = null as WindowProxy | null
+            // const SAMLWindow = window.open(
+            //     url,
+            //     "UNC Single Sign-On",
+            //     `popup=true, width=${ width }, height=${ height }, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, left=${ left }, top=${ top }`
+            // )
+            if (SAMLWindow) {
+                this._samlWindows[url] = SAMLWindow
+                /**
+                 * UNC SSO will redirect back to whatever the SAML redirect is set to via metadata (this is going to be somewhere on this domain).
+                 * So if a sign in is successful, we can intercept this redirect and update the API's login state.
+                 */
+                SAMLWindow.focus()
+                // Tracking url via intervals seems to be the accepted way of tracking the location of a popup.
+                let oldHref = SAMLWindow.location.href
+                const locationInterval = setInterval(() => {
+                    if (oldHref !== SAMLWindow.location.href) {
+                        const newLocation = SAMLWindow.location
+                        if (newLocation.origin === new URL(this.apiUrl).origin) {
+                            // Successfully signed in
+                            success = true
+                            SAMLWindow.document.body.style.display = "none"
+                            SAMLWindow.close()
+                            this.updateLoginState()
+                            resolve()
+                        }
+                        oldHref = newLocation.href
+                    }
+                    if (success || SAMLWindow.closed) {
+                        if (!success) reject(new SAMLRejectedError())
+                        clearInterval(locationInterval)
+                    }
+                }, 0)
+            } else {
+                // Popup blocked, fallback to redirect.
+                // This should not be very common, since popup permission is generally granted from user clicks,
+                // but some aggressive policies may block all popups no matter what.
+                window.location.href = url
+            }
+        })
+        return promise
+    }
+    
+    @APIRequest()
+    loginSAMLUNC() {
+        return this.loginSAML(`${this.apiUrl}../../accounts/saml`, 448, 753)
+    }
+    
+    @APIRequest()
+    loginSAMLGoogle() {
+        return this.loginSAML(`${this.apiUrl}../../accounts/google/login/?process=`, 450, 600)
     }
     
     @APIRequest()
