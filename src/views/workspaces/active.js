@@ -9,12 +9,13 @@ import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import { updateTabName } from '../../utils/update-tab-name';
 import { navigate } from '@reach/router';
+import { withWorkspaceAuthentication } from '.';
 
 const memoryFormatter = (value) => {
     return formatBytes(value, 2);
 }
 
-export const ActiveView = () => {
+export const ActiveView = withWorkspaceAuthentication(() => {
     const [instances, setInstances] = useState();
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
@@ -387,4 +388,4 @@ export const ActiveView = () => {
                         </Table> : <div style={{ textAlign: 'center' }}>No instances running. Redirecting to apps...</div>))}
         </Layout>
     )
-}
+})

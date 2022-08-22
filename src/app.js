@@ -1,6 +1,9 @@
 import { useEffect } from 'react'
 import { LocationProvider, Router as ReachRouter, globalHistory, useLocation } from '@reach/router'
-import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, AnalyticsProvider, DestProvider, useEnvironment, useAnalytics } from './contexts'
+import {
+  EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider,
+  AnalyticsProvider, DestProvider, useEnvironment, useAnalytics, WorkspacesAPIProvider
+} from './contexts'
 import { Layout } from './components/layout'
 import { NotFoundView } from './views'
 
@@ -10,13 +13,15 @@ const ContextProviders = ({ children }) => {
       <LocationProvider>
         <DestProvider>
           <AnalyticsProvider>
-            <ActivityProvider>
-              <InstanceProvider>
-                <AppProvider>
-                  {children}
-                </AppProvider>
-              </InstanceProvider>
-            </ActivityProvider>
+            <WorkspacesAPIProvider>
+              <ActivityProvider>
+                <InstanceProvider>
+                  <AppProvider>
+                    {children}
+                  </AppProvider>
+                </InstanceProvider>
+              </ActivityProvider>
+            </WorkspacesAPIProvider>
           </AnalyticsProvider>
         </DestProvider>
       </LocationProvider>

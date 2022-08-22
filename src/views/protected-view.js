@@ -4,7 +4,8 @@ import { useDest } from '../contexts'
 // This is a wrapper for views that require some sort of authentication to access.  
 // You can either redirect the user (e.g. to a login view, an access request form, etc.)
 // or you can display an appropriate error page.
-export const ProtectedView = ({ children,
+export const ProtectedView = ({
+  children,
   authorized=undefined,
   // "redirect" | "error"
   behavior="redirect",
@@ -34,4 +35,13 @@ export const ProtectedView = ({ children,
     console.error("Unrecognized ProtectedView behavior:", behavior)
     return null
   }
+}
+
+/** HOC */
+export const withAuthentication = (View, props) => {
+  return (viewProps) => (
+    <ProtectedView { ...props }>
+      <View { ...props } />
+    </ProtectedView>
+  )
 }

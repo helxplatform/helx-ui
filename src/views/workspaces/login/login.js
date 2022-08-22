@@ -1,11 +1,13 @@
-import { Fragment, useState } from 'react'
-import { Button, Typography, Form, Divider, Space } from 'antd'
+import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Button, Typography, Form, Divider, Space, Alert } from 'antd'
 import Icon, { AppstoreOutlined, GoogleCircleFilled, GithubFilled } from '@ant-design/icons'
 import { LoginForm } from '@ant-design/pro-form'
 import classNames from 'classnames'
 import { FormWrapper } from './form-wrapper'
 import { UsernameInput, PasswordInput } from './form-fields'
 import { GithubSSO, GoogleSSO, UNCSSO } from './sso'
+import { withAPIReady } from '../'
+import { useDest, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
 import  './login.css'
 
@@ -33,18 +35,42 @@ const SSOLoginOptions = ({main, unc, google, github }) => (
     </div>
 )
 
-export const WorkspaceLoginView = ({
+export const WorkspaceLoginView = withAPIReady(({
     // If true, changes the presentation so that it can be embedded within a view rather than as its own standalone page view.
     asComponent=false
 }) => {
     const [currentlyValidating, setCurrentlyValidating] = useState(false)
     const [errors, setErrors] = useState([])
-    const [form] = useForm()
+    const [revalidateForm, setRevalidateForm] = useState(false)
 
-    const allowBasicLogin = true
-    const allowUncLogin =  true
-    const allowGoogleLogin = true
-    const allowGithubLogin =  true
+    const [form] = useForm()
+    const { api, user, loginProviders } = useWorkspacesAPI()
+    const { redirectToDest } = useDest()
+
+    const allowBasicLogin = useMemo(() => loginProviders.includes("Django"), [loginProviders])
+    const allowUncLogin =  useMemo(() => loginProviders.includes("UNC Chapel Hill Single Sign-On"), [loginProviders])
+    const allowGoogleLogin = useMemo(() => loginProviders.includes("Google"), [loginProviders])
+    const allowGithubLogin =  useMemo(() => loginProviders.includes("GitHub"), [loginProviders])
+
+    const hasAdditionalProviders = useMemo(() => (
+        allowUncLogin ||
+        allowGithubLogin ||
+        allowGithubLogin
+    ), [allowUncLogin, allowGoogleLogin, allowGithubLogin])
+
+    useEffect(() => {
+        if (revalidateForm) {
+            form.validateFields()
+            setRevalidateForm(false)
+        }
+    }, [revalidateForm])
+
+    useEffect(() => {
+        if (user) {
+            // User has logged in, redirect back.
+            redirectToDest()
+        }
+    }, [user])
 
     const validateForm = async () => {
         setCurrentlyValidating(true)
@@ -52,15 +78,27 @@ export const WorkspaceLoginView = ({
             const { username, password } = await form.validateFields()
             try {
                 // -- Make API request here --
-                console.log(username, password)
+                // await new Promise((res) => setTimeout(res, 500))
+                await api.login(username, password)
                 form.submit()
             } catch (error) {
                 // Login was rejected
+                if (error.status === 400) {
+                    addError({
+                        fieldName: "username",
+                        message: "The username or password you entered was incorrect."
+                    })
+                } else {
+                    addError({
+                        fieldName: "username",
+                        message: "Something went wrong."
+                    })
+                }
+                setRevalidateForm(true)
             }
         } catch (e) {
             // Frontend validation failed
         }
-        await new Promise((res) => setTimeout(res, 1000))
         setCurrentlyValidating(false)
     }
 
@@ -102,6 +140,7 @@ export const WorkspaceLoginView = ({
                                 htmlType="submit"
                                 type="primary"
                                 size={ "middle" }
+                                disabled={ currentlyValidating }
                                 block
                                 onClick={ (e) => {
                                     e.preventDefault()
@@ -123,7 +162,9 @@ export const WorkspaceLoginView = ({
                     }
                     logo={ <AppstoreOutlined /> }
                     actions={
-                        <SSOLoginOptions main={ !allowBasicLogin } unc={ allowUncLogin } google={ allowGoogleLogin } github={ allowGithubLogin } />
+                        hasAdditionalProviders && (
+                            <SSOLoginOptions main={ !allowBasicLogin } unc={ allowUncLogin } google={ allowGoogleLogin } github={ allowGithubLogin } />
+                        )
                     }
                     onFinish={ async () => {
 
@@ -131,10 +172,11 @@ export const WorkspaceLoginView = ({
                     onFieldsChange={ () => setErrors([]) }
                     form={ form }
                 >
+                    {/* <Alert type="error" message="Your session has expired due to prolonged inactivity. Please login to continue." style={{ marginBottom: 16 }} /> */}
                     <UsernameInput name="username" { ...formFieldProps } />
                     <PasswordInput name="password" { ...formFieldProps } />
                 </LoginForm>
             </FormWrapper>
         </div>
     )
-}
+})

@@ -13,18 +13,18 @@ const Spinner = ({ loading, children }) => (
 export const FormWrapper = ({ asComponent, loading, children }) => {
     if (asComponent) return (
         <Fragment>
-            <Spinner loading={ loading }>
+            {/* <Spinner loading={ loading }> */}
                 { children }
-            </Spinner>
+            {/* </Spinner> */}
         </Fragment>
     )
     return (
         <Fragment>
-            <Spinner loading={ loading }>
+            {/* <Spinner loading={ loading }> */}
                 <Content>
                     { children }
                 </Content>
-            </Spinner>
+            {/* </Spinner> */}
         </Fragment>
         // <div className="ant-pro-form-login-page">
         //     <div className="ant-pro-form-login-page-notice"></div>

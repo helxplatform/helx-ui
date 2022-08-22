@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { Layout, Col, Spin } from 'antd'
-import { ProtectedView } from '../protected-view'
+import { withWorkspaceAuthentication, WorkspaceProtectedView } from './'
 import { AppCard } from '../../components/workspaces'
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group'
-import { useApp, useEnvironment, useInstance } from '../../contexts'
+import { useApp, useEnvironment, useInstance, useWorkspacesAPI } from '../../contexts'
 import { openNotificationWithIcon } from '../../components/notifications';
 import { Breadcrumbs } from '../../components/layout'
 import '../../components/workspaces/app-card.css'
 
 
-const _AvailableView = () => {
+export const AvailableView = withWorkspaceAuthentication(() => {
     const [apps, setApps] = useState();
     const [runningInstances, setRunningInstances] = useState();
     const [filteredApps, setFilteredApps] = useState();
@@ -95,13 +95,4 @@ const _AvailableView = () => {
                     : <div></div>)}
         </Layout>
     )
-}
-
-export const AvailableView = (props) => {
-    const { basePath } = useEnvironment()
-    return (
-        <ProtectedView authorized={ false } redirect={ `${ basePath }workspaces/login` }>
-            <_AvailableView { ...props } />
-        </ProtectedView>
-    )
-}
+})

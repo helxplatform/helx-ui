@@ -38,28 +38,29 @@ export const EnvironmentProvider = ({ children }) => {
 
   // Routes are generated dynamically based on search and workspace configuration. 
   // If workspace module is enabled, all relevant paths will be added. (/workspaces/active, workspace/available, ...)
-
+  // Note: `parent` property refers to another equivalent or encapsulating route that occupies an entry in the site's header.
+  // It's important to include this if applicable so that the header entry stays active, e.g. on subroutes of workspaces.
   const generateRoutes = (searchEnabled, workspaceEnabled) => {
     const baseRoutes = [];
     if (searchEnabled === 'true') {
       // route homepage to search if search is enabled
-      baseRoutes.push({ path: '/', text: '', Component: SearchView })
+      baseRoutes.push({ path: '/', parent: '/search', text: '', Component: SearchView })
       baseRoutes.push({ path: '/search', text: 'Search', Component: SearchView })
     }
     if (workspaceEnabled === 'true') {
       // route homepage to apps page if search is disabled
       if (searchEnabled === 'false') {
-        baseRoutes.push({ path: '/', text: '', Component: AvailableView })
+        baseRoutes.push({ path: '/', parent: '/workspaces', text: '', Component: AvailableView })
       }
       baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
-      baseRoutes.push({ path: '/workspaces/login', text: '', Component: WorkspaceLoginView })
-      baseRoutes.push({ path: '/workspaces/available', text: '', Component: AvailableView })
-      baseRoutes.push({ path: '/workspaces/active', text: '', Component: ActiveView })
-      baseRoutes.push({ path: '/connect/:app_name/:app_url', text: '', Component: SplashScreenView })
+      baseRoutes.push({ path: '/workspaces/login', parent: '/workspaces', text: '', Component: WorkspaceLoginView })
+      baseRoutes.push({ path: '/workspaces/available', parent: '/workspaces', text: '', Component: AvailableView })
+      baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: '', Component: ActiveView })
+      baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', text: '', Component: SplashScreenView })
     }
     if (searchEnabled === 'false' && workspaceEnabled === 'false') {
       // route homepage to support page if both search and workspaces are disabled
-      baseRoutes.push({ path: '/', text: '', Component: SupportView })
+      baseRoutes.push({ path: '/', parent: '/support', text: '', Component: SupportView })
     }
     baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
     return baseRoutes;
@@ -129,7 +130,8 @@ export const EnvironmentProvider = ({ children }) => {
   return (
     <EnvironmentContext.Provider value={{
       helxSearchUrl: context.search_url,
-      helxAppstoreUrl: window.location.origin,
+      helxAppstoreUrl: "http://localhost:8000",
+      // helxAppstoreUrl: window.location.origin,
       context: context,
       routes: availableRoutes,
       basePath,

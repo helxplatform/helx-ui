@@ -1,6 +1,6 @@
 import { Layout as AntLayout, Button, Menu, Grid } from 'antd'
 import { useLocation, Link } from '@reach/router'
-import { useEnvironment, useAnalytics } from '../../contexts';
+import { useEnvironment, useAnalytics, useWorkspacesAPI } from '../../contexts';
 import { logoutHandler } from '../../api/';
 import { MobileMenu } from './menu';
 import { SidePanel } from '../side-panel/side-panel';
@@ -11,6 +11,7 @@ const { useBreakpoint } = Grid
 
 export const Layout = ({ children }) => {
   const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
+  const { api, loggedIn } = useWorkspacesAPI()
   const { analyticsEvents } = useAnalytics()
   const { md } = useBreakpoint()
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
@@ -18,8 +19,17 @@ export const Layout = ({ children }) => {
 
   const logout = () => {
     analyticsEvents.logout()
-    logoutHandler(helxAppstoreUrl)
+    api.logout()
+    // logoutHandler(helxAppstoreUrl)
   }
+
+  const activeRoutes = routes.filter((route) => (
+    // route.text !== "" &&
+    `${baseLinkPath}${route.path}` === location.pathname
+  )).flatMap((route) => ([
+    route,
+    ...routes.filter((m) => m.path === route.parent)
+  ])).map((route) => route.path)
 
   return (
     <AntLayout className="layout">
@@ -31,17 +41,17 @@ export const Layout = ({ children }) => {
               className="menu-toggle"
               theme="light"
               mode="horizontal"
-              selectedKeys={[location.pathname]}
+              selectedKeys={activeRoutes}
               style={{ display: "flex", flexGrow: 1, justifyContent: "flex-end" }}
             >
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               {routes.map(m => m['text'] !== '' && (
-                <Menu.Item key={`${baseLinkPath}${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>
+                <Menu.Item key={`${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>
               ))}
             </Menu>
-            {context.workspaces_enabled === 'true' && (
+            {context.workspaces_enabled === 'true' && loggedIn && (
               <div style={{ height: "100%" }}>
                 <Button type="primary" ghost className="logout-button" onClick={logout}>LOG OUT</Button>
               </div>
