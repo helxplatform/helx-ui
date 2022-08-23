@@ -11,7 +11,8 @@ import {
     Throws400,
     Throws403,
     SAMLRejectedError,
-    SAMLActiveError
+    SAMLActiveError,
+    WhitelistRequiredError
 } from './api.types'
 
 /**
@@ -256,7 +257,10 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                             success = true
                             SAMLWindow.document.body.style.display = "none"
                             SAMLWindow.close()
-                            this.updateLoginState().then(() => resolve())
+                            this.updateLoginState().then(() => {
+                                if (this.user) resolve()
+                                else reject(new WhitelistRequiredError())
+                            })
                         }
                         oldHref = newLocation.href
                     }

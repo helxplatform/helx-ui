@@ -1,6 +1,6 @@
 import { Button, Typography } from 'antd'
 import Icon from '@ant-design/icons'
-import { useWorkspacesAPI } from '../../../../contexts'
+import { WhitelistRequiredError } from '../../../../contexts/workspaces-context/api.types'
 import './sso-button.css'
 
 const { Text } = Typography
@@ -67,16 +67,18 @@ export const SAMLButton = ({
     onWhitelistRequired=() => {},
     ...props
 }) => {
-    const { api, loggedIn } = useWorkspacesAPI()
     return (
         <SSOButton
             { ...props }
             onClick={ async () => {
                 try {
                     await login()
-                    if (!loggedIn) onWhitelistRequired()
                 } catch (e) {
-                    console.log("SAML aborted")
+                    if (e instanceof WhitelistRequiredError) {
+                        onWhitelistRequired()
+                    } else {
+                        console.log("SAML aborted")
+                    }
                 }
             } }
         />

@@ -49,6 +49,11 @@ export class SAMLActiveError extends ExtendableError {
         super("SAML authentication is already active")
     }
 }
+export class WhitelistRequiredError extends ExtendableError {
+    constructor() {
+        super("Successfully signed in, but whitelisting is required on the accouunt")
+    }
+}
 
 export type LoginResponse = null
 export type LogoutResponse = null
@@ -88,12 +93,9 @@ export interface IWorkspacesAPI {
     login(username: string, password: string, fetchOptions?: AxiosRequestConfig): Promise<LoginResponse>
     /**
      * - Void if successful.
+     * - Throws WhitelistRequired error if the user needs to be whitelisted.
      * - Throws SAMLRejectedError if unsuccessful.
      * - Throws SAMLActiveError if SAML request is already active.
-     * Note that:
-     * - "Successful" does not necessarily imply that the user has been logged in.
-     *   Due to whitelisting, you'll still need to check if the user was actually
-     *   logged in, or if they need to be whitelisted.
      */
     loginSAMLUNC(): Promise<void>
     loginSAMLGoogle(): Promise<void>
