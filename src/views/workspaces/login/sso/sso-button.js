@@ -1,5 +1,6 @@
 import { Button, Typography } from 'antd'
 import Icon from '@ant-design/icons'
+import { useWorkspacesAPI } from '../../../../contexts'
 import './sso-button.css'
 
 const { Text } = Typography
@@ -11,7 +12,6 @@ export const SSOButton = ({
     background,
     iconBackground=undefined,
     children,
-    onClick,
     style,
     ...props
 }) => {
@@ -19,7 +19,6 @@ export const SSOButton = ({
     return (
         <Button
             className="sso-button"
-            onClick={ onClick }
             icon={
                 <div style={{
                     height: 36,
@@ -61,4 +60,25 @@ export const SSOButton = ({
             </Text>
         </Button>
     )
-} 
+}
+
+export const SAMLButton = ({
+    login=() => {},
+    onWhitelistRequired=() => {},
+    ...props
+}) => {
+    const { api, loggedIn } = useWorkspacesAPI()
+    return (
+        <SSOButton
+            { ...props }
+            onClick={ async () => {
+                try {
+                    await login()
+                    if (!loggedIn) onWhitelistRequired()
+                } catch (e) {
+                    console.log("SAML aborted")
+                }
+            } }
+        />
+    )
+}

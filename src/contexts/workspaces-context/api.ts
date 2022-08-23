@@ -234,12 +234,11 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         }
         const promise = new Promise<void>((resolve, reject) => {
             let success = false
-            const SAMLWindow = null as WindowProxy | null
-            // const SAMLWindow = window.open(
-            //     url,
-            //     "UNC Single Sign-On",
-            //     `popup=true, width=${ width }, height=${ height }, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, left=${ left }, top=${ top }`
-            // )
+            const SAMLWindow = window.open(
+                url,
+                "UNC Single Sign-On",
+                `popup=true, width=${ width }, height=${ height }, toolbar=no, location=yes, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, left=${ left }, top=${ top }`
+            )
             if (SAMLWindow) {
                 this._samlWindows[url] = SAMLWindow
                 /**
@@ -257,8 +256,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                             success = true
                             SAMLWindow.document.body.style.display = "none"
                             SAMLWindow.close()
-                            this.updateLoginState()
-                            resolve()
+                            this.updateLoginState().then(() => resolve())
                         }
                         oldHref = newLocation.href
                     }

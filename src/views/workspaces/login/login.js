@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { Button, Typography, Form, Divider, Space, Alert } from 'antd'
-import Icon, { AppstoreOutlined, GoogleCircleFilled, GithubFilled } from '@ant-design/icons'
+import { Button, Typography, Form, Divider, Space, Alert, Result } from 'antd'
+import Icon, { AppstoreOutlined, WarningOutlined } from '@ant-design/icons'
 import { LoginForm } from '@ant-design/pro-form'
 import classNames from 'classnames'
 import { FormWrapper } from './form-wrapper'
@@ -11,10 +11,34 @@ import { useDest, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
 import  './login.css'
 
-const { Text, Paragraph } = Typography
+const { Title, Text, Paragraph } = Typography
 const { useForm } = Form
 
-const SSOLoginOptions = ({main, unc, google, github }) => (
+const WhitelistRequired = (props) => (
+    <Alert
+        showIcon
+        type="warning"
+        message={ <Title level={ 5 }>Whitelisting Required</Title> }
+        description={
+            <Space direction="vertical">
+                <>Your request to gain access to HeLx workspaces has been forwarded to the website administrator for review and whitelisting.</>
+                <>Once your request is approved, you will be notified via an email. This security feature is only required one time, for your initial access.</>
+            </Space>
+        }
+        { ...props }
+    />
+    // <Space direction="vertical" align="center">
+    //     <Title level={ 4 }>
+    //         <Text type="warning" style={{ marginRight: 8 }}>
+    //             <WarningOutlined />
+    //         </Text>
+    //         Whitelisting required
+    //     </Title>
+    //     Your request to gain access to the Brain-I AppStore has been forwarded to website administrator for review and whitelisting. Once your request is approved, you will be notified via an email. This security feature is only required one time, for your initial access.
+    // </Space>
+)
+
+const SSOLoginOptions = ({ main, unc, google, github, onWhitelistRequired }) => (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
         <Divider plain style={{ marginTop: main ? 0 : undefined }}>
             <Text style={{ color: main ? "rgba(0, 0, 0, 0.45)" : "rgba(0, 0, 0, 0.25)", fontWeight: "normal", fontSize: 14 }}>
@@ -23,13 +47,13 @@ const SSOLoginOptions = ({main, unc, google, github }) => (
         </Divider>
         <Space size="large" style={{ justifyContent: "center", marginTop: 8 }}>
             { unc && (
-                <UNCSSO />
+                <UNCSSO onWhitelistRequired={ onWhitelistRequired } />
             ) }
             { google && (
-                <GoogleSSO />
+                <GoogleSSO onWhitelistRequired={ onWhitelistRequired } />
             ) }
             { github && (
-                <GithubSSO />
+                <GithubSSO onWhitelistRequired={ onWhitelistRequired } />
             ) }
         </Space>
     </div>
@@ -41,6 +65,7 @@ export const WorkspaceLoginView = withAPIReady(({
 }) => {
     const [currentlyValidating, setCurrentlyValidating] = useState(false)
     const [errors, setErrors] = useState([])
+    const [showWhitelistRequired, setShowWhitelistRequired] = useState(false)
     const [revalidateForm, setRevalidateForm] = useState(false)
 
     const [form] = useForm()
@@ -161,10 +186,17 @@ export const WorkspaceLoginView = withAPIReady(({
                         </Paragraph> : null
                     }
                     logo={ <AppstoreOutlined /> }
-                    actions={
-                        hasAdditionalProviders && (
-                            <SSOLoginOptions main={ !allowBasicLogin } unc={ allowUncLogin } google={ allowGoogleLogin } github={ allowGithubLogin } />
-                        )
+                    actions={ hasAdditionalProviders ? (
+                            <SSOLoginOptions
+                                main={ !allowBasicLogin }
+                                unc={ allowUncLogin }
+                                google={ allowGoogleLogin }
+                                github={ allowGithubLogin }
+                                onWhitelistRequired={ () => {
+                                    setShowWhitelistRequired(true)
+                                } }
+                            />
+                        ) : null
                     }
                     onFinish={ async () => {
 
@@ -176,6 +208,14 @@ export const WorkspaceLoginView = withAPIReady(({
                     <UsernameInput name="username" { ...formFieldProps } />
                     <PasswordInput name="password" { ...formFieldProps } />
                 </LoginForm>
+                { showWhitelistRequired && (
+                    <WhitelistRequired
+                        closable={ true }
+                        onClose={ () => setShowWhitelistRequired(false) }
+                        // align-self for auto width, instead of stretch.
+                        style={{ marginTop: 16, alignSelf: "center" }}
+                    />
+                ) }
             </FormWrapper>
         </div>
     )

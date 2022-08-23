@@ -87,9 +87,13 @@ export interface IWorkspacesAPI {
     /** API methods */
     login(username: string, password: string, fetchOptions?: AxiosRequestConfig): Promise<LoginResponse>
     /**
-     * Void if successful.
-     * Throws SAMLRejectedError if unsuccessful.
-     * Throws SAMLActiveError if SAML request is already active.
+     * - Void if successful.
+     * - Throws SAMLRejectedError if unsuccessful.
+     * - Throws SAMLActiveError if SAML request is already active.
+     * Note that:
+     * - "Successful" does not necessarily imply that the user has been logged in.
+     *   Due to whitelisting, you'll still need to check if the user was actually
+     *   logged in, or if they need to be whitelisted.
      */
     loginSAMLUNC(): Promise<void>
     loginSAMLGoogle(): Promise<void>
