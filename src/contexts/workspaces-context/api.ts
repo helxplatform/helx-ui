@@ -12,7 +12,9 @@ import {
     Throws403,
     SAMLRejectedError,
     SAMLActiveError,
-    WhitelistRequiredError
+    WhitelistRequiredError,
+    AvailableAppsResponse,
+    AppInstancesResponce
 } from './api.types'
 
 /**
@@ -302,6 +304,17 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         //     // This endpoint throws a 403 if you try to logout withot actually being logged in.
         //     if (!e.isAxiosError || e.response.status !== 403) throw e
         // }
+    }
+
+    @APIRequest()
+    async getAvailableApps(fetchOptions: AxiosRequestConfig={}): Promise<AvailableAppsResponse> {
+        const res = await this.axios.get<AvailableAppsResponse>("/apps/", fetchOptions)
+        return res.data
+    }
+
+    @APIRequest()
+    async getAppInstances(fetchOptions: AxiosRequestConfig={}): Promise<AppInstancesResponce> {
+        return {} as any
     }
 
 }

@@ -28,7 +28,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     const [loginProviders, setLoginProviders] = useState<string[]|undefined>(undefined)
 
     // Etc.
-    const [showTimeoutWarningModal, setShowTimeoutWarningModal] = useState<number|undefined>(undefined)
+    const [showTimeoutWarningModal, setShowTimeoutWarningModal] = useState<Date|undefined>(undefined)
     
     const { helxAppstoreUrl } = useEnvironment() as any
 
@@ -51,9 +51,9 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         setUser(user)
     }, [])
     const onSessionTimeoutWarning = useCallback((timeoutDelta: number) => {
-        console.log("Session timeout warning")
+        console.log("Session timeout warning", timeoutDelta)
         setShowTimeoutWarningModal(
-            timeoutDelta
+            new Date(Date.now() + timeoutDelta)
         )
     }, [])
 
@@ -106,8 +106,8 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             >
                 <Space direction="vertical">
                     <Text style={{ fontSize: 18 }}>
-                        You will be logged out in <Text strong>
-                            <TimeUntil delta={ showTimeoutWarningModal } />
+                        You will be logged out  <Text strong>
+                            <TimeUntil date={ showTimeoutWarningModal } countdown={ true } finishText="in 0 seconds" />
                             {/* {timeoutMinutes > 1 ? `${ timeoutMinutes } minutes` : timeoutMinutes === 1 ? `1 minute` : ``} */}
                         </Text>
                     </Text>

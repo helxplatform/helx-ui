@@ -76,6 +76,43 @@ export interface Provider {
 }
 export type ProvidersResponse = Provider[]
 
+export interface ResourceQuota {
+    cpus: string
+    gpus: number
+    memory: string
+}
+// Spec for an app that may be instantiated
+export interface AvailableApp {
+    name: string
+    app_id: string
+    description: string
+    detail: string
+    docs: string
+    spec: string
+    count: number
+    minimum_resources: ResourceQuota
+    maximum_resources: ResourceQuota
+}
+// Spec for a running instance of an app
+export interface AppInstance {
+    name: string
+    docs: string
+    aid: string
+    sid: string
+    fqsid: string
+    workspace_name: string
+    creation_time: string
+    cpus: number
+    gpus: number
+    memory: string
+    url: string
+    status: string
+}
+export interface AvailableAppsResponse {
+    [appName: string]: AvailableApp
+}
+export type AppInstancesResponce = AppInstance[]
+
 export interface IWorkspacesAPI {
     /** Fields */
     // Session timeout will be true when the logout is the result of a session timeout due to inactivity
@@ -102,4 +139,7 @@ export interface IWorkspacesAPI {
     logout(fetchOptions?: AxiosRequestConfig): Promise<LogoutResponse>
     getActiveUser(fetchOptions?: AxiosRequestConfig): Promise<UsersResponse>
     getLoginProviders(fetchOptions?: AxiosRequestConfig): Promise<ProvidersResponse>
+
+    getAvailableApps(fetchOptions?: AxiosRequestConfig): Promise<AvailableAppsResponse>
+    getAppInstances(fetchOptions?: AxiosRequestConfig): Promise<AppInstancesResponce>
 }
