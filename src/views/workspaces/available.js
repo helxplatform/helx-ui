@@ -10,11 +10,11 @@ import '../../components/workspaces/app-card.css'
 
 
 export const AvailableView = withWorkspaceAuthentication(() => {
+    const { api } = useWorkspacesAPI()
     const [apps, setApps] = useState();
     const [runningInstances, setRunningInstances] = useState();
     const [filteredApps, setFilteredApps] = useState();
-    const { loadApps } = useApp();
-    const { loadInstances } = useInstance();
+    // const { loadInstances } = useInstance();
     const [isLoading, setLoading] = useState(false);
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
@@ -29,32 +29,30 @@ export const AvailableView = withWorkspaceAuthentication(() => {
     useEffect(() => {
         const renderApp = async () => {
             setLoading(true)
-            await loadApps()
-                .then(r => {
-                    setApps(r.data);
-                })
-                .catch(e => {
-                    setApps({})
-                    openNotificationWithIcon('error', 'Error', 'An error has occurred while loading apps.')
-                })
+            try {
+                const apps = await api.getAvailableApps()
+                setApps(apps)
+            } catch (e) {
+                setApps({})
+                openNotificationWithIcon('error', 'Error', 'An error has occurred while loading apps.')
+            }
         }
         renderApp();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [api])
 
     useEffect(() => {
         const filterApps = async (a) => {
-            await loadInstances()
-                .then(r => {
-                    setRunningInstances(r.data);
-                })
-                .catch(e => {
-                    setRunningInstances([])
-                })
+            try {
+                const instances = await api.getAppInstances()
+                setRunningInstances(instances)
+            } catch (e) {
+                setRunningInstances([])
+            }
             setLoading(false);
         }
         filterApps()
-    }, [apps, loadInstances])
+    }, [apps, api])
 
     useEffect(() => {
         if (runningInstances !== undefined && runningInstances.length >= 0) {

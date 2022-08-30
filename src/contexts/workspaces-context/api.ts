@@ -1,6 +1,5 @@
 import _axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import deepmerge from 'deepmerge'
-import cookies from 'js-cookie'
 import {
     APIError, APIRequestError, APIResponseError,
     LoginResponse, LogoutResponse, UsersResponse,
@@ -14,8 +13,11 @@ import {
     SAMLActiveError,
     WhitelistRequiredError,
     AvailableAppsResponse,
-    AppInstancesResponce
+    AppInstancesResponse
 } from './api.types'
+
+/** Typescript would not stop complaining about a declarations file for this package. */
+const cookies = require('js-cookie')
 
 /**
  * Note: for further reference, API design and some core functionalities are pulled from:
@@ -288,6 +290,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     
     @APIRequest()
     loginSAMLGoogle() {
+        /** I've been informed that we aren't actually using Google SAML, we're using OAuth... but this gets the job done regardless. */
         return this.loginSAML(`${this.apiUrl}../../accounts/google/login/?process=`, 450, 600)
     }
     
@@ -313,8 +316,34 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     }
 
     @APIRequest()
-    async getAppInstances(fetchOptions: AxiosRequestConfig={}): Promise<AppInstancesResponce> {
-        return {} as any
+    async getAppInstances(fetchOptions: AxiosRequestConfig={}): Promise<AppInstancesResponse> {
+        const res = await this.axios.get<AppInstancesResponse>("/instances/", fetchOptions)
+        return res.data
+    }
+
+    @APIRequest()
+    async stopAppInstance(sid: string, fetchOptions: AxiosRequestConfig={}): Promise<void> {
+        await this.axios.delete(`/instances/${ sid }`)
+    }
+
+    @APIRequest()
+    async updateAppInstance(
+        sid: string,
+        workspace: string,
+        cpu: string,
+        gpu: string,
+        memory: string,
+        fetchOptions: AxiosRequestConfig={}
+    ): Promise<void> {
+        const data: any = {
+            cpu,
+            gpu    
+        }
+        if (memory.length > 0) data.memory = memory
+        if (workspace.length > 0) data.labels = {
+            "app-name": workspace
+        }
+        await this.axios.patch(`/instances/${ sid }`, data, fetchOptions)
     }
 
 }

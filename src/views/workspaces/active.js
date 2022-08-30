@@ -3,7 +3,7 @@ import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spi
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
-import { useActivity, useApp, useInstance, useAnalytics } from '../../contexts';
+import { useActivity, useApp, useInstance, useAnalytics, useWorkspacesAPI } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
@@ -20,9 +20,9 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const { api } = useWorkspacesAPI()
     const { addActivity, updateActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
-    const { loadApps } = useApp();
     const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
     const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
     const [stopModalVisibility, setStopModalVisibility] = useState(false);
@@ -48,41 +48,44 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     useEffect(() => {
         const renderInstance = async () => {
             setLoading(true);
-            await loadInstances()
-                .then(r => {
-                    setInstances(r.data);
-                })
-                .catch(e => {
-                    setInstances([]);
-                    openNotificationWithIcon('error', 'Error', 'An error has occurred while loading instances.')
-                })
+            try {
+                const instances = await api.getAppInstances()
+                setInstances(instances)
+            } catch (e) {
+                setInstances([])
+                openNotificationWithIcon('error', 'Error', 'An error has occurred while loading instances.')
+            }
             setLoading(false);
         }
         renderInstance();
-    }, [refresh, loadInstances])
+    }, [refresh, api])
 
     useEffect(() => {
         // load all app configuration for input validation
         const loadAppsConfig = async () => {
-            await loadApps()
-                .then(r => {
-                    setApps(r.data)
-                })
-                .catch(e => {
-                    setApps({});
-                    openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
-                })
+            try {
+                const apps = await api.getAvailableApps()
+                setApps(apps)
+            } catch (e) {
+                setApps({});
+                openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
+            }
         }
         if (instances && instances.length === 0) setTimeout(() => navigate('/helx/workspaces/available'), 1000)
         else loadAppsConfig();
 
-    }, [instances, loadApps])
+    }, [instances, api])
 
     const stopInstanceHandler = async () => {
         // besides making requests to delete the instance, close its browser tab and stop polling service
         setIsStopping(true);
         addOrDeleteInstanceTab("close", currentRecord.sid);
         stopPolling(currentRecord.sid)
+        try {
+            await api.stopAppInstance(currentRecord.sid)
+        }
+        catch (e) {   
+        }
         await stopInstance(currentRecord.sid)
             .then(r => {
                 let newActivity = {

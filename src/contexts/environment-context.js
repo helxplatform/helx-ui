@@ -130,8 +130,7 @@ export const EnvironmentProvider = ({ children }) => {
   return (
     <EnvironmentContext.Provider value={{
       helxSearchUrl: context.search_url,
-      helxAppstoreUrl: "http://localhost:8000",
-      // helxAppstoreUrl: window.location.origin,
+      helxAppstoreUrl: window.location.origin,
       context: context,
       routes: availableRoutes,
       basePath,

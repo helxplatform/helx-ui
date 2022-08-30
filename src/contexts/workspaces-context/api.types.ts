@@ -111,7 +111,7 @@ export interface AppInstance {
 export interface AvailableAppsResponse {
     [appName: string]: AvailableApp
 }
-export type AppInstancesResponce = AppInstance[]
+export type AppInstancesResponse = AppInstance[]
 
 export interface IWorkspacesAPI {
     /** Fields */
@@ -141,5 +141,7 @@ export interface IWorkspacesAPI {
     getLoginProviders(fetchOptions?: AxiosRequestConfig): Promise<ProvidersResponse>
 
     getAvailableApps(fetchOptions?: AxiosRequestConfig): Promise<AvailableAppsResponse>
-    getAppInstances(fetchOptions?: AxiosRequestConfig): Promise<AppInstancesResponce>
+    getAppInstances(fetchOptions?: AxiosRequestConfig): Promise<AppInstancesResponse>
+    stopAppInstance(sid: string, fetchOptions?: AxiosRequestConfig): Promise<void>
+    updateAppInstance(sid: string, workspace: string, cpu: string, gpu: string, memory: string, fetchOptions?: AxiosRequestConfig): Promise<void>
 }
