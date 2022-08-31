@@ -22,10 +22,10 @@ export const Layout = ({ children }) => {
     api.logout()
     // logoutHandler(helxAppstoreUrl)
   }
-
+  const removeTrailingSlash = (url) => url.endsWith("/") ? url.slice(0, url.length - 1) : url
   const activeRoutes = routes.filter((route) => (
     // route.text !== "" &&
-    `${baseLinkPath}${route.path}` === location.pathname
+    removeTrailingSlash(`${baseLinkPath}${route.path}`) === removeTrailingSlash(location.pathname)
   )).flatMap((route) => ([
     route,
     ...routes.filter((m) => m.path === route.parent)
