@@ -79,7 +79,7 @@ export const WorkspaceLoginView = withAPIReady(({
 
     const hasAdditionalProviders = useMemo(() => (
         allowUncLogin ||
-        allowGithubLogin ||
+        allowGoogleLogin ||
         allowGithubLogin
     ), [allowUncLogin, allowGoogleLogin, allowGithubLogin])
 

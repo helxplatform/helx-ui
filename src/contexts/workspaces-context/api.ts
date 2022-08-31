@@ -230,8 +230,11 @@ export class WorkspacesAPI implements IWorkspacesAPI {
 
     @APIRequest()
     private loginSAML(url: string, width: number, height: number): Promise<void> {
-        const left = (window.screen.width / 2) - (width / 2)
-        const top = (window.screen.height / 2) - (height / 2)
+        // const left = (window.screen.width / 2) - (width / 2)
+        // const top = (window.screen.height / 2) - (height / 2)
+        const win = window.top || window
+        const left = (win.outerWidth / 2) + win.screenX - (width / 2)
+        const top = (win.outerHeight / 2) + win.screenY - (height / 2)
         const existingWindow = this._samlWindows[url]
         if (existingWindow && !existingWindow.closed) {
             existingWindow.focus()
@@ -252,11 +255,9 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                  */
                 SAMLWindow.focus()
                 // Tracking url via intervals seems to be the accepted way of tracking the location of a popup.
-                let oldHref = SAMLWindow.location.href
                 const locationInterval = setInterval(() => {
-                    if (oldHref !== SAMLWindow.location.href) {
-                        const newLocation = SAMLWindow.location
-                        if (newLocation.origin === new URL(this.apiUrl).origin) {
+                    try {
+                        if (SAMLWindow.location.href === new URL(this.apiUrl).origin && SAMLWindow.location.href !== url) {
                             // Successfully signed in
                             success = true
                             SAMLWindow.document.body.style.display = "none"
@@ -266,11 +267,14 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                                 else reject(new WhitelistRequiredError())
                             })
                         }
-                        oldHref = newLocation.href
-                    }
-                    if (success || SAMLWindow.closed) {
-                        if (!success) reject(new SAMLRejectedError())
-                        clearInterval(locationInterval)
+                        if (success || SAMLWindow.closed) {
+                            clearInterval(locationInterval)
+                            if (!success) reject(new SAMLRejectedError())
+                        }
+                    } catch (e: any) {
+                        // SecurityErrors are expected to be thrown when trying to access information within the iframe
+                        // once that iframe becomes cross-origin.
+                        if (e.name !== "SecurityError") throw e
                     }
                 }, 0)
             } else {
