@@ -257,7 +257,8 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                 // Tracking url via intervals seems to be the accepted way of tracking the location of a popup.
                 const locationInterval = setInterval(() => {
                     try {
-                        if (SAMLWindow.location.href === new URL(this.apiUrl).origin && SAMLWindow.location.href !== url) {
+                        // This indicates that the popup has is on the origin, but has redirected from the original url.
+                        if (SAMLWindow.location.origin === new URL(this.apiUrl).origin && SAMLWindow.location.href !== url) {
                             // Successfully signed in
                             success = true
                             SAMLWindow.document.body.style.display = "none"
@@ -296,6 +297,11 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     loginSAMLGoogle() {
         /** I've been informed that we aren't actually using Google SAML, we're using OAuth... but this gets the job done regardless. */
         return this.loginSAML(`${this.apiUrl}../../accounts/google/login/?process=`, 450, 600)
+    }
+
+    @APIRequest()
+    loginSAMLGithub() {
+        return this.loginSAML(`${this.apiUrl}../../accounts/github/login/?process=`, 380, 800)
     }
     
     @APIRequest()

@@ -7,7 +7,7 @@ import { FormWrapper } from './form-wrapper'
 import { UsernameInput, PasswordInput } from './form-fields'
 import { GithubSSO, GoogleSSO, UNCSSO } from './sso'
 import { withAPIReady } from '../'
-import { useDest, useWorkspacesAPI } from '../../../contexts'
+import { useDest, useEnvironment, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
 import  './login.css'
 
@@ -69,6 +69,7 @@ export const WorkspaceLoginView = withAPIReady(({
     const [revalidateForm, setRevalidateForm] = useState(false)
 
     const [form] = useForm()
+    const { basePath } = useEnvironment()
     const { api, user, loginProviders } = useWorkspacesAPI()
     const { redirectToDest } = useDest()
 
@@ -93,7 +94,9 @@ export const WorkspaceLoginView = withAPIReady(({
     useEffect(() => {
         if (user) {
             // User has logged in, redirect back.
-            redirectToDest()
+            // If there is no "dest" qs param, then redirect to the provided default url
+            // (e.g. the user manually navigated to the login view while already logged in).
+            redirectToDest(`${ basePath }workspaces/`)
         }
     }, [user])
 
