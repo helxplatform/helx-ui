@@ -76,6 +76,27 @@ export interface Provider {
 }
 export type ProvidersResponse = Provider[]
 
+export interface ExtraLink {
+    title: string
+    link: string
+}
+export type Capability = "app" | "search"
+export interface EnvironmentContext {
+    brand: string
+    title: string
+    logo_url: string
+    color_scheme: {
+        primary: string
+        secondary: string
+    }
+    links: ExtraLink[]
+    capabilities: Capability[]
+    env: {
+        [key: string]: any  
+    }
+}
+export type EnvironmentContextResponse = EnvironmentContext
+
 export interface ResourceQuota {
     cpus: string
     gpus: number
@@ -139,6 +160,7 @@ export interface IWorkspacesAPI {
     logout(fetchOptions?: AxiosRequestConfig): Promise<LogoutResponse>
     getActiveUser(fetchOptions?: AxiosRequestConfig): Promise<UsersResponse>
     getLoginProviders(fetchOptions?: AxiosRequestConfig): Promise<ProvidersResponse>
+    getEnvironmentContext(fetchOptions?: AxiosRequestConfig): Promise<EnvironmentContextResponse>
 
     getAvailableApps(fetchOptions?: AxiosRequestConfig): Promise<AvailableAppsResponse>
     getAppInstances(fetchOptions?: AxiosRequestConfig): Promise<AppInstancesResponse>

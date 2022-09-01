@@ -6,12 +6,7 @@ import { ProtectedView, withAuthentication } from '../protected-view'
 const { Text } = Typography
 
 export const APILoadingProtectedView = ({ children }) => {
-    const { loggedIn, loginProviders } = useWorkspacesAPI()
-
-    const apiLoading = useMemo(() => (
-        loggedIn === undefined ||
-        loginProviders === undefined
-    ), [loggedIn, loginProviders])
+    const { loading: apiLoading } = useWorkspacesAPI()
     
     if (apiLoading) return (
         <Space direction="vertical" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", flex: 1 }}>

@@ -13,7 +13,8 @@ import {
     SAMLActiveError,
     WhitelistRequiredError,
     AvailableAppsResponse,
-    AppInstancesResponse
+    AppInstancesResponse,
+    EnvironmentContextResponse
 } from './api.types'
 
 /** Typescript would not stop complaining about a declarations file for this package. */
@@ -169,7 +170,12 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         } catch (e: any) {
             if (e.status === 403) {
                 newUser = null
-            } else throw e
+            } else {
+                // If we encounter an unexpected error when loading login state (e.g. the user has no connection)
+                // then maintain the current state, unless this was the call to load initial state, in which we assume
+                // that the user is logged out.
+                newUser = this.user !== undefined ? this.user : null
+            }
         }
         this._updateLoginState(newUser, sessionTimeout)
         // Weird hacky stuff happening here, where updateLastActivity is invoked by APIRequest
@@ -181,6 +187,12 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     @APIRequest()
     async getLoginProviders(fetchOptions: AxiosRequestConfig={}): Promise<ProvidersResponse> {
         const res = await this.axios.get<ProvidersResponse>("/providers/", fetchOptions)
+        return res.data
+    }
+    
+    @APIRequest()
+    async getEnvironmentContext(fetchOptions: AxiosRequestConfig={}): Promise<EnvironmentContextResponse> {
+        const res = await this.axios.get<EnvironmentContextResponse>("/context/", fetchOptions)
         return res.data
     }
 

@@ -2,21 +2,23 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 import { Modal, Space, Typography } from 'antd'
 import { TimeUntil } from 'react-time-until'
 import { WorkspacesAPI } from './'
-import { APIError, IWorkspacesAPI, Provider, User } from './api.types'
+import { APIError, IWorkspacesAPI, User, ExtraLink } from './api.types'
 import { useEnvironment } from '../'
 
 const { Text } = Typography
 
 export interface IWorkspacesAPIContext {
-    api: IWorkspacesAPI,
-    user: User | null | undefined,
-    loggedIn: boolean | undefined,
+    api: IWorkspacesAPI
+    loading: boolean
+    user: User | null | undefined
+    loggedIn: boolean | undefined
     loginProviders: string[] | undefined
+    extraLinks: ExtraLink[] | undefined
 }
 
 interface IWorkspacesAPIProvider {
     // Time until session timeout in seconds that onSessionTimeoutWarning will be emitted.
-    sessionTimeoutWarningSeconds: number,
+    sessionTimeoutWarningSeconds: number
     children: ReactNode
 }
 
@@ -26,6 +28,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     // API state
     const [user, setUser] = useState<User|null|undefined>(undefined)
     const [loginProviders, setLoginProviders] = useState<string[]|undefined>(undefined)
+    const [extraLinks, setExtraLinks] = useState<ExtraLink[]|undefined>(undefined)
 
     // Etc.
     const [showTimeoutWarningModal, setShowTimeoutWarningModal] = useState<Date|undefined>(undefined)
@@ -39,8 +42,14 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
 
     const loggedIn = useMemo(() => user !== undefined ? !!user : undefined, [user])
 
+    const loading = useMemo(() => (
+        loggedIn === undefined ||
+        loginProviders === undefined ||
+        extraLinks === undefined
+    ), [loggedIn, loginProviders, extraLinks])
+
     const onApiError = useCallback((error: APIError) => {
-        console.error("API error encountered", error)
+        console.log("--- API error encountered ---", "\n", error)
     }, [])
     const onLoginStateChanged = useCallback((user: User | null, sessionTimeout: boolean) => {
         console.log("User changed", user)
@@ -60,8 +69,22 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     useEffect(() => {
         setUser(undefined)
         setLoginProviders(undefined)
+        setExtraLinks(undefined)
         void async function() {
-            setLoginProviders((await api.getLoginProviders()).map((provider) => provider.name))
+            try {
+                setLoginProviders((await api.getLoginProviders()).map((provider) => provider.name))
+            } catch (e) {
+                // The request failed for some reason.
+                setLoginProviders([])
+            }
+        }()
+        void async function() {
+            try {
+                setExtraLinks((await api.getEnvironmentContext()).links)
+            } catch (e) {
+                // The request failed for some reason.
+                setExtraLinks([])
+            }
         }()
     }, [api])
 
@@ -84,9 +107,11 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     return (
         <WorkspacesAPIContext.Provider value={{
             api,
+            loading,
             user,
             loggedIn,
-            loginProviders
+            loginProviders,
+            extraLinks
         }}>
             { children }
             <Modal
