@@ -52,15 +52,15 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         console.log("--- API error encountered ---", "\n", error)
     }, [])
     const onLoginStateChanged = useCallback((user: User | null, sessionTimeout: boolean) => {
-        console.log("User changed", user)
+        // console.log("User changed", user)
         if (user === null) {
-            console.log("Session timeout", sessionTimeout)
+            // console.log("Session timeout", sessionTimeout)
             setShowTimeoutWarningModal(undefined)
         }
         setUser(user)
     }, [])
     const onSessionTimeoutWarning = useCallback((timeoutDelta: number) => {
-        console.log("Session timeout warning", timeoutDelta)
+        // console.log("Session timeout warning", timeoutDelta)
         setShowTimeoutWarningModal(
             new Date(Date.now() + timeoutDelta)
         )
