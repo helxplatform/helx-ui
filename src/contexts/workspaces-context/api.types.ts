@@ -133,6 +133,13 @@ export interface AvailableAppsResponse {
     [appName: string]: AvailableApp
 }
 export type AppInstancesResponse = AppInstance[]
+export interface UpdateAppInstanceResponse {
+    status: "success" | "error"
+    message: string
+    result: {
+        patches: any[]
+    }
+}
 
 export interface IWorkspacesAPI {
     /** Fields */
@@ -165,5 +172,5 @@ export interface IWorkspacesAPI {
     getAvailableApps(fetchOptions?: AxiosRequestConfig): Promise<AvailableAppsResponse>
     getAppInstances(fetchOptions?: AxiosRequestConfig): Promise<AppInstancesResponse>
     stopAppInstance(sid: string, fetchOptions?: AxiosRequestConfig): Promise<void>
-    updateAppInstance(sid: string, workspace: string, cpu: string, gpu: string, memory: string, fetchOptions?: AxiosRequestConfig): Promise<void>
+    updateAppInstance(sid: string, workspace: string, cpu: string, gpu: string, memory: string, fetchOptions?: AxiosRequestConfig): Promise<UpdateAppInstanceResponse>
 }

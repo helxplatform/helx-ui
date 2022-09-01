@@ -14,7 +14,8 @@ import {
     WhitelistRequiredError,
     AvailableAppsResponse,
     AppInstancesResponse,
-    EnvironmentContextResponse
+    EnvironmentContextResponse,
+    UpdateAppInstanceResponse
 } from './api.types'
 
 /** Typescript would not stop complaining about a declarations file for this package. */
@@ -112,14 +113,14 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         const timeoutWarningTimestamp = new Date(
             Date.now() + timeoutWarningDelta
         ).getTime()
-        console.log("start warning timeout", timeoutWarningDelta)
+        // console.log("start warning timeout", timeoutWarningDelta)
         this.lastActivityWarningTimeout = window.setInterval(() => {
             if (timeoutWarningTimestamp - Date.now() <= 0) {
                 this.onSessionTimeoutWarning(timeoutTimestamp - timeoutWarningTimestamp)
                 clearInterval(this.lastActivityWarningTimeout)
             }
         }, 50)
-        console.log("start full timeout", timeoutDelta)
+        // console.log("start full timeout", timeoutDelta)
         this.lastActivitySessionTimeout = window.setInterval(() => {
             if (timeoutTimestamp - Date.now() <= 0) {
                 console.log("Timing out session")
@@ -356,7 +357,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         gpu: string,
         memory: string,
         fetchOptions: AxiosRequestConfig={}
-    ): Promise<void> {
+    ): Promise<UpdateAppInstanceResponse> {
         const data: any = {
             cpu,
             gpu    
@@ -365,7 +366,8 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         if (workspace.length > 0) data.labels = {
             "app-name": workspace
         }
-        await this.axios.patch(`/instances/${ sid }`, data, fetchOptions)
+        const res = await this.axios.patch(`/instances/${ sid }`, data, fetchOptions)
+        return res.data
     }
 
 }
