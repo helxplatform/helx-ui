@@ -15,7 +15,8 @@ import {
     AvailableAppsResponse,
     AppInstancesResponse,
     EnvironmentContextResponse,
-    UpdateAppInstanceResponse
+    UpdateAppInstanceResponse,
+    SignupRequiredError
 } from './api.types'
 
 /** Typescript would not stop complaining about a declarations file for this package. */
@@ -270,16 +271,23 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                 // Tracking url via intervals seems to be the accepted way of tracking the location of a popup.
                 const locationInterval = setInterval(() => {
                     try {
-                        // This indicates that the popup has is on the origin, but has redirected from the original url.
-                        if (SAMLWindow.location.origin === new URL(this.apiUrl).origin && SAMLWindow.location.href !== url) {
-                            // Successfully signed in
+                        // This indicates that the popup is on the origin, but has redirected from the original url.
+                        if (
+                            SAMLWindow.location.origin === new URL(this.apiUrl).origin &&
+                            SAMLWindow.location.pathname !== new URL(url).pathname
+                        ) {
+                            // Successfully completed SAML login
                             success = true
                             SAMLWindow.document.body.style.display = "none"
                             SAMLWindow.close()
-                            this.updateLoginState().then(() => {
-                                if (this.user) resolve()
-                                else reject(new WhitelistRequiredError())
-                            })
+                            if (SAMLWindow.location.pathname === "/accounts/social/signup/") {
+                                reject(new SignupRequiredError())
+                            } else {
+                                this.updateLoginState().then(() => {
+                                    if (this.user) resolve()
+                                    else reject(new WhitelistRequiredError())
+                                })
+                            }
                         }
                         if (success || SAMLWindow.closed) {
                             clearInterval(locationInterval)
@@ -303,7 +311,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     
     @APIRequest()
     loginSAMLUNC() {
-        return this.loginSAML(`${this.apiUrl}../../accounts/saml`, 448, 753)
+        return this.loginSAML(`${this.apiUrl}../../accounts/saml/`, 448, 753)
     }
     
     @APIRequest()

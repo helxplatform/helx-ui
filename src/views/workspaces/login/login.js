@@ -38,7 +38,7 @@ const WhitelistRequired = (props) => (
     // </Space>
 )
 
-const SSOLoginOptions = ({ main, unc, google, github, onWhitelistRequired }) => (
+const SSOLoginOptions = ({ main, unc, google, github, onWhitelistRequired, onSignupRequired }) => (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
         <Divider plain style={{ marginTop: main ? 0 : undefined }}>
             <Text style={{ color: main ? "rgba(0, 0, 0, 0.45)" : "rgba(0, 0, 0, 0.25)", fontWeight: "normal", fontSize: 14 }}>
@@ -47,13 +47,13 @@ const SSOLoginOptions = ({ main, unc, google, github, onWhitelistRequired }) => 
         </Divider>
         <Space size="large" style={{ justifyContent: "center", marginTop: 8 }}>
             { unc && (
-                <UNCSSO onWhitelistRequired={ onWhitelistRequired } />
+                <UNCSSO onWhitelistRequired={ onWhitelistRequired } onSignupRequired={ onSignupRequired } />
             ) }
             { google && (
-                <GoogleSSO onWhitelistRequired={ onWhitelistRequired } />
+                <GoogleSSO onWhitelistRequired={ onWhitelistRequired } onSignupRequired={ onSignupRequired } />
             ) }
             { github && (
-                <GithubSSO onWhitelistRequired={ onWhitelistRequired } />
+                <GithubSSO onWhitelistRequired={ onWhitelistRequired } onSignupRequired={ onSignupRequired } />
             ) }
         </Space>
     </div>
@@ -197,6 +197,9 @@ export const WorkspaceLoginView = withAPIReady(({
                                 github={ allowGithubLogin }
                                 onWhitelistRequired={ () => {
                                     setShowWhitelistRequired(true)
+                                } }
+                                onSignupRequired={ () => {
+                                    console.log("signup required")
                                 } }
                             />
                         ) : null

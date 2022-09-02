@@ -54,6 +54,11 @@ export class WhitelistRequiredError extends ExtendableError {
         super("Successfully signed in, but whitelisting is required on the accouunt")
     }
 }
+export class SignupRequiredError extends ExtendableError{
+    constructor() {
+        super("Successfully signed in, but sign up is required since an account already exists")
+    }
+}
 
 export type LoginResponse = null
 export type LogoutResponse = null
@@ -158,7 +163,8 @@ export interface IWorkspacesAPI {
     login(username: string, password: string, fetchOptions?: AxiosRequestConfig): Promise<LoginResponse>
     /**
      * - Void if successful.
-     * - Throws WhitelistRequired error if the user needs to be whitelisted.
+     * - Throws WhitelistRequiredRrror if the user needs to be whitelisted.
+     * - Throws SignupRequiredError if the user needs to sign up due to SSO credentials already being in use by another account.
      * - Throws SAMLRejectedError if unsuccessful.
      * - Throws SAMLActiveError if SAML request is already active.
      */

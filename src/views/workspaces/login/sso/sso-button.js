@@ -1,6 +1,6 @@
 import { Button, Typography } from 'antd'
 import Icon from '@ant-design/icons'
-import { WhitelistRequiredError } from '../../../../contexts/workspaces-context/api.types'
+import { SignupRequiredError, WhitelistRequiredError } from '../../../../contexts/workspaces-context/api.types'
 import './sso-button.css'
 
 const { Text } = Typography
@@ -65,6 +65,7 @@ export const SSOButton = ({
 export const SAMLButton = ({
     login=() => {},
     onWhitelistRequired=() => {},
+    onSignupRequired=() => {},
     ...props
 }) => {
     return (
@@ -76,8 +77,10 @@ export const SAMLButton = ({
                 } catch (e) {
                     if (e instanceof WhitelistRequiredError) {
                         onWhitelistRequired()
+                    } else if (e instanceof SignupRequiredError) {
+                        onSignupRequired()
                     } else {
-                        console.log("SAML aborted")
+                        // SAML aborted.
                     }
                 }
             } }
