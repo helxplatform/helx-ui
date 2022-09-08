@@ -7,13 +7,15 @@ import './form.css'
 
 const { Link } = Typography
 
-// If search is minimal (used in expanded view), remove the search button and automatically execute search on a debounce.
+// If search type is minimal, modify the appearance to be more compact.
 const MINIMAL = 'minimal'
 const FULL = 'full'
 
-export const SearchForm = ({ type=FULL, ...props }) => {
+export const SearchForm = ({ type=undefined, ...props }) => {
   const { doSearch, inputRef, query, totalConcepts, layout, setLayout } = useHelxSearch()
   const [searchTerm, setSearchTerm] = useState(query)
+
+  if (!type) type= totalConcepts ? "minimal" : "full"
   
   const executeDebouncedSearch = useDebouncedCallback(() => {
     doSearch(searchTerm)
