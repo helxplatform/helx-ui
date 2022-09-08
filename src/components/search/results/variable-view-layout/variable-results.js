@@ -40,6 +40,15 @@ export const VariableSearchResults = () => {
         data: filteredVariables
     }), [filteredVariables])
 
+    const [filteredPercentileLower, filteredPercentileUpper] = useMemo(() => {
+        const relativeMin = Math.min(...filteredVariables.map((result) => result.score))
+        const relativeMax = Math.max(...filteredVariables.map((result) => result.score))
+        return [
+            (variableResults.filter((result) => result.score <= relativeMin).length / variableResults.length) * 100,
+            (variableResults.filter((result) => result.score <= relativeMax).length / variableResults.length) * 100
+        ]
+    }, [variableResults, filteredVariables])
+
     /**
      * Triggered by the Start Over button.
      */
@@ -143,7 +152,9 @@ export const VariableSearchResults = () => {
                     ref={variablesHistogram}
                 />
                 { filteredVariables.length < totalVariableResults && (
-                    <Text type="secondary">Filtered Variables Count: {filteredVariables.length}</Text>
+                    <Text type="secondary">
+                        Viewing {filteredVariables.length} variables within the {Math.floor(filteredPercentileLower)}-{Math.floor(filteredPercentileUpper)} percentiles.
+                    </Text>
                 ) }
                 <Button onClick={startOverHandler}>Start Over</Button>
             </Space>
