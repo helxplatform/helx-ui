@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Form, Input, Typography, Divider, Radio } from 'antd'
+import { Button, Form, Input, Typography, Divider, Radio, Tooltip } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
 import { useDebouncedCallback } from 'use-debounce'
 import { useHelxSearch, SearchLayout} from '../'
@@ -73,42 +73,44 @@ export const SearchForm = ({ type=undefined, ...props }) => {
       </Form.Item>
       { totalConcepts ? (
         <Form.Item>
-          <Radio.Group
-            options={[
-                {
-                  label: "Concepts",
-                  value: "concepts",
-                  key: "concepts"
-                },
-                {
-                  label: "Variables",
-                  value: "variables",
-                  key: "variables"
-                }
-            ]}
-            value={
-              layout === SearchLayout.GRID || layout === SearchLayout.EXPANDED_RESULT ? (
-                "concepts"
-              ) : layout === SearchLayout.VARIABLE_VIEW ? (
-                "variables"
-              ) : null
-            }
-            onChange={ (e) => {
-              switch (e.target.value) {
-                case "concepts":
-                  setLayout(SearchLayout.GRID)
-                  break
-                case "variables":
-                  setLayout(SearchLayout.VARIABLE_VIEW)
-                  break
-                default:
-                  console.error("Unimplemented layout type:", e.target.value)
-                  break
+          <Tooltip title="Change search type">
+            <Radio.Group
+              options={[
+                  {
+                    label: "Concepts",
+                    value: "concepts",
+                    key: "concepts"
+                  },
+                  {
+                    label: "Variables",
+                    value: "variables",
+                    key: "variables"
+                  }
+              ]}
+              value={
+                layout === SearchLayout.GRID || layout === SearchLayout.EXPANDED_RESULT ? (
+                  "concepts"
+                ) : layout === SearchLayout.VARIABLE_VIEW ? (
+                  "variables"
+                ) : null
               }
-            } }
-            optionType="button"
-            style={{ marginLeft: 16 }}
-          />
+              onChange={ (e) => {
+                switch (e.target.value) {
+                  case "concepts":
+                    setLayout(SearchLayout.GRID)
+                    break
+                  case "variables":
+                    setLayout(SearchLayout.VARIABLE_VIEW)
+                    break
+                  default:
+                    console.error("Unimplemented layout type:", e.target.value)
+                    break
+                }
+              } }
+              optionType="button"
+              style={{ marginLeft: 16 }}
+            />
+          </Tooltip>
         </Form.Item>
       ) : null }
     </Form>
