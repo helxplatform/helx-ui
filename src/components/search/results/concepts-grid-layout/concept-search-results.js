@@ -3,7 +3,7 @@ import { Spin, Grid as AntGrid, Typography, Radio, Tooltip } from 'antd'
 import { ConceptCard, useHelxSearch, SearchLayout, ExpandedResultsLayout } from '../../'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { BackTop } from '../../../layout'
-import { ResultsHeader } from './../'
+import { ResultsHeader } from '../'
 
 const { Text } = Typography
 const { useBreakpoint } = AntGrid

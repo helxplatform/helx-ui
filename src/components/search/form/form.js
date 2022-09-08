@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Form, Input, Typography, Divider } from 'antd'
+import { Button, Form, Input, Typography, Divider, Radio } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
 import { useDebouncedCallback } from 'use-debounce'
-import { useHelxSearch } from '../'
+import { useHelxSearch, SearchLayout} from '../'
 import './form.css'
 
 const { Link } = Typography
@@ -12,7 +12,7 @@ const MINIMAL = 'minimal'
 const FULL = 'full'
 
 export const SearchForm = ({ type=FULL, ...props }) => {
-  const { doSearch, inputRef, query, totalConcepts } = useHelxSearch()
+  const { doSearch, inputRef, query, totalConcepts, layout, setLayout } = useHelxSearch()
   const [searchTerm, setSearchTerm] = useState(query)
   
   const executeDebouncedSearch = useDebouncedCallback(() => {
@@ -68,6 +68,42 @@ export const SearchForm = ({ type=FULL, ...props }) => {
           )
           // <Link type="secondary" onClick={ submitSearch }><SearchOutlined style={{ fontSize: "16px" }} /></Link>
         }
+      </Form.Item>
+      <Form.Item>
+        <Radio.Group
+          options={[
+              {
+                label: "Concepts",
+                value: "concepts"
+              },
+              {
+                label: "Variables",
+                value: "variables"
+              }
+          ]}
+          value={
+            layout === SearchLayout.GRID || layout === SearchLayout.EXPANDED_RESULT ? (
+              "concepts"
+            ) : layout === SearchLayout.VARIABLE_VIEW ? (
+              "variables"
+            ) : null
+          }
+          onChange={ (e) => {
+            switch (e.target.value) {
+              case "concepts":
+                setLayout(SearchLayout.GRID)
+                break
+              case "variables":
+                setLayout(SearchLayout.VARIABLE_VIEW)
+                break
+              default:
+                console.error("Unimplemented layout type:", e.target.value)
+                break
+            }
+          } }
+          optionType="button"
+          style={{ marginLeft: 8 }}
+        />
       </Form.Item>
     </Form>
   )

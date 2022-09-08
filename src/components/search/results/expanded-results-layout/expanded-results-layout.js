@@ -44,7 +44,9 @@ export const ExpandedResultsLayout = () => {
     return (
         <div className={classNames("expanded-results-layout", !md && "mobile")}>
             <div className="expanded-results-upper-container">
-                <SearchForm type={totalConcepts ? "minimal" : "full"} />
+                <div className="expanded-results-upper-container-top">
+                    <SearchForm type={totalConcepts ? "minimal" : "full"} />
+                </div>
                 <ResultsHeader concepts={concepts} style={{ display: totalConcepts > 0 ? undefined : "none" }} />
             </div>
             {isLoadingConcepts && totalConcepts === 0 && (
@@ -52,7 +54,7 @@ export const ExpandedResultsLayout = () => {
             )}
             {totalConcepts > 0 && (
                 <Fragment>
-                    { md && <Divider style={{ marginBottom: 0 }} /> }
+                    {/* { md && <Divider style={{ marginBottom: 0 }} /> } */}
                     <div className="expanded-results-lower-container">
                         <ExpandedResultsSidebar expanded={expanded} setExpanded={setExpanded} />
                         <Divider

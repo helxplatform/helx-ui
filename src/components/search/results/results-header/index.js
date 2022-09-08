@@ -53,10 +53,12 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
                         `${ totalConcepts } concepts (${ Object.keys(conceptPages).length } of ${ pageCount } pages)`
                     ) }
                 </Text>
-                <Tooltip title="Shareable link" placement="top">
-                    {/* Just want anchor styling */}
-                    <Link onClick={NotifyLinkCopied} style={{ marginLeft: '16px', marginRight: '16px' }}><LinkIcon /></Link>
-                </Tooltip>
+                { !variables && (
+                    <Tooltip title="Shareable link" placement="top">
+                        {/* Just want anchor styling */}
+                        <Link onClick={NotifyLinkCopied} style={{ marginLeft: '16px', marginRight: '16px' }}><LinkIcon /></Link>
+                    </Tooltip>
+                ) }
                 </Fragment>
             )}
             <div

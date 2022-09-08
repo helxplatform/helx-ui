@@ -5,8 +5,9 @@
 }
 .expanded-results-layout > .expanded-results-upper-container {
     display: flex;
+    flex-direction: column;
 }
-.expanded-results-layout > .expanded-results-upper-container > .search-form.with-results {
+.expanded-results-layout > .expanded-results-upper-container .search-form.with-results {
     margin: 0;
     flex-grow: 1;
     max-width: initial;
@@ -14,9 +15,9 @@
 .expanded-results-layout .results-sidebar .search-form.with-results {
     margin-bottom: 0 !important;
 }
-.expanded-results-layout > .expanded-results-upper-container > .results-header {
+.expanded-results-layout > .expanded-results-upper-container .results-header {
     white-space: nowrap;
-    margin-left: 24px;
+    margin-top: 16px;
     margin-bottom: 0;
 }
 .expanded-results-layout > .expanded-results-lower-container {
@@ -38,13 +39,13 @@
 .expanded-results-layout.mobile > .expanded-results-upper-container {
     flex-direction: column;
 }
-.expanded-results-layout.mobile > .expanded-results-upper-container > .results-header {
+.expanded-results-layout.mobile > .expanded-results-upper-container .results-header {
     margin-left: 0;
     margin-top: 24px;
     margin-bottom: 0;
     display: flex;
 }
-.expanded-results-layout.mobile > .expanded-results-upper-container > .results-header > span:first-child {
+.expanded-results-layout.mobile > .expanded-results-upper-container .results-header > span:first-child {
     white-space: normal;
 }
 .expanded-results-layout.mobile .expanded-result-container {
