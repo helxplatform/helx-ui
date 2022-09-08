@@ -73,7 +73,7 @@ export const VariableSearchResults = () => {
         let histogramObj = variablesHistogram.current.getChart()
         /** Restores histogram data to refreshed value of filteredVariables, which is based on no filtering */
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
-    }, [filteredVariables])
+    }, [variableHistogramConfig, filteredVariables])
 
     /**
      * Whenever the brush filter is used, the value of filtered Variables &
