@@ -10,7 +10,11 @@ div.within-filter-false a:hover {
     color: rgb(69, 69, 69);
     text-decoration: underline;
 }
-
+.variables-collapse .study-panel .ant-collapse-content-box {
+    padding: 4px !important;
+    /* padding-top: 4px !important;
+    padding-bottom: 4px !important; */
+}
 .variables-collapse .study-panel .ant-collapse-header {
     padding-left: 0px !important;
     align-items: center !important;
@@ -32,9 +36,12 @@ div.within-filter-false a:hover {
 }
 
 .scrollable-div {
-    height: 300px;
+    max-height: 300px;
     overflow: auto;
-    padding: 4px 16px;
+    padding-top: 12px;
+    /* Children have a bottom margin of 8px */
+    padding-bottom: 4px;
+    /* padding: 4px 16px; */
     border: solid 1px #dddddd;
 }
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Collapse, List, Typography, Button, Space, Divider } from 'antd'
-import InfiniteScroll from 'react-infinite-scroll-component';
 import {
     PushpinOutlined as UnselectedIcon,
     PushpinFilled as SelectedIcon,
@@ -8,40 +7,25 @@ import {
 const { Text } = Typography
 const { Panel } = Collapse
 
+const VariableList = ({ study }) => {
+    return (
+        <List
+            className="study-variables-list"
+            dataSource={study.elements}
+            renderItem={variable => (
+                <div className={`study-variables-list-item within-filter-${variable.withinFilter}`} style={{ borderLeft: "none" }}>
+                    <Text className="variable-name">
+                        {variable.name}&nbsp;
+                        ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
+                    </Text><br />
+                    <Text className="variable-description"> {variable.description}</Text>
+                </div>
+            )}
+        />
+    )
+}
 
 export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisplay, toggleStudyHighlightingInHistogram}) => {
-    const VariableList = ({ study }) => {
-        return (
-            <List
-                className="study-variables-list"
-                dataSource={study.elements}
-                renderItem={variable => (
-                    <div className={`study-variables-list-item within-filter-${variable.withinFilter}`}>
-                        <Text className="variable-name">
-                            {variable.name} &nbsp;
-                            ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
-                        </Text><br />
-                        <Text className="variable-description"> {variable.description}</Text>
-                    </div>
-                )}
-            />
-        )
-    }
-
-    const ScrollableVariableList = ({ study }) => (
-        <div
-            id="scrollableDiv"
-            className="scrollable-div"
-        >
-            <InfiniteScroll
-                dataLength={study.elements.length}
-                scrollableTarget="scrollableDiv"
-            >
-                <VariableList study={study}/>
-            </InfiniteScroll>
-        </div>
-    )
-
     return (
         <Collapse ghost className="variables-collapse">
             {
@@ -74,7 +58,9 @@ export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisp
                                 >{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
                             ] }
                         >
-                            {study.elements.length > 7 ? < ScrollableVariableList study={study}/> : < VariableList study={study}/> }
+                            <div id={ `scrollableDiv__${study.c_id}` } className="scrollable-div">
+                                <VariableList study={ study } />
+                            </div>
                         </Panel>
                     )
                 })
