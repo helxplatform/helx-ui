@@ -9,7 +9,7 @@ import {
 } from '.'
 import './variable-results.css';
 
-const { Text } = Typography
+const { Text, Title } = Typography
 
 /** Component that handles display of Variable Results */
 export const VariableSearchResults = () => {
@@ -67,9 +67,13 @@ export const VariableSearchResults = () => {
         let histogramObj = variablesHistogram.current.getChart()
         /** Removes 'active' state property, which allows bar highlighting when a study is selected */
         histogramObj.setState('active', () => true, false);
+    }
+
+    useEffect(() => {
+        let histogramObj = variablesHistogram.current.getChart()
         /** Restores histogram data to refreshed value of filteredVariables, which is based on no filtering */
         histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
-    }
+    }, [filteredVariables])
 
     /**
      * Whenever the brush filter is used, the value of filtered Variables &
@@ -77,15 +81,20 @@ export const VariableSearchResults = () => {
      */
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
-
-        histogramObj.on('mouseup', (e) => {
+        const handle = (e) => {
+            console.log("handling click")
             let filteredVariables = e.view.filteredData
 
             let updatedStudyResults = updateStudyResults(filteredVariables, studyResultsForDisplay);
             setStudyResultsForDisplay(updatedStudyResults)
             setFilteredVariables(filteredVariables)
-        })
-    })
+        }
+        histogramObj.on('mouseup', handle)
+        return () => {
+            // Remove the click handler when the effect demounts.
+            histogramObj.off('mouseup', handle)
+        }
+    }, [updateStudyResults, studyResultsForDisplay])
 
     /**
      * Takes a studyName, selected by the user in the studies table & updates data going to
@@ -132,8 +141,6 @@ export const VariableSearchResults = () => {
         setStudyNamesForDisplay(newStudyNamesForDisplay);
     }
 
-    window.x = variablesHistogram
-
     return (
         <div style={{ flexGrow: 1, display: noResults ? "none" : undefined }}>
             {/* The results header has a bottom margin of 16, so the divider shouldn't have a top margin. */}
@@ -156,11 +163,19 @@ export const VariableSearchResults = () => {
                         Viewing {filteredVariables.length} variables within the {Math.floor(filteredPercentileLower)}-{Math.floor(filteredPercentileUpper)} percentiles.
                     </Text>
                 ) }
-                <Button onClick={startOverHandler}>Start Over</Button>
+                <Button onClick={ startOverHandler }>
+                    Start Over
+                </Button>
             </Space>
-            <Divider style={{ margin: "12px 0" }} />
-            <Space direction="vertical">
-                <Text level={5}>Studies holding Variables shown above in Histogram</Text>
+            <Divider orientation="left" orientationMargin={ 0 } style={{ fontSize: 15, marginTop: 24, marginBottom: 0 }}>Studies</Divider>
+            { studyResultsForDisplay.length < variableStudyResults.length && (
+                <div style={{ marginTop: 6, marginBottom: -4 }}>
+                    <Text type="secondary" style={{ fontSize: 14, fontStyle: "italic" }}>
+                        Showing { studyResultsForDisplay.length } of { variableStudyResults.length } studies
+                    </Text>
+                </div>
+            ) }
+            <Space direction="vertical" style={{ marginTop: 8 }}>
                 <div className='list'>
                     <VariablesTableByStudy
                         studyResultsForDisplay={studyResultsForDisplay}

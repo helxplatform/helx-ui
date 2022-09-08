@@ -11,6 +11,10 @@ div.within-filter-false a:hover {
     text-decoration: underline;
 }
 
+.variables-collapse .study-panel .ant-collapse-header {
+    padding-left: 0px !important;
+    align-items: center !important;
+}
 .variables-collapse .study-panel .study-panel-header .study-selection-button {
     color: #6399e9;
 }
