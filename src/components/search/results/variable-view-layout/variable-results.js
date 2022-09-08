@@ -131,7 +131,8 @@ export const VariableSearchResults = () => {
             <Divider orientation="left" orientationMargin={ 0 } style={{
                 marginTop: 0,
                 marginBottom: 16,
-                fontSize: 15
+                fontSize: 18,
+                fontWeight: 500
             }}>
                 Variables according to DUG score
             </Divider>
