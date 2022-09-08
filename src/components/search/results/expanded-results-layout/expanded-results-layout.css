@@ -8,7 +8,7 @@
     flex-direction: column;
 }
 .expanded-results-layout > .expanded-results-upper-container .search-form.with-results {
-    margin: 0;
+    /* margin: 0; */
     flex-grow: 1;
     max-width: initial;
 }
@@ -17,7 +17,7 @@
 }
 .expanded-results-layout > .expanded-results-upper-container .results-header {
     white-space: nowrap;
-    margin-top: 16px;
+    /* margin-top: 16px; */
     margin-bottom: 0;
 }
 .expanded-results-layout > .expanded-results-lower-container {

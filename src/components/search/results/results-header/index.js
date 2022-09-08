@@ -94,9 +94,17 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
             </div>
             <Tooltip title="Toggle Layout" placement="top">
                 <Radio.Group value={layout} onChange={handleChangeLayout}>
-                    <Radio.Button value={SearchLayout.GRID}><GridViewIcon /></Radio.Button>
-                    <Radio.Button value={SearchLayout.EXPANDED_RESULT}><ExpandedResultIcon /></Radio.Button>
-                    <Radio.Button value={SearchLayout.VARIABLE_VIEW}><VariableViewIcon /></Radio.Button>
+                    {
+                        layout === SearchLayout.GRID || layout === SearchLayout.EXPANDED_RESULT ? (
+                            <Fragment>
+                                <Radio.Button value={SearchLayout.GRID}><GridViewIcon /></Radio.Button>
+                                <Radio.Button value={SearchLayout.EXPANDED_RESULT}><ExpandedResultIcon /></Radio.Button>
+                            </Fragment>
+                        ) : layout === SearchLayout.VARIABLE_VIEW ? (
+                            null
+                        ) : null
+                    }
+                    {/* <Radio.Button value={SearchLayout.VARIABLE_VIEW}><VariableViewIcon /></Radio.Button> */}
                 </Radio.Group>
             </Tooltip>
         </div>
