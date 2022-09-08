@@ -45,7 +45,7 @@ export const ExpandedResultsLayout = () => {
         <div className={classNames("expanded-results-layout", !md && "mobile")}>
             <div className="expanded-results-upper-container">
                 <div className="expanded-results-upper-container-top">
-                    <SearchForm type={totalConcepts ? "minimal" : "full"} />
+                    <SearchForm />
                 </div>
                 <ResultsHeader concepts={concepts} style={{ display: totalConcepts > 0 ? undefined : "none" }} />
             </div>

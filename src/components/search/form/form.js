@@ -69,42 +69,46 @@ export const SearchForm = ({ type=FULL, ...props }) => {
           // <Link type="secondary" onClick={ submitSearch }><SearchOutlined style={{ fontSize: "16px" }} /></Link>
         }
       </Form.Item>
-      <Form.Item>
-        <Radio.Group
-          options={[
-              {
-                label: "Concepts",
-                value: "concepts"
-              },
-              {
-                label: "Variables",
-                value: "variables"
-              }
-          ]}
-          value={
-            layout === SearchLayout.GRID || layout === SearchLayout.EXPANDED_RESULT ? (
-              "concepts"
-            ) : layout === SearchLayout.VARIABLE_VIEW ? (
-              "variables"
-            ) : null
-          }
-          onChange={ (e) => {
-            switch (e.target.value) {
-              case "concepts":
-                setLayout(SearchLayout.GRID)
-                break
-              case "variables":
-                setLayout(SearchLayout.VARIABLE_VIEW)
-                break
-              default:
-                console.error("Unimplemented layout type:", e.target.value)
-                break
+      { totalConcepts ? (
+        <Form.Item>
+          <Radio.Group
+            options={[
+                {
+                  label: "Concepts",
+                  value: "concepts",
+                  key: "concepts"
+                },
+                {
+                  label: "Variables",
+                  value: "variables",
+                  key: "variables"
+                }
+            ]}
+            value={
+              layout === SearchLayout.GRID || layout === SearchLayout.EXPANDED_RESULT ? (
+                "concepts"
+              ) : layout === SearchLayout.VARIABLE_VIEW ? (
+                "variables"
+              ) : null
             }
-          } }
-          optionType="button"
-          style={{ marginLeft: 8 }}
-        />
-      </Form.Item>
+            onChange={ (e) => {
+              switch (e.target.value) {
+                case "concepts":
+                  setLayout(SearchLayout.GRID)
+                  break
+                case "variables":
+                  setLayout(SearchLayout.VARIABLE_VIEW)
+                  break
+                default:
+                  console.error("Unimplemented layout type:", e.target.value)
+                  break
+              }
+            } }
+            optionType="button"
+            style={{ marginLeft: 16 }}
+          />
+        </Form.Item>
+      ) : null }
     </Form>
   )
 }
