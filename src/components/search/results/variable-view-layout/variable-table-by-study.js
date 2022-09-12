@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useRef, useMemo, Fragment } from 'react'
 import { Collapse, List, Typography, Button, Space, Divider } from 'antd'
 import {
     PushpinOutlined as UnselectedIcon,
@@ -25,46 +25,61 @@ const VariableList = ({ study }) => {
     )
 }
 
+const VariablePanel = ({ study, selected, onSelect }) => {
+    const [collapsed, setCollapsed] = useState(true)
+    return (
+        <Fragment>
+        <Collapse ghost activeKey={collapsed ? null : `panel_${study.c_name}`} onChange={ () => setCollapsed(!collapsed) }>
+            <Panel
+                key={`panel_${study.c_name}`}
+                className={ [
+                    'study-panel ',
+                    selected ? 'selected' : 'unselected',
+                ] }
+                header={
+                    <span className="study-panel-header">
+                        <Text>{study.c_name}{` `}</Text>
+                        <Button
+                            type="link"
+                            className="study-selection-button"
+                            onClick={ (e) => { e.stopPropagation(); onSelect() } }
+                        >
+                        {
+                            selected
+                                ? <SelectedIcon />
+                                : <UnselectedIcon />
+                        }
+                        </Button> 
+                    </span>
+                }
+                extra={ [
+                    <Text key={`text_${study.c_name}`}
+                    >{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
+                ] }
+            >
+                <div id={ `scrollableDiv__${study.c_id}` } className="scrollable-div">
+                    <VariableList study={ study } />
+                </div>
+            </Panel>
+        </Collapse>
+        </Fragment>
+    )
+}
+
 export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisplay, toggleStudyHighlightingInHistogram}) => {
     return (
-        <Collapse ghost className="variables-collapse">
+        <div className="variables-collapse">
             {
                 studyResultsForDisplay.map((study, i) => {
                     return (
-                        <Panel
-                            key={`panel_${study.c_name}_${i}`}
-                            className={ [
-                                'study-panel ',
-                                studyNamesForDisplay.includes(study.c_name) ? 'selected' : 'unselected',
-                            ] }
-                            header={
-                                <span className="study-panel-header">
-                                    <Text>{study.c_name}{` `}</Text>
-                                    <Button
-                                        type="link"
-                                        className="study-selection-button"
-                                        onClick={ (e) => { e.stopPropagation(); toggleStudyHighlightingInHistogram(study.c_name)} }
-                                    >
-                                    {
-                                        studyNamesForDisplay.includes(study.c_name)
-                                            ? <SelectedIcon />
-                                            : <UnselectedIcon />
-                                    }
-                                    </Button> 
-                                </span>
-                            }
-                            extra={ [
-                                <Text key={`text_${study.c_name}_${i}`}
-                                >{study.elements.length} variable{study.elements.length === 1 ? '' : 's'}</Text>,
-                            ] }
-                        >
-                            <div id={ `scrollableDiv__${study.c_id}` } className="scrollable-div">
-                                <VariableList study={ study } />
-                            </div>
-                        </Panel>
+                        <VariablePanel
+                            study={ study }
+                            selected={ studyNamesForDisplay.includes(study.c_name) }
+                            onSelect={ () => toggleStudyHighlightingInHistogram(study.c_name) }
+                        />   
                     )
                 })
             }
-        </Collapse>
+        </div>
     )
 }
