@@ -83,10 +83,11 @@ export const VariableSearchResults = () => {
         let histogramObj = variablesHistogram.current.getChart()
         const handle = (e) => {
             let filteredVariables = e.view.filteredData
-
             let updatedStudyResults = updateStudyResults(filteredVariables, studyResultsForDisplay);
-            setStudyResultsForDisplay(updatedStudyResults)
-            setFilteredVariables(filteredVariables)
+            if (studyResultsForDisplay.length !== updatedStudyResults.length) {
+                setStudyResultsForDisplay(updatedStudyResults)
+                setFilteredVariables(filteredVariables)
+            }
         }
         histogramObj.on('mouseup', handle)
         return () => {
