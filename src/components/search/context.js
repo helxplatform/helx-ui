@@ -233,6 +233,8 @@ export const HelxSearch = ({ children }) => {
     setCurrentPage(+queryParams.get('p') || 1)
     if (q === '') {
       setTotalConcepts(0)
+      setVariableStudyResultCount(0)
+      setVariableResultCount(0)
     }
   }, [location.search])
 
@@ -240,6 +242,8 @@ export const HelxSearch = ({ children }) => {
     setConceptPages({})
     setTypeFilter(null)
     setSelectedResult(null)
+    setVariableStudyResults([])
+    setVariableResults([])
   }, [query])
 
   useEffect(() => {
