@@ -71,7 +71,7 @@ export const WorkspaceLoginView = withAPIReady(({
     const [form] = useForm()
     const { basePath } = useEnvironment()
     const { api, user, loginProviders } = useWorkspacesAPI()
-    const { redirectToDest } = useDest()
+    const { redirectToDest, redirectWithCurrentDest } = useDest()
 
     const allowBasicLogin = useMemo(() => loginProviders.includes("Django"), [loginProviders])
     const allowUncLogin =  useMemo(() => loginProviders.includes("UNC Chapel Hill Single Sign-On"), [loginProviders])
@@ -203,7 +203,7 @@ export const WorkspaceLoginView = withAPIReady(({
                                     setShowWhitelistRequired(true)
                                 } }
                                 onSignupRequired={ () => {
-                                    console.log("signup required")
+                                    redirectWithCurrentDest(`${ basePath }workspaces/signup/social`)
                                 } }
                             />
                         ) : null

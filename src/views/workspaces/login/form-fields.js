@@ -1,4 +1,4 @@
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons'
 import { ProFormText } from '@ant-design/pro-form'
 
 const externalErrorValidator = (name, errors) => {
@@ -25,6 +25,31 @@ export const UsernameInput = ({ name, errors, overrides={ fieldProps: {}, rules:
             {
                 required: true,
                 message: "Please enter your username"
+            },
+            externalErrorValidator(name, errors),
+            ...overrides.rules
+        ]}
+    />
+)
+
+export const EmailInput = ({ name, errors, overrides={ fieldProps: {}, rules: [] } }) => (
+    <ProFormText
+        { ...overrides }
+        name={ name }
+        fieldProps={{
+            size: "middle",
+            prefix: <MailOutlined className="prefixIcon" />,
+            ...overrides.fieldProps
+        }}
+        placeholder="Email"
+        rules={[
+            {
+                type: "email",
+                message: "Please enter a valid email"
+            },
+            {
+                required: true,
+                message: "Please enter your email"
             },
             externalErrorValidator(name, errors),
             ...overrides.rules
