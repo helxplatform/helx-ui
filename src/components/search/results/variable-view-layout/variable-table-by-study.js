@@ -73,6 +73,7 @@ export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisp
                 studyResultsForDisplay.map((study, i) => {
                     return (
                         <VariablePanel
+                            key = { study.c_id }
                             study={ study }
                             selected={ studyNamesForDisplay.includes(study.c_name) }
                             onSelect={ () => toggleStudyHighlightingInHistogram(study.c_name) }
