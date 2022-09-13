@@ -2,7 +2,7 @@ import _axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import deepmerge from 'deepmerge'
 import {
     APIError, APIRequestError, APIResponseError,
-    LoginResponse, LogoutResponse, UsersResponse,
+    LoginResponse, SocialSignupResponse, LogoutResponse, UsersResponse,
     User,
     IWorkspacesAPI,
     ProvidersResponse,
@@ -16,7 +16,8 @@ import {
     AppInstancesResponse,
     EnvironmentContextResponse,
     UpdateAppInstanceResponse,
-    SignupRequiredError
+    SignupRequiredError,
+    SocialSignupNotAuthorizedError
 } from './api.types'
 
 /** Typescript would not stop complaining about a declarations file for this package. */
@@ -238,7 +239,46 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                 Accept: "application/json"
             }
         })
-        console.log(res.data)
+        await this.updateLoginState()
+        return null
+    }
+
+    @APIRequest()
+    async socialSignupAllowed(fetchOptions: AxiosRequestConfig={}): Promise<boolean> {
+        const res = await this.axios.get("../../accounts/social/signup/", {
+            ...fetchOptions,
+            headers: {
+                ...fetchOptions?.headers,
+                Accept: "application/json"
+            }
+        })
+        if (new URL(res.request.responseURL).pathname === new URL(this.apiUrl + "../../accounts/login/").pathname) {
+            return false
+        }
+        return true
+    }
+
+    @APIRequest(Throws400)
+    async socialSignup(
+        username: string,
+        email: string,
+        fetchOptions: AxiosRequestConfig={}
+    ): Promise<SocialSignupResponse> {
+        const csrfToken = cookies.get("csrftoken")!
+        const formData = new FormData()
+        formData.append("username", username)
+        formData.append("email", email)
+        formData.append("csrfmiddlewaretoken", csrfToken)
+        const res = await this.axios.post("../../accounts/social/signup/", formData, {
+            ...fetchOptions,
+            headers: {
+                ...fetchOptions?.headers,
+                Accept: "application/json"
+            }
+        })
+        if (new URL(res.request.responseURL).pathname === new URL(this.apiUrl + "../../accounts/login/").pathname) {
+            throw new SocialSignupNotAuthorizedError()
+        }
         await this.updateLoginState()
         return null
     }

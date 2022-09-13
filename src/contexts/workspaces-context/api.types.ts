@@ -39,6 +39,12 @@ export const Throws403: IAPIError = {
     status: 403
 }
 
+export class SocialSignupNotAuthorizedError extends ExtendableError {
+    constructor() {
+        super("User session is not authorized to perform social signup")
+    }
+}
+
 export class SAMLRejectedError extends ExtendableError {
     constructor() {
         super("SAML authentication was rejected or cancelled")
@@ -61,6 +67,7 @@ export class SignupRequiredError extends ExtendableError{
 }
 
 export type LoginResponse = null
+export type SocialSignupResponse = null
 export type LogoutResponse = null
 
 export interface UsersResponse {
@@ -161,6 +168,8 @@ export interface IWorkspacesAPI {
 
     /** API methods */
     login(username: string, password: string, fetchOptions?: AxiosRequestConfig): Promise<LoginResponse>
+    socialSignupAllowed(fetchOptions?: AxiosRequestConfig): Promise<boolean>
+    socialSignup(username: string, email: string, fetchOptions?: AxiosRequestConfig): Promise<SocialSignupResponse>
     // Only to be called on initialization to load initial login state. Everything else is handled automatically.
     updateLoginState(sessionTimeout?: boolean): void
     /**
