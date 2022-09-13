@@ -19,6 +19,7 @@
     "elasticlunr": "^0.9.5",
     "es6-error": "^4.1.1",
     "eslint": "^7.27.0",
+    "exponential-backoff": "^3.1.0",
     "helx-analytics": "^1.0.14",
     "js-cookie": "^3.0.1",
     "lunr": "^2.3.9",

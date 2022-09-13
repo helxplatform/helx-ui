@@ -45,7 +45,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     const backoffOptions = {
         startingDelay: STARTING_DELAY,
         timeMultiple: TIME_MULTIPLE,
-        numOfAttempts: 10,
+        numOfAttempts: Infinity,
         retry: async (e: any, attemptNumber: number) => {
             const nextDelay = STARTING_DELAY * Math.pow(TIME_MULTIPLE, attemptNumber - 1)
             setLoadingBackoff(nextDelay)
@@ -89,28 +89,32 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         setLoginProviders(undefined)
         setExtraLinks(undefined)
         void async function() {
-            const [
-                loginProviders,
-                extraLinks
-            ] = await backOff<[
-                string[],
-                ExtraLink[]
-            ]>(
-                async () => {
-                    // setLoadingBackoff(undefined)
-                    await api.updateLoginState()
-                    if (api.user === undefined) {
-                        // The user is still loading, meaning the request has failed to load the login state.
-                        throw Error()
-                    }
-                    const loginProviders = (await api.getLoginProviders()).map((provider) => provider.name)
-                    const extraLinks = (await api.getEnvironmentContext()).links
-                    return [loginProviders, extraLinks]
-                },
-                backoffOptions
-            )
-            setLoginProviders(loginProviders)
-            setExtraLinks(extraLinks)
+            try {
+                const [
+                    loginProviders,
+                    extraLinks
+                ] = await backOff<[
+                    string[],
+                    ExtraLink[]
+                ]>(
+                    async () => {
+                        // setLoadingBackoff(undefined)
+                        await api.updateLoginState()
+                        if (api.user === undefined) {
+                            // The user is still loading, meaning the request has failed to load the login state.
+                            throw Error()
+                        }
+                        const loginProviders = (await api.getLoginProviders()).map((provider) => provider.name)
+                        const extraLinks = (await api.getEnvironmentContext()).links
+                        return [loginProviders, extraLinks]
+                    },
+                    backoffOptions
+                )
+                setLoginProviders(loginProviders)
+                setExtraLinks(extraLinks)
+            } catch (e: any) {
+                // Maximum backoff attempts reached. 
+            }
         }()
         // void async function() {
         //     try {
