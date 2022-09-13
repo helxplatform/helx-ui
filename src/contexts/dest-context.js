@@ -6,6 +6,24 @@ export const DestContext = createContext({})
 export const DestProvider = ({ qsKey="next", children }) => {
     const navigate = useNavigate()
 
+    const getCurrentDest = useCallback(() => {
+        const qs = new URLSearchParams(window.location.search)
+        const dest = qs.get(qsKey)
+        return dest
+    }, [qsKey])
+
+    // Redirect to a url and maintain the active dest reference. Don't add a dest if there is no active dest reference.
+    const redirectWithCurrentDest = useCallback((redirectTo) => {
+        const activeDest = getCurrentDest()
+        const [toPathComponent, ...toRest] = redirectTo.split("?")
+        const toQueryStringComponent = toRest.join("?")
+        const qs = new URLSearchParams(toQueryStringComponent)
+        if (activeDest) qs.set(qsKey, activeDest)
+        const qsString = qs.toString()
+        const toWithRedirect = toPathComponent + (qsString !== "" ? ("?" + qsString) : "")
+        navigate(toWithRedirect)
+    }, [qsKey, navigate, getCurrentDest])
+
     // Redirect to a url and maintain a reference to previous url in the QS to redirect back later
     const redirectWithDest = useCallback((redirectTo) => {
         // Parse the path component of the redirect url
@@ -23,14 +41,14 @@ export const DestProvider = ({ qsKey="next", children }) => {
 
     // Redirect back to the previous url stored in the QS.
     const redirectToDest = useCallback((defaultDest="/") => {
-        const qs = new URLSearchParams(window.location.search)
-        const dest = qs.get(qsKey) || defaultDest
+        const dest = getCurrentDest() || defaultDest
         navigate(dest)
-    }, [])
+    }, [getCurrentDest])
 
     return (
         <DestContext.Provider value={{
             redirectWithDest,
+            redirectWithCurrentDest,
             redirectToDest
         }}>
             { children }
