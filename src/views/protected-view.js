@@ -41,7 +41,7 @@ export const ProtectedView = ({
 export const withAuthentication = (View, props) => {
   return (viewProps) => (
     <ProtectedView { ...props }>
-      <View { ...props } />
+      <View { ...viewProps } />
     </ProtectedView>
   )
 }

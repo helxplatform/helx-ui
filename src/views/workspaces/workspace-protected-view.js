@@ -52,7 +52,7 @@ export const withWorkspaceAuthentication = (WorkspaceView, authProps) => {
 
 /** HOC */
 /** Specifically for use in login view, where we need to wait for login providers to load. */
-export const withAPIReady = (View, props) => {
+export const withAPIReady = (View) => {
     return (props) => (
         <APILoadingProtectedView>
             <View { ...props } />
