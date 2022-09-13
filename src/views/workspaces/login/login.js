@@ -100,6 +100,10 @@ export const WorkspaceLoginView = withAPIReady(({
         }
     }, [user])
 
+    useEffect(() => {
+        document.title = `Login · HeLx UI`
+    }, [])
+
     const validateForm = async () => {
         setCurrentlyValidating(true)
         try {

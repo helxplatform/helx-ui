@@ -4,6 +4,7 @@ import {
   ActiveView,
   AvailableView,
   WorkspaceLoginView,
+  LoginSuccessRedirectView,
   SupportView,
   LoadingView,
   SearchView,
@@ -54,6 +55,7 @@ export const EnvironmentProvider = ({ children }) => {
       }
       baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
       baseRoutes.push({ path: '/workspaces/login', parent: '/workspaces', text: '', Component: WorkspaceLoginView })
+      baseRoutes.push({ path: '/workspaces/login/success', parent: '/workspaces', text: '', Component: LoginSuccessRedirectView })
       baseRoutes.push({ path: '/workspaces/available', parent: '/workspaces', text: '', Component: AvailableView })
       baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: '', Component: ActiveView })
       baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', text: '', Component: SplashScreenView })
