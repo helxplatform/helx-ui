@@ -87,7 +87,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         this.onLoginStateChanged = onLoginStateChanged
         this.onApiError = onApiError
         this.onSessionTimeoutWarning = onSessionTimeoutWarning
-        this.updateLoginState()
+        // this.updateLoginState()
     }
 
     private get apiUrl(): string {
@@ -150,7 +150,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     }
 
     // Called once actual login state has been determined.
-    async _updateLoginState(user: User | null, sessionTimeout: boolean=false) {
+    async _updateLoginState(user: User | null | undefined, sessionTimeout: boolean=false) {
         this.clearLastActivity()
         const oldUser = this.user
         this._user = user
@@ -161,7 +161,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
      * Once it has been loaded, it will always be User or null, where null indicates the user is logged out.
      */
     async updateLoginState(sessionTimeout: boolean=false) {
-        let newUser: User | null
+        let newUser: User | null | undefined
         try {
             const userData = await this.getActiveUser()
             newUser = {
@@ -176,7 +176,8 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                 // If we encounter an unexpected error when loading login state (e.g. the user has no connection)
                 // then maintain the current state, unless this was the call to load initial state, in which we assume
                 // that the user is logged out.
-                newUser = this.user !== undefined ? this.user : null
+                // newUser = this.user !== undefined ? this.user : null
+                newUser = undefined
             }
         }
         this._updateLoginState(newUser, sessionTimeout)

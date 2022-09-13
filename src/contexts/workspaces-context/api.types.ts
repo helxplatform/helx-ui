@@ -161,6 +161,8 @@ export interface IWorkspacesAPI {
 
     /** API methods */
     login(username: string, password: string, fetchOptions?: AxiosRequestConfig): Promise<LoginResponse>
+    // Only to be called on initialization to load initial login state. Everything else is handled automatically.
+    updateLoginState(sessionTimeout?: boolean): void
     /**
      * - Void if successful.
      * - Throws WhitelistRequiredRrror if the user needs to be whitelisted.
