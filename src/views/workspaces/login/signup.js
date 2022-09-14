@@ -98,10 +98,6 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
                             })
                         })
                     })
-                    addError({
-                        fieldName: "username",
-                        message: "The username or email you entered was incorrect."
-                    })
                 } else {
                     addError({
                         fieldName: "username",
