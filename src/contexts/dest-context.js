@@ -40,9 +40,12 @@ export const DestProvider = ({ qsKey="next", children }) => {
     }, [qsKey, navigate])
 
     // Redirect back to the previous url stored in the QS.
+    // If defaultDest is undefined/null, no redirect will occur when next is not found in the query string.
     const redirectToDest = useCallback((defaultDest="/") => {
-        const dest = getCurrentDest() || defaultDest
-        navigate(dest)
+        const dest = getCurrentDest() || ((defaultDest !== null && defaultDest !== undefined) ? defaultDest : null)
+        if (dest !== null) {
+            navigate(dest)
+        }
     }, [getCurrentDest])
 
     return (
