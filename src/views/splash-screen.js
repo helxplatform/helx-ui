@@ -33,17 +33,6 @@ export const SplashScreenView = (props) => {
             setError(true);
             setLoading(false);
         }
-        
-            // .then(response => {
-            //     if (response.status === 200) {
-            //         setLoading(false);
-            //         setStatusCode("200");
-            //     }
-            // })
-            // .catch((e) => {
-            //     setCount(prev => prev + 1);
-            //     console.log(e);
-            // });
     }
 
     useEffect(() => {

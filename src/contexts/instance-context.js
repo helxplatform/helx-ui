@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState } from 'react'
 import axios from 'axios';
 import { useEnvironment } from './environment-context';
 import { useActivity } from './activity-context';
-import { callWithRetry } from '../utils';
 
 export const InstanceContext = createContext({});
 
