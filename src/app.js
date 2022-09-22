@@ -4,7 +4,7 @@ import { EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider, A
 import { Layout } from './components/layout'
 import { NotFoundView } from './views'
 
-const ContextProviders = ({ children }) => {
+export const ContextProviders = ({ children }) => {
   return (
     <EnvironmentProvider>
       <LocationProvider>
