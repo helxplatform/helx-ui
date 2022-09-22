@@ -8,7 +8,6 @@ import { mockEnvironmentContext, mockHelxSearch, setupAxiosMocker } from './__mo
 
 enableFetchMocks()
 setupAxiosMocker()
-mockEnvironmentContext()
 mockHelxSearch()
 
 window.matchMedia = (query) => ({

@@ -2,12 +2,19 @@ import { render, fireEvent, waitFor } from '@testing-library/react'
 import { ConceptCard } from './concept-card'
 import { HelxSearch } from '../'
 import { ContextProviders } from '../../../app'
-import { AnalyticsContext, mockConcepts } from '../../../__mocks__/'
+import { AnalyticsContext, mockConcepts, mockEnvironmentContext } from '../../../__mocks__/'
 import { AnalyticsProvider, EnvironmentProvider } from '../../../contexts'
 
 describe("ConceptCard", () => {
     const mockConcept = Object.values(mockConcepts)[0]
     let utils
+    let cleanupEnvironmentMock
+    beforeAll(() => {
+        cleanupEnvironmentMock = mockEnvironmentContext()
+    })
+    afterAll(() => {
+        cleanupEnvironmentMock()
+    })
     beforeEach(async () => {
         utils = render(
             <EnvironmentProvider>
