@@ -25,8 +25,9 @@ describe("ConceptCard", () => {
     })
     it("renders studies", async () => {
         const { container, getByText } = utils
-        const study = Object.values(mockConcept.studies).flat()[0]
         fireEvent.click(getByText(/^Studies$/))
-        await waitFor(() => expect(container).toHaveTextContent(study.c_name))
+        for (const study of Object.values(mockConcept.studies).flat()) {
+            await waitFor(() => expect(container).toHaveTextContent(study.c_name))
+        }
     })
 })
