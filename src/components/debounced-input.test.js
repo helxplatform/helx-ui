@@ -31,7 +31,9 @@ describe("DebouncedInput", () => {
             // This will wait until either valueText updates to the debounced test or it times out.
             await waitFor(() => expect(valueText.textContent).toEqual("test value"))
             // Ensure that valueText does not update its value in less time than the debounced delay.
-            expect(performance.now() - startTime).toBeGreaterThanOrEqual(delay)
+            const updateDelay = performance.now() - startTime
+            console.log(`Debounce took ${ updateDelay.toFixed(2) }ms to update (delay=${ delay })`)
+            expect(updateDelay).toBeGreaterThanOrEqual(delay)
         })
     })
 })
