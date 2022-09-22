@@ -12,7 +12,7 @@ export const SplashScreenView = (props) => {
     if(sidePanel !== null) sidePanel.style.visibility = "hidden";
     const [statusCode, setStatusCode] = useState("404");
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+    const [errorPresent, setErrorPresent] = useState(false);
     const [count, setCount] = useState(0);
 
     const decoded_url = decodeURIComponent(props.app_url);
@@ -30,7 +30,7 @@ export const SplashScreenView = (props) => {
                 }
             })
         } catch(e) {
-            setError(true);
+            setErrorPresent(true);
             setLoading(false);
         }
     }
@@ -47,7 +47,7 @@ export const SplashScreenView = (props) => {
                 <Spin size="large"></Spin>
             </div>
         );
-    } else if (error) {
+    } else if (errorPresent) {
         return (
             <div style={{ textAlign: "center", marginTop: "175px" }}>
                 <img src={`${app_icon}`} alt="App Icon" width="100"></img>
