@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Spin } from "antd";
+import { Spin, Button } from "antd";
 import { callWithRetry } from "../utils";
 import { useEffect, useState } from 'react';
 
@@ -21,7 +21,7 @@ export const SplashScreenView = (props) => {
     }, [])
 
     useEffect(() => {
-        let shouldCancel = false
+        let shouldCancel = false;
         (async () => {
             try {
                 await callWithRetry(async () => { 
@@ -34,7 +34,9 @@ export const SplashScreenView = (props) => {
                 }, {
                     failedCallback: () => {
                         return shouldCancel
-                    }
+                    },
+                    timeout: 2000,
+                    initialDelay: 6000
                 })
             } catch(e) {
                 if (!shouldCancel) {
@@ -60,8 +62,8 @@ export const SplashScreenView = (props) => {
         return (
             <div style={{ textAlign: "center", marginTop: "175px" }}>
                 <img src={`${app_icon}`} alt="App Icon" width="100"></img>
-                <h2>Error: App did not start</h2>
-                <Spin size="large"></Spin>
+                <h2>Error: { props.app_name } did not start</h2>
+                <Button type="primary" onClick={ () => { window.location.reload() } }>Retry</Button>
             </div>
         );
     }
