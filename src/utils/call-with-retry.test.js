@@ -35,4 +35,20 @@ describe('test call with retry', () => {
         expect(Date.now() - startTime).toBeGreaterThanOrEqual(1000);
     });
 
+    it('test shouldCancel cancels retry after being set to true', async () => {
+        let attempts = 0;
+        const options = {
+            failedCallback: ({}, retryCount) => {
+                return retryCount >= 2;
+            }
+        };
+        await expect(
+            callWithRetry(() => {
+                attempts++;
+                throw new Error("timeout error")
+            }, options)
+        ).rejects.toThrowError("timeout error")
+        expect(attempts).toBe(3);
+    });
+
 });

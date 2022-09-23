@@ -4,7 +4,7 @@ export async function callWithRetry(fn, options = {}, retryCount = 0, timer = 0)
     try {
         return await fn();
     } catch(e) {
-        let shouldCancel = failedCallback(e, depth);
+        let shouldCancel = failedCallback(e, retryCount);
         if (shouldCancel === undefined) {
             shouldCancel = false
         }
