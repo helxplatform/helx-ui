@@ -4,8 +4,11 @@ export async function callWithRetry(fn, options = {}, retryCount = 0, timer = 0)
     try {
         return await fn();
     } catch(e) {
-        failedCallback(e, depth);
-        if (timer < timeout) {
+        let shouldCancel = failedCallback(e, depth);
+        if (shouldCancel === undefined) {
+            shouldCancel = false
+        }
+        if (timer < timeout && !shouldCancel) {
             if (retryCount >= depth) { // when retryCount is higher than depth we start using depth as the max
                 await waitFor(multiplier ** depth * initialDelay);
                 timer += (multiplier ** depth * initialDelay);

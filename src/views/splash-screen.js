@@ -10,34 +10,43 @@ export const SplashScreenView = (props) => {
     const sidePanel = document.getElementById('helx-side-panel');
     if(header !== null) header.style.visibility = "hidden";
     if(sidePanel !== null) sidePanel.style.visibility = "hidden";
-    const [statusCode, setStatusCode] = useState("404");
     const [loading, setLoading] = useState(true);
     const [errorPresent, setErrorPresent] = useState(false);
-    const [count, setCount] = useState(0);
 
     const decoded_url = decodeURIComponent(props.app_url);
     const app_icon = `https://github.com/helxplatform/helx-apps/raw/master/app-specs/${props.app_name}/icon.png`
 
-    const getUrl = async () => {
-        try {
-            await callWithRetry(async () => { 
-                const res = await axios.get(decoded_url) 
-                if (res.status === 200) {
-                    setLoading(false)
-                    setStatusCode("200")
-                } else {
-                    throw new Error("Could not ensure readiness of app URL")
-                }
-            })
-        } catch(e) {
-            setErrorPresent(true);
-            setLoading(false);
-        }
-    }
-
     useEffect(() => {
         document.title = `Connecting · HeLx UI`
     }, [])
+
+    useEffect(() => {
+        let shouldCancel = false
+        (async () => {
+            try {
+                await callWithRetry(async () => { 
+                    const res = await axios.get(decoded_url) 
+                    if (res.status === 200 && shouldCancel === false) {
+                        setLoading(false)
+                    } else {
+                        throw new Error("Could not ensure readiness of app URL")
+                    }
+                }, {
+                    failedCallback: () => {
+                        return shouldCancel
+                    }
+                })
+            } catch(e) {
+                if (!shouldCancel) {
+                    setErrorPresent(true)
+                    setLoading(false)
+                }
+            }
+        })()
+        return () => {
+            shouldCancel = true
+        }
+    }, [decoded_url])
 
     if (loading) {
         return (
