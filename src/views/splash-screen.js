@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Spin } from "antd";
+import { Spin, Button } from "antd";
 import { callWithRetry } from "../utils";
 import { useEffect, useState } from 'react';
 
@@ -10,34 +10,45 @@ export const SplashScreenView = (props) => {
     const sidePanel = document.getElementById('helx-side-panel');
     if(header !== null) header.style.visibility = "hidden";
     if(sidePanel !== null) sidePanel.style.visibility = "hidden";
-    const [statusCode, setStatusCode] = useState("404");
     const [loading, setLoading] = useState(true);
     const [errorPresent, setErrorPresent] = useState(false);
-    const [count, setCount] = useState(0);
 
     const decoded_url = decodeURIComponent(props.app_url);
     const app_icon = `https://github.com/helxplatform/helx-apps/raw/master/app-specs/${props.app_name}/icon.png`
 
-    const getUrl = async () => {
-        try {
-            await callWithRetry(async () => { 
-                const res = await axios.get(decoded_url) 
-                if (res.status === 200) {
-                    setLoading(false)
-                    setStatusCode("200")
-                } else {
-                    throw new Error("Could not ensure readiness of app URL")
-                }
-            })
-        } catch(e) {
-            setErrorPresent(true);
-            setLoading(false);
-        }
-    }
-
     useEffect(() => {
         document.title = `Connecting · HeLx UI`
     }, [])
+
+    useEffect(() => {
+        let shouldCancel = false;
+        (async () => {
+            try {
+                await callWithRetry(async () => { 
+                    const res = await axios.get(decoded_url) 
+                    if (res.status === 200 && shouldCancel === false) {
+                        setLoading(false)
+                    } else {
+                        throw new Error("Could not ensure readiness of app URL")
+                    }
+                }, {
+                    failedCallback: () => {
+                        return shouldCancel
+                    },
+                    timeout: 2000,
+                    initialDelay: 6000
+                })
+            } catch(e) {
+                if (!shouldCancel) {
+                    setErrorPresent(true)
+                    setLoading(false)
+                }
+            }
+        })()
+        return () => {
+            shouldCancel = true
+        }
+    }, [decoded_url])
 
     if (loading) {
         return (
@@ -51,8 +62,8 @@ export const SplashScreenView = (props) => {
         return (
             <div style={{ textAlign: "center", marginTop: "175px" }}>
                 <img src={`${app_icon}`} alt="App Icon" width="100"></img>
-                <h2>Error: App did not start</h2>
-                <Spin size="large"></Spin>
+                <h2>Error: { props.app_name } did not start</h2>
+                <Button type="primary" onClick={ () => { window.location.reload() } }>Retry</Button>
             </div>
         );
     }
