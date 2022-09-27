@@ -35,8 +35,9 @@ export const SplashScreenView = (props) => {
                     failedCallback: () => {
                         return shouldCancel
                     },
-                    timeout: 2000,
-                    initialDelay: 6000
+                    timeout: 240000,
+                    initialDelay: 6000,
+                    depth: 3
                 })
             } catch(e) {
                 if (!shouldCancel) {
