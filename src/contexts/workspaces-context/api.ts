@@ -438,6 +438,20 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         return res.data
     }
 
+    @APIRequest()
+    async getAppReady(appUrl: string, fetchOptions: AxiosRequestConfig={}): Promise<boolean> {
+        try {
+            // appUrl is a full URL, not a relative path.
+            const res = await this.axios.get(appUrl, {
+                ...fetchOptions,
+                baseURL: undefined
+            })
+            return res.status === 200
+        } catch (e: any) {
+            return false
+        }
+    }
+
 }
 
 /**

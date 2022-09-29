@@ -30,32 +30,25 @@ export const InstanceProvider = ({ children }) => {
         // let ready = false;
         const decoded_url = decodeURIComponent(app_url);
         const executePoll = async () => {
-            // This doesn't really belong as an "api" request, even though it's behind the authentication wall.
-            // Leaving it as-is for now.
-            await axios.get(decoded_url)
-                .then(response => {
-                    if (response.status === 200) {
-                        // ready = true;
-                        let newActivity = {
-                            'sid': sid,
-                            'app_name': app_name,
-                            'status': 'success',
-                            'timestamp': new Date(),
-                            'message': `${app_name} is up and ready for use.`,
-                            'url': decoded_url,
-                            'app_id': app_id
-                        }
-                        updateActivity(newActivity);
-                    }
+            const isAppReady = await api.getAppReady(app_url);
+            if (isAppReady) {
+                let newActivity = {
+                    'sid': sid,
+                    'app_name': app_name,
+                    'status': 'success',
+                    'timestamp': new Date(),
+                    'message': `${app_name} is up and ready for use.`,
+                    'url': decoded_url,
+                    'app_id': app_id
+                }
+                updateActivity(newActivity);
+            } else {
+                let timerID = setTimeout(executePoll, 5000)
+                setPollingTimerIDs((prev) => {
+                    prev[sid] = timerID
+                    return prev
                 })
-                .catch((e) => {
-                    let timerID = setTimeout(executePoll, 5000)
-                    setPollingTimerIDs((prev) => {
-                        prev[sid] = timerID
-                        return prev
-                    })
-                    console.log(e);
-                });
+            }
         }
         executePoll();
     }
