@@ -17,7 +17,8 @@ import {
     EnvironmentContextResponse,
     UpdateAppInstanceResponse,
     SignupRequiredError,
-    SocialSignupNotAuthorizedError
+    SocialSignupNotAuthorizedError,
+    LaunchAppResponse
 } from './api.types'
 
 /** Typescript would not stop complaining about a declarations file for this package. */
@@ -416,6 +417,24 @@ export class WorkspacesAPI implements IWorkspacesAPI {
             "app-name": workspace
         }
         const res = await this.axios.patch(`/instances/${ sid }`, data, fetchOptions)
+        return res.data
+    }
+
+    @APIRequest()
+    async launchApp(
+        appId: string,
+        cpus: number,
+        gpus: number,
+        memory: string,
+        fetchOptions: AxiosRequestConfig={}
+    ): Promise<LaunchAppResponse> {
+        const data = {
+            app_id: appId,
+            cpus,
+            gpus,
+            memory
+        }
+        const res = await this.axios.post(`/instances/`, data, fetchOptions)
         return res.data
     }
 

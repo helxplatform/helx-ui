@@ -16,9 +16,7 @@ const ContextProviders = ({ children }) => {
             <WorkspacesAPIProvider>
               <ActivityProvider>
                 <InstanceProvider>
-                  <AppProvider>
-                    {children}
-                  </AppProvider>
+                  {children}
                 </InstanceProvider>
               </ActivityProvider>
             </WorkspacesAPIProvider>

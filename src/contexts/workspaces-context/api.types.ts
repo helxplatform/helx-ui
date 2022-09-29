@@ -152,6 +152,31 @@ export interface UpdateAppInstanceResponse {
         patches: any[]
     }
 }
+export interface LaunchAppResponse {
+    username: string
+    app_id: string
+    sid: string
+    name: string
+    host: string
+    url: string
+    protocol: string
+    resources: {
+        deploy: {
+            resources: {
+                limits: {
+                    cpus: number
+                    memory: string
+                    gpus: number
+                }
+                reservations: {
+                    cpus: number
+                    memory: string
+                    gpus: number
+                }
+            }
+        }
+    }
+}
 
 export interface IWorkspacesAPI {
     /** Fields */
@@ -190,4 +215,5 @@ export interface IWorkspacesAPI {
     getAppInstances(fetchOptions?: AxiosRequestConfig): Promise<AppInstancesResponse>
     stopAppInstance(sid: string, fetchOptions?: AxiosRequestConfig): Promise<void>
     updateAppInstance(sid: string, workspace: string, cpu: string, gpu: string, memory: string, fetchOptions?: AxiosRequestConfig): Promise<UpdateAppInstanceResponse>
+    launchApp(appId: string, cpus: number, gpus: number, memory: string, fetchOptions?: AxiosRequestConfig): Promise<LaunchAppResponse>
 }
