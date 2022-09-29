@@ -2,12 +2,14 @@ import React, { createContext, useContext, useState } from 'react'
 import axios from 'axios';
 import { useEnvironment } from './environment-context';
 import { useActivity } from './activity-context';
+import { useWorkspacesAPI } from './workspaces-context';
 
 export const InstanceContext = createContext({});
 
 export const InstanceProvider = ({ children }) => {
     const { helxAppstoreUrl } = useEnvironment();
     const { updateActivity } = useActivity();
+    const { api } = useWorkspacesAPI();
     const [openedTabs, setTabs] = useState([]);
     const [pollingTimerIDs, setPollingTimerIDs] = useState([])
 
@@ -28,6 +30,8 @@ export const InstanceProvider = ({ children }) => {
         // let ready = false;
         const decoded_url = decodeURIComponent(app_url);
         const executePoll = async () => {
+            // This doesn't really belong as an "api" request, even though it's behind the authentication wall.
+            // Leaving it as-is for now.
             await axios.get(decoded_url)
                 .then(response => {
                     if (response.status === 200) {
@@ -71,30 +75,9 @@ export const InstanceProvider = ({ children }) => {
         };
     };
 
-    const loadInstances = () => {
-        return axios.get(`${helxAppstoreUrl}/api/v1/instances`)
-    }
-
-    const stopInstance = (app_id) => {
-        return axios.delete(`${helxAppstoreUrl}/api/v1/instances/${app_id}`);
-    }
-
-    const updateInstance = (app_id, workspace, cpu, gpu, memory) => {
-        const data = {}
-        data["cpu"] = `${cpu}`;
-        data["gpu"] = `${gpu}`;
-        if (memory.length > 0) {
-            data["memory"] = `${memory}`;
-        }
-        if (workspace.length > 0) {
-            data["labels"] = { "app-name": `${workspace}` };
-        }
-        return axios.patch(`${helxAppstoreUrl}/api/v1/instances/${app_id}/`, data)
-    }
-
     return (
         <InstanceContext.Provider value={{
-            loadInstances, stopInstance, updateInstance, addOrDeleteInstanceTab, pollingInstance, stopPolling
+            addOrDeleteInstanceTab, pollingInstance, stopPolling
         }}>
             {children}
         </InstanceContext.Provider>
