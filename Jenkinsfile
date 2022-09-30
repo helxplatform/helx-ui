@@ -1,4 +1,4 @@
-library 'pipeline-utils@master'
+library 'pipeline-utils@go-ccv'
 
 pipeline {
   agent {
@@ -30,6 +30,22 @@ spec:
     volumeMounts:
     - name: jenkins-docker-cfg
       mountPath: /kaniko/.docker
+  - name: go
+    workingDir: /home/jenkins/agent
+    image: golang:1.19.1
+    imagePullPolicy: Always
+    resources:
+      requests:
+        cpu: "512m"
+        memory: "1024Mi"
+        ephemeral-storage: "1Gi"
+      limits:
+        cpu: "512m"
+        memory: "2048Mi"
+        ephemeral-storage: "1Gi"
+    command:
+    - /bin/bash
+    tty: true
   - name: crane
     workingDir: /tmp/jenkins
     image: gcr.io/go-containerregistry/crane:debug
@@ -72,6 +88,11 @@ spec:
               script {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     kaniko.build("./Dockerfile", ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2", "$IMAGE_NAME:$TAG3", "$IMAGE_NAME:$TAG4"])
+                }
+                container(name: 'go', shell: '/bin/bash') {
+                    //if (TAG1.equals("master")) {
+                        go.ccv(REPO_REMOTE_URL, REG_APP)
+                    //}
                 }
               }
             }
