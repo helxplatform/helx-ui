@@ -77,6 +77,11 @@ export const VariableSearchResults = () => {
             maxScore
         ]
     }, [filteredVariables])
+
+    const avgValue = useMemo(() => {
+        const avgValue = variableResults.reduce((acc, cur) => acc + cur.score, 0) / variableResults.length
+        return avgValue
+    }, [variableResults])
     
     /** useEffect added to address bug whereby displayed results were not updating when a new
      * search term was entered */
@@ -138,7 +143,7 @@ export const VariableSearchResults = () => {
         const handle = (e) => {
             let newFilteredVariables = e.view.filteredData
             let updatedStudyResults = updateStudyResults(newFilteredVariables, studyResultsForDisplay);
-            if (studyResultsForDisplay.length !== updatedStudyResults.length) {
+            if (newFilteredVariables.length !== filteredVariables.length) {
                 setStudyResultsForDisplay(updatedStudyResults)
                 setFilteredVariables(newFilteredVariables)
             }
@@ -148,10 +153,10 @@ export const VariableSearchResults = () => {
             // Remove the click handler when the effect demounts.
             histogramObj.off('mouseup', handle)
         }
-    }, [studyResultsForDisplay])
+    }, [studyResultsForDisplay, filteredVariables])
 
     const onScoreSliderChange = useCallback((score) => {
-        if (score === undefined) return
+        if (score === undefined || (score[0] === scoreRange[0] && score[1] === scoreRange[1])) return
         const [minScore, maxScore] = score
         const histogramObj = variablesHistogram.current.getChart()
         const newFilteredVariables = variableResults.filter((variable) => (
@@ -162,7 +167,7 @@ export const VariableSearchResults = () => {
             setStudyResultsForDisplay(updatedStudyResults)
             setFilteredVariables(newFilteredVariables)
         }
-    }, [variableResults, filteredVariables, studyResultsForDisplay])
+    }, [variableResults, filteredVariables, studyResultsForDisplay, scoreRange])
 
     /**
      * Takes a studyName, selected by the user in the studies table & updates data going to
@@ -223,7 +228,7 @@ export const VariableSearchResults = () => {
             { filteredVariables.length < totalVariableResults && (
                 <div style={{ marginTop: -8, marginBottom: 16 }}>
                     <Text type="secondary">
-                        Viewing {filteredVariables.length} variables within the {Math.floor(filteredPercentileLower)}-{Math.floor(filteredPercentileUpper)} percentiles.
+                        Viewing {filteredVariables.length} variables within the {Math.floor(filteredPercentileLower)}-{Math.floor(filteredPercentileUpper)} percentiles
                     </Text>
                 </div>
             ) }
@@ -243,10 +248,6 @@ export const VariableSearchResults = () => {
                     <Button onClick={ () => setPage(page + 1) } disabled={ page === _filteredVariables.length - 1 } style={{ marginLeft: 4 }}>
                         <ArrowRightOutlined />
                     </Button>
-                    {console.log(variableResults.reduce((acc, cur) => {
-                            acc[cur.score] = null
-                            return acc
-                        }, {}))}
                     <DebouncedRangeSlider
                         value={ scoreRange }
                         onChange={ onScoreSliderChange }
