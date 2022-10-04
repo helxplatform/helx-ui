@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Typography, Button, Space, Divider, Slider } from 'antd'
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
+import { generate, presetPalettes, red, volcano, orange, gold, yellow } from '@ant-design/colors'
 import { Column } from '@ant-design/plots';
+import chroma from 'chroma-js'
 import { useHelxSearch } from '../../';
 import {
     VariablesTableByStudy, variableHistogramConfigStatic,
@@ -11,6 +13,10 @@ import { useDebounce, useDebouncedCallback } from 'use-debounce'
 import './variable-results.css';
 
 const { Text, Title } = Typography
+
+const COLOR_GRADIENT = chroma.scale([
+    yellow[5], gold[5], orange[5]
+])
 
 const DebouncedRangeSlider = ({ value, onChange, debounce=500, ...props }) => {
     const [_internalValue, setInternalValue] = useState(undefined)
@@ -77,11 +83,6 @@ export const VariableSearchResults = () => {
             maxScore
         ]
     }, [filteredVariables])
-
-    const avgValue = useMemo(() => {
-        const avgValue = variableResults.reduce((acc, cur) => acc + cur.score, 0) / variableResults.length
-        return avgValue
-    }, [variableResults])
     
     /** useEffect added to address bug whereby displayed results were not updating when a new
      * search term was entered */
@@ -94,10 +95,43 @@ export const VariableSearchResults = () => {
     const [studyNamesForDisplay, setStudyNamesForDisplay] = useState([])
 
     const variablesHistogram = useRef()
-    const variableHistogramConfig = useMemo(() => ({
-        ...variableHistogramConfigStatic,
-        data: filteredVariables
-    }), [filteredVariables])
+    const variableHistogramConfig = useMemo(() => {
+        // const [startingColor, endingColor] = COLOR_GRADIENT
+        const minScore = Math.min(...variableResults.map((result) => result.score))
+        const maxScore = Math.max(...variableResults.map((result) => result.score))
+        const hex = (x) => {
+            x = x.toString(16)
+            return (x.length === 1) ? '0' + x : x
+        }
+        // const absScoredVariables = filteredVariables.reduce((acc, variable) => {
+        //     const absRatio = (variable.score - minScore) / (maxScore - minScore)
+        //     const colorIdx = absRatio < 1 ? Math.floor((COLOR_GRADIENT.length - 1) * absRatio) : COLOR_GRADIENT.length - 2
+        //     acc[variable.id] = {
+        //         absRatio,
+        //         colorIdx
+        //     }
+        //     return acc
+        // }, {})
+        // for (let colorIdx=0; colorIdx<COLOR_GRADIENT.length-1; colorIdx++) {
+        //     const valuesInIdx = Object.values(absScoredVariables).filter(({ colorIdx: curIdx }) => colorIdx === curIdx)
+        //     const minRatio = Math.min(...valuesInIdx.map((val) => val.absRatio))
+        //     const maxRatio = Math.max(...valuesInIdx.map((val) => val.absRatio))
+        //     valuesInIdx.forEach((val) => {
+        //         val.relRatio = (val.absRatio - minRatio) / (maxRatio - minRatio)
+        //     })
+        //     console.log(valuesInIdx.length, minRatio, maxRatio)
+        // }
+        const clamp = (x, min, max) => Math.max(min, Math.min(x, max))
+        return {
+            ...variableHistogramConfigStatic,
+            data: filteredVariables,
+            color: ({ id }) => {
+                const { score } = filteredVariables.find((result) => result.id === id)
+                const absRatio = (score - minScore) / (maxScore - minScore)
+                return COLOR_GRADIENT(absRatio).toString()
+            }
+        }
+    }, [filteredVariables, variableResults])
 
     const [filteredPercentileLower, filteredPercentileUpper] = useMemo(() => {
         const relativeMin = Math.min(...filteredVariables.map((result) => result.score))
