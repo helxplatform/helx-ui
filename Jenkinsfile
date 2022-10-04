@@ -1,4 +1,4 @@
-library 'pipeline-utils@master'
+library 'pipeline-utils@go-ccv'
 
 pipeline {
   agent {
@@ -91,9 +91,10 @@ spec:
                     kaniko.build("./Dockerfile", ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2", "$IMAGE_NAME:$TAG3", "$IMAGE_NAME:$TAG4"])
                 }
                 container(name: 'go', shell: '/bin/bash') {
-                    if (BRANCH_NAME.equals("master")) { 
-                        go.ccv(REPO_REMOTE_URL, REG_APP)
-                    }
+                    // if (BRANCH_NAME.equals("master")) { 
+                        def temp = go.ccv(REPO_REMOTE_URL, REG_APP)
+                        sh("echo ${temp}")
+                    // }
                 }
               }
             }
