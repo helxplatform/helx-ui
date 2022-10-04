@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { Typography, Button, Space, Divider } from 'antd'
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
+import { Typography, Button, Space, Divider, Slider } from 'antd'
+import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
 import { Column } from '@ant-design/plots';
-
 import { useHelxSearch } from '../../';
 import {
     VariablesTableByStudy, variableHistogramConfigStatic,
     updateStudyResults, resetFilterPropertyToNone
-} from '.'
+} from './'
+import { useDebouncedCallback } from 'use-debounce'
 import './variable-results.css';
 
 const { Text, Title } = Typography
@@ -18,17 +19,44 @@ export const VariableSearchResults = () => {
     /** studyResultsForDisplay holds variables grouped by study for the studies table */
     const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
 
+    const [page, setPage] = useState(0)
     /** filteredVariables holds the variables displayed in the histogram */
-    const [filteredVariables, setFilteredVariables] = useState(variableResults)
-
+    const [_filteredVariables, _setFilteredVariables] = useState([variableResults])
+    const filteredVariables = useMemo(() => _filteredVariables[page], [_filteredVariables, page])
+    const setFilteredVariables = useCallback((value) => {
+        const latestPage = _filteredVariables[_filteredVariables.length - 1]
+        const latestPageVariableIds = latestPage.map((variable) => variable.id)
+        if (
+            value.length === latestPage.length &&
+            value.every((variable) => latestPageVariableIds.includes(variable.id))
+        ) return
+        _filteredVariables.push(value)
+        _setFilteredVariables(_filteredVariables)
+        setPage(_filteredVariables.length - 1)
+    }, [_filteredVariables])
+    const overrideFilterHistory = useCallback((value) => {
+        _setFilteredVariables([value])
+        setPage(0)
+    }, [])
     /** noResults indicates that the search yielded no variables. The layout should be hidden. */
     const noResults = useMemo(() => totalVariableResults === 0, [totalVariableResults])
+
+    const scoreRange = useMemo(() => {
+        const sorted = filteredVariables.sort((a, b) => a.score - b.score)
+        if (sorted.length < 2) return undefined
+        const minScore = sorted[0].score
+        const maxScore = sorted[sorted.length - 1].score
+        return [
+            minScore,
+            maxScore
+        ]
+    }, [filteredVariables])
     
     /** useEffect added to address bug whereby displayed results were not updating when a new
      * search term was entered */
     useEffect(() => {
         setStudyResultsForDisplay(variableStudyResults);
-        setFilteredVariables(variableResults);
+        overrideFilterHistory(variableResults);
     }, [variableResults, variableStudyResults]);
 
     /** studyNamesForDisplay holds names of user selected studies to highlight in histogram */
@@ -54,7 +82,7 @@ export const VariableSearchResults = () => {
      */
     const startOverHandler = () => {
         /** Restores the variables shown in the histogram back to the original inputs */
-        setFilteredVariables(variableResults)
+        overrideFilterHistory(variableResults)
 
         /** Restores the variables and studies in the Studies Table to original inputs */
         const studyResultsWithVariablesUpdated = resetFilterPropertyToNone(variableStudyResults)
@@ -82,11 +110,11 @@ export const VariableSearchResults = () => {
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
         const handle = (e) => {
-            let filteredVariables = e.view.filteredData
-            let updatedStudyResults = updateStudyResults(filteredVariables, studyResultsForDisplay);
+            let newFilteredVariables = e.view.filteredData
+            let updatedStudyResults = updateStudyResults(newFilteredVariables, studyResultsForDisplay);
             if (studyResultsForDisplay.length !== updatedStudyResults.length) {
                 setStudyResultsForDisplay(updatedStudyResults)
-                setFilteredVariables(filteredVariables)
+                setFilteredVariables(newFilteredVariables)
             }
         }
         histogramObj.on('mouseup', handle)
@@ -95,6 +123,19 @@ export const VariableSearchResults = () => {
             histogramObj.off('mouseup', handle)
         }
     }, [studyResultsForDisplay])
+
+    const onScoreSliderChange = useCallback((score) => {
+        const [minScore, maxScore] = score
+        const histogramObj = variablesHistogram.current.getChart()
+        const newFilteredVariables = variableResults.filter((variable) => (
+            variable.score >= minScore && variable.score <= maxScore
+        ))
+        let updatedStudyResults = updateStudyResults(newFilteredVariables, studyResultsForDisplay);
+        if (filteredVariables.length !== newFilteredVariables.length) {
+            setStudyResultsForDisplay(updatedStudyResults)
+            setFilteredVariables(newFilteredVariables)
+        }
+    }, [variableResults, filteredVariables, studyResultsForDisplay])
 
     /**
      * Takes a studyName, selected by the user in the studies table & updates data going to
@@ -152,20 +193,38 @@ export const VariableSearchResults = () => {
             }}>
                 Variables according to DUG score
             </Divider>
+            { filteredVariables.length < totalVariableResults && (
+                <div style={{ marginTop: -8, marginBottom: 16 }}>
+                    <Text type="secondary">
+                        Viewing {filteredVariables.length} variables within the {Math.floor(filteredPercentileLower)}-{Math.floor(filteredPercentileUpper)} percentiles.
+                    </Text>
+                </div>
+            ) }
             <Space direction="vertical" size="middle">
                 <Column
                     {...variableHistogramConfig}
                     style={{ padding: "0px 0" }}
                     ref={variablesHistogram}
                 />
-                { filteredVariables.length < totalVariableResults && (
-                    <Text type="secondary">
-                        Viewing {filteredVariables.length} variables within the {Math.floor(filteredPercentileLower)}-{Math.floor(filteredPercentileUpper)} percentiles.
-                    </Text>
-                ) }
-                <Button onClick={ startOverHandler }>
-                    Start Over
-                </Button>
+                <div style={{ display: "flex" }}>
+                    <Button onClick={ startOverHandler }>
+                        Start Over
+                    </Button>
+                    <Button onClick={ () => setPage(page - 1) } disabled={ page === 0 } style={{ marginLeft: 4 }}>
+                        <ArrowLeftOutlined />
+                    </Button>
+                    <Button onClick={ () => setPage(page + 1) } disabled={ page === _filteredVariables.length - 1 } style={{ marginLeft: 4 }}>
+                        <ArrowRightOutlined />
+                    </Button>
+                    <Slider
+                        range
+                        value={ scoreRange }
+                        min={ Math.min(...variableResults.map((result) => result.score)) }
+                        max={ Math.max(...variableResults.map((result) => result.score)) }
+                        onChange={ onScoreSliderChange }
+                        style={{ marginLeft: 24, flexGrow: 1 }}
+                    />
+                </div>
             </Space>
             <Divider orientation="left" orientationMargin={ 0 } style={{ fontSize: 15, marginTop: 24, marginBottom: 0 }}>Studies</Divider>
             { studyResultsForDisplay.length < variableStudyResults.length && (
