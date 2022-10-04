@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo, Fragment } from 'react'
-import { Collapse, List, Typography, Button, Space, Divider } from 'antd'
+import { Collapse, List, Typography, Button, Space, Divider, Tooltip } from 'antd'
 import {
     PushpinOutlined as UnselectedIcon,
     PushpinFilled as SelectedIcon,
@@ -39,17 +39,19 @@ const VariablePanel = ({ study, selected, onSelect }) => {
                 header={
                     <span className="study-panel-header">
                         <Text>{study.c_name}{` `}</Text>
-                        <Button
-                            type="link"
-                            className="study-selection-button"
-                            onClick={ (e) => { e.stopPropagation(); onSelect() } }
-                        >
-                        {
-                            selected
-                                ? <SelectedIcon />
-                                : <UnselectedIcon />
-                        }
-                        </Button> 
+                        <Tooltip title="Highlight variables from study" align={{ offset: [ 0, 4 ] }}>
+                            <Button
+                                type="link"
+                                className="study-selection-button"
+                                onClick={ (e) => (e.stopPropagation(), onSelect()) }
+                            >
+                            {
+                                selected
+                                    ? <SelectedIcon />
+                                    : <UnselectedIcon />
+                            }
+                            </Button>
+                        </Tooltip>
                     </span>
                 }
                 extra={ [
