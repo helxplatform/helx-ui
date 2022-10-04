@@ -1,5 +1,7 @@
 library 'pipeline-utils@go-ccv'
 
+CCV = ""
+
 pipeline {
   agent {
     kubernetes {
@@ -91,10 +93,9 @@ spec:
                     kaniko.build("./Dockerfile", ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2", "$IMAGE_NAME:$TAG3", "$IMAGE_NAME:$TAG4"])
                 }
                 container(name: 'go', shell: '/bin/bash') {
-                    // if (BRANCH_NAME.equals("master")) { 
-                        def temp = go.ccv(REPO_REMOTE_URL, REG_APP)
-                        sh("echo ${temp}")
-                    // }
+                    if (BRANCH_NAME.equals("master")) { 
+                        CCV = go.ccv(REPO_REMOTE_URL, REG_APP)
+                    }
                 }
               }
             }
@@ -117,7 +118,12 @@ spec:
                     container(name: 'crane', shell: '/busybox/sh') {
                         def imageTagsPushAlways = ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2"]
                         def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:$TAG3"]
-                        def imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4"]
+                        def imageTagsPushForMasterBranch
+                        if(CCV != null && !CCV.trim().isEmpty()) {
+                            imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4", "$IMAGE_NAME:$CCV"]
+                        } else {
+                            imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4"]
+                        }
                         image.publish(
                             imageTagsPushAlways,
                             imageTagsPushForDevelopBranch,
