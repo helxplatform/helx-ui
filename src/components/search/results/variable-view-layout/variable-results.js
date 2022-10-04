@@ -82,19 +82,19 @@ export const VariableSearchResults = () => {
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
         const handle = (e) => {
-            console.log("handling click")
             let filteredVariables = e.view.filteredData
-
             let updatedStudyResults = updateStudyResults(filteredVariables, studyResultsForDisplay);
-            setStudyResultsForDisplay(updatedStudyResults)
-            setFilteredVariables(filteredVariables)
+            if (studyResultsForDisplay.length !== updatedStudyResults.length) {
+                setStudyResultsForDisplay(updatedStudyResults)
+                setFilteredVariables(filteredVariables)
+            }
         }
         histogramObj.on('mouseup', handle)
         return () => {
             // Remove the click handler when the effect demounts.
             histogramObj.off('mouseup', handle)
         }
-    }, [updateStudyResults, studyResultsForDisplay])
+    }, [studyResultsForDisplay])
 
     /**
      * Takes a studyName, selected by the user in the studies table & updates data going to
