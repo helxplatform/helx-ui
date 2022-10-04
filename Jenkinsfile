@@ -78,7 +78,7 @@ spec:
         VERSION="${sh(script: {'''sed \'3q;d\' package.json | awk \'{ print $2 }\' | tr -d \'\042 \054\' '''}, returnStdout: true).trim()}"
         IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REG_APP}"
         BRANCH_NAME="$BRANCH_NAME"
-        TAG1=BRANCH_NAME
+        TAG1="$BRANCH_NAME"
         TAG2="$COMMIT_HASH"
         TAG3="$VERSION"
         TAG4="latest"
