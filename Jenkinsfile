@@ -1,5 +1,7 @@
 library 'pipeline-utils@master'
 
+CCV = ""
+
 pipeline {
   agent {
     kubernetes {
@@ -30,6 +32,22 @@ spec:
     volumeMounts:
     - name: jenkins-docker-cfg
       mountPath: /kaniko/.docker
+  - name: go
+    workingDir: /home/jenkins/agent
+    image: golang:1.19.1
+    imagePullPolicy: Always
+    resources:
+      requests:
+        cpu: "512m"
+        memory: "1024Mi"
+        ephemeral-storage: "1Gi"
+      limits:
+        cpu: "512m"
+        memory: "2048Mi"
+        ephemeral-storage: "1Gi"
+    command:
+    - /bin/bash
+    tty: true
   - name: crane
     workingDir: /tmp/jenkins
     image: gcr.io/go-containerregistry/crane:debug
@@ -61,6 +79,7 @@ spec:
         VERSION_FILE="./package.json"
         VERSION="${sh(script: {'''sed \'3q;d\' package.json | awk \'{ print $2 }\' | tr -d \'\042 \054\' '''}, returnStdout: true).trim()}"
         IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REG_APP}"
+        BRANCH_NAME="$BRANCH_NAME"
         TAG1="$BRANCH_NAME"
         TAG2="$COMMIT_HASH"
         TAG3="$VERSION"
@@ -72,6 +91,11 @@ spec:
               script {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     kaniko.build("./Dockerfile", ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2", "$IMAGE_NAME:$TAG3", "$IMAGE_NAME:$TAG4"])
+                }
+                container(name: 'go', shell: '/bin/bash') {
+                    if (BRANCH_NAME.equals("master")) { 
+                        CCV = go.ccv(REPO_REMOTE_URL, REG_APP)
+                    }
                 }
               }
             }
@@ -94,7 +118,12 @@ spec:
                     container(name: 'crane', shell: '/busybox/sh') {
                         def imageTagsPushAlways = ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2"]
                         def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:$TAG3"]
-                        def imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4"]
+                        def imageTagsPushForMasterBranch = []
+                        if(CCV != null && !CCV.trim().isEmpty()) {
+                            imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4", "$IMAGE_NAME:$CCV"]
+                        } else {
+                            imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4"]
+                        }
                         image.publish(
                             imageTagsPushAlways,
                             imageTagsPushForDevelopBranch,
