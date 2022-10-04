@@ -1,4 +1,4 @@
-library 'pipeline-utils@go-ccv'
+library 'pipeline-utils@master'
 
 CCV = ""
 
@@ -118,7 +118,7 @@ spec:
                     container(name: 'crane', shell: '/busybox/sh') {
                         def imageTagsPushAlways = ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2"]
                         def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:$TAG3"]
-                        def imageTagsPushForMasterBranch
+                        def imageTagsPushForMasterBranch = []
                         if(CCV != null && !CCV.trim().isEmpty()) {
                             imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4", "$IMAGE_NAME:$CCV"]
                         } else {
