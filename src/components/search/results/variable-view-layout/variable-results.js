@@ -7,10 +7,36 @@ import {
     VariablesTableByStudy, variableHistogramConfigStatic,
     updateStudyResults, resetFilterPropertyToNone
 } from './'
-import { useDebouncedCallback } from 'use-debounce'
+import { useDebounce, useDebouncedCallback } from 'use-debounce'
 import './variable-results.css';
 
 const { Text, Title } = Typography
+
+const DebouncedRangeSlider = ({ value, onChange, debounce=500, ...props }) => {
+    const [_internalValue, setInternalValue] = useState(undefined)
+    const [internalValue] = useDebounce(_internalValue, debounce)
+
+    const internalOnChange = (range) => {
+        setInternalValue(range)
+    }
+
+    useEffect(() => {
+        setInternalValue(value)
+    }, [value])
+
+    useEffect(() => {
+        onChange(internalValue)
+    }, [internalValue])
+
+    return (
+        <Slider
+            range
+            value={ _internalValue }
+            onChange={ internalOnChange }
+            { ...props }
+        />
+    )
+}
 
 /** Component that handles display of Variable Results */
 export const VariableSearchResults = () => {
@@ -125,6 +151,7 @@ export const VariableSearchResults = () => {
     }, [studyResultsForDisplay])
 
     const onScoreSliderChange = useCallback((score) => {
+        if (score === undefined) return
         const [minScore, maxScore] = score
         const histogramObj = variablesHistogram.current.getChart()
         const newFilteredVariables = variableResults.filter((variable) => (
@@ -216,12 +243,23 @@ export const VariableSearchResults = () => {
                     <Button onClick={ () => setPage(page + 1) } disabled={ page === _filteredVariables.length - 1 } style={{ marginLeft: 4 }}>
                         <ArrowRightOutlined />
                     </Button>
-                    <Slider
-                        range
+                    {console.log(variableResults.reduce((acc, cur) => {
+                            acc[cur.score] = null
+                            return acc
+                        }, {}))}
+                    <DebouncedRangeSlider
                         value={ scoreRange }
+                        onChange={ onScoreSliderChange }
                         min={ Math.min(...variableResults.map((result) => result.score)) }
                         max={ Math.max(...variableResults.map((result) => result.score)) }
-                        onChange={ onScoreSliderChange }
+                        step={ null }
+                        marks={ variableResults.reduce((acc, cur) => {
+                            acc[cur.score] = {
+                                label: cur.score,
+                                style: { display: "none" }
+                            }
+                            return acc
+                        }, {}) }
                         style={{ marginLeft: 24, flexGrow: 1 }}
                     />
                 </div>
