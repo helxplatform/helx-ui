@@ -382,6 +382,24 @@ export const VariableSearchResults = () => {
                             style={{ padding: 0 }}
                             ref={variablesHistogram}
                         />
+                        <DebouncedRangeSlider
+                        value={ scoreRange }
+                        onChange={ onScoreSliderChange }
+                        min={ Math.min(...variableResults.map((result) => result.score)) }
+                        max={ Math.max(...variableResults.map((result) => result.score)) }
+                        step={ null }
+                        marks={ variableResults.reduce((acc, cur) => {
+                            acc[cur.score] = {
+                                label: cur.score,
+                                style: {
+                                    display: "none"
+                                }
+                            }
+                            return acc
+                        }, {}) }
+                        // Margin to align with the histogram
+                        style={{ marginRight: 0, marginBottom: 4, marginTop: 16, flexGrow: 1 }}
+                    />
                     </div>
                     <HistogramLegend
                         title={{
@@ -418,7 +436,7 @@ export const VariableSearchResults = () => {
                                 }
                             }
                         }) }
-                        style={{ marginLeft: 16, flexShrink: 0 }}
+                        style={{ marginLeft: 24, marginRight: 8, flexShrink: 0 }}
                     />
                 </div>
                 <div style={{ display: "flex" }}>
@@ -431,23 +449,6 @@ export const VariableSearchResults = () => {
                     <Button onClick={ () => setPage(page + 1) } disabled={ page === _filteredVariables.length - 1 } style={{ marginLeft: 4 }}>
                         <ArrowRightOutlined />
                     </Button>
-                    <DebouncedRangeSlider
-                        value={ scoreRange }
-                        onChange={ onScoreSliderChange }
-                        min={ Math.min(...variableResults.map((result) => result.score)) }
-                        max={ Math.max(...variableResults.map((result) => result.score)) }
-                        step={ null }
-                        marks={ variableResults.reduce((acc, cur) => {
-                            acc[cur.score] = {
-                                label: cur.score,
-                                style: {
-                                    display: "none"
-                                }
-                            }
-                            return acc
-                        }, {}) }
-                        style={{ marginLeft: 24, flexGrow: 1 }}
-                    />
                 </div>
             </Space>
             <Divider orientation="left" orientationMargin={ 0 } style={{ fontSize: 15, marginTop: 24, marginBottom: 0 }}>Studies</Divider>
