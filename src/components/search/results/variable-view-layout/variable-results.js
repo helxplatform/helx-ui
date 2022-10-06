@@ -107,8 +107,8 @@ const HistogramLegend = ({ title: _title, items, style, ...props }) =>  {
         <div style={{ ...style }} { ...props }>
             { title && (
                 <div style={{
-                    marginBottom: 4,
-                    textAlign: "center",
+                    marginBottom: 6,
+                    textAlign: "start",
                     fontSize: 12,
                     textTransform: "uppercase",
                     // textDecoration: "underline",
@@ -136,16 +136,18 @@ export const VariableSearchResults = () => {
     const [_filteredVariables, _setFilteredVariables] = useState([variableResults])
     const filteredVariables = useMemo(() => _filteredVariables[page], [_filteredVariables, page])
     const setFilteredVariables = useCallback((value) => {
-        const latestPage = _filteredVariables[_filteredVariables.length - 1]
-        const latestPageVariableIds = latestPage.map((variable) => variable.id)
+        const currentPage = _filteredVariables[page]
+        const currentPageVariableIds = currentPage.map((variable) => variable.id)
+        // If it's a duplicate of the current value, don't add it again.
         if (
-            value.length === latestPage.length &&
-            value.every((variable) => latestPageVariableIds.includes(variable.id))
+            value.length === currentPage.length &&
+            value.every((variable) => currentPageVariableIds.includes(variable.id))
         ) return
-        _filteredVariables.push(value)
-        _setFilteredVariables(_filteredVariables)
-        setPage(_filteredVariables.length - 1)
-    }, [_filteredVariables])
+        // _filteredVariables.push(value)
+        const newValue = [..._filteredVariables.slice(0, page + 1), value]
+        _setFilteredVariables(newValue)
+        setPage(newValue.length - 1)
+    }, [_filteredVariables, page])
     const overrideFilterHistory = useCallback((value) => {
         _setFilteredVariables([value])
         setPage(0)
