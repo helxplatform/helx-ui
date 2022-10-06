@@ -54,24 +54,48 @@ const DebouncedRangeSlider = ({ value, onChange, onInternalChange=() => {}, debo
     )
 }
 
-const HistogramLegendItem = ({ id, name, marker: _marker }) => {
+const HistogramLegendItem = ({ id, name: _name, description: _description, marker: _marker }) => {
     if (typeof _marker === "string") _marker = { path: _marker }
     const { path, style: markerStyle={} } = _marker
+    if (typeof _name === "string") _name = { name: _name }
+    const { name, style: nameStyle } = _name
+    if (typeof _description === "string") _description = { description: _description }
+    const { description, style: descriptionStyle } = _description
     const width = 48
     const height = 12
+
+    const [hover, setHover] = useState(false)
+
     return (
-        <div style={{ display: "flex", alignItems: "center", marginTop: 2 }}>
-            <svg style={{ width, height }}>
-                <path d={ path(width, height) } { ...markerStyle } />
-            </svg>
-            <Text style={{
-                marginLeft: 8,
-                fontSize: 12,
-                fontWeight: 500,
-                color: "rgba(0, 0, 0, 0.45)"
-            }}>
-                { name }
-            </Text>
+        <div
+            className="histogram-legend-item"
+            onMouseOver={ () => setHover(true) }
+            onMouseOut={ () => setHover(false) }
+            style={{ display: "flex", flexDirection: "column", marginTop: 4 }}
+        >
+            <div style={{ display: "flex", alignItems: "center" }}>
+                <svg style={{ width, height }}>
+                    <path d={ path(width, height) } { ...markerStyle } />
+                </svg>
+                <Text style={{
+                    marginLeft: 8,
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: "rgba(0, 0, 0, 0.85)",
+                    ...nameStyle
+                }}>
+                    { name }
+                </Text>
+            </div>
+            { description && (
+                <Text style={{
+                    fontSize: 12,
+                    color: "rgba(0, 0, 0, 0.45)",
+                    ...descriptionStyle
+                }}>
+                    { description }
+                </Text>
+            ) }
         </div>
     )
 }
@@ -83,6 +107,7 @@ const HistogramLegend = ({ title: _title, items, style, ...props }) =>  {
         <div style={{ ...style }} { ...props }>
             { title && (
                 <div style={{
+                    marginBottom: 4,
                     textAlign: "center",
                     fontSize: 12,
                     textTransform: "uppercase",
@@ -380,30 +405,38 @@ export const VariableSearchResults = () => {
                         title={{
                             title: "Score Legend"
                         }}
-                        items={ GRADIENT_CONSTITUENTS.map((color, i) => ({
-                            id: color,
-                            name: (() => {
-                                const [minScore, maxScore ] = absScoreRange
-                                const startRatio = Math.round(i / GRADIENT_CONSTITUENTS.length * 100) / 100
-                                const endRatio = Math.round((i + 1) / GRADIENT_CONSTITUENTS.length * 100) / 100
-                                const startScore = (startRatio * maxScore) - (startRatio * minScore) + minScore
-                                const endScore = (endRatio * maxScore) - (endRatio   * minScore) + minScore
-                                const count = variableResults.filter((result) => result.score >= startScore && result.score <= endScore).length
-                                return `${ startRatio === 0 ? Math.floor(startScore) : Math.ceil(startScore) } - ${ endRatio === 1 ? Math.ceil(endScore) : Math.floor(endScore) }`
-                            })(),
-                            marker: {
-                                path: (w, h) => {
-                                    const x = 0
-                                    const y = 0
-                                    return `M ${ x },${ y } L ${ x + w }, ${ y } L ${ x + w }, ${ y + h } L ${ x }, ${ y + h } L ${ x },${ y } Z`
+                        items={ GRADIENT_CONSTITUENTS.map((color, i) => {
+                            const [minScore, maxScore] = absScoreRange
+                            const startRatio = Math.round(i / GRADIENT_CONSTITUENTS.length * 100) / 100
+                            const endRatio = Math.round((i + 1) / GRADIENT_CONSTITUENTS.length * 100) / 100
+                            const startScore = (startRatio * maxScore) - (startRatio * minScore) + minScore
+                            const endScore = (endRatio * maxScore) - (endRatio   * minScore) + minScore
+                            const count = variableResults.filter((result) => result.score >= startScore && result.score <= endScore).length
+                            const filteredCount = filteredVariables.filter((result) => result.score >= startScore && result.score <= endScore).length
+                            return {
+                                id: color,
+                                name: {
+                                    name: `${ startRatio === 0 ? Math.floor(startScore) : Math.ceil(startScore) } - ${ endRatio === 1 ? Math.ceil(endScore) : Math.floor(endScore) }`,
+                                    style: filteredCount === 0 ? { color: "rgba(0, 0, 0, 0.25)" } : undefined
                                 },
-                                // path: [["M", x - x_r, y - y_r], ["L", x + x_r, y - y_r], ["L", x + x_r, y + y_r], ["L", x - x_r, y + y_r], ["Z"]],
-                                style: {
-                                    fill: color
+                                description: {
+                                    description: filteredCount < count ? `(${ filteredCount } / ${ count } variables)` : `(${ count } variables)`,
+                                    style: filteredCount === 0 ? { color: "rgba(0, 0, 0, 0.25)" } : undefined
+                                },
+                                marker: {
+                                    path: (w, h) => {
+                                        const x = 0
+                                        const y = 0
+                                        return `M ${ x },${ y } L ${ x + w }, ${ y } L ${ x + w }, ${ y + h } L ${ x }, ${ y + h } L ${ x },${ y } Z`
+                                    },
+                                    // path: [["M", x - x_r, y - y_r], ["L", x + x_r, y - y_r], ["L", x + x_r, y + y_r], ["L", x - x_r, y + y_r], ["Z"]],
+                                    style: {
+                                        fill: filteredCount > 0 ? color : "rgba(0, 0, 0, 0.15)"
+                                    }
                                 }
                             }
-                        })) }
-                        style={{ marginLeft: 8, flexShrink: 0 }}
+                        }) }
+                        style={{ marginLeft: 16, flexShrink: 0 }}
                     />
                 </div>
                 <div style={{ display: "flex" }}>

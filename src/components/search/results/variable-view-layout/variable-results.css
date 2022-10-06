@@ -45,3 +45,9 @@ div.within-filter-false a:hover {
     border: solid 1px #dddddd;
 }
 
+.histogram-legend-item:first-child {
+    margin-top: 0 !important;
+}
+/* .histogram-legend-item:hover svg {
+    border: 0.5px solid rgba(0, 0, 0, 0.85);
+} */
