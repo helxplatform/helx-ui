@@ -16,6 +16,18 @@ export const variableHistogramConfigStatic = {
     },
     tooltip: {
         showTitle: false,
+        domStyles: {
+            "g2-tooltip-list-item": {
+            },
+            "g2-tooltip-name": {
+                fontWeight: 600
+            },
+            "g2-tooltip-value": {
+                float: "none",
+                display: "inline",
+                marginLeft: 0
+            }
+        },
         fields: ['name', 'id', 'description', 'study_name', 'score'],
     },
     state: {
