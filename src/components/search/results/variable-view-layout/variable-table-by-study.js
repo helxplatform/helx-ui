@@ -7,13 +7,13 @@ import {
 const { Text } = Typography
 const { Panel } = Collapse
 
-const VariableList = ({ study }) => {
+const VariableList = ({ study, filteredVariables }) => {
     return (
         <List
             className="study-variables-list"
             dataSource={study.elements}
             renderItem={variable => (
-                <div className={`study-variables-list-item within-filter-${variable.withinFilter}`} style={{ borderLeft: "none" }}>
+                <div className={`study-variables-list-item within-filter-${ !!filteredVariables.find((result) => result.id === variable.id) }`} style={{ borderLeft: "none" }}>
                     <Text className="variable-name">
                         {variable.name}&nbsp;
                         ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
@@ -25,7 +25,7 @@ const VariableList = ({ study }) => {
     )
 }
 
-const VariablePanel = ({ study, selected, onSelect }) => {
+const VariablePanel = ({ study, filteredVariables, selected, onSelect }) => {
     const [collapsed, setCollapsed] = useState(true)
     return (
         <Fragment>
@@ -60,7 +60,7 @@ const VariablePanel = ({ study, selected, onSelect }) => {
                 ] }
             >
                 <div id={ `scrollableDiv__${study.c_id}` } className="scrollable-div">
-                    <VariableList study={ study } />
+                    <VariableList study={ study } filteredVariables={ filteredVariables } />
                 </div>
             </Panel>
         </Collapse>
@@ -68,7 +68,7 @@ const VariablePanel = ({ study, selected, onSelect }) => {
     )
 }
 
-export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisplay, toggleStudyHighlightingInHistogram}) => {
+export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisplay, filteredVariables, toggleStudyHighlightingInHistogram}) => {
     return (
         <div className="variables-collapse">
             {
@@ -77,6 +77,7 @@ export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisp
                         <VariablePanel
                             key = { study.c_id }
                             study={ study }
+                            filteredVariables={ filteredVariables }
                             selected={ studyNamesForDisplay.includes(study.c_name) }
                             onSelect={ () => toggleStudyHighlightingInHistogram(study.c_name) }
                         />   

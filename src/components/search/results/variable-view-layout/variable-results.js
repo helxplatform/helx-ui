@@ -463,6 +463,7 @@ export const VariableSearchResults = () => {
                     <VariablesTableByStudy
                         studyResultsForDisplay={studyResultsForDisplay}
                         studyNamesForDisplay={studyNamesForDisplay}
+                        filteredVariables={filteredVariables}
                         toggleStudyHighlightingInHistogram={toggleStudyHighlightingInHistogram}/>
                 </div>
             </Space>
