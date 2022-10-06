@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Typography, Button, Space, Divider, Slider } from 'antd'
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
-import { generate, presetPalettes, red, volcano, orange, gold, yellow } from '@ant-design/colors'
+import { generate, presetPalettes, red, volcano, orange, gold, yellow, green, cyan, blue, geekblue, purple, magenta } from '@ant-design/colors'
 import { Column } from '@ant-design/plots';
 import chroma from 'chroma-js'
 import { useHelxSearch } from '../../';
@@ -14,11 +14,17 @@ import './variable-results.css';
 
 const { Text, Title } = Typography
 
-const COLOR_GRADIENT = chroma.scale([
-    yellow[5], gold[5], orange[5]
-])
+// Between 0-9
+const COLOR_INTENSITY = 4
+const GRADIENT_CONSTITUENTS = [
+    gold[COLOR_INTENSITY], orange[COLOR_INTENSITY], volcano[COLOR_INTENSITY], red[COLOR_INTENSITY]
+]
+// const GRADIENT_CONSTITUENTS = [
+//     cyan[COLOR_INTENSITY], blue[COLOR_INTENSITY], geekblue[COLOR_INTENSITY]
+// ]
+const COLOR_GRADIENT = chroma.scale(GRADIENT_CONSTITUENTS).mode("lrgb")
 
-const DebouncedRangeSlider = ({ value, onChange, debounce=500, ...props }) => {
+const DebouncedRangeSlider = ({ value, onChange, onInternalChange=() => {}, debounce=500, ...props }) => {
     const [_internalValue, setInternalValue] = useState(undefined)
     const [internalValue] = useDebounce(_internalValue, debounce)
 
@@ -34,6 +40,10 @@ const DebouncedRangeSlider = ({ value, onChange, debounce=500, ...props }) => {
         onChange(internalValue)
     }, [internalValue])
 
+    useEffect(() => {
+        onInternalChange(_internalValue)
+    }, [_internalValue])
+
     return (
         <Slider
             range
@@ -41,6 +51,54 @@ const DebouncedRangeSlider = ({ value, onChange, debounce=500, ...props }) => {
             onChange={ internalOnChange }
             { ...props }
         />
+    )
+}
+
+const HistogramLegendItem = ({ id, name, marker: _marker }) => {
+    if (typeof _marker === "string") _marker = { path: _marker }
+    const { path, style: markerStyle={} } = _marker
+    const width = 48
+    const height = 12
+    return (
+        <div style={{ display: "flex", alignItems: "center", marginTop: 2 }}>
+            <svg style={{ width, height }}>
+                <path d={ path(width, height) } { ...markerStyle } />
+            </svg>
+            <Text style={{
+                marginLeft: 8,
+                fontSize: 12,
+                fontWeight: 500,
+                color: "rgba(0, 0, 0, 0.45)"
+            }}>
+                { name }
+            </Text>
+        </div>
+    )
+}
+const HistogramLegend = ({ title: _title, items, style, ...props }) =>  {
+    if (typeof _title === "string") _title = { title: _title }
+    const { title, style: titleStyle={} } = _title
+
+    return (
+        <div style={{ ...style }} { ...props }>
+            { title && (
+                <div style={{
+                    textAlign: "center",
+                    fontSize: 12,
+                    textTransform: "uppercase",
+                    // textDecoration: "underline",
+                    letterSpacing: 0.25,
+                    fontWeight: 600,
+                    color: "rgba(0, 0, 0, 0.65)",
+                    ...titleStyle
+                }}>
+                    { title }
+                </div>
+            ) }
+            <div style={{ display: "flex", flexDirection: "column" }}>
+                { items.map((item) => <HistogramLegendItem key={ item.id } { ...item } />) }
+            </div>
+        </div>
     )
 }
 
@@ -70,17 +128,22 @@ export const VariableSearchResults = () => {
         _setFilteredVariables([value])
         setPage(0)
     }, [])
+
     /** noResults indicates that the search yielded no variables. The layout should be hidden. */
     const noResults = useMemo(() => totalVariableResults === 0, [totalVariableResults])
 
-    const scoreRange = useMemo(() => {
-        const sorted = filteredVariables.sort((a, b) => a.score - b.score)
-        if (sorted.length < 2) return undefined
-        const minScore = sorted[0].score
-        const maxScore = sorted[sorted.length - 1].score
+    const absScoreRange = useMemo(() => {
+        // if (variableResults.length < 2) return undefined
         return [
-            minScore,
-            maxScore
+            Math.min(...variableResults.map((result) => result.score)),
+            Math.max(...variableResults.map((result) => result.score))   
+        ]
+    }, [variableResults])
+    const scoreRange = useMemo(() => {
+        // if (filteredVariables.length < 2) return undefined
+        return [
+            Math.min(...filteredVariables.map((result) => result.score)),
+            Math.max(...filteredVariables.map((result) => result.score))
         ]
     }, [filteredVariables])
     
@@ -96,9 +159,7 @@ export const VariableSearchResults = () => {
 
     const variablesHistogram = useRef()
     const variableHistogramConfig = useMemo(() => {
-        // const [startingColor, endingColor] = COLOR_GRADIENT
-        const minScore = Math.min(...variableResults.map((result) => result.score))
-        const maxScore = Math.max(...variableResults.map((result) => result.score))
+        const [minScore, maxScore] = absScoreRange
         const hex = (x) => {
             x = x.toString(16)
             return (x.length === 1) ? '0' + x : x
@@ -128,10 +189,50 @@ export const VariableSearchResults = () => {
             color: ({ id }) => {
                 const { score } = filteredVariables.find((result) => result.id === id)
                 const absRatio = (score - minScore) / (maxScore - minScore)
+                // const continuousRatio = ([...variableResults].sort((a, b) => a.score - b.score).findIndex((result) => result.id === id) + 1) / variableResults.length
+                /**
+                 * `continuousRatio` will create a continuous gradient across the histogram. This doesn't really indicate anything though, just looks pretty.
+                 * `absRatio` is the norm of score between [minScore, maxScore] and will color the histogram against a gradient according to individual scores.
+                 */
                 return COLOR_GRADIENT(absRatio).toString()
-            }
+            },
+            /*seriesField: "id",
+            legend: {
+                layout: "vertical",
+                position: "right-top",
+                title: {
+                    text: "Score Legend",
+                    spacing: 12
+                },
+                offsetX : 24,
+                custom: true,
+                items: GRADIENT_CONSTITUENTS.map((color, i) => ({
+                    id: color,
+                    name: (() => {
+                        const startRatio = Math.round(i / GRADIENT_CONSTITUENTS.length * 100) / 100
+                        const endRatio = Math.round((i + 1) / GRADIENT_CONSTITUENTS.length * 100) / 100
+                        const startScore = (startRatio * maxScore) - (startRatio * minScore) + minScore
+                        const endScore = (endRatio * maxScore) - (endRatio   * minScore) + minScore
+                        const count = variableResults.filter((result) => result.score >= startScore && result.score <= endScore).length
+                        return `${ startRatio === 0 ? Math.floor(startScore) : Math.ceil(startScore) } - ${ endRatio === 1 ? Math.ceil(endScore) : Math.floor(endScore) }`
+                    })(),
+                    // value: "",
+                    marker: {
+                        spacing: 28,
+                        style: {
+                            fill: color
+                        },
+                        symbol: (x, y, r) => {
+                            const x_r = 24
+                            const y_r = 6
+                            return [["M", x - x_r, y - y_r], ["L", x + x_r, y - y_r], ["L", x + x_r, y + y_r], ["L", x - x_r, y + y_r], ["Z"]]
+                            // return [["M", x - r, y - r], ["L", x + r, y - r], ["L", x + r, y + r], ["L", x - r, y + r], ["Z"]]
+                        }
+                    }
+                }))
+            }*/
         }
-    }, [filteredVariables, variableResults])
+    }, [filteredVariables, variableResults, absScoreRange])
 
     const [filteredPercentileLower, filteredPercentileUpper] = useMemo(() => {
         const relativeMin = Math.min(...filteredVariables.map((result) => result.score))
@@ -267,11 +368,44 @@ export const VariableSearchResults = () => {
                 </div>
             ) }
             <Space direction="vertical" size="middle">
-                <Column
-                    {...variableHistogramConfig}
-                    style={{ padding: "0px 0" }}
-                    ref={variablesHistogram}
-                />
+                <div style={{ display: "flex" }}>
+                    <div style={{ flexGrow: 1, width: 0 }}>
+                        <Column
+                            {...variableHistogramConfig}
+                            style={{ padding: 0 }}
+                            ref={variablesHistogram}
+                        />
+                    </div>
+                    <HistogramLegend
+                        title={{
+                            title: "Score Legend"
+                        }}
+                        items={ GRADIENT_CONSTITUENTS.map((color, i) => ({
+                            id: color,
+                            name: (() => {
+                                const [minScore, maxScore ] = absScoreRange
+                                const startRatio = Math.round(i / GRADIENT_CONSTITUENTS.length * 100) / 100
+                                const endRatio = Math.round((i + 1) / GRADIENT_CONSTITUENTS.length * 100) / 100
+                                const startScore = (startRatio * maxScore) - (startRatio * minScore) + minScore
+                                const endScore = (endRatio * maxScore) - (endRatio   * minScore) + minScore
+                                const count = variableResults.filter((result) => result.score >= startScore && result.score <= endScore).length
+                                return `${ startRatio === 0 ? Math.floor(startScore) : Math.ceil(startScore) } - ${ endRatio === 1 ? Math.ceil(endScore) : Math.floor(endScore) }`
+                            })(),
+                            marker: {
+                                path: (w, h) => {
+                                    const x = 0
+                                    const y = 0
+                                    return `M ${ x },${ y } L ${ x + w }, ${ y } L ${ x + w }, ${ y + h } L ${ x }, ${ y + h } L ${ x },${ y } Z`
+                                },
+                                // path: [["M", x - x_r, y - y_r], ["L", x + x_r, y - y_r], ["L", x + x_r, y + y_r], ["L", x - x_r, y + y_r], ["Z"]],
+                                style: {
+                                    fill: color
+                                }
+                            }
+                        })) }
+                        style={{ marginLeft: 8, flexShrink: 0 }}
+                    />
+                </div>
                 <div style={{ display: "flex" }}>
                     <Button onClick={ startOverHandler }>
                         Start Over
@@ -291,7 +425,9 @@ export const VariableSearchResults = () => {
                         marks={ variableResults.reduce((acc, cur) => {
                             acc[cur.score] = {
                                 label: cur.score,
-                                style: { display: "none" }
+                                style: {
+                                    display: "none"
+                                }
                             }
                             return acc
                         }, {}) }
