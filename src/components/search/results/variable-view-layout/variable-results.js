@@ -131,9 +131,6 @@ const HistogramLegend = ({ title: _title, items, style, ...props }) =>  {
 export const VariableSearchResults = () => {
     const { variableResults, variableStudyResults, totalVariableResults } = useHelxSearch()
 
-    /** studyResultsForDisplay holds variables grouped by study for the studies table */
-    const [studyResultsForDisplay, setStudyResultsForDisplay] = useState(variableStudyResults)
-
     const [page, setPage] = useState(0)
     /** filteredVariables holds the variables displayed in the histogram */
     const [_filteredVariables, _setFilteredVariables] = useState([variableResults])
@@ -171,11 +168,16 @@ export const VariableSearchResults = () => {
             Math.max(...filteredVariables.map((result) => result.score))
         ]
     }, [filteredVariables])
+
+    const studyResultsForDisplay = useMemo(() => {
+        const filteredIds = filteredVariables.map((result) => result.id)
+        return variableStudyResults.filter((study) => study.elements.some((variable) => filteredIds.includes(variable.id)))
+    }, [filteredVariables, variableStudyResults])
     
     /** useEffect added to address bug whereby displayed results were not updating when a new
      * search term was entered */
     useEffect(() => {
-        setStudyResultsForDisplay(variableStudyResults);
+        // Basically, just reset the filteredVariables history back to new.
         overrideFilterHistory(variableResults);
     }, [variableResults, variableStudyResults]);
 
@@ -210,7 +212,7 @@ export const VariableSearchResults = () => {
         const clamp = (x, min, max) => Math.max(min, Math.min(x, max))
         return {
             ...variableHistogramConfigStatic,
-            data: filteredVariables,
+            data: [...filteredVariables].sort((a, b) => a.score - b.score),
             color: ({ id }) => {
                 const { score } = filteredVariables.find((result) => result.id === id)
                 const absRatio = (score - minScore) / (maxScore - minScore)
@@ -275,11 +277,6 @@ export const VariableSearchResults = () => {
         /** Restores the variables shown in the histogram back to the original inputs */
         overrideFilterHistory(variableResults)
 
-        /** Restores the variables and studies in the Studies Table to original inputs */
-        const studyResultsWithVariablesUpdated = resetFilterPropertyToNone(variableStudyResults)
-        setStudyResultsForDisplay(studyResultsWithVariablesUpdated)
-
-
         /** Resets selected study names to none selected */
         setStudyNamesForDisplay([])
 
@@ -291,8 +288,18 @@ export const VariableSearchResults = () => {
     useEffect(() => {
         let histogramObj = variablesHistogram.current.getChart()
         /** Restores histogram data to refreshed value of filteredVariables, which is based on no filtering */
-        histogramObj.update({ ...variableHistogramConfig, data: filteredVariables })
+        histogramObj.update({ ...variableHistogramConfig, data: [...filteredVariables].sort((a, b) => a.score - b.score) })
     }, [variableHistogramConfig, filteredVariables])
+
+    /** Update the highlighted variables whenever highlighted studies change or filtered variables change */
+    useEffect(() => {
+        const histogramObj = variablesHistogram.current.getChart()
+        const variableIdsFilteredByStudy = studyNamesForDisplay.length > 0 ? (
+            filteredVariables.filter(_var => studyNamesForDisplay.includes(_var.study_name)).map(el => el.id)
+        ) : []
+        histogramObj.setState("active", (d) => variableIdsFilteredByStudy.includes(d.id))
+        histogramObj.setState("active", (d) => !variableIdsFilteredByStudy.includes(d.id), false)
+    }, [studyNamesForDisplay, filteredVariables])
 
     /**
      * Whenever the brush filter is used, the value of filtered Variables &
@@ -304,7 +311,6 @@ export const VariableSearchResults = () => {
             let newFilteredVariables = e.view.filteredData
             let updatedStudyResults = updateStudyResults(newFilteredVariables, studyResultsForDisplay);
             if (newFilteredVariables.length !== filteredVariables.length) {
-                setStudyResultsForDisplay(updatedStudyResults)
                 setFilteredVariables(newFilteredVariables)
             }
         }
@@ -324,7 +330,6 @@ export const VariableSearchResults = () => {
         ))
         let updatedStudyResults = updateStudyResults(newFilteredVariables, studyResultsForDisplay);
         if (filteredVariables.length !== newFilteredVariables.length) {
-            setStudyResultsForDisplay(updatedStudyResults)
             setFilteredVariables(newFilteredVariables)
         }
     }, [variableResults, filteredVariables, studyResultsForDisplay, scoreRange])
@@ -348,29 +353,6 @@ export const VariableSearchResults = () => {
         } else {
             newStudyNamesForDisplay = [...newStudyNamesForDisplay, studyName]
         }
-
-        /** If newStudyNamesForDisplay isn't empty:
-        *       - Filter the variables by study,
-        *       - Otherwise, collect all IDs to one Array */
-        const variableIdsFilteredByStudy = newStudyNamesForDisplay.length > 0 ?
-            variableResults.filter(_var => newStudyNamesForDisplay.includes(_var.study_name)).map(el => el.id) :
-            []
-            
-
-        /** Use `variableIdsFilteredByStudy` to determine which variables need to have their
-         * state set to 'active' */
-        let histogramObj = variablesHistogram.current.getChart()
-        if (variableIdsFilteredByStudy.length === 0) {
-            /** If there are no filtered variables,
-             *      Remove "active" from all places where it has been set */
-            histogramObj.setState('active', () => true, false);
-        } else {
-            /** If a variable is in the filtered variables array, it should be tagged as 'active' in
-             * the histogram object. */
-            histogramObj.setState("active", (d) => variableIdsFilteredByStudy.includes(d.id));
-            histogramObj.setState("active", (d) => !variableIdsFilteredByStudy.includes(d.id), false);
-        }
-
         setStudyNamesForDisplay(newStudyNamesForDisplay);
     }
 
