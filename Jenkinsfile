@@ -1,6 +1,7 @@
 library 'pipeline-utils@master'
 
 CCV = ""
+CURR_TIMESTAMP = ""
 
 pipeline {
   agent {
@@ -76,21 +77,17 @@ spec:
         REG_OWNER="helxplatform"
         REG_APP="helx-ui"
         COMMIT_HASH="${sh(script:"git rev-parse --short HEAD", returnStdout: true).trim()}"
-        VERSION_FILE="./package.json"
-        VERSION="${sh(script: {'''sed \'3q;d\' package.json | awk \'{ print $2 }\' | tr -d \'\042 \054\' '''}, returnStdout: true).trim()}"
         IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REG_APP}"
         BRANCH_NAME="$BRANCH_NAME"
-        TAG1="$BRANCH_NAME"
-        TAG2="$COMMIT_HASH"
-        TAG3="$VERSION"
-        TAG4="latest"
     }
     stages {
         stage('Build') {
             steps {
               script {
                 container(name: 'kaniko', shell: '/busybox/sh') {
-                    kaniko.build("./Dockerfile", ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2", "$IMAGE_NAME:$TAG3", "$IMAGE_NAME:$TAG4"])
+                    def now = new Date()
+                    CURR_TIMESTAMP = now.format("yyMMdd.HHmm", TimeZone.getTimeZone('UTC'))
+                    kaniko.build("./Dockerfile", ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH", "$IMAGE_NAME:develop-$CURR_TIMESTAMP", "$IMAGE_NAME:latest"])
                 }
                 container(name: 'go', shell: '/bin/bash') {
                     if (BRANCH_NAME.equals("master")) { 
@@ -116,13 +113,11 @@ spec:
             steps {
                 script {
                     container(name: 'crane', shell: '/busybox/sh') {
-                        def imageTagsPushAlways = ["$IMAGE_NAME:$TAG1", "$IMAGE_NAME:$TAG2"]
-                        def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:$TAG3"]
-                        def imageTagsPushForMasterBranch = []
+                        def imageTagsPushAlways = ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH"]
+                        def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:develop-$CURR_TIMESTAMP"]
+                        def imageTagsPushForMasterBranch = ["$IMAGE_NAME:latest"]
                         if(CCV != null && !CCV.trim().isEmpty()) {
-                            imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4", "$IMAGE_NAME:$CCV"]
-                        } else {
-                            imageTagsPushForMasterBranch = ["$IMAGE_NAME:$TAG4"]
+                            imageTagsPushForMasterBranch.add("$IMAGE_NAME:$CCV")
                         }
                         image.publish(
                             imageTagsPushAlways,

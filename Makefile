@@ -1,10 +1,11 @@
-VERSION_FILE := ./package.json
-VERSION      := $(shell node -p "require('./package.json').version")
-DOCKER_ORG   := helxplatform
-DOCKER_TAG   := helx-ui:${VERSION}
-BUILD_PATH   := ./build/frontend
-TYCHO_BRANCH := develop
-TYCHO_PATH	 := ./tycho
+SHELL 			 := /bin/bash
+BRANCH_NAME	 	 := $(shell git branch --show-current | sed -r 's/[/]+/_/g')
+override VERSION := ${BRANCH_NAME}-${VER}
+DOCKER_ORG   	 := helxplatform
+DOCKER_TAG   	 := helx-ui:${VERSION}
+BUILD_PATH   	 := ./build/frontend
+TYCHO_BRANCH 	 := develop
+TYCHO_PATH	 	 := ./tycho
 
 .DEFAULT_GOAL = help
 
@@ -18,11 +19,12 @@ help:
 
 #build.npm: build project with npm
 build.npm:
-	echo "Building distribution packages for version $(VERSION)"
+	echo "Building distribution packages"
 	BUILD_PATH=$(BUILD_PATH) npm run build
 
 #build.image: build project docker image
 build.image:
+	if [ -z "$(VER)" ]; then echo "Please provide a value for the VER variable like this:"; echo "make VER=4 build.image"; false; fi;
 	echo "Building docker image: $(DOCKER_TAG)"
 	docker build . --no-cache --pull -t $(DOCKER_ORG)/$(DOCKER_TAG)
 
@@ -74,6 +76,7 @@ test.interactive:
 
 #publish: push all artifacts to registries
 publish: build.image
+	if [ -z "$(VER)" ]; then echo "Please provide a value for the VER variable like this:"; echo "make VER=4 build.image"; false; fi;
 	docker image push $(DOCKER_ORG)/$(DOCKER_TAG)
 
 #clean: remove build artifacts and project dependencies
