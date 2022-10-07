@@ -385,23 +385,24 @@ export const VariableSearchResults = () => {
                             ref={variablesHistogram}
                         />
                         <DebouncedRangeSlider
-                        value={ scoreRange }
-                        onChange={ onScoreSliderChange }
-                        min={ Math.min(...variableResults.map((result) => result.score)) }
-                        max={ Math.max(...variableResults.map((result) => result.score)) }
-                        step={ null }
-                        marks={ variableResults.reduce((acc, cur) => {
-                            acc[cur.score] = {
-                                label: cur.score,
-                                style: {
-                                    display: "none"
+                            value={ scoreRange }
+                            onChange={ onScoreSliderChange }
+                            min={ Math.min(...variableResults.map((result) => result.score)) }
+                            max={ Math.max(...variableResults.map((result) => result.score)) }
+                            step={ null }
+                            marks={ variableResults.reduce((acc, cur) => {
+                                acc[cur.score] = {
+                                    label: cur.score,
+                                    style: {
+                                        display: "none"
+                                    }
                                 }
-                            }
-                            return acc
-                        }, {}) }
-                        // Margin to align with the histogram
-                        style={{ marginRight: 0, marginBottom: 4, marginTop: 16, flexGrow: 1 }}
-                    />
+                                return acc
+                            }, {}) }
+                            // Margin to align with the histogram
+                            style={{ marginRight: 0, marginBottom: 4, marginTop: 16, flexGrow: 1 }}
+                            className="histogram-slider"
+                        />
                     </div>
                     <HistogramLegend
                         title={{

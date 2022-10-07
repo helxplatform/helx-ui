@@ -51,3 +51,26 @@ div.within-filter-false a:hover {
 /* .histogram-legend-item:hover svg {
     border: 0.5px solid rgba(0, 0, 0, 0.85);
 } */
+/* .histogram-slider {
+    display: flex;
+    align-items: flex-end;
+    padding: 0 !important;
+    height: 16px !important;
+}
+.histogram-slider .ant-slider-rail, .histogram-slider .ant-slider-track {
+    height: 100% !important;
+}
+.histogram-slider .ant-slider-step {
+    height: 100%;
+}
+.histogram-slider .ant-slider-step .ant-slider-dot {
+    border-radius: 0;
+    height: 16px;
+    width: calc(100% / 1174);
+    top: initial !important;
+    left: initial !important;
+    position: initial;
+    display: inline-block;
+    border: none;
+    transform: translate(-50%, 0) !important;
+} */

@@ -14,6 +14,9 @@ export const variableHistogramConfigStatic = {
         enabled: true,
         type: 'x-rect',
     },
+    enterable: true,
+    // Seems to have better performance than canvas renderer for large datasets.
+    renderer: 'svg',
     tooltip: {
         showTitle: false,
         domStyles: {
