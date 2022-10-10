@@ -87,7 +87,7 @@ spec:
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     def now = new Date()
                     CURR_TIMESTAMP = now.format("yyMMdd.HHmm", TimeZone.getTimeZone('UTC'))
-                    kaniko.build("./Dockerfile", ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH", "$IMAGE_NAME:develop-$CURR_TIMESTAMP", "$IMAGE_NAME:latest"])
+                    kaniko.build("./Dockerfile", ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH", "$IMAGE_NAME:$CURR_TIMESTAMP", "$IMAGE_NAME:latest"])
                 }
                 container(name: 'go', shell: '/bin/bash') {
                     if (BRANCH_NAME.equals("master")) { 
@@ -114,7 +114,7 @@ spec:
                 script {
                     container(name: 'crane', shell: '/busybox/sh') {
                         def imageTagsPushAlways = ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH"]
-                        def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:develop-$CURR_TIMESTAMP"]
+                        def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:$CURR_TIMESTAMP"]
                         def imageTagsPushForMasterBranch = ["$IMAGE_NAME:latest"]
                         if(CCV != null && !CCV.trim().isEmpty()) {
                             imageTagsPushForMasterBranch.add("$IMAGE_NAME:$CCV")
