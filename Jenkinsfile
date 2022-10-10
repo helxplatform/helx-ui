@@ -119,7 +119,7 @@ spec:
                         if(CCV != null && !CCV.trim().isEmpty()) {
                             imageTagsPushForMasterBranch.add("$IMAGE_NAME:$CCV")
                         }
-                        image.publish(
+                        image.publish2(
                             imageTagsPushAlways,
                             imageTagsPushForDevelopBranch,
                             imageTagsPushForMasterBranch
