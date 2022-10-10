@@ -17,12 +17,22 @@
   flex-grow: 1;
 }
 
+.previous-result-btn {
+  margin-top: 4px;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.45) !important;
+  transition: color 0.3s ease;
+}
+.previous-result-btn:hover {
+  color: inherit !important;
+}
+
 .study-variables-list {
   font-size: 90% !important;
 }
 
 .study-variables-list-item {
-  margin-left: 0.4rem !important;
+  margin-left: 4px;
   padding-left: 1rem !important;
   border-left:  2px solid #eee;
   margin-bottom: 0.5rem;
@@ -38,6 +48,14 @@
 
 .tab-name {
   display: none;
+}
+
+.concept-modal-failed-result .ant-result-icon {
+  margin-top: 16px;
+}
+.concept-modal-failed-result .ant-result-content {
+  /* Cancel out padding without cutting off component */
+  margin-bottom: -16px;
 }
 
 @media (min-width: 600px) {
