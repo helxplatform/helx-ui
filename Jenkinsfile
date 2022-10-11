@@ -1,4 +1,4 @@
-library 'pipeline-utils@master'
+library 'pipeline-utils@go-ccv'
 
 CCV = ""
 CURR_TIMESTAMP = ""
@@ -85,8 +85,7 @@ spec:
             steps {
               script {
                 container(name: 'kaniko', shell: '/busybox/sh') {
-                    def now = new Date()
-                    CURR_TIMESTAMP = now.format("yyMMdd.HHmm", TimeZone.getTimeZone('UTC'))
+                    CURR_TIMESTAMP = now.format("yyyy-MM-dd'T'HH.mm'Z'", TimeZone.getTimeZone('UTC'))
                     kaniko.build("./Dockerfile", ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH", "$IMAGE_NAME:$CURR_TIMESTAMP", "$IMAGE_NAME:latest"])
                 }
                 container(name: 'go', shell: '/bin/bash') {
