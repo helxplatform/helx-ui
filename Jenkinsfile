@@ -1,4 +1,4 @@
-library 'pipeline-utils@go-ccv'
+library 'pipeline-utils@master'
 
 CCV = ""
 CURR_TIMESTAMP = ""
