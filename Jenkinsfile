@@ -88,9 +88,9 @@ spec:
                     kaniko.build("./Dockerfile", ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH", "$IMAGE_NAME:$CURR_TIMESTAMP", "$IMAGE_NAME:latest"])
                 }
                 container(name: 'go', shell: '/bin/bash') {
-                    // if (BRANCH_NAME.equals("master")) { 
+                    if (BRANCH_NAME.equals("master")) { 
                         CCV = go.ccv()
-                    // }
+                    }
                 }
               }
             }
