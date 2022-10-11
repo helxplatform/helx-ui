@@ -74,9 +74,9 @@ spec:
         DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
         REGISTRY = "${env.REGISTRY}"
         REG_OWNER="helxplatform"
-        REG_APP="helx-ui"
+        REPO_NAME="helx-ui"
         COMMIT_HASH="${sh(script:"git rev-parse --short HEAD", returnStdout: true).trim()}"
-        IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REG_APP}"
+        IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REPO_NAME}"
     }
     stages {
         stage('Build') {
@@ -89,7 +89,7 @@ spec:
                 }
                 container(name: 'go', shell: '/bin/bash') {
                     // if (BRANCH_NAME.equals("master")) { 
-                        CCV = go.ccv(GITHUB_CREDS_PSW, REG_APP)
+                        CCV = go.ccv()
                     // }
                 }
               }
