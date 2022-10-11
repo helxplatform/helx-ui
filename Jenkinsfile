@@ -72,13 +72,11 @@ spec:
         PATH = "/busybox:/kaniko:/ko-app/:$PATH"
         GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
         DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
-        REPO_REMOTE_URL = "https://${GITHUB_CREDS_PSW}@github.com/helxplatform/helx-ui.git"
         REGISTRY = "${env.REGISTRY}"
         REG_OWNER="helxplatform"
-        REG_APP="helx-ui"
+        REPO_NAME="helx-ui"
         COMMIT_HASH="${sh(script:"git rev-parse --short HEAD", returnStdout: true).trim()}"
-        IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REG_APP}"
-        BRANCH_NAME="$BRANCH_NAME"
+        IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REPO_NAME}"
     }
     stages {
         stage('Build') {
@@ -86,12 +84,12 @@ spec:
               script {
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     def now = new Date()
-                    CURR_TIMESTAMP = now.format("yyMMdd.HHmm", TimeZone.getTimeZone('UTC'))
+                    CURR_TIMESTAMP = now.format("yyyy-MM-dd'T'HH.mm'Z'", TimeZone.getTimeZone('UTC'))
                     kaniko.build("./Dockerfile", ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH", "$IMAGE_NAME:$CURR_TIMESTAMP", "$IMAGE_NAME:latest"])
                 }
                 container(name: 'go', shell: '/bin/bash') {
                     if (BRANCH_NAME.equals("master")) { 
-                        CCV = go.ccv(REPO_REMOTE_URL, REG_APP)
+                        CCV = go.ccv()
                     }
                 }
               }
