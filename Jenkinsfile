@@ -72,13 +72,11 @@ spec:
         PATH = "/busybox:/kaniko:/ko-app/:$PATH"
         GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
         DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
-        REPO_REMOTE_URL = "https://${GITHUB_CREDS_PSW}@github.com/helxplatform/helx-ui.git"
         REGISTRY = "${env.REGISTRY}"
         REG_OWNER="helxplatform"
         REG_APP="helx-ui"
         COMMIT_HASH="${sh(script:"git rev-parse --short HEAD", returnStdout: true).trim()}"
         IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REG_APP}"
-        BRANCH_NAME="$BRANCH_NAME"
     }
     stages {
         stage('Build') {
@@ -90,7 +88,7 @@ spec:
                 }
                 container(name: 'go', shell: '/bin/bash') {
                     if (BRANCH_NAME.equals("master")) { 
-                        CCV = go.ccv(REPO_REMOTE_URL, REG_APP)
+                        CCV = go.ccv(GITHUB_CREDS_PSW, REG_APP)
                     }
                 }
               }
