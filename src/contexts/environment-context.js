@@ -75,33 +75,8 @@ export const EnvironmentProvider = ({ children }) => {
       // split the comma-separated string which tells ui the support section to hide
       context.hidden_support_sections = context.hidden_support_sections.split(',')
 
-      // logos for different brands
-      switch (context.brand) {
-        case 'braini':
-          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/braini/braini-lg-gray.png'
-          break;
-        case 'cat':
-          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/2d04ee687913a03ce3cd030710a78541d6bef827/appstore/core/static/images/catalyst/bdc-logo.svg'
-          break;
-        case 'restartr':
-          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/restartr/restartingresearch.png'
-          break;
-        case 'scidas':
-          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/scidas/scidas-logo-sm.png'
-          break;
-        case 'eduhelx':
-          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/eduhelx/logo.png'
-          break;
-        case 'heal':
-          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/heal/logo.png'
-          break;
-        case 'argus':
-          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/argus/argus-array-256.png'
-          break;
-        // display helx logo in case no brand is defined
-        default:
-          context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/helx.jpg'
-      }
+      // logos for different brands. Use the helx logo if no brand has been specified.
+      context.logo_url = `https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/${ context.brand || 'helx' }/logo.png`
       setContext(context);
       setIsLoadingContext(false);
     }
