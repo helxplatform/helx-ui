@@ -76,7 +76,10 @@ export const EnvironmentProvider = ({ children }) => {
       context.hidden_support_sections = context.hidden_support_sections.split(',')
 
       // logos for different brands. Use the helx logo if no brand has been specified.
-      context.logo_url = `https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/${ context.brand || 'helx' }/logo.png`
+      let brandAssetFolder = context.brand || "helx"
+      // `catalyst` is the correct brand name in env.json, but support `cat` as well.
+      if (brandAssetFolder === "cat") brandAssetFolder = "catalyst"
+      context.logo_url = `https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/${ brandAssetFolder }/logo.png`
       setContext(context);
       setIsLoadingContext(false);
     }
