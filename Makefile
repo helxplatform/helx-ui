@@ -17,6 +17,11 @@ TYCHO_PATH	 	 := ./tycho
 help:
 	@grep -E '^#[a-zA-Z\.\-]+:.*$$' $(MAKEFILE_LIST) | tr -d '#' | awk 'BEGIN {FS = ": "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
+init:
+	git --version
+	echo "Please make sure your git version is greater than 2.9.0. If it's not, this command will fail."
+	git config --local core.hooksPath .githooks/
+
 #build.npm: build project with npm
 build.npm:
 	echo "Building distribution packages"
