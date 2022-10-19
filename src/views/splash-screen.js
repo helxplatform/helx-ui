@@ -1,7 +1,7 @@
-import axios from "axios";
-import { Spin } from "antd";
-
 import { useEffect, useState } from 'react';
+import { Spin } from "antd";
+import axios from "axios";
+import { useEnvironment } from '../contexts';
 
 // This view is used when the UI is checking the readiness of an instance
 
@@ -10,12 +10,13 @@ export const SplashScreenView = (props) => {
     const sidePanel = document.getElementById('helx-side-panel');
     if(header !== null) header.style.visibility = "hidden";
     if(sidePanel !== null) sidePanel.style.visibility = "hidden";
+    const { context } = useEnvironment()
     const [statusCode, setStatusCode] = useState("404");
     const [loading, setLoading] = useState(true);
     const [count, setCount] = useState(0);
 
     const decoded_url = decodeURIComponent(props.app_url);
-    const app_icon = `https://github.com/helxplatform/helx-apps/raw/master/app-specs/${props.app_name}/icon.png`
+    const app_icon = `https://github.com/helxplatform/helx-apps/raw/${context.dockstore_branch}/app-specs/${props.app_name}/icon.png`
 
     const getUrl = async () => {
         await axios.get(decoded_url)
