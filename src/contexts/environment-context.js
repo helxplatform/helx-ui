@@ -74,7 +74,7 @@ export const EnvironmentProvider = ({ children }) => {
 
       /** Context defaults */
       if (!context.dockstore_branch) context.dockstore_branch = "master"
-      if (!context.appstore_asset_branch) context.appstore_assets_branch = "master"
+      if (!context.appstore_asset_branch) context.appstore_asset_branch = "master"
       if (!context.brand) context.brand = "helx"
 
       // split the comma-separated string which tells ui the support section to hide
