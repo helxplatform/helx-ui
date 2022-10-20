@@ -19,7 +19,7 @@ export interface IWorkspacesAPIContext {
     loggedIn: boolean | undefined
     loginProviders: string[] | undefined
     extraLinks: ExtraLink[] | undefined
-    loadingBackoff: number | undefined
+    loadingBackoff: Date | undefined
 }
 
 interface IWorkspacesAPIProvider {
@@ -38,7 +38,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
 
     // Etc.
     const [showTimeoutWarningModal, setShowTimeoutWarningModal] = useState<Date|undefined>(undefined)
-    const [loadingBackoff, setLoadingBackoff] = useState<number|undefined>(undefined)
+    const [loadingBackoff, setLoadingBackoff] = useState<Date|undefined>(undefined)
 
     const { helxAppstoreUrl } = useEnvironment() as any
 
@@ -48,7 +48,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         numOfAttempts: Infinity,
         retry: async (e: any, attemptNumber: number) => {
             const nextDelay = STARTING_DELAY * Math.pow(TIME_MULTIPLE, attemptNumber - 1)
-            setLoadingBackoff(nextDelay)
+            setLoadingBackoff(new Date(Date.now() + nextDelay))
             return true
         }
     }

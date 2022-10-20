@@ -8,8 +8,7 @@ const { Text } = Typography
 
 export const APILoadingProtectedView = ({ children }) => {
     const { loading: apiLoading, loadingBackoff } = useWorkspacesAPI()
-    const loadingBackoffDate = useMemo(() => new Date(Date.now() + loadingBackoff), [loadingBackoff])
-    const timeUntil = useTimeUntil({ date: loadingBackoffDate, countdown: true })
+    const timeUntil = useTimeUntil({ date: loadingBackoff, countdown: true })
     
     if (apiLoading) return (
         <Space direction="vertical" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", flex: 1 }}>
