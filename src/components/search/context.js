@@ -11,19 +11,6 @@ export const HelxSearchContext = createContext({})
 export const useHelxSearch = () => useContext(HelxSearchContext)
 
 const PER_PAGE = 20
-const tempSearchFacets = [
-  'ALL',
-  'Biolink',
-  'CDE',
-  'Harmonized',
-  'LOINC',
-  'PhenX',
-].sort((f, g) => f.toLowerCase() < g.toLowerCase() ? -1 : 1)
-// The search_var endpoint returns studies (DbGaP, etc) and CDEs.
-// The CDEs will be rendered in another tab, so this array will assist
-// in separating out CDEs from actual studies.
-const STUDY_TYPES = ['DbGaP']
-
 
 export const SearchLayout = Object.freeze({
   GRID: 'GRID',
@@ -324,7 +311,7 @@ export const HelxSearch = ({ children }) => {
       }
       const filteredAndTypedStudies = Object.keys(result)
         .reduce((studies, key) => {
-          if (STUDY_TYPES.includes(key)) {
+          if (key !== "cde") {
             const newStudies = [...result[key].map(item => ({ type: key, ...item }))]
             return [...newStudies, ...studies]        
           }
@@ -390,7 +377,6 @@ export const HelxSearch = ({ children }) => {
       error, isLoadingConcepts,
       concepts, totalConcepts, conceptPages: filteredConceptPages,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
-      facets: tempSearchFacets,
       selectedResult, setSelectedResult, searchSelectedResult,
       layout, setLayout, setFullscreenResult,
       typeFilter, setTypeFilter,
