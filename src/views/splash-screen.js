@@ -1,7 +1,8 @@
-import axios from "axios";
+import { useEffect, useState } from "react";
 import { Spin, Button } from "antd";
+import axios from "axios";
 import { callWithRetry } from "../utils";
-import { useEffect, useState } from 'react';
+import { useEnvironment } from '../contexts';
 
 // This view is used when the UI is checking the readiness of an instance
 
@@ -10,11 +11,12 @@ export const SplashScreenView = (props) => {
     const sidePanel = document.getElementById('helx-side-panel');
     if(header !== null) header.style.visibility = "hidden";
     if(sidePanel !== null) sidePanel.style.visibility = "hidden";
+    const { context } = useEnvironment();
     const [loading, setLoading] = useState(true);
     const [errorPresent, setErrorPresent] = useState(false);
 
     const decoded_url = decodeURIComponent(props.app_url);
-    const app_icon = `https://github.com/helxplatform/helx-apps/raw/master/app-specs/${props.app_name}/icon.png`
+    const app_icon = `https://github.com/helxplatform/helx-apps/raw/${context.dockstore_branch}/app-specs/${props.app_name}/icon.png`
 
     useEffect(() => {
         document.title = `Connecting · HeLx UI`
