@@ -11,7 +11,7 @@ import './form.css'
 
 const LEVENSHTEIN_DISTANCE = 2 // Note that Redisearch enforces a maximum LD of 3
 const MAX_SUGGESTIONS = 15
-const DISALLOWED_SEARCH_CONCEPTS = ['biolink:Publication', 'biolink:ClinicalModifier']
+const DISALLOWED_SEARCH_CONCEPTS = ['biolink:Publication', 'biolink:ClinicalModifier', 'biolink:ClinicalTrial']
 
 const HighlightedText = ({ children }) => {
   return (
