@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
+import { Spin, Button } from "antd";
 import axios from "axios";
-import { Spin } from "antd";
-
-import { useEffect, useState } from 'react';
+import { callWithRetry } from "../utils";
+import { useEnvironment } from '../contexts';
 
 // This view is used when the UI is checking the readiness of an instance
 
@@ -10,44 +11,47 @@ export const SplashScreenView = (props) => {
     const sidePanel = document.getElementById('helx-side-panel');
     if(header !== null) header.style.visibility = "hidden";
     if(sidePanel !== null) sidePanel.style.visibility = "hidden";
-    const [statusCode, setStatusCode] = useState("404");
+    const { context } = useEnvironment();
     const [loading, setLoading] = useState(true);
-    const [count, setCount] = useState(0);
+    const [errorPresent, setErrorPresent] = useState(false);
 
     const decoded_url = decodeURIComponent(props.app_url);
-    const app_icon = `https://github.com/helxplatform/helx-apps/raw/master/app-specs/${props.app_name}/icon.png`
-
-    const getUrl = async () => {
-        await axios.get(decoded_url)
-            .then(response => {
-                if (response.status === 200) {
-                    setLoading(false);
-                    setStatusCode("200");
-                }
-            })
-            .catch((e) => {
-                setCount(prev => prev + 1);
-                console.log(e);
-            });
-    }
+    const app_icon = `https://github.com/helxplatform/helx-apps/raw/${context.dockstore_branch}/app-specs/${props.app_name}/icon.png`
 
     useEffect(() => {
         document.title = `Connecting · HeLx UI`
     }, [])
 
     useEffect(() => {
-        try {
-            const callGetUrl = async () => {
-                await getUrl();
+        let shouldCancel = false;
+        (async () => {
+            try {
+                await callWithRetry(async () => { 
+                    const res = await axios.get(decoded_url) 
+                    if (res.status === 200 && shouldCancel === false) {
+                        setLoading(false)
+                    } else {
+                        throw new Error("Could not ensure readiness of app URL")
+                    }
+                }, {
+                    failedCallback: () => {
+                        return shouldCancel
+                    },
+                    timeout: 240000,
+                    initialDelay: 6000,
+                    depth: 3
+                })
+            } catch(e) {
+                if (!shouldCancel) {
+                    setErrorPresent(true)
+                    setLoading(false)
+                }
             }
-            if (statusCode !== "200") {
-                callGetUrl();
-            }
+        })()
+        return () => {
+            shouldCancel = true
         }
-        catch (error) {
-            console.log(error);
-        }
-    }, [count]);
+    }, [decoded_url])
 
     if (loading) {
         return (
@@ -55,6 +59,14 @@ export const SplashScreenView = (props) => {
                 <img src={`${app_icon}`} alt="App Icon" width="100"></img>
                 <h2>Connecting...</h2>
                 <Spin size="large"></Spin>
+            </div>
+        );
+    } else if (errorPresent) {
+        return (
+            <div style={{ textAlign: "center", marginTop: "175px" }}>
+                <img src={`${app_icon}`} alt="App Icon" width="100"></img>
+                <h2>Error: { props.app_name } did not start</h2>
+                <Button type="primary" onClick={ () => { window.location.reload() } }>Retry</Button>
             </div>
         );
     }
