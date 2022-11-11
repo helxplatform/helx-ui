@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
-import { Typography, Button, Space, Divider, Slider } from 'antd'
-import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
+import { Typography, Button, Space, Divider, Slider, Tooltip } from 'antd'
+import { ArrowLeftOutlined, ArrowRightOutlined, InfoCircleFilled } from '@ant-design/icons'
 import { generate, presetPalettes, red, volcano, orange, gold, yellow, green, cyan, blue, geekblue, purple, magenta } from '@ant-design/colors'
 import { Column } from '@ant-design/plots';
 import chroma from 'chroma-js'
@@ -367,7 +367,25 @@ export const VariableSearchResults = () => {
                 fontSize: 18,
                 fontWeight: 500
             }}>
-                Variables according to DUG score
+                <div style={{ display: "flex", alignItems: "center" }}>
+                    Variables according to Dug score
+                    <Tooltip trigger="click" title={
+                        <div style={{ padding: "4px 2px" }}>
+                            <div style={{ fontWeight: 500, textDecoration: "underline" }}>
+                                Dug score
+                            </div>
+                            <ul style={{ marginTop: 2, marginBottom: 2, paddingLeft: 16 }}>
+                            <li>
+                                This is the metric used by Dug to describe how relevant a result is
+                            </li>
+                            <li>
+                                The score is calculated from how closely the search query matches information known about a result
+                            </li></ul>
+                        </div>
+                    }>
+                        <InfoCircleFilled className="info-circle" style={{ fontSize: 16, color: "rgb(85, 85, 85)", marginLeft: 8 }} />
+                    </Tooltip>
+                </div>
             </Divider>
             { filteredVariables.length < totalVariableResults && (
                 <div style={{ marginTop: -8, marginBottom: 16 }}>
@@ -443,15 +461,21 @@ export const VariableSearchResults = () => {
                     />
                 </div>
                 <div style={{ display: "flex" }}>
-                    <Button onClick={ startOverHandler }>
-                        Start Over
-                    </Button>
+                    <Tooltip title="Reset zoom/push-pins">
+                        <Button onClick={ startOverHandler }>
+                            Start Over
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Undo zoom">
                     <Button onClick={ () => setPage(page - 1) } disabled={ page === 0 } style={{ marginLeft: 4 }}>
                         <ArrowLeftOutlined />
                     </Button>
-                    <Button onClick={ () => setPage(page + 1) } disabled={ page === _filteredVariables.length - 1 } style={{ marginLeft: 4 }}>
-                        <ArrowRightOutlined />
-                    </Button>
+                    </Tooltip>
+                    <Tooltip title="Redo zoom">
+                        <Button onClick={ () => setPage(page + 1) } disabled={ page === _filteredVariables.length - 1 } style={{ marginLeft: 4 }}>
+                            <ArrowRightOutlined />
+                        </Button>
+                    </Tooltip>
                 </div>
             </Space>
             <Divider orientation="left" orientationMargin={ 0 } style={{ fontSize: 15, marginTop: 24, marginBottom: 0 }}>Studies</Divider>
