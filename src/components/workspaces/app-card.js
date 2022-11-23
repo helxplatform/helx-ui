@@ -4,7 +4,7 @@ import { useApp } from '../../contexts/app-context';
 import { Link, navigate } from '@reach/router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
-import { useActivity, useInstance, useAnalytics } from "../../contexts";
+import { useActivity, useInstance, useAnalytics, useEnvironment } from "../../contexts";
 import './app-card.css';
 
 const { Meta } = Card;
@@ -24,6 +24,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     const { launchApp } = useApp();
     const { addActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
+    const { context } = useEnvironment()
     const [launchTab, setLaunchTab] = useState(true);
     const [isLaunching, setLaunching] = useState(false);
     const { pollingInstance } = useInstance();
@@ -75,7 +76,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     }
 
     const getLogoUrl = (app_id) => {
-        return `https://github.com/helxplatform/helx-apps/raw/master/app-specs/${app_id}/icon.png`
+        return `https://github.com/helxplatform/helx-apps/raw/${context.dockstore_branch}/app-specs/${app_id}/icon.png`
     }
 
     return (

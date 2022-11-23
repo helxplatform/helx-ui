@@ -10,6 +10,8 @@ For local React development you can get started with:
 make start
 ```
 
+NOTE: You must run `make init` once you've cloned the repo to enable the commit-msg git hook so that conventional commits will apply automatically.
+
 ### Appstore backend
 
 To use the `appstore` as a local backend you will need to have minikube installed
