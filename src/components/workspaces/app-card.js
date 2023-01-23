@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Button, Card, Spin, Slider, Col, Tooltip, Typography, Row } from 'antd';
 import { useApp } from '../../contexts/app-context';
-import { Link, navigate } from '@reach/router';
+import { Link, navigate } from '@gatsbyjs/reach-router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import { useActivity, useInstance, useAnalytics, useEnvironment } from "../../contexts";

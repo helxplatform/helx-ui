@@ -32,8 +32,8 @@
     align-items: center;
     filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.15));
     border: 1px solid rgba(0, 0, 0, 0.1);
-    right: 16px;
-    top: 16px;
+    right: 14px;
+    top: 14px;
     transform: translate(54px, -32px);
     /* The same border-radius antd applies to form inputs */
     border-radius: 50%;

@@ -1,5 +1,5 @@
 import { Fragment, useEffect } from 'react'
-import { HelxSearch, SearchForm, ConceptSearchResults, useHelxSearch } from '../components/search'
+import { HelxSearch, SearchForm, Results, useHelxSearch } from '../components/search'
 import { Typography } from 'antd'
 import { Breadcrumbs } from '../components/layout'
 import { useEnvironment } from '../contexts'
@@ -36,7 +36,7 @@ const ScopedSearchView = () => {
 
       {context.workspaces_enabled === 'true' && <Title level={1}>Search</Title>}
 
-      <ConceptSearchResults />
+      <Results />
 
     </Fragment>
   )

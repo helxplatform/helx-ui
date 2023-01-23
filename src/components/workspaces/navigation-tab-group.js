@@ -1,4 +1,4 @@
-import { navigate } from '@reach/router';
+import { navigate } from '@gatsbyjs/reach-router';
 import { Tabs } from 'antd';
 
 const { TabPane } = Tabs;

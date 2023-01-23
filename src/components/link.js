@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link as ReactLink } from '@reach/router'
+import { Link as ReactLink } from '@gatsbyjs/reach-router'
 
 export const ExternalLink = ({ to, children, ...props }) => {
   return (
