@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { Breadcrumb } from 'antd'
-import { Link } from '@reach/router'
+import { Link } from '@gatsbyjs/reach-router'
 import './breadcrumbs.css'
 
 export const Breadcrumbs = ({ crumbs }) => {

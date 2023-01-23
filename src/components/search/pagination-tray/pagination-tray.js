@@ -1,4 +1,4 @@
-import { navigate } from '@reach/router'
+import { navigate } from '@gatsbyjs/reach-router'
 import { Pagination, Space } from 'antd'
 import { useHelxSearch } from '../'
 import { useEnvironment } from '../../../contexts'

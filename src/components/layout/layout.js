@@ -1,5 +1,5 @@
 import { Layout as AntLayout, Button, Menu, Grid } from 'antd'
-import { useLocation, Link } from '@reach/router'
+import { useLocation, Link } from '@gatsbyjs/reach-router'
 import { useEnvironment, useAnalytics } from '../../contexts';
 import { logoutHandler } from '../../api/';
 import { MobileMenu } from './menu';
