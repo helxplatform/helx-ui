@@ -1,7 +1,6 @@
 library 'pipeline-utils@master'
 
 CCV = ""
-CURR_TIMESTAMP = ""
 
 pipeline {
   agent {
