@@ -3,8 +3,7 @@ import { Button, Card, Spin, Slider, Col, Tooltip, Typography, Row } from 'antd'
 import { Link, navigate } from '@gatsbyjs/reach-router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
-import { useActivity, useInstance, useAnalytics, useEnvironment } from "../../contexts";
-import { useWorkspacesAPI } from '../../contexts/workspaces-context';
+import { useActivity, useInstance, useAnalytics, useEnvironment, useWorkspacesAPI } from "../../contexts";
 import './app-card.css';
 
 const { Meta } = Card;

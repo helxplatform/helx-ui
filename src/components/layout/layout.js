@@ -3,7 +3,6 @@ import { Layout as AntLayout, Button, Menu, Grid, Divider } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import { useLocation, Link } from '@gatsbyjs/reach-router'
 import { useEnvironment, useAnalytics, useWorkspacesAPI } from '../../contexts';
-import { logoutHandler } from '../../api/';
 import { MobileMenu } from './menu';
 import { SidePanel } from '../side-panel/side-panel';
 import './layout.css';

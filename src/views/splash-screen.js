@@ -69,6 +69,14 @@ export const SplashScreenView = (props) => {
                 <Button type="primary" onClick={ () => { window.location.reload() } }>Retry</Button>
             </div>
         );
+    } else if (errorPresent) {
+        return (
+            <div style={{ textAlign: "center", marginTop: "175px" }}>
+                <img src={`${app_icon}`} alt="App Icon" width="100"></img>
+                <h2>Error: { props.app_name } did not start</h2>
+                <Button type="primary" onClick={ () => { window.location.reload() } }>Retry</Button>
+            </div>
+        );
     }
     else {
         window.location = decoded_url;
