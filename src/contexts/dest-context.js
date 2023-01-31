@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext } from 'react'
-import { useNavigate } from '@reach/router'
+import { useNavigate } from '@gatsbyjs/reach-router'
 
 export const DestContext = createContext({})
 

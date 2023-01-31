@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { Result } from 'antd'
-import { useLocation } from '@reach/router'
+import { useLocation } from '@gatsbyjs/reach-router'
 import { useDest } from '../../../contexts'
 
 export const LoginSuccessRedirectView = ({ }) => {

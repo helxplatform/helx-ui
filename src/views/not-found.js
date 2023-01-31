@@ -1,6 +1,6 @@
 import { Fragment, useEffect } from 'react'
 import { Button, Result, Typography } from 'antd'
-import { useNavigate } from '@reach/router'
+import { useNavigate } from '@gatsbyjs/reach-router'
 import { useEnvironment } from '../contexts'
 
 const { Title } = Typography
