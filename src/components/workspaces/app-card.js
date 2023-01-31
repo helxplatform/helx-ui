@@ -1,10 +1,9 @@
 import React, { Fragment, useState } from 'react';
 import { Button, Card, Spin, Slider, Col, Tooltip, Typography, Row } from 'antd';
-import { useApp } from '../../contexts/app-context';
 import { Link, navigate } from '@gatsbyjs/reach-router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
-import { useActivity, useInstance, useAnalytics, useEnvironment } from "../../contexts";
+import { useActivity, useInstance, useAnalytics, useEnvironment, useWorkspacesAPI } from "../../contexts";
 import './app-card.css';
 
 const { Meta } = Card;
@@ -21,7 +20,7 @@ const validateLocalstorageValue = (config, app_id, min, max) => {
 }
 
 export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources, available }) => {
-    const { launchApp } = useApp();
+    const { api } = useWorkspacesAPI();
     const { addActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
     const { context } = useEnvironment()
@@ -40,34 +39,33 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     const appLauncher = async () => {
         setLaunching(true);
         // NOTE: Memory is converted to MB when posting an instance
-        await launchApp(app_id, currentCpu, currentGpu, bytesToMegabytes(currentMemory))
-            .then(res => {
-                const sid = res.data.url.split("/")[6];
-                let newActivity = {
-                    'sid': sid,
-                    'app_name': name,
-                    'status': 'processing',
-                    'timestamp': new Date(),
-                    'message': `${name} is launching.`
-                }
-                analyticsEvents.appLaunched(name, sid, currentCpu, currentGpu, currentMemory, false)
-                addActivity(newActivity)
-                // start polling service and navigate to active tab if the launch is successful
-                pollingInstance(app_id, sid, res.data.url, name);
-                navigate('/helx/workspaces/active');
-            }).catch(e => {
-                let newActivity = {
-                    'sid': 'none',
-                    'app_name': name,
-                    'status': 'error',
-                    'timestamp': new Date(),
-                    'message': `Failed to launch ${name}.`
-                }
-                // Same as other event, but indicate that it failed. +no sid, since the app did not launch.
-                analyticsEvents.appLaunched(name, null, currentCpu, currentGpu, currentMemory, true)
-                addActivity(newActivity)
-            })
-            
+        try {
+            const data = await api.launchApp(app_id, currentCpu, currentGpu, bytesToMegabytes(currentMemory))
+            const sid = data.url.split("/")[6];
+            let newActivity = {
+                'sid': sid,
+                'app_name': name,
+                'status': 'processing',
+                'timestamp': new Date(),
+                'message': `${name} is launching.`
+            }
+            analyticsEvents.appLaunched(name, sid, currentCpu, currentGpu, currentMemory, false)
+            addActivity(newActivity)
+            // start polling service and navigate to active tab if the launch is successful
+            pollingInstance(app_id, sid, data.url, name);
+            navigate('/helx/workspaces/active');
+        } catch (e) {
+            let newActivity = {
+                'sid': 'none',
+                'app_name': name,
+                'status': 'error',
+                'timestamp': new Date(),
+                'message': `Failed to launch ${name}.`
+            }
+            // Same as other event, but indicate that it failed. +no sid, since the app did not launch.
+            analyticsEvents.appLaunched(name, null, currentCpu, currentGpu, currentMemory, true)
+            addActivity(newActivity)
+        }
         // store user's preference of each app configuration in localStorage
         localStorage.setItem(`${app_id}-cpu`, currentCpu);
         localStorage.setItem(`${app_id}-gpu`, currentGpu);

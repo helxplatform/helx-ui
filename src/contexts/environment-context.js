@@ -3,10 +3,13 @@ import axios, { CanceledError } from 'axios';
 import {
   ActiveView,
   AvailableView,
+  WorkspaceLoginView,
+  LoginSuccessRedirectView,
   SupportView,
   LoadingView,
   SearchView,
-  SplashScreenView
+  SplashScreenView,
+  WorkspaceSignupView,
 } from '../views'
 
 // Setup global csrf token
@@ -21,7 +24,7 @@ axios.interceptors.response.use(function (response) {
     // The `error` object for cancelled requests does not have a `response` property.
   }
   else if (error.response.status === 403) {
-    window.location.href = window.location.origin + '/helx/login/';
+    // window.location.href = window.location.origin + '/helx/login/';
   }
   return Promise.reject(error)
 })
@@ -37,27 +40,31 @@ export const EnvironmentProvider = ({ children }) => {
 
   // Routes are generated dynamically based on search and workspace configuration. 
   // If workspace module is enabled, all relevant paths will be added. (/workspaces/active, workspace/available, ...)
-
+  // Note: `parent` property refers to another equivalent or encapsulating route that occupies an entry in the site's header.
+  // It's important to include this if applicable so that the header entry stays active, e.g. on subroutes of workspaces.
   const generateRoutes = (searchEnabled, workspaceEnabled) => {
     const baseRoutes = [];
     if (searchEnabled === 'true') {
       // route homepage to search if search is enabled
-      baseRoutes.push({ path: '/', text: '', Component: SearchView })
+      baseRoutes.push({ path: '/', parent: '/search', text: '', Component: SearchView })
       baseRoutes.push({ path: '/search', text: 'Search', Component: SearchView })
     }
     if (workspaceEnabled === 'true') {
       // route homepage to apps page if search is disabled
       if (searchEnabled === 'false') {
-        baseRoutes.push({ path: '/', text: '', Component: AvailableView })
+        baseRoutes.push({ path: '/', parent: '/workspaces', text: '', Component: AvailableView })
       }
       baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
-      baseRoutes.push({ path: '/workspaces/available', text: '', Component: AvailableView })
-      baseRoutes.push({ path: '/workspaces/active', text: '', Component: ActiveView })
-      baseRoutes.push({ path: '/connect/:app_name/:app_url', text: '', Component: SplashScreenView })
+      baseRoutes.push({ path: '/workspaces/login', parent: '/workspaces', text: '', Component: WorkspaceLoginView })
+      baseRoutes.push({ path: '/workspaces/login/success', parent: '/workspaces', text: '', Component: LoginSuccessRedirectView })
+      baseRoutes.push({ path: '/workspaces/signup/social', parent: '/workspaces', text: '', Component: WorkspaceSignupView })
+      baseRoutes.push({ path: '/workspaces/available', parent: '/workspaces', text: '', Component: AvailableView })
+      baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: '', Component: ActiveView })
+      baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', text: '', Component: SplashScreenView })
     }
     if (searchEnabled === 'false' && workspaceEnabled === 'false') {
       // route homepage to support page if both search and workspaces are disabled
-      baseRoutes.push({ path: '/', text: '', Component: SupportView })
+      baseRoutes.push({ path: '/', parent: '/support', text: '', Component: SupportView })
     }
     baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
     return baseRoutes;

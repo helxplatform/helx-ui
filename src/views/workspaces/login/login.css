@@ -1,0 +1,40 @@
+.login-form.page {
+    height: 100%;
+}
+.login-form > .ant-pro-form-login-page {
+    height: 100%;
+}
+.login-form > .ant-pro-form-login-container {
+    padding-bottom: 12px;
+}
+.login-form .ant-pro-form-login-header, .login-form .ant-pro-form-login-page-header {
+    margin-bottom: 8px;
+}
+.login-form .ant-pro-form-login-title, .login-form .ant-pro-form-login-page-title {
+    font-size: 24px;
+    /* Margin to align vertically with icon to the left properly */
+    margin-bottom: 6px;
+}
+.login-form .ant-pro-form-login-logo, .login-form .ant-pro-form-login-page-logo {
+    font-size: 1.5rem;
+    color: #1890ff;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+.login-form .ant-pro-form-login-main, .login-form .ant-pro-form-login-page-main {
+    width: auto !important;
+}
+.login-form .ant-pro-form-login-other, .login-form .ant-pro-form-login-page-other {
+    margin-top: 12px !important;
+}
+.login-form .ant-form-item-explain.ant-form-item-explain-connected {
+    /* Ensure there is proper spacing between validation explanations and next form child */
+    margin-bottom: 8px;
+}
+/** Disable basic login form */
+.login-form.no-basic-login .ant-pro-form-login-main .ant-form, .login-form.no-basic-login .ant-pro-form-login-page-main .ant-form {
+    display: none;
+}
+.login-form.no-basic-login .ant-pro-form-login-desc, .login-form.no-basic-login .ant-pro-form-login-page-desc {
+    margin-bottom: 24px;
+}
