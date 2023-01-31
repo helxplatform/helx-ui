@@ -40,7 +40,7 @@ export const ConceptModalBody = ({ result }) => {
   const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
-  const { query, setSelectedResult, fetchKnowledgeGraphs, fetchStudyVariables, fetchCDEs } = useHelxSearch()
+  const { query, setSelectedResult, fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studies, setStudies] = useState([])
   const [cdes, setCdes] = useState(null)
@@ -93,7 +93,7 @@ export const ConceptModalBody = ({ result }) => {
         fetchVarsController.current?.abort()
         fetchVarsController.current = new AbortController()
 
-        const data = await fetchStudyVariables(result.id, query, {
+        const data = await fetchVariablesForConceptId(result.id, query, {
           signal: fetchVarsController.current.signal
         })
         setStudies(data.reduce((studies, study) => {
@@ -199,7 +199,7 @@ export const ConceptModalBody = ({ result }) => {
       getCdes()
       getKgs()
     }
-  }, [fetchKnowledgeGraphs, fetchStudyVariables, fetchCDEs, result, query])
+  }, [fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs, result, query])
 
   useEffect(() => {
     return () => {

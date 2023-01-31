@@ -8,8 +8,8 @@ import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import { updateTabName } from '../../utils/update-tab-name';
-import { navigate } from '@reach/router';
 import { withWorkspaceAuthentication } from '.';
+import { navigate } from '@gatsbyjs/reach-router';
 
 const memoryFormatter = (value) => {
     return formatBytes(value, 2);

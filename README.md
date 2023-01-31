@@ -10,6 +10,8 @@ For local React development you can get started with:
 make start
 ```
 
+NOTE: You must run `make init` once you've cloned the repo to enable the commit-msg git hook so that conventional commits will apply automatically.
+
 ### Appstore backend
 
 To use the `appstore` as a local backend you will need to have minikube installed
@@ -104,7 +106,7 @@ testing.
 - Login to GitHub
 - Setup a GitHub OAuth [app](https://docs.github.com/en/developers/apps/creating-an-oauth-app)
 
-> You can use 127.0.0.1, localhost or 0.0.0.0 here, but it needs to match the
+> You can use 127.0.0.1, localhost or 0.0.0.0 here, but it must match the
 > address you use locally these are not interchangeable. Mixing them will raise
 > a callback error in the login flow.
 

@@ -4,12 +4,11 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 1080px;
   transition: min-height 500ms ease-out;
 }
 .search-form.ant-form {
   margin: 0 auto;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .search-form.with-results {
@@ -17,6 +16,7 @@
 }
 
 .search-form.without-results {
+  max-width: 1080px;
   min-height: 20rem;
   /* flex-grow: 1;
   margin-top: 8.25rem; */

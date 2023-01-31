@@ -1,7 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
-import { useLocation, useNavigate } from '@reach/router'
-import { message } from 'antd'
+import { useLocation, useNavigate } from '@gatsbyjs/reach-router'
 import { useEnvironment, useAnalytics } from '../../contexts'
 import { ConceptModal } from './'
 import { useLocalStorage } from '../../hooks/use-local-storage'
@@ -11,24 +10,12 @@ export const HelxSearchContext = createContext({})
 export const useHelxSearch = () => useContext(HelxSearchContext)
 
 const PER_PAGE = 20
-const tempSearchFacets = [
-  'ALL',
-  'Biolink',
-  'CDE',
-  'Harmonized',
-  'LOINC',
-  'PhenX',
-].sort((f, g) => f.toLowerCase() < g.toLowerCase() ? -1 : 1)
-// The search_var endpoint returns studies (DbGaP, etc) and CDEs.
-// The CDEs will be rendered in another tab, so this array will assist
-// in separating out CDEs from actual studies.
-const STUDY_TYPES = ['DbGaP']
-
 
 export const SearchLayout = Object.freeze({
   GRID: 'GRID',
   // LIST: 'LIST',
   EXPANDED_RESULT: 'EXPANDED_RESULT',
+  VARIABLE_VIEW: 'VARIABLE_VIEW'
 })
 
 const validateResult = result => {
@@ -51,6 +38,14 @@ export const HelxSearch = ({ children }) => {
   // const [selectedResult, setSelectedResult] = useState(null)
   const [typeFilter, setTypeFilter] = useState(null)
   const [layout, _setLayout] = useLocalStorage("search_layout", SearchLayout.GRID)
+
+  // The following serve the Variable Results view
+  const [variableStudyResults, setVariableStudyResults] = useState([])
+  const [variableStudyResultCount, setVariableStudyResultCount] = useState(0)
+  const [variableResults, setVariableResults] = useState([])
+  const [totalVariableResults, setVariableResultCount] = useState(0)
+  const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
+  const [variableError, setVariableError] = useState({})
 
   const inputRef = useRef()
   const navigate = useNavigate()
@@ -225,6 +220,8 @@ export const HelxSearch = ({ children }) => {
     setCurrentPage(+queryParams.get('p') || 1)
     if (q === '') {
       setTotalConcepts(0)
+      setVariableStudyResultCount(0)
+      setVariableResultCount(0)
     }
   }, [location.search])
 
@@ -232,6 +229,8 @@ export const HelxSearch = ({ children }) => {
     setConceptPages({})
     setTypeFilter(null)
     setSelectedResult(null)
+    setVariableStudyResults([])
+    setVariableResults([])
   }, [query])
 
   useEffect(() => {
@@ -254,8 +253,8 @@ export const HelxSearch = ({ children }) => {
           // gather invalid concepts: remove from rendered concepts and dump to console.
           let hits = unsortedHits.reduce(validationReducer, { valid: [], invalid: [] })
           if (hits.invalid.length) {
-            console.error(`The following ${ hits.invalid.length } invalid concepts ` + 
-              `were removed from the ${ hits.valid.length + hits.invalid.length } ` +
+            console.error(`The following ${hits.invalid.length} invalid concepts ` +
+              `were removed from the ${hits.valid.length + hits.invalid.length} ` +
               `concepts in the response.`, hits.invalid)
           }
           const newConceptPages = { ...conceptPages }
@@ -294,7 +293,7 @@ export const HelxSearch = ({ children }) => {
 
   const fetchKnowledgeGraphs = useCallback(async (tag_id, axiosOptions) => {
     try {
-      const { data } =  await axios.post(`${helxSearchUrl}/search_kg`, {
+      const { data } = await axios.post(`${helxSearchUrl}/search_kg`, {
         index: 'kg_index',
         unique_id: tag_id,
         query: query,
@@ -311,7 +310,7 @@ export const HelxSearch = ({ children }) => {
     }
   }, [helxSearchUrl, query])
 
-  const fetchStudyVariables = useCallback(async (_id, _query, axiosOptions) => {
+  const fetchVariablesForConceptId = useCallback(async (_id, _query, axiosOptions) => {
     try {
       const { data: { result } } = await axios.post(`${helxSearchUrl}/search_var`, {
         concept: _id,
@@ -324,7 +323,7 @@ export const HelxSearch = ({ children }) => {
       }
       const filteredAndTypedStudies = Object.keys(result)
         .reduce((studies, key) => {
-          if (STUDY_TYPES.includes(key)) {
+          if (key !== "cde") {
             const newStudies = [...result[key].map(item => ({ type: key, ...item }))]
             return [...newStudies, ...studies]        
           }
@@ -382,21 +381,103 @@ export const HelxSearch = ({ children }) => {
     }
   }, [])
 
+  function collectVariablesAndUpdateStudies(studies) {
+    const variables = []
+    const studiesWithVariablesMarked = []
+
+    studies.forEach((study, indexByStudy) => {
+      const studyToUpdate = Object.assign({}, study);
+      studyToUpdate["elements"] = [];
+
+      study.elements.forEach((variable, indexByVariable) => {
+        const variableToUpdate = Object.assign({}, variable);
+        variableToUpdate["study_name"] = study.c_name
+        variableToUpdate["withinFilter"] = "none"
+        variables.push(variableToUpdate)
+        
+        studyToUpdate["elements"].push(variableToUpdate)
+      })
+
+      studiesWithVariablesMarked.push(studyToUpdate)
+    });
+
+    const sortedVariables = variables.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
+    const sortedVariablesWithIndexPosition = sortedVariables.map((v, i) =>  {
+      const rObj = v
+      rObj["indexPos"] = i
+      return rObj;
+    })
+
+    return {
+      "sortedVariables": sortedVariablesWithIndexPosition,
+      "variablesCount": sortedVariables.length,
+      "studiesWithVariablesMarked": studiesWithVariablesMarked,
+      "studiesCount": studiesWithVariablesMarked.length
+    };
+  }
+
+  useEffect(() => {
+    const fetchAllVariables = async () => {
+      setIsLoadingVariableResults(true)
+      try {
+        const params = {
+          index: 'variables_index',
+          query: query,
+          size: 10000
+        }
+        const response = await axios.post(`${helxSearchUrl}/search_var`, params)
+        if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
+          
+          // Data structure of studies matches API response 
+          const studies = response.data.result.DbGaP.map(r => r)
+
+          // Data structure of sortedVariables is designed to populate the histogram feature
+          const {sortedVariables, variablesCount, studiesWithVariablesMarked, studiesCount} = collectVariablesAndUpdateStudies(studies)
+          setVariableStudyResults(studiesWithVariablesMarked)
+          setVariableStudyResultCount(studiesCount)
+
+          setVariableResults(sortedVariables)
+          setVariableResultCount(variablesCount)
+
+          setIsLoadingVariableResults(false)
+        } else {
+          setVariableStudyResults([])
+          setVariableStudyResultCount(0)
+          setVariableResults([])
+          setVariableResultCount(0)
+          setIsLoadingVariableResults(false)
+        }
+      } catch (variableError) {
+        console.log(variableError)
+        setVariableError({ message: 'An variable error occurred!' })
+        setIsLoadingVariableResults(false)
+      }
+    }
+
+    if (query) {
+      fetchAllVariables()
+    }
+  }, [query, helxSearchUrl])
+
+
   return (
     <HelxSearchContext.Provider value={{
+      query, setQuery, doSearch, fetchKnowledgeGraphs, fetchVariablesForConceptId, inputRef,
       query, setQuery, doSearch,
-      fetchKnowledgeGraphs, fetchStudyVariables, fetchCDEs,
+      fetchKnowledgeGraphs, fetchCDEs, fetchVariablesForConceptId,
       inputRef,
       error, isLoadingConcepts,
       concepts, totalConcepts, conceptPages: filteredConceptPages,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
-      facets: tempSearchFacets,
       selectedResult, setSelectedResult, searchSelectedResult,
       layout, setLayout, setFullscreenResult,
       typeFilter, setTypeFilter,
-      conceptTypes, conceptTypeCounts
+      conceptTypes, conceptTypeCounts,
+      variableStudyResults, variableStudyResultCount,
+      variableError, variableResults, isLoadingVariableResults,
+      totalVariableResults
     }}>
-      { children }
+      {children}
       <ConceptModal
         result={ selectedResult }
         visible={ layout !== SearchLayout.EXPANDED_RESULT && selectedResult !== null }

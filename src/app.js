@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { LocationProvider, Router as ReachRouter, globalHistory, useLocation } from '@reach/router'
+import { LocationProvider, Router as ReachRouter, globalHistory, useLocation } from '@gatsbyjs/reach-router'
 import {
   EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider,
   AnalyticsProvider, DestProvider, useEnvironment, useAnalytics, WorkspacesAPIProvider

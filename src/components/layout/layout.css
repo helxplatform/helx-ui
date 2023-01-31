@@ -4,8 +4,8 @@
 
 .brand_img {
     max-height: 64px;
-    max-width: 150px;
-    object-fit: scale-down;
+    /* max-width: 150px; */
+    /* object-fit: scale-down; */
     padding: 2px 0px;
 }
 
