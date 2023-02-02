@@ -12,7 +12,7 @@ COPY --chown=node:node "package*.json" /usr/src/app/
 RUN npm ci --only=production
 
 COPY --chown=node:node . /usr/src/app
-RUN BUILD_PATH=./build/frontend npm run build --production --no-audit --max-old-space-size=4096
+RUN BUILD_PATH=./build/frontend NODE_OPTIONS=--max-old-space-size=4096 npm run build --production --no-audit
 
 ########################
 # Production environment
