@@ -33,6 +33,7 @@ export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
   const relativeHost = window.location.origin;
+  const isProduction = process.env.NODE_ENV !== 'development'
   const [availableRoutes, setAvailableRoutes] = useState([]);
   const [context, setContext] = useState({});
   const [isLoadingContext, setIsLoadingContext] = useState(true);
@@ -117,9 +118,10 @@ export const EnvironmentProvider = ({ children }) => {
   return (
     <EnvironmentContext.Provider value={{
       helxSearchUrl: context.search_url,
-      helxAppstoreUrl: window.location.origin,
+      helxAppstoreUrl: isProduction ? window.location.origin : "http://localhost:8000",
       context: context,
       routes: availableRoutes,
+      isProduction,
       basePath,
       isLoadingContext
     }}>
