@@ -1,0 +1,76 @@
+.histogram-startover-btn {
+    margin-bottom: 10px;
+}
+
+div.within-filter-false span,
+div.within-filter-false a {
+    color: grey;
+}
+div.within-filter-false a:hover {
+    color: rgb(69, 69, 69);
+    text-decoration: underline;
+}
+.variables-collapse .study-panel .ant-collapse-content-box {
+    padding: 4px !important;
+    /* padding-top: 4px !important;
+    padding-bottom: 4px !important; */
+}
+.variables-collapse .study-panel .ant-collapse-header {
+    padding-left: 0px !important;
+    align-items: center !important;
+}
+.variables-collapse .study-panel .study-panel-header .study-selection-button {
+    color: #6399e9;
+}
+
+.variables-collapse .study-panel.unselected .study-panel-header .study-selection-button {
+    filter: opacity(0);
+}
+
+.variables-collapse .study-panel.selected .study-panel-header .study-selection-button {
+    filter: opacity(1);
+}
+
+.variables-collapse .study-panel:hover .study-panel-header .study-selection-button {
+    filter: opacity(1);
+}
+
+.scrollable-div {
+    max-height: 300px;
+    overflow: auto;
+    padding-top: 12px;
+    /* Children have a bottom margin of 8px */
+    padding-bottom: 4px;
+    /* padding: 4px 16px; */
+    border: solid 1px #dddddd;
+}
+
+.histogram-legend-item:first-child {
+    margin-top: 0 !important;
+}
+/* .histogram-legend-item:hover svg {
+    border: 0.5px solid rgba(0, 0, 0, 0.85);
+} */
+/* .histogram-slider {
+    display: flex;
+    align-items: flex-end;
+    padding: 0 !important;
+    height: 16px !important;
+}
+.histogram-slider .ant-slider-rail, .histogram-slider .ant-slider-track {
+    height: 100% !important;
+}
+.histogram-slider .ant-slider-step {
+    height: 100%;
+}
+.histogram-slider .ant-slider-step .ant-slider-dot {
+    border-radius: 0;
+    height: 16px;
+    width: calc(100% / 1174);
+    top: initial !important;
+    left: initial !important;
+    position: initial;
+    display: inline-block;
+    border: none;
+    transform: translate(-50%, 0) !important;
+} */

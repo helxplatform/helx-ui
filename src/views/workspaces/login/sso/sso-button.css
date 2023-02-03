@@ -1,0 +1,7 @@
+.sso-button {
+    display: flex !important;
+    align-items: center;
+    height: 40px !important;
+    width: 140px !important;
+    padding: 4px 0 !important;
+}

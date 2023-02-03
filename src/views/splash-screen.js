@@ -57,8 +57,16 @@ export const SplashScreenView = (props) => {
         return (
             <div style={{ textAlign: "center", marginTop: "175px" }}>
                 <img src={`${app_icon}`} alt="App Icon" width="100"></img>
-                <h2>Connecting...</h2>
-                <Spin size="large"></Spin>
+                <h2 style={{ marginTop: 16 }}>Connecting...</h2>
+                <Spin size="large" style={{ marginTop: 16 }}></Spin>
+            </div>
+        );
+    } else if (errorPresent) {
+        return (
+            <div style={{ textAlign: "center", marginTop: "175px" }}>
+                <img src={`${app_icon}`} alt="App Icon" width="100"></img>
+                <h2>Error: { props.app_name } did not start</h2>
+                <Button type="primary" onClick={ () => { window.location.reload() } }>Retry</Button>
             </div>
         );
     } else if (errorPresent) {

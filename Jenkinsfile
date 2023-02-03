@@ -1,7 +1,6 @@
 library 'pipeline-utils@master'
 
 CCV = ""
-CURR_TIMESTAMP = ""
 
 pipeline {
   agent {
@@ -21,12 +20,12 @@ spec:
     resources:
       requests:
         cpu: "512m"
-        memory: "1024Mi"
+        memory: "1Gi"
         ephemeral-storage: "2Gi"
       limits:
         cpu: "1024m"
-        memory: "2048Mi"
-        ephemeral-storage: "2Gi"
+        memory: "2Gi"
+        ephemeral-storage: "4Gi"
     command:
     - /busybox/cat
     tty: true
@@ -49,22 +48,13 @@ spec:
     command:
     - /bin/bash
     tty: true
-  - name: crane
-    workingDir: /tmp/jenkins
-    image: gcr.io/go-containerregistry/crane:debug
-    imagePullPolicy: Always
-    command:
-    - /busybox/cat
-    tty: true
   volumes:
   - name: jenkins-docker-cfg
-    projected:
-      sources:
-      - secret:
-          name: rencibuild-imagepull-secret
-          items:
-            - key: .dockerconfigjson
-              path: config.json
+    secret:
+      secretName: rencibuild-imagepull-secret
+      items:
+      - key: .dockerconfigjson
+        path: config.json
 '''
         }
     }
@@ -81,47 +71,22 @@ spec:
     stages {
         stage('Build') {
             steps {
-              script {
-                container(name: 'kaniko', shell: '/busybox/sh') {
-                    def now = new Date()
-                    CURR_TIMESTAMP = now.format("yyyy-MM-dd'T'HH.mm'Z'", TimeZone.getTimeZone('UTC'))
-                    kaniko.build("./Dockerfile", ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH", "$IMAGE_NAME:$CURR_TIMESTAMP", "$IMAGE_NAME:latest"])
-                }
-                container(name: 'go', shell: '/bin/bash') {
-                    if (BRANCH_NAME.equals("master")) { 
-                        CCV = go.ccv()
-                    }
-                }
-              }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'image.tar', onlyIfSuccessful: true
-                }
-            }
-        }
-        stage('Test') {
-            steps {
-                sh '''
-                echo "Test stage"
-                '''
-            }
-        }
-        stage('Publish') {
-            steps {
                 script {
-                    container(name: 'crane', shell: '/busybox/sh') {
-                        def imageTagsPushAlways = ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH"]
-                        def imageTagsPushForDevelopBranch = ["$IMAGE_NAME:$CURR_TIMESTAMP"]
-                        def imageTagsPushForMasterBranch = ["$IMAGE_NAME:latest"]
-                        if(CCV != null && !CCV.trim().isEmpty()) {
-                            imageTagsPushForMasterBranch.add("$IMAGE_NAME:$CCV")
+                    container(name: 'go', shell: '/bin/bash') {
+                        if (BRANCH_NAME.equals("master")) { 
+                            CCV = go.ccv()
                         }
-                        image.publish2(
-                            imageTagsPushAlways,
-                            imageTagsPushForDevelopBranch,
-                            imageTagsPushForMasterBranch
-                        )
+                    }
+                    container(name: 'kaniko', shell: '/busybox/sh') {
+                        def tagsToPush = ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH"]
+                        if (CCV != null && !CCV.trim().isEmpty() && BRANCH_NAME.equals("master")) {
+                            tagsToPush.add("$IMAGE_NAME:$CCV")
+                        } else if (BRANCH_NAME.equals("develop")) {
+                            def now = new Date()
+                            def currTimestamp = now.format("yyyy-MM-dd'T'HH.mm'Z'", TimeZone.getTimeZone('UTC'))
+                            tagsToPush.add("$IMAGE_NAME:$currTimestamp")
+                        }
+                        kaniko.buildAndPush("./Dockerfile", tagsToPush, true)
                     }
                 }
             }
