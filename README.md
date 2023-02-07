@@ -50,6 +50,13 @@ Navigate to the site at `http://localhost:8000/`.
 With this setup appstore and tycho will use your local cluster enabling full
 interaction with launched app instances.
 
+### Local UI with Appstore in Kubernetes
+
+TODO. This isn't supported as of yet Production Appstore doesn't set CORS
+headers on any requests. In order for login/user sessions to work properly,
+you'd need to run the local UI and external Appstore instance on the same origin
+to properly share session information.
+
 ## Environment Config
 
 HeLx-UI works by generating an `env.json` file from your environment that is used within the app.
