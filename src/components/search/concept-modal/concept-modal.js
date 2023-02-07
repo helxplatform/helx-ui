@@ -164,7 +164,11 @@ export const ConceptModalBody = ({ result }) => {
         if (cdeData) {
           const cdeIds = cdeData.elements.map((cde) => cde.id)
           await Promise.all(cdeIds.map(async (cdeId, i) => {
-            relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
+            try {
+              relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
+            } catch (e) {
+              relatedConcepts[cdeId] = null
+            }
           }))
         }
         setCdes(cdeData)

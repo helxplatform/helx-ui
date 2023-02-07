@@ -27,7 +27,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts, loading }) => {
         // Lunr supports array fields, though it expects the user to tokenize the elements themselves.
         // Instead, just join the concepts into a string and let lunr tokenize it instead.
         // See: https://stackoverflow.com/a/43562885
-        concepts: Object.values(cdeRelatedConcepts[cde.id]).map((concept) => concept.name).join(" ")
+        concepts: Object.values(cdeRelatedConcepts[cde.id] ?? []).map((concept) => concept.name).join(" ")
       }))
     } else return []
   }, [loading, failed, cdes, cdeRelatedConcepts])

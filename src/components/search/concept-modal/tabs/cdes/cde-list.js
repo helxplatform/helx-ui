@@ -7,7 +7,7 @@ export const CdeList = ({ cdes, cdeRelatedConcepts, highlight, loading, failed }
     if (failed) return (
         <Empty
             image={ Empty.PRESENTED_IMAGE_SIMPLE }
-            description="Sorry! We couldn't find any CDEs linked to this concept."
+            description="Sorry! We weren't able to find any CDEs linked to this concept."
         />
     )
     return (
