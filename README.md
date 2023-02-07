@@ -29,11 +29,7 @@ make install
 make start
 ```
 
-Important: When running the UI with Workspaces locally, it expects Appstore to be available
-at http://localhost:8000.
-
-
-This cannot launch apps due to running in stub mode, but will allow login (with
+NOTE: This cannot launch apps due to running in stub mode, but will allow login (with
 Django admin, see details below for social login) and serve up some stubbed data.
 The default user is when running Appstore locally is username: admin and password: admin.
 
