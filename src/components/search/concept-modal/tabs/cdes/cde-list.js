@@ -10,8 +10,6 @@ export const CdeList = ({ cdes, cdeRelatedConcepts, highlight, loading, failed }
             description="Sorry! We couldn't find any CDEs linked to this concept."
         />
     )
-    cdes = []   
-    loading = true
     return (
         <List
             loading={{

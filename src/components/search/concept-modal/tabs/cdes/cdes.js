@@ -56,7 +56,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts, loading }) => {
         <Title level={ 4 } style={{ margin: 0 }}>CDEs</Title>
         { !failed && <DebouncedInput setValue={setSearch}/> }
       </div>
-      {/* { search && <Text style={{ display: "block", marginTop: "8px", marginBottom: "-16px" }}>Search results for <Text italic>{search.trim()}</Text>:</Text> } */}
+      {/* { search && <Text style={{ display: "block", marginTop: "8px", marginBottom: "-16px", fontSize: 15, color: "rgba(0, 0, 0, 0.45)" }}>Search results for <i>{search.trim()}</i>:</Text> } */}
       <CdeList cdes={cdeSource} cdeRelatedConcepts={cdeRelatedConcepts} highlight={highlightTokens} loading={loading} failed={failed}/>
    </Space>
   )
