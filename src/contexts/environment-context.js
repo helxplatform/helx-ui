@@ -87,6 +87,9 @@ export const EnvironmentProvider = ({ children }) => {
       // split the comma-separated string which tells ui the support section to hide
       context.hidden_support_sections = context.hidden_support_sections.split(',')
 
+      // Make sure the tranql_url ends with a slash. If it doesn't, it will redirect, which breaks the iframe for some reason. 
+      if (!context.tranql_url.endsWith("/")) context.tranql_url += "/"
+
       // logos for different brands. Use the helx logo if no brand has been specified.
       let brandAssetFolder = context.brand
       // `catalyst` is the supported name, but support `cat` and `bdc` as well.
