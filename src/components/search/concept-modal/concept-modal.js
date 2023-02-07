@@ -129,7 +129,7 @@ export const ConceptModalBody = ({ result }) => {
               const controller = new AbortController()
               fetchCdesTranqlController.current.push(controller)
               const res = await fetch(
-                  `${tranqlUrl}/tranql/query`,
+                  `${tranqlUrl}tranql/query`,
                   {
                       headers: { 'Content-Type': 'text/plain' },
                       method: 'POST',
