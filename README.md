@@ -31,7 +31,7 @@ make start
 
 NOTE: This cannot launch apps due to running in stub mode, but will allow login (with
 Django admin, see details below for social login) and serve up some stubbed data.
-The default user is when running Appstore locally is username: admin and password: admin.
+The default user when running Appstore locally is username=admin and password=admin.
 
 Refer to the [Appstore repo](https://github.com/helxplatform/appstore/) for more info.
 
@@ -52,7 +52,7 @@ interaction with launched app instances.
 
 ### Local UI with Appstore in Kubernetes
 
-TODO. This isn't supported as of yet Production Appstore doesn't set CORS
+TODO. This isn't supported as of yet. Production Appstore doesn't set CORS
 headers on any requests. In order for login/user sessions to work properly,
 you'd need to run the local UI and external Appstore instance on the same origin
 to properly share session information.
@@ -60,11 +60,11 @@ to properly share session information.
 ## Environment Config
 
 HeLx-UI works by generating an `env.json` file from your environment that is used within the app.
-For development purposes, you only need to generate the env.json once. Afterwards, you can modify it
+For development purposes, you only need to generate the `env.json` once. Afterwards, you can modify it
 directly rather than regenerating it.
 
-See `.env.example` for the most up to date variables and appropriate default values.
-- `REACT_APP_REACT_APP_WORKSPACES_ENABLED`: enables workspaces functionality (requires Appstore)
+See `.env.sample` for the most up to date variables and appropriate default values.
+- `REACT_APP_WORKSPACES_ENABLED`: enables workspaces functionality (requires Appstore)
 - `REACT_APP_SEMANTIC_SEARCH_ENABLED`: enables semantic search functionality
 - `REACT_APP_HELX_SEARCH_URL`: points the UI to the Dug semantic search API
 - `REACT_APP_UI_BRAND_NAME`: heal | braini | catalyst | scidas | eduhelx | helx
@@ -82,14 +82,14 @@ source .env
 bin/populate_env public/env.json
 ```
 
-Once you've generated an env.json file, it's usually easier to just tweak the file directly
+Once you've generated an `env.json` file, it's usually easier to just tweak the file directly
 rather than running `populate_env` again.
 
 ## Appstore login configuration
 
 Out of the box the `admin` account is configured and available for use. For
-some dev this login may be enough to test changes or validate an update, but
-for testing a more standard user login view/flow you will want to use one
+some devs this login may be enough to test changes or validate an update, but
+for testing a more standard user login view/flow, you will want to use one
 of the social login options.
 
 In order to use SSO login options, you'll need to be running Appstore in Kubernetes.
