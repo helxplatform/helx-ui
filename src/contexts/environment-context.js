@@ -33,6 +33,7 @@ export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
   const relativeHost = window.location.origin;
+  const isProduction = process.env.NODE_ENV !== 'development'
   const [availableRoutes, setAvailableRoutes] = useState([]);
   const [context, setContext] = useState({});
   const [isLoadingContext, setIsLoadingContext] = useState(true);
@@ -87,6 +88,9 @@ export const EnvironmentProvider = ({ children }) => {
       // split the comma-separated string which tells ui the support section to hide
       context.hidden_support_sections = context.hidden_support_sections.split(',')
 
+      // Make sure the tranql_url ends with a slash. If it doesn't, it will redirect, which breaks the iframe for some reason. 
+      if (!context.tranql_url.endsWith("/")) context.tranql_url += "/"
+
       // logos for different brands. Use the helx logo if no brand has been specified.
       let brandAssetFolder = context.brand
       // `catalyst` is the supported name, but support `cat` and `bdc` as well.
@@ -117,9 +121,10 @@ export const EnvironmentProvider = ({ children }) => {
   return (
     <EnvironmentContext.Provider value={{
       helxSearchUrl: context.search_url,
-      helxAppstoreUrl: window.location.origin,
+      helxAppstoreUrl: isProduction ? window.location.origin : "http://localhost:8000",
       context: context,
       routes: availableRoutes,
+      isProduction,
       basePath,
       isLoadingContext
     }}>
