@@ -198,7 +198,9 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     @APIRequest()
     async getEnvironmentContext(fetchOptions: AxiosRequestConfig={}): Promise<EnvironmentContextResponse> {
         const res = await this.axios.get<EnvironmentContextResponse>("/context/", fetchOptions)
-        return res.data
+        const { data } = res;
+        if (data.links === null) data.links = []
+        return data
     }
 
     @APIRequest(Throws403)
