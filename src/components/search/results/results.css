@@ -1,15 +1,17 @@
 .results {
-}
-
-.results .header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 0 1rem 0;
-  gap: 1rem;
+  flex-direction: column;
 }
 
-.results .header span:first-child {
+.results-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 16px;
+  /* gap: 1rem; */
+}
+
+.results-header span:first-child {
   flex: 1;
 }
 

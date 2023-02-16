@@ -1,10 +1,11 @@
 import { Fragment } from 'react'
 import { Typography } from 'antd'
 import { Breadcrumbs } from '../../components/layout'
+import { withWorkspaceAuthentication } from './'
 
 const { Title } = Typography
 
-export const WorkspacesView = () => {
+export const WorkspacesView = withWorkspaceAuthentication(() => {
   const breadcrumbs = [
     { text: 'Home', path: '/' },
     { text: 'Workspaces', path: '/workspaces' },
@@ -16,4 +17,4 @@ export const WorkspacesView = () => {
       ...
     </Fragment>
   )
-}
+})

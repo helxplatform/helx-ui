@@ -1,6 +1,4 @@
-import { Space, Typography } from 'antd'
-
-const { Title } = Typography
+import { Space } from 'antd'
 
 export const RobokopTab = () => {
     const robokopUrl = "https://robokop.renci.org"
@@ -8,6 +6,7 @@ export const RobokopTab = () => {
     return (
         <Space direction="vertical">
             <iframe src={robokopUrl}
+                    title="ROBOKOP"
                     height="500"
                     style={{width: "100%"}}
             />

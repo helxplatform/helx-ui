@@ -1,13 +1,20 @@
 import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { AutoComplete, Button, Form, Input } from 'antd'
+import { AutoComplete, Button, Form, Input, Divider, Radio, Tooltip, Typography } from 'antd'
+import { SearchOutlined } from '@ant-design/icons'
 import { useDebouncedCallback } from 'use-debounce'
 import Highlighter from 'react-highlight-words'
 import Select from 'rc-select'
-import { useHelxSearch } from '../'
+import { useHelxSearch, SearchLayout } from '../'
 import { SearchCompletion } from './search-suggestion'
 import { useEnvironment } from '../../../contexts'
 import { useAbortController } from '../../../hooks'
 import './form.css'
+
+const { Link } = Typography
+
+// If search type is minimal, modify the appearance to be more compact.
+const MINIMAL = 'minimal'
+const FULL = 'full'
 
 const LEVENSHTEIN_DISTANCE = 2 // Note that Redisearch enforces a maximum LD of 3
 const MAX_SUGGESTIONS = 15
@@ -39,13 +46,15 @@ const highlightedSearchTerms = (highlightedSearch) => {
   return searchWords.flatMap((word) => word.split(tokenCharsRe))
 }
 
-export const SearchForm = () => {
+export const SearchForm = ({ type=undefined, ...props }) => {
   const { context } = useEnvironment()
-  const { doSearch, inputRef, query, totalConcepts, searchHistory } = useHelxSearch()
+  const { doSearch, inputRef, query, totalConcepts, searchHistory, layout, setLayout } = useHelxSearch()
   const [searchTerm, setSearchTerm] = useState(query)
   const [searchSuggestions, setSearchSuggestions] = useState(null) // null = don't appear, [] = "no results found", [...] = show suggestions
   const [loadingSuggestions, setLoadingSuggestions] = useState(false) // true = loading...
   // const [initialSuggestionsLoaded, setInitialSuggestionsLoaded] = useState(false)
+
+  if (!type) type = totalConcepts ? "minimal" : "full"
 
   const abortController = useRef()
 
@@ -69,7 +78,7 @@ export const SearchForm = () => {
     setLoadingSuggestions(true)
     const signal = abortController.current.signal
     try {
-      const res = await fetch(`${context.tranql_api_url}tranql/autocomplete_term`, {
+      const res = await fetch(`${context.tranql_url}tranql/autocomplete_term`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -193,7 +202,7 @@ export const SearchForm = () => {
   // (Note that the converse relationship is already handled by the doSearch function.)
   useEffect(() => setSearchTerm(query), [query])
   return (
-    <Form onFinish={ () => doSearch(searchTerm) } className={ `search-form ${ totalConcepts ? 'with-results' : 'without-results' }` }>
+    <Form onFinish={ () => doSearch(searchTerm) } className={ `search-form ${ totalConcepts ? 'with-results' : 'without-results' }` } {...props}>
       <Form.Item>
         <AutoComplete
           value={searchTerm}
@@ -213,12 +222,66 @@ export const SearchForm = () => {
             value={searchTerm}
             onChange={handleChangeQuery}
             onKeyDown={handleKeyDown}
+            suffix={
+              type === MINIMAL ? (
+                <div style={{ display: "flex", alignItems: "center", height: "100%"}}>
+                  <Divider type="vertical" style={{ height: "100%" }} />
+                  <SearchOutlined style={{ fontSize: "16px", marginLeft: "4px" }} />
+                </div>
+              ) : undefined
+            }
           />
         </AutoComplete>
       </Form.Item>
       <Form.Item>
-        <Button htmlType="submit">Search</Button>
+        {
+          type === FULL && (
+            <Button htmlType="submit" style={{ marginLeft: "16px" }}>Search</Button>
+          )
+        }
       </Form.Item>
+      { totalConcepts ? (
+        <Form.Item>
+          <Tooltip title="Change search type">
+            <Radio.Group
+              options={[
+                  {
+                    label: "Concepts",
+                    value: "concepts",
+                    key: "concepts"
+                  },
+                  {
+                    label: "Variables",
+                    value: "variables",
+                    key: "variables"
+                  }
+              ]}
+              value={
+                layout === SearchLayout.GRID || layout === SearchLayout.EXPANDED_RESULT ? (
+                  "concepts"
+                ) : layout === SearchLayout.VARIABLE_VIEW ? (
+                  "variables"
+                ) : null
+              }
+              onChange={ (e) => {
+                switch (e.target.value) {
+                  case "concepts":
+                    setLayout(SearchLayout.GRID)
+                    break
+                  case "variables":
+                    setLayout(SearchLayout.VARIABLE_VIEW)
+                    break
+                  default:
+                    console.error("Unimplemented layout type:", e.target.value)
+                    break
+                }
+              } }
+              optionType="button"
+              style={{ marginLeft: 16 }}
+            />
+          </Tooltip>
+        </Form.Item>
+      ) : null }
     </Form>
   )
 }

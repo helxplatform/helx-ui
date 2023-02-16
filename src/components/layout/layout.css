@@ -1,7 +1,11 @@
+.helx-header {
+    padding-right: 2px !important;
+}
+
 .brand_img {
     max-height: 64px;
-    max-width: 150px;
-    object-fit: scale-down;
+    /* max-width: 150px; */
+    /* object-fit: scale-down; */
     padding: 2px 0px;
 }
 
@@ -15,18 +19,9 @@
 }
 
 .mobile-menu-toggle {
-    display: none;
+    display: block;
     right: 10px;
     position: absolute;
-}
-
-@media screen and (max-width: 767px) {
-    .mobile-menu-toggle {
-        display: block;
-    }
-    .menu-toggle {
-        display: none;
-    }
 }
 
 .logout-button {

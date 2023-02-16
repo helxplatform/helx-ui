@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import axios from 'axios';
+import axios, { CanceledError } from 'axios';
 import {
   ActiveView,
   AvailableView,
+  WorkspaceLoginView,
+  LoginSuccessRedirectView,
   SupportView,
   LoadingView,
   SearchView,
-  SplashScreenView
+  SplashScreenView,
+  WorkspaceSignupView,
 } from '../views'
 
 // Setup global csrf token
@@ -17,8 +20,11 @@ axios.defaults.xsrfCookieName = 'csrftoken';
 axios.interceptors.response.use(function (response) {
   return response;
 }, function (error) {
-  if (error.response.status === 403) {
-    window.location.href = window.location.origin + '/helx/login/';
+  if (error instanceof CanceledError) {
+    // The `error` object for cancelled requests does not have a `response` property.
+  }
+  else if (error.response.status === 403) {
+    // window.location.href = window.location.origin + '/helx/login/';
   }
   return Promise.reject(error)
 })
@@ -27,6 +33,7 @@ export const EnvironmentContext = createContext({})
 
 export const EnvironmentProvider = ({ children }) => {
   const relativeHost = window.location.origin;
+  const isProduction = process.env.NODE_ENV !== 'development'
   const [availableRoutes, setAvailableRoutes] = useState([]);
   const [context, setContext] = useState({});
   const [isLoadingContext, setIsLoadingContext] = useState(true);
@@ -34,81 +41,64 @@ export const EnvironmentProvider = ({ children }) => {
 
   // Routes are generated dynamically based on search and workspace configuration. 
   // If workspace module is enabled, all relevant paths will be added. (/workspaces/active, workspace/available, ...)
-
+  // Note: `parent` property refers to another equivalent or encapsulating route that occupies an entry in the site's header.
+  // It's important to include this if applicable so that the header entry stays active, e.g. on subroutes of workspaces.
   const generateRoutes = (searchEnabled, workspaceEnabled) => {
     const baseRoutes = [];
     if (searchEnabled === 'true') {
       // route homepage to search if search is enabled
-      baseRoutes.push({ path: '/', text: '', Component: SearchView })
+      baseRoutes.push({ path: '/', parent: '/search', text: '', Component: SearchView })
       baseRoutes.push({ path: '/search', text: 'Search', Component: SearchView })
     }
     if (workspaceEnabled === 'true') {
       // route homepage to apps page if search is disabled
       if (searchEnabled === 'false') {
-        baseRoutes.push({ path: '/', text: '', Component: AvailableView })
+        baseRoutes.push({ path: '/', parent: '/workspaces', text: '', Component: AvailableView })
       }
       baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
-      baseRoutes.push({ path: '/workspaces/available', text: '', Component: AvailableView })
-      baseRoutes.push({ path: '/workspaces/active', text: '', Component: ActiveView })
-      baseRoutes.push({ path: '/connect/:app_name/:app_url', text: '', Component: SplashScreenView })
+      baseRoutes.push({ path: '/workspaces/login', parent: '/workspaces', text: '', Component: WorkspaceLoginView })
+      baseRoutes.push({ path: '/workspaces/login/success', parent: '/workspaces', text: '', Component: LoginSuccessRedirectView })
+      baseRoutes.push({ path: '/workspaces/signup/social', parent: '/workspaces', text: '', Component: WorkspaceSignupView })
+      baseRoutes.push({ path: '/workspaces/available', parent: '/workspaces', text: '', Component: AvailableView })
+      baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: '', Component: ActiveView })
+      baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', text: '', Component: SplashScreenView })
     }
     if (searchEnabled === 'false' && workspaceEnabled === 'false') {
       // route homepage to support page if both search and workspaces are disabled
-      baseRoutes.push({ path: '/', text: '', Component: SupportView })
+      baseRoutes.push({ path: '/', parent: '/support', text: '', Component: SupportView })
     }
     baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
     return baseRoutes;
   }
 
-  // fetch env.json for environment configuration
-  const loadEnvironmentContext = async () => {
-    let response = await axios({
-      method: 'GET',
-      url: `${relativeHost}/static/frontend/env.json`
-    })
-    let context = response.data;
-
-    // split the comma-separated string which tells ui the support section to hide
-    context.hidden_support_sections = context.hidden_support_sections.split(',')
-
-    // logos for different brands
-    switch (context.brand) {
-      case 'braini':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/braini/braini-lg-gray.png'
-        break;
-      case 'cat':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/2d04ee687913a03ce3cd030710a78541d6bef827/appstore/core/static/images/catalyst/bdc-logo.svg'
-        break;
-      case 'restartr':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/restartr/restartingresearch.png'
-        break;
-      case 'scidas':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/scidas/scidas-logo-sm.png'
-        break;
-      case 'eduhelx':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/develop/appstore/core/static/images/eduhelx/logo.png'
-        break;
-      case 'heal':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/heal/logo.png'
-        break;
-      case 'argus':
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/argus/argus-array-256.png'
-        break;
-      // display helx logo in case no brand is defined
-      default:
-        context.logo_url = 'https://raw.githubusercontent.com/helxplatform/appstore/master/appstore/core/static/images/helx.jpg'
-    }
-
-    // Escape-hatch (intended for development purposes).
-    // Frequently, when tranql is hosted outside of production, the react app is not built into a bundle so that it can be served via an http server.
-    // Instead, it will be served via react-scripts on a different port than the api.
-    if (!context.tranql_api_url) context.tranql_api_url = context.tranql_url
-
-    setContext(context);
-    setIsLoadingContext(false);
-  }
-
   useEffect(() => {
+    // fetch env.json for environment configuration
+    const loadEnvironmentContext = async () => {
+      let response = await axios({
+        method: 'GET',
+        url: `${relativeHost}/static/frontend/env.json`
+      })
+      let context = response.data;
+
+      /** Context defaults */
+      if (!context.dockstore_branch) context.dockstore_branch = "master"
+      if (!context.appstore_asset_branch) context.appstore_asset_branch = "master"
+      if (!context.brand) context.brand = "helx"
+
+      // split the comma-separated string which tells ui the support section to hide
+      context.hidden_support_sections = context.hidden_support_sections.split(',')
+
+      // Make sure the tranql_url ends with a slash. If it doesn't, it will redirect, which breaks the iframe for some reason. 
+      if (!context.tranql_url.endsWith("/")) context.tranql_url += "/"
+
+      // logos for different brands. Use the helx logo if no brand has been specified.
+      let brandAssetFolder = context.brand
+      // `catalyst` is the supported name, but support `cat` and `bdc` as well.
+      if (brandAssetFolder === "cat" || brandAssetFolder === "bdc") brandAssetFolder = "bdc"
+      context.logo_url = `https://raw.githubusercontent.com/helxplatform/appstore/${ context.appstore_asset_branch }/appstore/core/static/images/${ brandAssetFolder }/logo.png`
+      setContext(context);
+      setIsLoadingContext(false);
+    }
     loadEnvironmentContext()
   }, [relativeHost])
 
@@ -131,9 +121,10 @@ export const EnvironmentProvider = ({ children }) => {
   return (
     <EnvironmentContext.Provider value={{
       helxSearchUrl: context.search_url,
-      helxAppstoreUrl: window.location.origin,
+      helxAppstoreUrl: isProduction ? window.location.origin : "http://localhost:8000",
       context: context,
       routes: availableRoutes,
+      isProduction,
       basePath,
       isLoadingContext
     }}>

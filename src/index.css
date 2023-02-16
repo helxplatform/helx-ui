@@ -1,4 +1,4 @@
-@import 'antd/dist/antd.css';
+@import url('antd/dist/antd.css');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -25,4 +25,12 @@ code {
 
 main.ant-layout-content {
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+main.ant-layout-content > .routing-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
 }

@@ -1,28 +1,29 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row, Popconfirm } from 'antd';
+import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row } from 'antd';
 import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
-import { useActivity, useApp, useInstance, useAnalytics } from '../../contexts';
+import { useActivity, useApp, useInstance, useAnalytics, useWorkspacesAPI } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import { updateTabName } from '../../utils/update-tab-name';
-import { navigate } from '@reach/router';
+import { withWorkspaceAuthentication } from '.';
+import { navigate } from '@gatsbyjs/reach-router';
 
 const memoryFormatter = (value) => {
     return formatBytes(value, 2);
 }
 
-export const ActiveView = () => {
+export const ActiveView = withWorkspaceAuthentication(() => {
     const [instances, setInstances] = useState();
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const { api } = useWorkspacesAPI()
     const { addActivity, updateActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
-    const { loadApps } = useApp();
-    const { loadInstances, stopInstance, updateInstance, pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
+    const { pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
     const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
     const [stopModalVisibility, setStopModalVisibility] = useState(false);
     const [stopAllModalVisibility, setStopAllModalVisibility] = useState(false);
@@ -41,87 +42,90 @@ export const ActiveView = () => {
     ]
 
     useEffect(() => {
+        document.title = `Active Workspaces · HeLx UI`
+    }, [])
+
+    useEffect(() => {
         const renderInstance = async () => {
             setLoading(true);
-            await loadInstances()
-                .then(r => {
-                    setInstances(r.data);
-                })
-                .catch(e => {
-                    setInstances([]);
-                    openNotificationWithIcon('error', 'Error', 'An error has occurred while loading instances.')
-                })
+            try {
+                const instances = await api.getAppInstances()
+                setInstances(instances)
+            } catch (e) {
+                setInstances([])
+                openNotificationWithIcon('error', 'Error', 'An error has occurred while loading instances.')
+            }
             setLoading(false);
         }
         renderInstance();
-    }, [refresh])
+    }, [refresh, api])
 
     useEffect(() => {
         // load all app configuration for input validation
         const loadAppsConfig = async () => {
-            await loadApps()
-                .then(r => {
-                    setApps(r.data)
-                })
-                .catch(e => {
-                    setApps({});
-                    openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
-                })
+            try {
+                const apps = await api.getAvailableApps()
+                setApps(apps)
+            } catch (e) {
+                setApps({});
+                openNotificationWithIcon('error', 'Error', 'An error has occurred while loading app configuration.')
+            }
         }
         if (instances && instances.length === 0) setTimeout(() => navigate('/helx/workspaces/available'), 1000)
         else loadAppsConfig();
 
-    }, [instances])
+    }, [instances, api])
 
     const stopInstanceHandler = async () => {
         // besides making requests to delete the instance, close its browser tab and stop polling service
         setIsStopping(true);
         addOrDeleteInstanceTab("close", currentRecord.sid);
         stopPolling(currentRecord.sid)
-        await stopInstance(currentRecord.sid)
-            .then(r => {
-                let newActivity = {
-                    'sid': currentRecord.sid,
-                    'app_name': currentRecord.name,
-                    'status': 'success',
-                    'timestamp': new Date(),
-                    'message': `${currentRecord.name} is stopped.`
+
+        try {
+            await api.stopAppInstance(currentRecord.sid)
+            let newActivity = {
+                'sid': currentRecord.sid,
+                'app_name': currentRecord.name,
+                'status': 'success',
+                'timestamp': new Date(),
+                'message': `${currentRecord.name} is stopped.`
+            }
+            analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, null)
+            updateActivity(newActivity)
+            setRefresh(!refresh)
+        }
+        catch (e) {
+            let newActivity = {
+                'sid': currentRecord.sid,
+                'app_name': currentRecord.name,
+                'status': '',
+                'timestamp': new Date(),
+                'message': ``
+            }
+            // catch error and update instance activity
+            switch (e.status) {
+                case 403: {
+                    newActivity['status'] = 'error'
+                    newActivity['message'] = `Sorry, you don't have the permission to stop this instance.`
+                    break;
                 }
-                analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, null);
-                updateActivity(newActivity)
-                setRefresh(!refresh)
-            })
-            .catch(e => {
-                let newActivity = {
-                    'sid': currentRecord.sid,
-                    'app_name': currentRecord.name,
-                    'status': '',
-                    'timestamp': new Date(),
-                    'message': ``
+                case 404: {
+                    newActivity['status'] = 'warning'
+                    newActivity['message'] = `${currentRecord.name} no longer exists.`
+                    setTimeout(() => setRefresh(!refresh), 1000)
+                    break;
                 }
-                // catch error and update instance activity
-                switch (e.response.status) {
-                    case 403: {
-                        newActivity['status'] = 'error'
-                        newActivity['message'] = `Sorry, you don't have the permission to stop this instance.`
-                        break;
-                    }
-                    case 404: {
-                        newActivity['status'] = 'warning'
-                        newActivity['message'] = `${currentRecord.name} no longer exists.`
-                        setTimeout(() => setRefresh(!refresh), 1000)
-                        break;
-                    }
-                    default: {
-                        newActivity['status'] = 'error'
-                        newActivity['message'] = `An error has occurred while stopping ${currentRecord.name}.`
-                    }
+                default: {
+                    newActivity['status'] = 'error'
+                    newActivity['message'] = `An error has occurred while stopping ${currentRecord.name}.`
                 }
-                analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, newActivity.message);
-                updateActivity(newActivity)
-            })
-        setStopModalVisibility(false);
-        setIsStopping(false);
+            }
+            analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, newActivity.message);
+            updateActivity(newActivity)
+        }
+        setStopModalVisibility(false)
+        setIsStopping(false)
     }
 
     // stop all instances
@@ -129,19 +133,18 @@ export const ActiveView = () => {
         setIsStoppingAll(true);
         for (let this_app of instances) {
             addOrDeleteInstanceTab("close", this_app.sid);
-            await stopInstance(this_app.sid)
-                .then(r => {
-                })
-                .catch(e => {
-                    let newActivity = {
-                        'sid': 'none',
-                        'app_name': this_app.name,
-                        'status': 'error',
-                        'timestamp': new Date(),
-                        'message': `An error has occurred while stopping ${this_app.name}.`
-                    }
-                    addActivity(newActivity)
-                })
+            try {
+                await api.stopAppInstance(this_app.sid)
+            } catch (e) {
+                let newActivity = {
+                    'sid': 'none',
+                    'app_name': this_app.name,
+                    'status': 'error',
+                    'timestamp': new Date(),
+                    'message': `An error has occurred while stopping ${this_app.name}.`
+                }
+                addActivity(newActivity)
+            }
         }
         analyticsEvents.allAppsDeleted()
         setRefresh(!refresh)
@@ -171,50 +174,43 @@ export const ActiveView = () => {
         const appUpdatedAnalyticsEvent = (failed=false) => (
             analyticsEvents.appUpdated(currentRecord.name, currentRecord.sid, _workspace, _cpu, _gpu, _memory, failed)
         );
-        await updateInstance(currentRecord.sid, _workspace, _cpu, _gpu, _memory)
-            .then(res => {
-                if (res.data.status === "success") {
-                    setUpdateModalVisibility(false);
-                    setUpdating(false);
-                    let newActivity = {
-                        'sid': currentRecord.sid,
-                        'app_name': currentRecord.name,
-                        'status': 'processing',
-                        'timestamp': new Date(),
-                        'message': `${currentRecord.name} is launching.`
-                    }
-                    appUpdatedAnalyticsEvent(false)
-                    addActivity(newActivity)
-                    pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
-                    setRefresh(!refresh);
-                }
-                else {
-                    setUpdateModalVisibility(false);
-                    setUpdating(false);
-                    let newActivity = {
-                        'sid': 'none',
-                        'app_name': currentRecord.name,
-                        'status': 'error',
-                        'timestamp': new Date(),
-                        'message': `Error occured when updating instance ${currentRecord.name}.`
-                    }
-                    appUpdatedAnalyticsEvent(true)
-                    addActivity(newActivity)
-                }
-            }).catch(e => {
+        let failed = false
+        try {
+            const data = await api.updateAppInstance(currentRecord.sid, _workspace, _cpu, _gpu, _memory)
+            if (data.status === "success") {
                 setUpdateModalVisibility(false);
                 setUpdating(false);
                 let newActivity = {
-                    'sid': 'none',
+                    'sid': currentRecord.sid,
                     'app_name': currentRecord.name,
-                    'status': 'error',
+                    'status': 'processing',
                     'timestamp': new Date(),
-                    'message': `Error occured when updating instance ${currentRecord.name}.`
+                    'message': `${currentRecord.name} is launching.`
                 }
-                appUpdatedAnalyticsEvent(true)
+                appUpdatedAnalyticsEvent(false)
                 addActivity(newActivity)
-            })
-    };
+                pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
+                setRefresh(!refresh);
+            } else {
+                failed = true
+            }
+        } catch (e) {
+            failed = true
+        }
+        if (failed) {
+            setUpdateModalVisibility(false);
+            setUpdating(false);
+            let newActivity = {
+                'sid': 'none',
+                'app_name': currentRecord.name,
+                'status': 'error',
+                'timestamp': new Date(),
+                'message': `Error occured when updating instance ${currentRecord.name}.`
+            }
+            appUpdatedAnalyticsEvent(true)
+            addActivity(newActivity)
+        }
+    }
 
     const handleUpdateModalOpen = (record) => {
         // load current instance resources
@@ -383,4 +379,4 @@ export const ActiveView = () => {
                         </Table> : <div style={{ textAlign: 'center' }}>No instances running. Redirecting to apps...</div>))}
         </Layout>
     )
-}
+})

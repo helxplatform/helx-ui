@@ -28,3 +28,7 @@ yarn-error.log*
 
 # IDE files
 .idea/
+
+# Environment
+public/env.json
+misc/

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { List, Spin, Space, Tag, Typography } from 'antd'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { List, Spin, Space, Tag, Typography, Divider } from 'antd'
 import { useHelxSearch } from '../'
 import { Link } from '../../link'
 
@@ -7,13 +7,15 @@ const { Text } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 
 export const StudiesTab = ({ result }) => {
-  const { query, fetchStudyVariables } = useHelxSearch()
-  const [studyVariables, setStudyVariables] = useState([])
+  const { query, fetchVariablesForConceptId, fetchCDEs } = useHelxSearch()
+  const [studies, setStudies] = useState([])
+  const [loading, setLoading] = useState(true)
   const [facets, setFacets] = useState([])
   const [selectedFacets, setSelectedFacets] = useState([])
-  const [loading, setLoading] = useState(true)
 
-  const handleSelectFacet = (facet, checked) => {
+  const studiesSource = useMemo(() => studies.filter((study) => selectedFacets.includes(study.type)), [studies, selectedFacets])
+
+  const handleSelectFacet = useCallback((facet, checked) => {
     const newSelection = new Set(selectedFacets)
     if (newSelection.has(facet)) {
       newSelection.delete(facet)
@@ -21,56 +23,79 @@ export const StudiesTab = ({ result }) => {
       newSelection.add(facet)
     }
     setSelectedFacets([...newSelection])
-  }
+  }, [selectedFacets])
 
   useEffect(() => {
-    const getVars = async () => {
-      const { result: data } = await fetchStudyVariables(result.id, query)
-      setStudyVariables(data)
-      setFacets(Object.keys(data))
-      setSelectedFacets(Object.keys(data))
+    const facets = studies.reduce((acc, study) => {
+      if (!acc.includes(study.type)) acc.push(study.type)
+      return acc
+    }, [])
+    setFacets(facets)
+    setSelectedFacets(facets)
+  }, [studies])
+  
+  useEffect(() => {
+    const getStudies = async () => {
+      const studies = await fetchVariablesForConceptId(result.id, query)
+      const cdes = await fetchCDEs(result.id, query)
+      const cdesAsStudies = cdes ? cdes.elements.map((cde) => ({
+        // c_id: cde.id,
+        c_link: cde.e_link,
+        c_name: cde.name,
+        elements: null,
+        type: "CDE"
+      })) : []
+      setStudies([
+        ...studies,
+        ...cdesAsStudies
+      ])
       setLoading(false)
     }
-    getVars()
-  }, [fetchStudyVariables])
+    setLoading(true)
+    getStudies()
+  }, [fetchVariablesForConceptId])
 
   if (loading) {
     return <Spin />
   }
-  
+
   return (
     <Space direction="vertical" className="tab-content">
       <Space direction="horizontal" size="small">
+        {/* <Text style={{ marginRight: "4px" }}>Studies:</Text> */}
         {
-          facets.map(facet => studyVariables[facet] && (
+          facets.map((facet) => (
             <CheckableFacet
               key={ `search-facet-${ facet }` }
+              style={ !selectedFacets.includes(facet) ? { border: "1px solid #d9d9d9", background: "#fafafa" } : {} }
               checked={ selectedFacets.includes(facet) }
-              onChange={ checked => handleSelectFacet(facet, checked) }
-              children={ `${ facet } (${studyVariables[facet].length})` }
+              onChange={ (checked) => handleSelectFacet(facet, checked) }
+              children={ `${ facet } (${studies.filter((study) => study.type === facet).length})` }
             />
           ))
         }
       </Space>
+      {/* <Divider style={{ marginTop: "8px", marginBottom: "8px" }} /> */}
       <List
         className="studies-list"
-        dataSource={
-          Object.keys(studyVariables)
-            .filter(facet => selectedFacets.includes(facet))
-            .reduce((arr, facet) => [...arr, ...studyVariables[facet]], [])
-            .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
-        }
-        renderItem={ item => (
-          <List.Item>
-            <div className="studies-list-item">
-              <Text className="study-name">
-                { item.c_name }{ ` ` }
-                (<Link to={ item.c_link }>{ item.c_id }</Link>)
-              </Text>
-              <Text className="variables-count">{ item.elements.length } variable{ item.elements.length === 1 ? '' : 's' }</Text>
-            </div>
+        dataSource={ studiesSource }
+        renderItem={ study => (
+          <List.Item className="studies-list-item">
+            <Tag className="study-tag">{ study.type }</Tag>
+            <Text className="study-name">
+              { study.c_name }
+              { (study.c_id && study.c_link) && (
+                <Fragment>
+                  { ` ` }
+                  (<Link to={ study.c_link }>{ study.c_id }</Link>)
+                </Fragment>
+              )}
+            </Text>
+            <Text className="variables-count">
+              { study.elements && `${ study.elements.length } variable${ study.elements.length === 1 ? '' : 's'}` }
+            </Text>
           </List.Item>
-        ) }
+        )}
       />
     </Space>
   )

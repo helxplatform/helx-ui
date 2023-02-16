@@ -12,7 +12,7 @@ COPY --chown=node:node "package*.json" /usr/src/app/
 RUN npm ci --only=production
 
 COPY --chown=node:node . /usr/src/app
-RUN BUILD_PATH=./build/frontend npm run build --production --no-audit
+RUN BUILD_PATH=./build/frontend GENERATE_SOURCEMAP=false npm run build --production --no-audit
 
 ########################
 # Production environment

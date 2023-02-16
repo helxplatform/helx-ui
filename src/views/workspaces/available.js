@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { Layout, Col, Spin } from 'antd'
+import { withWorkspaceAuthentication, WorkspaceProtectedView } from './'
 import { AppCard } from '../../components/workspaces'
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group'
-import { useApp, useInstance } from '../../contexts'
+import { useApp, useEnvironment, useInstance, useWorkspacesAPI } from '../../contexts'
 import { openNotificationWithIcon } from '../../components/notifications';
 import { Breadcrumbs } from '../../components/layout'
 import '../../components/workspaces/app-card.css'
 
 
-export const AvailableView = () => {
+export const AvailableView = withWorkspaceAuthentication(() => {
+    const { api } = useWorkspacesAPI()
     const [apps, setApps] = useState();
     const [runningInstances, setRunningInstances] = useState();
     const [filteredApps, setFilteredApps] = useState();
-    const { loadApps } = useApp();
-    const { loadInstances } = useInstance();
+    // const { loadInstances } = useInstance();
     const [isLoading, setLoading] = useState(false);
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
@@ -22,33 +23,36 @@ export const AvailableView = () => {
     ]
 
     useEffect(() => {
-        const renderApp = async () => {
-            setLoading(true)
-            await loadApps()
-                .then(r => {
-                    setApps(r.data);
-                })
-                .catch(e => {
-                    setApps({})
-                    openNotificationWithIcon('error', 'Error', 'An error has occurred while loading apps.')
-                })
-        }
-        renderApp();
+        document.title = `Workspaces · HeLx UI`
     }, [])
 
     useEffect(() => {
+        const renderApp = async () => {
+            setLoading(true)
+            try {
+                const apps = await api.getAvailableApps()
+                setApps(apps)
+            } catch (e) {
+                setApps({})
+                openNotificationWithIcon('error', 'Error', 'An error has occurred while loading apps.')
+            }
+        }
+        renderApp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [api])
+
+    useEffect(() => {
         const filterApps = async (a) => {
-            const instance_result = await loadInstances()
-                .then(r => {
-                    setRunningInstances(r.data);
-                })
-                .catch(e => {
-                    setRunningInstances([])
-                })
+            try {
+                const instances = await api.getAppInstances()
+                setRunningInstances(instances)
+            } catch (e) {
+                setRunningInstances([])
+            }
             setLoading(false);
         }
         filterApps()
-    }, [apps])
+    }, [apps, api])
 
     useEffect(() => {
         if (runningInstances !== undefined && runningInstances.length >= 0) {
@@ -73,7 +77,7 @@ export const AvailableView = () => {
             }
             setFilteredApps(currApps)
         }
-    }, [runningInstances])
+    }, [runningInstances, apps])
 
 
     return (
@@ -89,4 +93,4 @@ export const AvailableView = () => {
                     : <div></div>)}
         </Layout>
     )
-}
+})
