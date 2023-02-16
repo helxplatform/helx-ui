@@ -9,6 +9,7 @@ ENV REACT_APP_WORKSPACES_ENABLED=$REACT_APP_WORKSPACES_ENABLED
 # Copy and install requirements
 WORKDIR /usr/src/app
 COPY --chown=node:node "package*.json" /usr/src/app/
+RUN npm i -g npm@latest
 RUN npm ci --only=production
 
 COPY --chown=node:node . /usr/src/app
