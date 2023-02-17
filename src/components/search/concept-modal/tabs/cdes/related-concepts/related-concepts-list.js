@@ -10,6 +10,9 @@ const SHOW_COUNT = 8
 export const RelatedConceptsList = ({ concepts, highlight }) => {
     const [showingAll, setShowingAll] = useState(false)
 
+    const failed = useMemo(() => concepts === null, [concepts])
+    if (failed) concepts = []
+
     const showCount = useMemo(() => showingAll ? concepts.length : SHOW_COUNT, [showingAll, concepts])
     const hideShowAll = useMemo(() => concepts.length <= SHOW_COUNT, [concepts])
 
@@ -18,6 +21,10 @@ export const RelatedConceptsList = ({ concepts, highlight }) => {
     const hiddenHighlighted = hiddenConcepts.filter((concept) => (
         highlight.some((token) => concept.name.includes(token))
     ))
+
+    if (failed) return (
+        <Text style={{ fontSize: 13, color: "rgba(0, 0, 0, 0.45)" }}>We couldn't load any related concepts.</Text>
+    )
 
     return (
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", marginTop: "4px" }}>

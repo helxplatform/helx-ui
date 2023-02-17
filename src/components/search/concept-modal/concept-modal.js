@@ -40,7 +40,7 @@ export const ConceptModalBody = ({ result }) => {
   const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
-  const { query, setSelectedResult, fetchKnowledgeGraphs, fetchStudyVariables, fetchCDEs } = useHelxSearch()
+  const { query, setSelectedResult, fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studies, setStudies] = useState([])
   const [cdes, setCdes] = useState(null)
@@ -93,7 +93,7 @@ export const ConceptModalBody = ({ result }) => {
         fetchVarsController.current?.abort()
         fetchVarsController.current = new AbortController()
 
-        const data = await fetchStudyVariables(result.id, query, {
+        const data = await fetchVariablesForConceptId(result.id, query, {
           signal: fetchVarsController.current.signal
         })
         setStudies(data.reduce((studies, study) => {
@@ -129,7 +129,7 @@ export const ConceptModalBody = ({ result }) => {
               const controller = new AbortController()
               fetchCdesTranqlController.current.push(controller)
               const res = await fetch(
-                  `${tranqlUrl}/tranql/query`,
+                  `${tranqlUrl}tranql/query`,
                   {
                       headers: { 'Content-Type': 'text/plain' },
                       method: 'POST',
@@ -164,7 +164,11 @@ export const ConceptModalBody = ({ result }) => {
         if (cdeData) {
           const cdeIds = cdeData.elements.map((cde) => cde.id)
           await Promise.all(cdeIds.map(async (cdeId, i) => {
-            relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
+            try {
+              relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
+            } catch (e) {
+              relatedConcepts[cdeId] = null
+            }
           }))
         }
         setCdes(cdeData)
@@ -199,7 +203,7 @@ export const ConceptModalBody = ({ result }) => {
       getCdes()
       getKgs()
     }
-  }, [fetchKnowledgeGraphs, fetchStudyVariables, fetchCDEs, result, query])
+  }, [fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs, result, query])
 
   useEffect(() => {
     return () => {

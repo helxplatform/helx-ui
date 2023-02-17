@@ -2,9 +2,10 @@ import { notification, Radio, Tooltip, Typography, Select, Grid } from "antd"
 import {
     LinkOutlined as LinkIcon,
     TableOutlined as GridViewIcon,
-    LayoutOutlined as ExpandedResultIcon
+    LayoutOutlined as ExpandedResultIcon,
+    BarChartOutlined as VariableViewIcon
 } from '@ant-design/icons'
-import { SearchLayout, useHelxSearch } from "../.."
+import { SearchLayout, useHelxSearch } from "../../"
 import { useAnalytics } from "../../../../contexts"
 import { Fragment } from "react"
 
@@ -15,9 +16,10 @@ const { useBreakpoint } = Grid
 const MINIMAL = 'minimal'
 const FULL = 'full'
 
-export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
+export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
     const {
-        query, totalConcepts,
+        query, 
+        totalConcepts, variableStudyResultCount, totalVariableResults,
         currentPage, pageCount,
         layout, setLayout,
         typeFilter, setTypeFilter,
@@ -45,12 +47,18 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
             {type === FULL && (
                 <Fragment>
                 <Text>
-                    {totalConcepts} concepts ({Object.keys(conceptPages).length} of {pageCount} pages)
+                    { variables ? (
+                        `${ variableStudyResultCount } studies and ${ totalVariableResults } variables`
+                    ) : (
+                        `${ totalConcepts } concepts (${ Object.keys(conceptPages).length } of ${ pageCount } pages)`
+                    ) }
                 </Text>
-                <Tooltip title="Shareable link" placement="top">
-                    {/* Just want anchor styling */}
-                    <Link onClick={NotifyLinkCopied} style={{ marginLeft: '16px', marginRight: '16px' }}><LinkIcon /></Link>
-                </Tooltip>
+                { !variables && (
+                    <Tooltip title="Shareable link" placement="top">
+                        {/* Just want anchor styling */}
+                        <Link onClick={NotifyLinkCopied} style={{ marginLeft: '16px', marginRight: '16px' }}><LinkIcon /></Link>
+                    </Tooltip>
+                ) }
                 </Fragment>
             )}
             <div
@@ -61,28 +69,42 @@ export const ResultsHeader = ({ concepts, type=FULL, ...props }) => {
                     marginRight: "8px"
                 }}
             >
-                <Text style={{ display: !md ? "none" : undefined }}>Filter type:</Text>
-                <Select
-                    value={typeFilter}
-                    onChange={(value) => setTypeFilter(value)}
-                    placeholder="Filter type"
-                    dropdownMatchSelectWidth={false}
-                    placement="bottomRight"
-                    style={{ maxWidth: "125px" }}
-                >
-                    <Option value={null}>All</Option>
-                    {
-                        Object.entries(conceptTypeCounts).sort((a, b) => b[1] - a[1]).map(([conceptType, count]) => (
-                        <Option key={conceptType} value={conceptType}>{conceptType} ({count})</Option>
-                        ))
-                    }
-                </Select>
+                { variables ? (
+                    null
+                ) : (
+                    <Fragment>
+                        <Text style={{ display: !md ? "none" : undefined }}>Filter type:</Text>
+                        <Select
+                            value={typeFilter}
+                            onChange={(value) => setTypeFilter(value)}
+                            placeholder="Filter type"
+                            dropdownMatchSelectWidth={false}
+                            placement="bottomRight"
+                            style={{ maxWidth: "125px" }}
+                        >
+                            <Option value={null}>All</Option>
+                            {
+                                Object.entries(conceptTypeCounts).sort((a, b) => b[1] - a[1]).map(([conceptType, count]) => (
+                                <Option key={conceptType} value={conceptType}>{conceptType} ({count})</Option>
+                                ))
+                            }
+                        </Select>
+                    </Fragment>
+                ) }
             </div>
             <Tooltip title="Toggle Layout" placement="top">
                 <Radio.Group value={layout} onChange={handleChangeLayout}>
-                    <Radio.Button value={SearchLayout.GRID}><GridViewIcon /></Radio.Button>
-                    <Radio.Button value={SearchLayout.EXPANDED_RESULT}><ExpandedResultIcon /></Radio.Button>
-                    {/* <Radio.Button value={SearchLayout.LIST}><ListViewIcon /></Radio.Button> */}
+                    {
+                        layout === SearchLayout.GRID || layout === SearchLayout.EXPANDED_RESULT ? (
+                            <Fragment>
+                                <Radio.Button value={SearchLayout.GRID}><GridViewIcon /></Radio.Button>
+                                <Radio.Button value={SearchLayout.EXPANDED_RESULT}><ExpandedResultIcon /></Radio.Button>
+                            </Fragment>
+                        ) : layout === SearchLayout.VARIABLE_VIEW ? (
+                            null
+                        ) : null
+                    }
+                    {/* <Radio.Button value={SearchLayout.VARIABLE_VIEW}><VariableViewIcon /></Radio.Button> */}
                 </Radio.Group>
             </Tooltip>
         </div>
