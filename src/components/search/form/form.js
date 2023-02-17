@@ -53,6 +53,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
   const [searchSuggestions, setSearchSuggestions] = useState(null) // null = don't appear, [] = "no results found", [...] = show suggestions
   const [loadingSuggestions, setLoadingSuggestions] = useState(false) // true = loading...
   // const [initialSuggestionsLoaded, setInitialSuggestionsLoaded] = useState(false)
+  const [inputFocused, setInputFocused] = useState(false) // Used to keep the autocomplete open whenever the user has the search active 
 
   if (!type) type = totalConcepts ? "minimal" : "full"
 
@@ -206,10 +207,12 @@ export const SearchForm = ({ type=undefined, ...props }) => {
       <Form.Item>
         <AutoComplete
           value={searchTerm}
+          open={inputFocused}
           dataSource={searchCompletionDataSource}
           notFoundContent={loadingSuggestions ? "Loading" : "No results found"}
           defaultActiveFirstOption={false}
           onSelect={handleSelect}
+          onChange={console.log}
           dropdownStyle={{ display: hideAutocomplete ? "none" : undefined }}
           // dropdownStyle={{ display: searchCompletionDataSource === null ? "none" : undefined }}
           // onSearch={handleSearch}
@@ -222,6 +225,11 @@ export const SearchForm = ({ type=undefined, ...props }) => {
             value={searchTerm}
             onChange={handleChangeQuery}
             onKeyDown={handleKeyDown}
+            onFocus={ () => setInputFocused(true) }
+            onBlur={ () => {
+              // Need to check if the input actually lost focus here, or if the user just switched tabs/windows.
+              if (document.activeElement !== inputRef.current.input) setInputFocused(false)
+            } }
             suffix={
               type === MINIMAL ? (
                 <div style={{ display: "flex", alignItems: "center", height: "100%"}}>
