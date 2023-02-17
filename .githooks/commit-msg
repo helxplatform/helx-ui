@@ -61,21 +61,21 @@ if [ "$yesno" == "y" ] || [ "$yesno" == "yes" ]; then
     breaking_commit=1
 fi
 
-NL=$'\n'
 if [ "$breaking_commit" -eq 1 ]; then
-    # Explicitly state it's a breaking change
-    msg="$msg${NL}${NL}BREAKING CHANGE"
+    # Prepend commit type to original commit text.
+    final_msg="BREAKING CHANGE: $orig_msg";
+else
+    # Prepend commit type to original commit text.
+    final_msg="${commit_type}: $orig_msg";
 fi
 
-# Prepend commit type to original commit text.
-new_msg="${commit_type}: $orig_msg";
-echo $new_msg > $1;
+echo $final_msg > $1;
 
 echo
 echo "Updated message:"
 echo
 echo "--------------------------------------------------------------------------------"
-echo "$new_msg"
+echo "$final_msg"
 echo "--------------------------------------------------------------------------------"
 echo
 exit 0

@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useLocation, useNavigate } from '@gatsbyjs/reach-router'
 import { useEnvironment, useAnalytics } from '../../contexts'
 import { ConceptModal } from './'
-import { useLocalStorage } from '../../hooks/use-local-storage'
+import { useLocalStorage } from '../../hooks'
 import './search.css'
 
 export const HelxSearchContext = createContext({})
@@ -49,6 +49,7 @@ export const HelxSearch = ({ children }) => {
 
   const inputRef = useRef()
   const navigate = useNavigate()
+  const [searchHistory, setSearchHistory] = useLocalStorage('search_history', [])
   
   /** Abort controllers */
   const searchSelectedResultController = useRef()
@@ -371,6 +372,22 @@ export const HelxSearch = ({ children }) => {
       setQuery(trimmedQuery)
       setCurrentPage(1)
       navigate(`${basePath}search?q=${trimmedQuery}&p=1`)
+      const existingHistoryEntry = searchHistory.find((searchHistoryEntry) => searchHistoryEntry.search === trimmedQuery)
+      if (!existingHistoryEntry) {
+        setSearchHistory([...searchHistory, {
+          search: trimmedQuery,
+          time: Date.now()
+        }])
+      } else {
+        // If the user is searching something that's already in history, move it to the end and update its `time`.
+        setSearchHistory([
+          ...searchHistory.filter((entry) => entry !== existingHistoryEntry),
+          {
+            ...existingHistoryEntry,
+            time: Date.now()
+          }
+        ])
+      }
     }
   }
 
@@ -472,6 +489,7 @@ export const HelxSearch = ({ children }) => {
       selectedResult, setSelectedResult, searchSelectedResult,
       layout, setLayout, setFullscreenResult,
       typeFilter, setTypeFilter,
+      searchHistory, setSearchHistory,
       conceptTypes, conceptTypeCounts,
       variableStudyResults, variableStudyResultCount,
       variableError, variableResults, isLoadingVariableResults,
