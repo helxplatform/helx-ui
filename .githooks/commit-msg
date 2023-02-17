@@ -63,7 +63,7 @@ fi
 
 if [ "$breaking_commit" -eq 1 ]; then
     # Prepend commit type to original commit text.
-    final_msg="${commit_type}!: BREAKING CHANGE. $orig_msg";
+    final_msg="BREAKING CHANGE: $orig_msg";
 else
     # Prepend commit type to original commit text.
     final_msg="${commit_type}: $orig_msg";
