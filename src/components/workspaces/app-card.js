@@ -74,7 +74,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     }
 
     const getLogoUrl = (app_id) => {
-        return `https://github.com/helxplatform/helx-apps/raw/${context.dockstore_branch}/app-specs/${app_id}/icon.png`
+        return `${context.dockstore_app_specs_dir_url}/${app_id}/icon.png`
     }
 
     return (
