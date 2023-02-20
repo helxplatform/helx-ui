@@ -16,7 +16,7 @@ export const SplashScreenView = (props) => {
     const [errorPresent, setErrorPresent] = useState(false);
 
     const decoded_url = decodeURIComponent(props.app_url);
-    const app_icon = `https://github.com/helxplatform/helx-apps/raw/${context.dockstore_branch}/app-specs/${props.app_name}/icon.png`
+    const app_icon = `${context.dockstore_app_specs_dir_url}/${props.app_name}/icon.png`
 
     useEffect(() => {
         document.title = `Connecting · HeLx UI`
