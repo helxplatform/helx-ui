@@ -53,7 +53,9 @@ export const SearchForm = ({ type=undefined, ...props }) => {
   const [searchSuggestions, setSearchSuggestions] = useState(null) // null = don't appear, [] = "no results found", [...] = show suggestions
   const [loadingSuggestions, setLoadingSuggestions] = useState(false) // true = loading...
   // const [initialSuggestionsLoaded, setInitialSuggestionsLoaded] = useState(false)
-  const [inputFocused, setInputFocused] = useState(false) // Used to keep the autocomplete open whenever the user has the search active 
+  const [inputFocused, setInputFocused] = useState(false) // Used to keep the autocomplete open whenever the user has the search active
+
+  const autocompleteRef = useRef()
 
   if (!type) type = totalConcepts ? "minimal" : "full"
 
@@ -206,13 +208,14 @@ export const SearchForm = ({ type=undefined, ...props }) => {
     <Form onFinish={ () => doSearch(searchTerm) } className={ `search-form ${ totalConcepts ? 'with-results' : 'without-results' }` } {...props}>
       <Form.Item>
         <AutoComplete
+          ref={autocompleteRef}
           value={searchTerm}
           open={inputFocused}
           dataSource={searchCompletionDataSource}
           notFoundContent={loadingSuggestions ? "Loading" : "No results found"}
           defaultActiveFirstOption={false}
           onSelect={handleSelect}
-          onChange={console.log}
+          
           dropdownStyle={{ display: hideAutocomplete ? "none" : undefined }}
           // dropdownStyle={{ display: searchCompletionDataSource === null ? "none" : undefined }}
           // onSearch={handleSearch}
