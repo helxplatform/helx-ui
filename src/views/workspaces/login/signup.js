@@ -11,6 +11,7 @@ import { useDest, useEnvironment, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
 import  './login.css'
 import { SocialSignupNotAuthorizedError } from '../../../contexts/workspaces-context/api.types'
+import { useTitle } from '../..'
 
 const { Title, Text, Paragraph } = Typography
 const { useForm } = Form
@@ -58,6 +59,8 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
     const { api, user, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
 
+    useTitle("Signup")
+
     useEffect(() => {
         if (revalidateForm) {
             form.validateFields()
@@ -73,10 +76,6 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
             redirectToDest(`${ basePath }workspaces/`)
         }
     }, [user])
-
-    useEffect(() => {
-        document.title = `Signup · HeLx UI`
-    }, [])
 
     const validateForm = async () => {
         setCurrentlyValidating(true)

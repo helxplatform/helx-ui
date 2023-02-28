@@ -3,6 +3,8 @@ import { Spin, Button } from "antd";
 import axios from "axios";
 import { callWithRetry } from "../utils";
 import { useEnvironment } from '../contexts';
+import { withView } from './';
+import { useTitle } from "./view";
 
 // This view is used when the UI is checking the readiness of an instance
 
@@ -17,10 +19,8 @@ export const SplashScreenView = (props) => {
 
     const decoded_url = decodeURIComponent(props.app_url);
     const app_icon = `${context.dockstore_app_specs_dir_url}/${props.app_name}/icon.png`
-
-    useEffect(() => {
-        document.title = `Connecting · HeLx UI`
-    }, [])
+    
+    useTitle("Connecting")
 
     useEffect(() => {
         let shouldCancel = false;

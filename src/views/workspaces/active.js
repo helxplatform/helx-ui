@@ -10,6 +10,7 @@ import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-conve
 import { updateTabName } from '../../utils/update-tab-name';
 import { withWorkspaceAuthentication } from '.';
 import { navigate } from '@gatsbyjs/reach-router';
+import { useTitle } from '..';
 
 const memoryFormatter = (value) => {
     return formatBytes(value, 2);
@@ -41,9 +42,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
         { text: 'Active', path: '/helx/workspaces/active' },
     ]
 
-    useEffect(() => {
-        document.title = `Active Workspaces · HeLx UI`
-    }, [])
+    useTitle("Active Workspaces")
 
     useEffect(() => {
         const renderInstance = async () => {

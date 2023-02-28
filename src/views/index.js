@@ -1,3 +1,4 @@
+export * from './view'
 export * from './support'
 export * from './not-found'
 export * from './not-authorized'

@@ -10,6 +10,7 @@ import { withAPIReady } from '../'
 import { useDest, useEnvironment, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
 import  './login.css'
+import { useTitle } from '../..'
 
 const { Title, Text, Paragraph } = Typography
 const { useForm } = Form
@@ -73,6 +74,8 @@ export const WorkspaceLoginView = withAPIReady(({
     const { api, user, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
 
+    useTitle("Login")
+
     const allowBasicLogin = useMemo(() => loginProviders.includes("Django"), [loginProviders])
     const allowUncLogin =  useMemo(() => loginProviders.includes("UNC Chapel Hill Single Sign-On"), [loginProviders])
     const allowGoogleLogin = useMemo(() => loginProviders.includes("Google"), [loginProviders])
@@ -99,10 +102,6 @@ export const WorkspaceLoginView = withAPIReady(({
             redirectToDest(`${ basePath }workspaces/`)
         }
     }, [user])
-
-    useEffect(() => {
-        document.title = `Login · HeLx UI`
-    }, [])
 
     const validateForm = async () => {
         setCurrentlyValidating(true)
