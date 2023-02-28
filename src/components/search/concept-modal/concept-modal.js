@@ -14,6 +14,7 @@ import CustomIcon, {
 import { CdesTab, OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
 import { useHelxSearch } from '../'
 import { useAnalytics, useEnvironment } from '../../../contexts'
+import { kgLink } from '../../../utils'
 import './concept-modal.css'
 
 const { Text, Paragraph } = Typography
@@ -21,16 +22,23 @@ const { Text, Paragraph } = Typography
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
 
 export const AdvancedConceptInfo = ({ result, style={}, props }) => {
+  const purlUrl = kgLink.get_curie_purl(result.id)
   const tooltip = (
-    <div style={{ padding: "4px 2px" }}>
-      Advanced information
-      <Divider style={{ borderColor: "white", marginTop: 4, marginBottom: 8 }} />
+    <div>
+      {/* Advanced information
+      <Divider style={{ borderColor: "white", marginTop: 4, marginBottom: 8 }} /> */}
       <b>ID:</b> { result.id }
-      <br />
+      {purlUrl && <Button
+        type="text"
+        icon={ <ExternalLinkIcon style={{ color: "white" }} /> }
+        href={ purlUrl }
+        target="_blank"
+        rel="noopener noreferrer"
+      /> }
     </div>
   )
   return (
-    <Tooltip title={ tooltip } trigger="click" placement="bottom" { ...props }>
+    <Tooltip title={ tooltip } trigger="hover" placement="right" { ...props }>
       <InfoCircleOutlined style={{ color: "rgba(0, 0, 0, 0.45)", ...style }} />
     </Tooltip>
   )
@@ -54,7 +62,7 @@ export const ConceptModalTitle = ({ result }) => {
       <Text>
         { name }{ type ? " (" + type + ")" : "" }
       </Text>
-      <AdvancedConceptInfo result={ result } style={{ marginTop: 2, marginLeft: 8 }} />
+      { !result.loading && !result.failed && <AdvancedConceptInfo result={ result } style={{ marginTop: 2, marginLeft: 8 }} /> }
     </div>
   )
 }
