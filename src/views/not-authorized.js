@@ -1,12 +1,12 @@
 import { Fragment, useEffect } from 'react'
 import { Typography } from 'antd'
+import { useTitle } from './'
 
 const { Title, Paragraph } = Typography
 
 export const NotAuthorizedView = () => {
-  useEffect(() => {
-    document.title = `Not Authorized · HeLx UI`
-  }, [])
+  useTitle("Not Authorized")
+
   return (
     <Fragment>
       <Title level={ 1 }>ERROR 401</Title>

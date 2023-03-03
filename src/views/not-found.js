@@ -2,6 +2,7 @@ import { Fragment, useEffect } from 'react'
 import { Button, Result, Typography } from 'antd'
 import { useNavigate } from '@gatsbyjs/reach-router'
 import { useEnvironment } from '../contexts'
+import { useTitle } from './'
 
 const { Title } = Typography
 
@@ -9,9 +10,8 @@ export const NotFoundView = () => {
   const { basePath } = useEnvironment()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    document.title = `Not Found · HeLx UI`
-  }, [])
+  useTitle("Not Found")
+
   return (
     <Fragment>
       <Result
