@@ -4,6 +4,7 @@ import { LinkOutlined } from '@ant-design/icons'
 import { useLocation, Link } from '@gatsbyjs/reach-router'
 import { useEnvironment, useAnalytics, useWorkspacesAPI } from '../../contexts';
 import { MobileMenu } from './menu';
+import { UserAvatarButton } from './user-avatar-button';
 import { SidePanel } from '../side-panel/side-panel';
 import './layout.css';
 
@@ -64,7 +65,7 @@ export const Layout = ({ children }) => {
             </Menu>
             {context.workspaces_enabled === 'true' && !apiLoading && loggedIn && (
               <div style={{ height: "100%" }}>
-                <Button type="primary" ghost className="logout-button" onClick={logout}>LOG OUT</Button>
+                <UserAvatarButton />
               </div>
             )}
           </div>
