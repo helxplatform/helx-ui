@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { Layout as AntLayout, Button, Menu, Grid, Divider } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import { useLocation, Link } from '@gatsbyjs/reach-router'
@@ -18,9 +18,17 @@ export const Layout = ({ children }) => {
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
   const location = useLocation();
 
-  const logout = () => {
+  // Logging out is an async operation. It's better to wait until it's complete to avoid 
+  // session persistence errors (helx-278).
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  const logout = async () => {
+    setLoggingOut(true)
     analyticsEvents.logout()
-    api.logout()
+    try {
+      await api.logout()
+    } catch (e) {}
+    setLoggingOut(false)
     // logoutHandler(helxAppstoreUrl)
   }
   const removeTrailingSlash = (url) => url.endsWith("/") ? url.slice(0, url.length - 1) : url
@@ -64,7 +72,16 @@ export const Layout = ({ children }) => {
             </Menu>
             {context.workspaces_enabled === 'true' && !apiLoading && loggedIn && (
               <div style={{ height: "100%" }}>
-                <Button type="primary" ghost className="logout-button" onClick={logout}>LOG OUT</Button>
+                <Button
+                  type="primary"
+                  ghost
+                  className="logout-button"
+                  // Could use `loading` property but logout tends to happen so quickly that it doesn't work well.
+                  disabled={ loggingOut }
+                  onClick={logout}
+                >
+                  LOG OUT
+                </Button>
               </div>
             )}
           </div>

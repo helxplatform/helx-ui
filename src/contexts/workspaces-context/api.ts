@@ -374,8 +374,8 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         fetchOptions: AxiosRequestConfig={}
     ): Promise<LogoutResponse> {
         /** Log out */
-        await this._updateLoginState(null)
         const res = await this.axios.post<LogoutResponse>("/users/logout/", undefined, fetchOptions)
+        await this._updateLoginState(null)
         return null
         // try {
         // } catch (e: any) {
