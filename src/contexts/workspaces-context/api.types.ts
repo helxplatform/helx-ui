@@ -73,13 +73,26 @@ export type LogoutResponse = null
 export interface UsersResponse {
     REMOTE_USER: string
     ACCESS_TOKEN: string | null
+    FIRST_NAME: string
+    LAST_NAME: string
+    EMAIL: string
+    DATE_JOINED: string
+    IS_SUPERUSER: boolean
+    IS_STAFF: boolean
     SESSION_TIMEOUT: number
 }
 
 export interface User {
     username: string
+    firstName: string
+    lastName: string
+    email: string
+    dateJoined: Date
+    // Perhaps this should be replaced with more fleshed out roles in the future,
+    // but there's not enough nuance at the moment to really warrant adding it.
+    superuser: boolean
+    staff: boolean
     sessionTimeout: number
-    roles: number
 }
 
 export interface Provider {

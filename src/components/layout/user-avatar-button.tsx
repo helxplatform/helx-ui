@@ -1,8 +1,9 @@
 import { useRef, ReactNode, HTMLAttributes, useCallback } from "react"
-import { Avatar, AvatarProps, Button, Dropdown, Popover, Typography } from "antd"
+import { Avatar, AvatarProps, Button, Dropdown, Popover, Space, Typography } from "antd"
+import { grey } from "@ant-design/colors"
 import { useAnalytics, useWorkspacesAPI } from "../../contexts"
 
-const { Title } = Typography
+const { Title, Text } = Typography
 
 interface UserAvatarIconProps extends AvatarProps {
 }
@@ -18,7 +19,7 @@ const UserAvatarIcon = ({ ...props }: UserAvatarIconProps) => {
 }
 
 export const UserAvatarButtonPopover = ({ children }: UserAvatarButtonPopoverProps) => {
-    const { api } = useWorkspacesAPI()!
+    const { api, user } = useWorkspacesAPI()!
     const { analyticsEvents } = useAnalytics()
 
     const logout = useCallback(() => {
@@ -32,21 +33,29 @@ export const UserAvatarButtonPopover = ({ children }: UserAvatarButtonPopoverPro
         <Popover
             overlayClassName="user-avatar-popover"
             title={
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "8px 0" }}>
-                    <UserAvatarIcon size="large" />
-                    <Title
-                        level={ 5 }
-                        style={{
-                            margin: 0,
-                            fontSize: 12,
-                            letterSpacing: "0.5px",
-                            color: "#434343",
-                            textTransform: "uppercase",
-                        }}
-                    >
-                        test
-                    </Title>
-                </div>
+                <Space size={ 12 } style={{ margin: "8px 0" }}>
+                    <UserAvatarIcon shape="circle" size={ 48 } />
+                    <Space direction="vertical" size={ 2 }>
+                        <Title
+                            level={ 5 }
+                            style={{
+                                margin: 0,
+                                fontSize: 14,
+                                color: grey[6],
+                                // letterSpacing: "0.5px",
+                                // textTransform: "uppercase",
+                            }}
+                        >
+                            { user!.username }
+                        </Title>
+                        { user!.firstName && user!.lastName && <Text style={{ color: grey[6], fontWeight: 400, fontSize: 13 }}>
+                            { user!.firstName } { user!.lastName }
+                        </Text> }
+                        { user!.email && <Text type="secondary" style={{ fontWeight: 400, fontSize: 13 }}>
+                            { user!.email }
+                        </Text> }
+                    </Space>
+                </Space>
             }
             content={
                 <div className="user-avatar-popover-content">

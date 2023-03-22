@@ -168,8 +168,13 @@ export class WorkspacesAPI implements IWorkspacesAPI {
             const userData = await this.getActiveUser()
             newUser = {
                 username: userData.REMOTE_USER,
+                firstName: userData.FIRST_NAME,
+                lastName: userData.LAST_NAME,
+                email: userData.EMAIL,
+                dateJoined: new Date(userData.DATE_JOINED),
+                superuser: userData.IS_SUPERUSER,
+                staff: userData.IS_STAFF,
                 sessionTimeout: userData.SESSION_TIMEOUT,
-                roles: 0
             }
         } catch (e: any) {
             if (e.status === 403) {
