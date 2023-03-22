@@ -64,10 +64,10 @@ export const ConceptModalBody = ({ result }) => {
   const links = {
     'robokop' : { title: 'ROBOKOP', icon: <RobokopIcon/>, url: "https://robokop.renci.org/" }
   }
-  if (context.tranql_enabled === 'false') {
-    delete tabs['tranql'];
-    delete links['robokop'];
-  }
+  context.hidden_result_tabs.forEach((tab) => {
+    delete tabs[tab]
+    delete links[tab]
+  })
   
   const setCurrentTab = (() => {
     let oldTime = Date.now();
