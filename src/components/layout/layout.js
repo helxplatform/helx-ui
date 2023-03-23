@@ -4,7 +4,7 @@ import { LinkOutlined } from '@ant-design/icons'
 import { useLocation, Link } from '@gatsbyjs/reach-router'
 import { useEnvironment, useAnalytics, useWorkspacesAPI } from '../../contexts';
 import { MobileMenu } from './menu';
-import { UserAvatarButton } from './user-avatar-button';
+import { UserAvatarButton } from './user-avatar';
 import { SidePanel } from '../side-panel/side-panel';
 import './layout.css';
 
