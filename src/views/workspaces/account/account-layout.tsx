@@ -1,5 +1,6 @@
 import { Layout, Menu } from 'antd'
 import { UserOutlined, BellOutlined, LockOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { AccountConnectionsTab, AccountNotificationsTab, AccountPasswordTab, AccountProfileTab } from './tabs'
 
 const { useNavigate } = require('@gatsbyjs/reach-router')
 
@@ -24,28 +25,24 @@ export const AccountLayout = ({ tab }: AccountLayoutProps) => {
                     items={[
                         {
                             key: "profile",
-                            title: "Profile",
-                            label: "Profile",
+                            label: "Account",
                             icon: <UserOutlined />,
                             onClick: () => navigate(`${ baseAccountPath }`)
                         },
                         {
                             key: "password",
-                            title: "Password",
                             label: "Password",
                             icon: <LockOutlined />,
                             onClick: () => navigate(`${ baseAccountPath }/password`)
                         },
                         {
                             key: "notifications",
-                            title: "Notifications",
                             label: "Notifications",
                             icon: <BellOutlined />,
                             onClick: () => navigate(`${ baseAccountPath }/notifications`)
                         },
                         {
                             key: "connections",
-                            title: "Connections",
                             label: "Connections",
                             icon: <ShareAltOutlined />,
                             onClick: () => navigate(`${ baseAccountPath }/connections`)
@@ -56,7 +53,15 @@ export const AccountLayout = ({ tab }: AccountLayoutProps) => {
                 />
             </Sider>
             <Content>
-                { tab }
+                { tab === "profile" ? (
+                    <AccountProfileTab />
+                ) : tab === "password" ? (
+                    <AccountPasswordTab />
+                ) : tab === "notifications" ? (
+                    <AccountNotificationsTab />
+                ) : tab === "connections" ? (
+                    <AccountConnectionsTab />
+                ) : null }
             </Content>
         </Layout>
     )

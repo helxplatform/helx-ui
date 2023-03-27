@@ -1,0 +1,22 @@
+.user-avatar-upload {
+    position: relative;
+    cursor: pointer;
+}
+.user-avatar-upload > .user-avatar-icon {
+    transition: filter .15s ease-in-out;
+}
+.user-avatar-upload > .upload-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: rgba(255, 255, 255, 0.85);
+    transform: translate(-50%, -50%);
+    transition: opacity .15s ease-in-out;
+    opacity: 0;
+}
+.user-avatar-upload:hover > .user-avatar-icon {
+    filter: brightness(75%);
+}
+.user-avatar-upload:hover > .upload-icon {
+    opacity: 1;
+}
