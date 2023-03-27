@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Popover, Space, Typography } from 'antd'
+import { Popover, PopoverProps, Space, Typography } from 'antd'
 import { UserAvatarPopoverMenu } from './user-avatar-popover-menu'
 import { UserAvatarPopoverHeader } from './user-avatar-popover-header'
 import { UserAvatarIcon } from '../user-avatar-icon'
@@ -8,11 +8,11 @@ import './user-avatar-popover.css'
 
 const { Title, Text } = Typography
 
-interface UserAvatarButtonPopoverProps {
+interface UserAvatarButtonPopoverProps extends PopoverProps {
     children: ReactNode
 }
 
-export const UserAvatarPopover = ({ children }: UserAvatarButtonPopoverProps) => {
+export const UserAvatarPopover = ({ children, onOpenChange, ...props }: UserAvatarButtonPopoverProps) => {
     const { api, user } = useWorkspacesAPI()!
     
     return (
@@ -23,10 +23,12 @@ export const UserAvatarPopover = ({ children }: UserAvatarButtonPopoverProps) =>
                 <UserAvatarPopoverHeader />
             }
             content={
-                <UserAvatarPopoverMenu />
+                <UserAvatarPopoverMenu onOpenChange={ onOpenChange } />
             }
             trigger="click"
+            onOpenChange={ onOpenChange }
             overlayStyle={{ minWidth: 300 }}
+            { ...props }
         >
             { children }
         </Popover>

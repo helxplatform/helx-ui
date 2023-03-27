@@ -36,6 +36,8 @@ export const UserAvatarPopoverHeader = ({ }) => {
                 { user!.email && <Text type="secondary" style={{ fontWeight: 400, fontSize: 13 }}>
                     { user!.email }
                 </Text> }
+                {/* Idea in case Dug/HeLx authentication is unified */}
+                {/* <Text type="secondary" style={{ fontWeight: 400, fontSize: 13 }}>HeLx Workspaces</Text> */}
             </Space>
         </Space>
     )

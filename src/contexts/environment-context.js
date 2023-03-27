@@ -3,6 +3,7 @@ import axios, { CanceledError } from 'axios';
 import {
   ActiveView,
   AvailableView,
+  AccountView,
   WorkspaceLoginView,
   LoginSuccessRedirectView,
   SupportView,
@@ -61,6 +62,7 @@ export const EnvironmentProvider = ({ children }) => {
       baseRoutes.push({ path: '/workspaces/signup/social', parent: '/workspaces', text: '', Component: WorkspaceSignupView })
       baseRoutes.push({ path: '/workspaces/available', parent: '/workspaces', text: '', Component: AvailableView })
       baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: '', Component: ActiveView })
+      baseRoutes.push({ path: '/workspaces/account', parent: '/workspaces', text: '', Component: AccountView })
       baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', text: '', Component: SplashScreenView })
     }
     if (searchEnabled === 'false' && workspaceEnabled === 'false') {
