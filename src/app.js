@@ -57,7 +57,11 @@ const Router = () => {
 
   return (
     <ReachRouter basepath={baseRouterPath} className="routing-container">
-      {routes !== undefined && routes.map(({ path, text, Component, props={} }) => <Component key={path} path={path} {...props}></Component>)}
+      {routes !== undefined && routes.map(({ path, text, Component, props={} }) => {
+        return (
+          <Component key={path} path={path} {...props}></Component>
+        )
+      })}
       <NotFoundView default />
     </ReachRouter>
   )

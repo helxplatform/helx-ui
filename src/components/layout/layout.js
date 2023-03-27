@@ -49,7 +49,7 @@ export const Layout = ({ children }) => {
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
-              {routes.map(m => m['text'] !== '' && (
+              {routes.map(m => m['text'] && (
                 <Menu.Item key={`${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>
               ))}
               {context.workspaces_enabled && !apiLoading && (

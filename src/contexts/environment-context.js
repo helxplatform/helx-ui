@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import axios, { CanceledError } from 'axios';
 import {
   ActiveView,
@@ -48,26 +48,42 @@ export const EnvironmentProvider = ({ children }) => {
     const baseRoutes = [];
     if (searchEnabled === 'true') {
       // route homepage to search if search is enabled
-      baseRoutes.push({ path: '/', parent: '/search', text: '', Component: SearchView })
+      baseRoutes.push({ path: '/', parent: '/search', Component: SearchView })
       baseRoutes.push({ path: '/search', text: 'Search', Component: SearchView })
     }
     if (workspaceEnabled === 'true') {
       // route homepage to apps page if search is disabled
       if (searchEnabled === 'false') {
-        baseRoutes.push({ path: '/', parent: '/workspaces', text: '', Component: AvailableView })
+        baseRoutes.push({ path: '/', parent: '/workspaces', Component: AvailableView })
       }
+      // Core workspaces routes
       baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
-      baseRoutes.push({ path: '/workspaces/login', parent: '/workspaces', text: '', Component: WorkspaceLoginView })
-      baseRoutes.push({ path: '/workspaces/login/success', parent: '/workspaces', text: '', Component: LoginSuccessRedirectView })
-      baseRoutes.push({ path: '/workspaces/signup/social', parent: '/workspaces', text: '', Component: WorkspaceSignupView })
-      baseRoutes.push({ path: '/workspaces/available', parent: '/workspaces', text: '', Component: AvailableView })
-      baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: '', Component: ActiveView })
-      baseRoutes.push({ path: '/workspaces/account', parent: '/workspaces', text: '', Component: AccountView })
-      baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', text: '', Component: SplashScreenView })
+      baseRoutes.push({ path: '/workspaces/available', parent: '/workspaces', Component: AvailableView })
+      baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', Component: ActiveView })
+      // Workspaces login
+      baseRoutes.push({ path: '/workspaces/login', parent: '/workspaces', Component: WorkspaceLoginView })
+      baseRoutes.push({ path: '/workspaces/login/success', parent: '/workspaces', Component: LoginSuccessRedirectView })
+      baseRoutes.push({ path: '/workspaces/signup/social', parent: '/workspaces', Component: WorkspaceSignupView })
+      // Workspaces account page. Specifying the same key for each AccountView route is important so that React doesn't remount each one
+      // as unique components when the route changes.
+      baseRoutes.push({ path: '/workspaces/account', parent: '/workspaces', Component: AccountView,
+        props: { key: "account-view", tab: "profile" }
+      })
+      baseRoutes.push({ path: '/workspaces/account/password', parent: '/workspaces', Component: AccountView,
+        props: { key: "account-view", tab: "password" }
+      })
+      baseRoutes.push({ path: '/workspaces/account/notifications', parent: '/workspaces', Component: AccountView,
+        props: { key: "account-view", tab: "notifications" }
+      })
+      baseRoutes.push({ path: '/workspaces/account/connections', parent: '/workspaces', Component: AccountView,
+        props: { key: "account-view", tab: "connections" }
+      })
+      // App loading screen
+      baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', Component: SplashScreenView })
     }
     if (searchEnabled === 'false' && workspaceEnabled === 'false') {
       // route homepage to support page if both search and workspaces are disabled
-      baseRoutes.push({ path: '/', parent: '/support', text: '', Component: SupportView })
+      baseRoutes.push({ path: '/', parent: '/support', Component: SupportView })
     }
     baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
     return baseRoutes;

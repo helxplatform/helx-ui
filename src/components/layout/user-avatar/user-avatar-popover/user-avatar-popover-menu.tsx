@@ -4,7 +4,7 @@ import { LogoutOutlined, UserOutlined, ExportOutlined } from '@ant-design/icons'
 import { useAnalytics, useWorkspacesAPI } from '../../../../contexts'
 import './user-avatar-popover-menu.css'
 
-const useNavigate = require('@gatsbyjs/reach-router').useNavigate
+const { useNavigate } = require('@gatsbyjs/reach-router')
 
 interface UserAvatarPopoverMenuProps {
     onOpenChange: PopoverProps["onOpenChange"]
