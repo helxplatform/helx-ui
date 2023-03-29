@@ -34,6 +34,7 @@ export const ConceptModalTitle = ({ result }) => {
           shape="circle"
           icon={ <ArrowLeftOutlined /> }
           onClick={ () => setSelectedResult(previousResult) }
+          style={{ marginLeft: -8 }}
         />
       ) }
       <Text>
