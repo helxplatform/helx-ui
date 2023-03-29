@@ -14,7 +14,9 @@ export const CdeList = ({ cdes, cdeRelatedConcepts, highlight, loading, failed }
         <List
             loading={{
                 spinning: loading,
-                tip: "We're digging into data for you. Hang tight!",
+                tip: (
+                    <div style={{ marginTop: 8 }}>We're digging into data for you. Hang tight!</div>
+                ),
                 style: { color: "rgba(0,0,0, 0.45)" }
             }}
             dataSource={cdes}

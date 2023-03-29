@@ -27,8 +27,15 @@ export const ConceptModalTitle = ({ result }) => {
   if (name.endsWith(`(${type})`)) name = name.slice(0, name.length - `(${type})`.length)
   
   return (
-    <Space size="middle">
-      {previousResult && <ArrowLeftOutlined className="previous-result-btn" onClick={ () => setSelectedResult(previousResult) } /> }
+    <Space size="small">
+      { previousResult && (
+        <Button
+          type="text"
+          shape="circle"
+          icon={ <ArrowLeftOutlined /> }
+          onClick={ () => setSelectedResult(previousResult) }
+        />
+      ) }
       <Text>
         { name }{ type ? " (" + type + ")" : "" }
       </Text>

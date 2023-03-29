@@ -17,16 +17,6 @@
   flex-grow: 1;
 }
 
-.previous-result-btn {
-  margin-top: 4px;
-  cursor: pointer;
-  color: rgba(0, 0, 0, 0.45) !important;
-  transition: color 0.3s ease;
-}
-.previous-result-btn:hover {
-  color: inherit !important;
-}
-
 .study-variables-list {
   font-size: 90% !important;
 }
