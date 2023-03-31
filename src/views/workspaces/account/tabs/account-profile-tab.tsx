@@ -15,12 +15,9 @@ export const AccountProfileTab = ({ }) => {
                     <UserAvatarUpload
                         avatarIconProps={{
                             shape: "circle",
-                            size: 140 - 12 - 24,
-                            style: {
-                                border: "1px solid rgba(0, 0, 0, 0.45)",
-                            }
+                            size: 140 - 12 - 24
                         }}
-                        style={{ flexGrow: 1 }}
+                        style={{ flexGrow: 1, filter: "drop-shadow(0 0 0.5px rgba(0, 0, 0, 1)" }}
                     />
                     <Button block type="ghost" size="small" style={{ marginTop: 12 }}>Remove</Button>
                 </div>

@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import { Button, Modal, ModalProps, Typography } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
+import { SizeMe } from 'react-sizeme'
 import { AvatarUpload } from './avatar-upload'
 import { AvatarEditor } from './avatar-editor'
 import './change-avatar-modal.css'
@@ -42,7 +43,7 @@ export const ChangeAvatarModal = ({ open, setOpen, ...props }: ChangeAvatarModal
                             style={{ marginRight: 8, marginLeft: -8 }}
                         />
                     ) }
-                    Change profile picture
+                    { image ? `Crop and scale` : `Change profile picture` }
                 </div>
             }
             centered
@@ -58,7 +59,22 @@ export const ChangeAvatarModal = ({ open, setOpen, ...props }: ChangeAvatarModal
             { ...props }
         >
             { image ? (
-                <AvatarEditor image={ image } style={{ margin: -16 }} />
+                <SizeMe>
+                    { ({ size }) => (
+                        <AvatarEditor
+                            image={ image }
+                            canvasSize={ size ? {
+                                /**
+                                 * We can confidently use react-sizeme to provide canvas dimensions since the modal has a consistent width/max-width.
+                                 * Even if it did overshoot (which it won't), it would only cause some visible overflow.
+                                 */
+                                width: size.width!,
+                                height: size.width!
+                            } : undefined }
+                            style={{ margin: -16 }}
+                        />
+                    ) }
+                </SizeMe>
             ) : (
                 <AvatarUpload onConfirm={ onImageUpload } style={{ padding: 48 }} />
             ) }
