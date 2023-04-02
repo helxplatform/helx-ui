@@ -19,7 +19,7 @@ export const AvatarEditor = ({ image, canvasSize, style, ...props }: AvatarEdito
         const url = URL.createObjectURL(image)
         setUrl(url)
 
-        const imageElement = new Image()
+        const imageElement = document.createElement("img")
         imageElement.onload = () => {
             setImageDimensions([ imageElement.width, imageElement.height ])
         }
@@ -55,15 +55,16 @@ export const AvatarEditor = ({ image, canvasSize, style, ...props }: AvatarEdito
         >
             <CustomReactAvatarEditor
                 image={ url! }
-                scale={ 1.25 }
+                scale={ 1.5 }
                 rotate={ 0 }
                 color={[ 0, 0, 0, 0.375 ]}
                 gridColor={[ 191, 191, 191, 1 ]}
                 border={[ borderWidth, borderHeight ]}
                 width={ canvasSize ? canvasSize.width - borderWidth * 2 : undefined }
                 height={ canvasSize ? canvasSize.height - borderHeight * 2 : undefined }
+                minimumCropSize={ 128 }
                 // gridColor="#d9d9d9"
-                backgroundColor="rgba(0, 0, 0, 0)"
+                // backgroundColor="rgb(255, 255, 255)"
                 // If canvasSize is specified, let react-avatar-editor handle the css sizing rules.
                 // style={ canvasSize ? {} : { width: "100%", height: "100%" } }
             />
