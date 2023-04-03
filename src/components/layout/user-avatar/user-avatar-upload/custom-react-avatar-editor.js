@@ -342,6 +342,38 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
         }
         return cursor
     }
+    calculateNewScalingFactor(e) {
+        const { scalingHandle } = this.state
+        const rect = e.target.getBoundingClientRect()
+        const mousePositionX = e.clientX - rect.x
+        const mousePositionY = e.clientY - rect.y
+        const [prevCropX, prevCropY, prevCropWidth, prevCropHeight] = this.computeCropWithScaling()
+        let cropX, cropY
+        switch (scalingHandle) {
+            case "top-left":
+                cropX = prevCropX + prevCropWidth
+                cropY = prevCropY + prevCropHeight
+                break
+            case "top-right":
+                cropX = prevCropX
+                cropY = prevCropY + prevCropHeight
+                break
+            case "bottom-left":
+                cropX = prevCropX + prevCropWidth
+                cropY = prevCropY
+                break
+            case "bottom-right":
+                cropX = prevCropX
+                cropY = prevCropY
+                break
+        }
+        const dx = mousePositionX - cropX
+        const dy = mousePositionY - cropY
+        const distance = Math.sqrt(dx ** 2 + dy ** 2)
+        const imageDistance = Math.sqrt(this.props.width ** 2 + this.props.height ** 2)
+        const scaleDelta = distance / imageDistance
+        return scaleDelta
+    }
 
     mouseTracker = (e) => {
         const { pageX, pageY } = e
@@ -375,39 +407,20 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
     }
     _handleMouseMove = (e) => {
         if (this.state.scaling) {
-            const { scalingHandle, scaleStartX, scaleStartY } = this.state
-            const mousePositionX = e.clientX
-            const mousePositionY = e.clientY
-            const dx = mousePositionX - scaleStartX
-            const dy = mousePositionY - scaleStartY
-            const distance = Math.sqrt(dx ** 2 + dy ** 2)
-            const imageDistance = Math.sqrt(this.props.width ** 2 + this.props.height ** 2)
-            let scalingFactor = 1 - distance / imageDistance
-            let expandingScale = false
-            switch (scalingHandle) {
-                case "top-left":
-                    if (dx < 0 || dy < 0) expandingScale = true
-                    break
-                case "top-right":
-                    if (dx > 0 || dy < 0) expandingScale = true
-                    break
-                case "bottom-left":
-                    if (dx < 0 || dy > 0) expandingScale = true
-                    break
-                case "bottom-right":
-                    if (dx > 0 || dy > 0) expandingScale = true
-                    break
-            }
-            if (expandingScale) scalingFactor = 1 / scalingFactor
+            let scalingFactor = this.calculateNewScalingFactor(e)
             const croppingRect = this.getCroppingRect()
             let newCropWidth = croppingRect.width * scalingFactor * this.state.image.resource.width
             let newCropHeight = croppingRect.height * scalingFactor * this.state.image.resource.height
             const newCrop = Math.max(newCropWidth, newCropHeight)
+            /** Verify the crop is larger than the minimum crop, if not, clamp it to the minimum. */
             if (newCrop < this.props.minimumCropSize) {
                 scalingFactor = this.props.minimumCropSize / croppingRect.width / this.state.image.resource.width
             }
-            // const newCropX = croppingRect.x * this.state.image.resource.width
-            // const newCropY = croppingRect.y * this.state.image.resource.height
+            /** Verify that the crop doesn't go outside the image boundaries, if it does, clamp it inside the boundaries. */
+            const [newX, newY, newWidth, newHeight] = this.computeCropWithScaling(scalingFactor)
+            const newCropX = croppingRect.x * this.state.image.resource.width
+            const newCropY = croppingRect.y * this.state.image.resource.height
+            // if (newX < border)
             this.setState({ scalingFactor })
 
         } else {
