@@ -7,6 +7,7 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
         showGrid: false,
         gridOnlyOnDrag: false,
         minimumCropSize: 36,
+        updateScale: (newScale) => {},
         ...ReactAvatarEditor.defaultProps
     }
     pixelRatio = typeof window !== 'undefined' && window.devicePixelRatio
@@ -28,10 +29,9 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
         }
     }
 
-    calculateXYWithScaling() {
+    calculateXY() {
         const dimensions = this.getDimensions()
         const [x, y] = this.getBorders(dimensions.border)
-        if (!this.state.scaling) return [x, y]
         return [x, y]
     }
     computeCropWithScaling(scalingFactor) {
@@ -112,7 +112,7 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
         const squareSize = handleLong
 
         const dimensions = this.getDimensions()
-        const [x, y] = this.calculateXYWithScaling()
+        const [x, y] = this.calculateXY()
         const width = dimensions.canvas.width - x * 2
         const height = dimensions.canvas.height - y * 2
 
@@ -344,7 +344,7 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
     }
     calculateNewScalingFactor(e) {
         const { scalingHandle } = this.state
-        const rect = e.target.getBoundingClientRect()
+        const rect = this.canvas.getBoundingClientRect()
         const mousePositionX = e.clientX - rect.x
         const mousePositionY = e.clientY - rect.y
         const [prevCropX, prevCropY, prevCropWidth, prevCropHeight] = this.computeCropWithScaling()
@@ -375,7 +375,43 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
         return scaleDelta
     }
 
-    mouseTracker = (e) => {
+    updateImagePosition(dx, dy, scale) {
+        const mx = dx
+        const my = dy
+
+        const width = this.state.image.width * this.props.scale
+        const height = this.state.image.height * this.props.scale
+
+        let rotate = this.props.rotate
+
+        rotate %= 360
+        rotate = rotate < 0 ? rotate + 360 : rotate
+
+        let { x: lastX, y: lastY } = this.getCroppingRect()
+
+        lastX *= width
+        lastY *= height
+
+        // helpers to calculate vectors
+        const toRadians = (degree) => degree * (Math.PI / 180)
+        const cos = Math.cos(toRadians(rotate))
+        const sin = Math.sin(toRadians(rotate))
+
+        const x = lastX + mx * cos + my * sin
+        const y = lastY + -mx * sin + my * cos
+
+        const relativeWidth = (1 / scale) * this.getXScale()
+        const relativeHeight = (1 / scale) * this.getYScale()
+
+        const position = {
+            x: x / width + relativeWidth / 2,
+            y: y / height + relativeHeight / 2,
+        }
+        
+        return position
+    }
+
+    windowMouseTracker = (e) => {
         const { pageX, pageY } = e
         this.pageX = pageX
         this.pageY = pageY
@@ -383,6 +419,82 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
         const canvas = this.canvas
         if (canvas) {
             this.recomputeCropHandles()
+        }
+
+        if (this.state.scaling) {
+            const doScale = () => {
+                let scalingFactor = this.calculateNewScalingFactor(e)
+                const dimensions = this.getDimensions()
+                const croppingRect = this.getCroppingRect()
+                let newCropWidth = croppingRect.width * scalingFactor * this.state.image.resource.width
+                let newCropHeight = croppingRect.height * scalingFactor * this.state.image.resource.height
+                const newCrop = Math.max(newCropWidth, newCropHeight)
+                /** Verify the crop is larger than the minimum crop, if not, clamp it to the minimum. */
+                if (newCrop < this.props.minimumCropSize) {
+                    scalingFactor = this.props.minimumCropSize / croppingRect.width / this.state.image.resource.width
+                }
+                /** Verify that the crop doesn't go outside the image boundaries, if it does, clamp it inside the boundaries.
+                 * There are two types of collisions: hard boundary collisions and soft boundary collisions:
+                 * 1) Hard boundary collision occurs when the crop hits the actual image boundary drawn inside the canvas.
+                 *    This is a hard boundary because you can't crop outside the image itself.
+                 * 2) Soft boundary collision occurs when the crop hits the canvas boundary. This implies that there's more
+                 *    of the image not being drawn inside the canvas, but the crop can continue to expand since it's not at
+                 *    the actual image boundary yet. We want to scale the image for the user when hitting a soft boundary.
+                */
+                const [newX, newY, newWidth, newHeight] = this.computeCropWithScaling(scalingFactor)
+                const { x: imageX, y: imageY, width: imageWidth, height: imageHeight } = this.calculatePosition(this.state.image, this.props.border)
+                let softBoundaryHit = false
+                let hardBoundaryHit = false
+                switch (this.state.scalingHandle) {
+                    /** Each scaling corner can only break the boundaries on one corner of the image/canvas */
+                    case "top-left":
+                        if (newX < imageX || newY < imageY) hardBoundaryHit = true
+                        if (newX < 0 || newY < 0) softBoundaryHit = true
+                        break
+                    case "top-right":
+                        if (newX + newWidth > imageX + imageWidth || newY < imageY) hardBoundaryHit = true
+                        if (newX + newWidth > dimensions.canvas.width || newY < 0) softBoundaryHit = true
+                        break
+                    case "bottom-left":
+                        if (newX < imageX || newY + newHeight > imageY + imageHeight) hardBoundaryHit = true
+                        if (newX < 0 || newY + newHeight > dimensions.canvas.height) softBoundaryHit = true
+                        break
+                    case "bottom-right":    
+                        if (newX + newWidth > imageX + imageWidth || newY + newHeight > imageY + imageHeight) hardBoundaryHit = true
+                        if (newX + newWidth > dimensions.canvas.width || newY + newHeight > dimensions.canvas.height) softBoundaryHit = true
+                        break
+                    }
+                // If hard boundary is hit, don't update scale or scaling factor.
+                if (hardBoundaryHit) {}
+                // If hard boundary isn't hit, but soft boundary is, update scale but not the factor. 
+                else if (softBoundaryHit) {
+                    const scalingFactorDelta = scalingFactor - this.state.scalingFactor
+                    this.props.updateScale(this.props.scale - scalingFactorDelta)
+                }
+                // If neither boundary is hit, update the scaling factor
+                else this.setState({ scalingFactor })
+            }
+            doScale()
+        }
+    }
+
+    windowMouseUp = (e) => {
+        if (this.state.scaling) {
+            const [x0, y0] = this.calculateXY()
+            const [x1, y1] = this.computeCropWithScaling()
+            const dx = x1 - x0
+            const dy = y1 - y0
+            this.props.updateScale(this.props.scale * (1 / this.state.scalingFactor))
+            this.setState({
+                scaling: false,
+                image: {
+                    ...this.state.image,
+                    ...this.updateImagePosition(dx, dy, this.props.scale * (1 / this.state.scalingFactor))
+                }
+            }, () => {
+                // Make sure it updates the crop handle once scaling is set to false.
+                this.recomputeCropHandles()
+            })
         }
     }
 
@@ -397,32 +509,12 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
     }
     _handleMouseUp = (e) => {
         if (this.state.scaling) {
-            this.setState({ scaling: false }, () => {
-                // Make sure it updates the crop handle once scaling is set to false.
-                this.recomputeCropHandles()
-            })
         } else {
             this.handleMouseUp(e)
         }
     }
     _handleMouseMove = (e) => {
         if (this.state.scaling) {
-            let scalingFactor = this.calculateNewScalingFactor(e)
-            const croppingRect = this.getCroppingRect()
-            let newCropWidth = croppingRect.width * scalingFactor * this.state.image.resource.width
-            let newCropHeight = croppingRect.height * scalingFactor * this.state.image.resource.height
-            const newCrop = Math.max(newCropWidth, newCropHeight)
-            /** Verify the crop is larger than the minimum crop, if not, clamp it to the minimum. */
-            if (newCrop < this.props.minimumCropSize) {
-                scalingFactor = this.props.minimumCropSize / croppingRect.width / this.state.image.resource.width
-            }
-            /** Verify that the crop doesn't go outside the image boundaries, if it does, clamp it inside the boundaries. */
-            const [newX, newY, newWidth, newHeight] = this.computeCropWithScaling(scalingFactor)
-            const newCropX = croppingRect.x * this.state.image.resource.width
-            const newCropY = croppingRect.y * this.state.image.resource.height
-            // if (newX < border)
-            this.setState({ scalingFactor })
-
         } else {
             this.handleMouseMove(e)
         }
@@ -431,13 +523,15 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
     componentDidMount() {
         super.componentDidMount()
 
-        window.addEventListener("mousemove", this.mouseTracker)
+        window.addEventListener("mousemove", this.windowMouseTracker)
+        window.addEventListener("mouseup", this.windowMouseUp)
     }
 
     componentWillUnmount() {
         super.componentWillUnmount()
         
-        window.removeEventListener("mousemove", this.mouseTracker)
+        window.removeEventListener("mousemove", this.windowMouseTracker)
+        window.removeEventListener("mouseup", this.windowMouseUp)
     }
 
     render() {

@@ -13,6 +13,7 @@ const BORDER_SIZE = 50
 
 export const AvatarEditor = ({ image, canvasSize, style, ...props }: AvatarEditorProps) => {
     const [url, setUrl] = useState<string|undefined>()
+    const [scale, setScale] = useState<number>(1.5)
     const [imageDimensions, setImageDimensions] = useState<[number, number] | undefined>()
 
     useEffect(() => {
@@ -55,7 +56,7 @@ export const AvatarEditor = ({ image, canvasSize, style, ...props }: AvatarEdito
         >
             <CustomReactAvatarEditor
                 image={ url! }
-                scale={ 1.5 }
+                scale={ scale }
                 rotate={ 0 }
                 color={[ 0, 0, 0, 0.375 ]}
                 gridColor={[ 191, 191, 191, 1 ]}
@@ -63,6 +64,7 @@ export const AvatarEditor = ({ image, canvasSize, style, ...props }: AvatarEdito
                 width={ canvasSize ? canvasSize.width - borderWidth * 2 : undefined }
                 height={ canvasSize ? canvasSize.height - borderHeight * 2 : undefined }
                 minimumCropSize={ 128 }
+                updateScale={ setScale }
                 // gridColor="#d9d9d9"
                 // backgroundColor="rgb(255, 255, 255)"
                 // If canvasSize is specified, let react-avatar-editor handle the css sizing rules.
