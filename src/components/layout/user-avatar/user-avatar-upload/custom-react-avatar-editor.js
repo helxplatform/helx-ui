@@ -546,12 +546,7 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
             onMouseMove: this._handleMouseMove
         })
         return (
-            <div>
-                Collision: { JSON.stringify(this.state.scalingHandle ?? "none") }
-                <br />
-                Scaling: { JSON.stringify(this.state.scaling) }
-                { wrappedCanvas }
-            </div>
+            wrappedCanvas
         )
     }
 }
