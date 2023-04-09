@@ -1,35 +1,53 @@
-import { Fragment, useCallback, useState } from 'react'
-import { Button, Divider, Empty, Space, Typography, message, Spin } from 'antd'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Button, Divider, Empty, Space, Typography, message, Spin, Result, Alert } from 'antd'
 import { FileImageOutlined, UploadOutlined, CameraOutlined } from '@ant-design/icons'
 import Dropzone, { FileRejection } from 'react-dropzone'
+import Webcam from 'react-webcam'
+import { SizeMe } from 'react-sizeme'
 import './avatar-upload.css'
+import { WebcamUpload } from './webcam-upload'
 
 const { Text, Paragraph } = Typography
 
 
 const MAX_UPLOAD_SIZE_BYTES = 8E6 // 8 MB
 
+interface SetCameraActive {
+    (active: boolean): void
+}
+
 interface OnConfirm {
     (image: any): void
 }
 
 interface AvatarUploadProps extends React.HTMLProps<HTMLElement> {
+    cameraActive: boolean
+    setCameraActive: SetCameraActive
     onConfirm: OnConfirm
 }
 
-export const AvatarUpload = ({ onConfirm, style={}, ...props }: AvatarUploadProps) => {
+export const AvatarUpload = ({ onConfirm, cameraActive: cameraActive, setCameraActive, style={}, ...props }: AvatarUploadProps) => {
     const [uploading, setUploading] = useState<boolean>(false)
-
+    
+    const webcamRef = useRef<Webcam>(null)
+    const isMounted = useRef<boolean>(false)
+    
     const onDrop = useCallback(async ([ file ]: File[]) => {
         setUploading(true)
         const data = await file.arrayBuffer()
         const blob = new Blob([data], {
             type: file.type
         })
+        const url = URL.createObjectURL(blob)
 
         setUploading(false)
-        onConfirm(blob)
+        isMounted.current && onConfirm(url)
     }, [])
+
+    const onWebcamUpload = useCallback(async (url: string) => {
+        onConfirm(url)
+    }, [])
+
     const onDropRejected = useCallback(async ([ fileRejection ]: FileRejection[]) => {
         fileRejection.errors.forEach((error) => {
             let msg;
@@ -51,6 +69,26 @@ export const AvatarUpload = ({ onConfirm, style={}, ...props }: AvatarUploadProp
         })
     }, [])
 
+    useEffect(() => {
+        isMounted.current = true
+        return () => {
+            isMounted.current = false
+        }
+    }, [])
+
+    if (cameraActive) return (
+        <SizeMe>
+            { ({ size }) => (
+                <WebcamUpload
+                    onUpload={ onWebcamUpload }
+                    style={ size ? {
+                        width: size.width ?? undefined,
+                        height: size.height ?? undefined
+                    } : {} }
+                />
+            ) }
+        </SizeMe>
+    )
     return (
         <Dropzone
             accept={{ "image/png": ["png"], "image/jpeg": ["jpg", "jpeg"] }}
@@ -96,7 +134,13 @@ export const AvatarUpload = ({ onConfirm, style={}, ...props }: AvatarUploadProp
                                             >
                                                 Select from computer
                                                 </Button>
-                                            <Button type="ghost" icon={ <CameraOutlined /> }>Take a picture</Button>
+                                            <Button
+                                                type="ghost"
+                                                icon={ <CameraOutlined /> }
+                                                onClick={ () => setCameraActive(true) }
+                                            >
+                                                Take a picture
+                                            </Button>
                                         </Space>
                                         <div style={{
                                             opacity: isDragActive ? 1 : 0,

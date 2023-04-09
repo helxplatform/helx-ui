@@ -5,40 +5,38 @@ import { CustomReactAvatarEditor } from './custom-react-avatar-editor'
 import { SizeMeProps, withSize } from 'react-sizeme'
 
 interface AvatarEditorProps extends React.HTMLProps<HTMLDivElement> {
-    image: Blob
+    imageUrl: string
     canvasSize?: { width: number, height: number }
 }
 
 
-const BORDER_SIZE = 50
+const BORDER_SIZE = 25
 const MIN_IMAGE_SIZE = 64
 
-export const AvatarEditor = forwardRef<any, any>(({ image, canvasSize, style, ...props }: AvatarEditorProps, ref) => {
-    const [url, setUrl] = useState<string|undefined>()
+export const AvatarEditor = forwardRef<any, any>(({ imageUrl, canvasSize, style, ...props }: AvatarEditorProps, ref) => {
+    // const [url, setUrl] = useState<string|undefined>()
     const [scale, setScale] = useState<number>(1.5)
     const [invalid, setInvalid] = useState<boolean|undefined>(undefined)
+    const [vertical, setVertical] = useState<boolean|undefined>(undefined)
 
     useEffect(() => {
-        const url = URL.createObjectURL(image)
-        setUrl(url)
-
         const imageElement = document.createElement("img")
         imageElement.onload = () => {
+            setVertical(imageElement.height > imageElement.width)
             setInvalid(imageElement.width < MIN_IMAGE_SIZE || imageElement.height < MIN_IMAGE_SIZE)
         }
-        imageElement.src = url
+        imageElement.src = imageUrl
 
         return () => {
-            URL.revokeObjectURL(url)
             imageElement.onload = null
-
-            setUrl(undefined)
             setInvalid(undefined)
         }
-    }, [image])
+    }, [imageUrl])
 
-    const [borderWidth, borderHeight] = useMemo(() => ([BORDER_SIZE, BORDER_SIZE]), [])
-    const loading = useMemo(() => url === undefined || invalid === undefined, [url, invalid])
+    const [borderWidth, borderHeight] = useMemo(() => (
+        [BORDER_SIZE, BORDER_SIZE]
+    ), [])
+    const loading = useMemo(() => invalid === undefined, [invalid])
 
     return (
         <Spin spinning={ loading } delay={ 50 }>
@@ -60,7 +58,7 @@ export const AvatarEditor = forwardRef<any, any>(({ image, canvasSize, style, ..
                     />
                 ) : (
                     <CustomReactAvatarEditor
-                        image={ url! }
+                        image={ imageUrl }
                         scale={ scale }
                         rotate={ 0 }
                         color={[ 0, 0, 0, 0.375 ]}

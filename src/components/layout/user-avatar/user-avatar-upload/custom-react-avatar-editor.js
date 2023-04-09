@@ -465,10 +465,15 @@ export class CustomReactAvatarEditor extends ReactAvatarEditor {
                         break
                     }
                 // If hard boundary is hit, don't update scale or scaling factor.
-                if (hardBoundaryHit) {}
+                if (hardBoundaryHit) {
+                    // Ideally, if the hard boundary is hit, we'd set the crop (scaling factor) as big as we can get it without exceeding the boundary.
+                    // Because we don't, there's a bit of a bug where if you move your mouse very fast which will quickly hit the hard boundary,
+                    // it won't actually go all the way to the hard boundary.
+                    // But it's unclear how to calculate the maximum scaling factor such that the hard boundary is hit exactly.
+                }
                 // If hard boundary isn't hit, but soft boundary is, update scale but not the factor. 
                 else if (softBoundaryHit) {
-                    const scalingFactorDelta = scalingFactor - this.state.scalingFactor
+                    const scalingFactorDelta = Math.min(scalingFactor - this.state.scalingFactor, 0.05)
                     this.props.updateScale(this.props.scale - scalingFactorDelta)
                 }
                 // If neither boundary is hit, update the scaling factor
