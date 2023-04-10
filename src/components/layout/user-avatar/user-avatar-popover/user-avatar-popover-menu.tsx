@@ -1,6 +1,6 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Menu, PopoverProps } from 'antd'
-import { LogoutOutlined, UserOutlined, ExportOutlined } from '@ant-design/icons'
+import { UserOutlined, ExportOutlined, ControlOutlined } from '@ant-design/icons'
 import { useAnalytics, useWorkspacesAPI } from '../../../../contexts'
 import './user-avatar-popover-menu.css'
 
@@ -14,6 +14,8 @@ export const UserAvatarPopoverMenu = ({ onOpenChange }: UserAvatarPopoverMenuPro
     const { api, user } = useWorkspacesAPI()!
     const { analyticsEvents } = useAnalytics()
     const navigate = useNavigate()
+
+    const canViewAdminPanel = useMemo(() => user?.staff || user?.superuser, [user])
 
     const logout = useCallback(() => {
         analyticsEvents.logout()
@@ -35,6 +37,12 @@ export const UserAvatarPopoverMenu = ({ onOpenChange }: UserAvatarPopoverMenuPro
                         label: 'Account',
                         onClick: () => navigate(`/helx/workspaces/account`)
                     },
+                    ...(canViewAdminPanel ? [{
+                        key: 'admin-page',
+                        icon: <ControlOutlined />,
+                        label: 'Admin',
+                        onClick: () => { window.location.href = `/admin` }
+                    }] : []),
                     {
                         key: 'logout',
                         icon: <ExportOutlined />,
