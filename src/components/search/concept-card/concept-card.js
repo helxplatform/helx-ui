@@ -6,7 +6,7 @@ import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 // import { CdesTab } from './cdes-tab'
-import { useAnalytics } from '../../../contexts'
+import { useAnalytics, useEnvironment } from '../../../contexts'
 import classNames from 'classnames'
 import './concept-card.css'
 
@@ -20,6 +20,7 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
   const [cdeStudies, setCdeStudies] = useState(null)
 
   const { analyticsEvents } = useAnalytics()
+  const { context } = useEnvironment()
   const { query, fetchVariablesForConceptId, fetchCDEs } = useHelxSearch()
 
   const tabs = useMemo(() => ({
@@ -27,6 +28,10 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
     'studies':  { title: `Studies`,          content: <StudiesTab studies={ studies } /> },
     'cdes':     { title: `CDEs`,             content: <StudiesTab studies={ cdeStudies } /> },
   }), [result, studies, cdeStudies])
+
+  context.hidden_result_tabs.forEach((tab) => {
+    delete tabs[tab]
+  })
 
   const tabList = Object.keys(tabs).map(key => tabs[key].content ? ({ key, tab: tabs[key].title }) : null).filter(tab => tab !== null)
   const tabContents = Object.keys(tabs).reduce((obj, key) => tabs[key].content ? ({ ...obj, [key]: tabs[key].content }) : obj, {})
