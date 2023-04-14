@@ -12,7 +12,7 @@ const { useBreakpoint } = Grid
 
 export const Layout = ({ children }) => {
   const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
-  const { api, loading: apiLoading, loggedIn, extraLinks } = useWorkspacesAPI()
+  const { api, loading: apiLoading, loggedIn, environmentContext } = useWorkspacesAPI()
   const { analyticsEvents } = useAnalytics()
   const { md } = useBreakpoint()
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
@@ -60,7 +60,7 @@ export const Layout = ({ children }) => {
                 <Menu.Item key={`${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>
               ))}
               {context.workspaces_enabled && !apiLoading && (
-                extraLinks.map((link) => (
+                environmentContext.links.map((link) => (
                   <Menu.Item key={ link.title }>
                     <LinkOutlined style={{ marginRight: 12 }} />
                     <a href={ link.link } target="_blank" rel="noopener noreferrer">

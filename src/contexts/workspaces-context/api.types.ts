@@ -103,6 +103,7 @@ export interface EnvironmentContext {
     }
     links: ExtraLink[]
     capabilities: Capability[]
+    dockstore_app_specs_dir_url: string
     env: {
         [key: string]: any  
     }

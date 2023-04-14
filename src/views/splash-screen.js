@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Spin, Button } from "antd";
 import axios from "axios";
 import { callWithRetry } from "../utils";
-import { useEnvironment } from '../contexts';
+import { useEnvironment, useWorkspacesAPI } from '../contexts';
 import { withView } from './';
 import { useTitle } from "./view";
 
@@ -14,11 +14,12 @@ export const SplashScreenView = (props) => {
     if(header !== null) header.style.visibility = "hidden";
     if(sidePanel !== null) sidePanel.style.visibility = "hidden";
     const { context } = useEnvironment();
+    const { appstoreContext } = useWorkspacesAPI()
     const [loading, setLoading] = useState(true);
     const [errorPresent, setErrorPresent] = useState(false);
 
     const decoded_url = decodeURIComponent(props.app_url);
-    const app_icon = `${context.dockstore_app_specs_dir_url}/${props.app_name}/icon.png`
+    const app_icon = `${appstoreContext.dockstore_app_specs_dir_url}/${props.app_name}/icon.png`
     
     useTitle("Connecting")
 

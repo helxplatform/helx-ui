@@ -21,7 +21,7 @@ const validateLocalstorageValue = (config, app_id, min, max) => {
 }
 
 export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources, available }) => {
-    const { api } = useWorkspacesAPI();
+    const { api, appstoreContext } = useWorkspacesAPI();
     const { addActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
     const { context } = useEnvironment()
@@ -75,7 +75,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     }
 
     const getLogoUrl = (app_id) => {
-        return `${context.dockstore_app_specs_dir_url}/${app_id}/icon.png`
+        return `${appstoreContext.dockstore_app_specs_dir_url}/${app_id}/icon.png`
     }
 
     return (

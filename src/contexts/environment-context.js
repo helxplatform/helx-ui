@@ -81,7 +81,6 @@ export const EnvironmentProvider = ({ children }) => {
       let context = response.data;
 
       /** Context defaults */
-      if (!context.dockstore_app_specs_dir_url) context.dockstore_app_specs_dir_url = "[ MISSING VALUE ]"
       if (!context.appstore_asset_branch) context.appstore_asset_branch = "master"
       if (!context.brand) context.brand = "helx"
 
