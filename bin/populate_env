@@ -10,10 +10,10 @@ workspaces_enabled="${REACT_APP_WORKSPACES_ENABLED:-true}"
 search_enabled="${REACT_APP_SEMANTIC_SEARCH_ENABLED:-true}"
 search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
-tranql_enabled="${REACT_APP_TRANQL_ENABLED:-false}"
 tranql_url="${REACT_APP_TRANQL_URL:-\/tranql}"
 analytics="${REACT_APP_ANALYTICS:-}"
 hidden_support_sections="${REACT_APP_HIDDEN_SUPPORT_SECTIONS}"
+hidden_result_tabs="${REACT_APP_HIDDEN_RESULT_TABS}"
 deployment_namespace="${REACT_APP_DEPLOYMENT_NAMESPACE}"
 dockstore_app_specs_dir_url="${TYCHO_APP_REGISTRY_REPO}/${TYCHO_APP_REGISTRY_BRANCH}/${TYCHO_APP_REGISTRY_APP_SPECS_DIR}"
 appstore_asset_branch="${REACT_APP_APPSTORE_ASSET_BRANCH}"
@@ -25,7 +25,6 @@ template='{
     "search_url": "%SEARCH_URL%",
     "search_enabled": "%SEARCH_ENABLED%",
     "workspaces_enabled": "%WORKSPACES_ENABLED%",
-    "tranql_enabled": "%TRANQL_ENABLED%",
     "tranql_url": "%TRANQL_URL%",
     "analytics": {
       "enabled": true,
@@ -36,6 +35,7 @@ template='{
       }
     },
     "hidden_support_sections": "%HIDDEN_SUPPORT_SECTIONS%",
+    "hidden_result_tabs": "%HIDDEN_RESULT_TABS%",
     "deployment_namespace": "%DEPLOYMENT_NAMESPACE%",
     "dockstore_app_specs_dir_url": "%DOCKSTORE_APP_SPECS_DIR_URL%",
     "appstore_asset_branch": "%APPSTORE_ASSET_BRANCH%"
@@ -47,8 +47,8 @@ echo "$template" | sed \
   -e "s/%SEARCH_URL%/$search_url/" \
   -e "s/%BRAND%/$brand_name/" \
   -e "s/%HIDDEN_SUPPORT_SECTIONS%/$hidden_support_sections/" \
+  -e "s/%HIDDEN_RESULT_TABS%/$hidden_result_tabs/" \
   -e "s/%ANALYTICS%/$analytics/" \
-  -e "s/%TRANQL_ENABLED%/$tranql_enabled/" \
   -e "s/%TRANQL_URL%/$tranql_url/" \
   -e "s/%DEPLOYMENT_NAMESPACE%/$deployment_namespace/" \
   -e "s+%DOCKSTORE_APP_SPECS_DIR_URL%+$dockstore_app_specs_dir_url+" \

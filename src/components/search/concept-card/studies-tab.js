@@ -1,19 +1,22 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { List, Spin, Space, Tag, Typography, Divider } from 'antd'
-import { useHelxSearch } from '../'
 import { Link } from '../../link'
 
 const { Text } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 
-export const StudiesTab = ({ result }) => {
-  const { query, fetchVariablesForConceptId, fetchCDEs } = useHelxSearch()
-  const [studies, setStudies] = useState([])
-  const [loading, setLoading] = useState(true)
+export const StudiesTab = ({ studies }) => {
   const [facets, setFacets] = useState([])
   const [selectedFacets, setSelectedFacets] = useState([])
 
-  const studiesSource = useMemo(() => studies.filter((study) => selectedFacets.includes(study.type)), [studies, selectedFacets])
+  const loading = useMemo(() => studies === null, [studies])
+
+  const studiesSource = useMemo(() => (
+    studies ? (
+      studies.filter((study) => selectedFacets.includes(study.type))
+    ) : (
+      []
+  )), [studies, selectedFacets])
 
   const handleSelectFacet = useCallback((facet, checked) => {
     const newSelection = new Set(selectedFacets)
@@ -26,7 +29,7 @@ export const StudiesTab = ({ result }) => {
   }, [selectedFacets])
 
   useEffect(() => {
-    const facets = studies.reduce((acc, study) => {
+    const facets = (studies ?? []).reduce((acc, study) => {
       if (!acc.includes(study.type)) acc.push(study.type)
       return acc
     }, [])
@@ -34,6 +37,7 @@ export const StudiesTab = ({ result }) => {
     setSelectedFacets(facets)
   }, [studies])
   
+  /*
   useEffect(() => {
     const getStudies = async () => {
       const studies = await fetchVariablesForConceptId(result.id, query)
@@ -54,6 +58,7 @@ export const StudiesTab = ({ result }) => {
     setLoading(true)
     getStudies()
   }, [fetchVariablesForConceptId])
+  */
 
   if (loading) {
     return <Spin />
