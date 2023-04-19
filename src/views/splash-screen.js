@@ -5,10 +5,11 @@ import { callWithRetry } from "../utils";
 import { useEnvironment, useWorkspacesAPI } from '../contexts';
 import { withView } from './';
 import { useTitle } from "./view";
+import { withWorkspaceAuthentication } from "./workspaces";
 
 // This view is used when the UI is checking the readiness of an instance
 
-export const SplashScreenView = (props) => {
+export const SplashScreenView = withWorkspaceAuthentication((props) => {
     const header = document.getElementById('helx-header');
     const sidePanel = document.getElementById('helx-side-panel');
     if(header !== null) header.style.visibility = "hidden";
@@ -19,7 +20,11 @@ export const SplashScreenView = (props) => {
     const [errorPresent, setErrorPresent] = useState(false);
 
     const decoded_url = decodeURIComponent(props.app_url);
-    const app_icon = `${appstoreContext.dockstore_app_specs_dir_url}/${props.app_name}/icon.png`
+    const app_icon = useMemo(() => (
+        appstoreContext
+            ? `${appstoreContext.dockstore_app_specs_dir_url}/${props.app_name}/icon.png`
+            : undefined
+    ), [appstoreContext, props.app_name])
     
     useTitle("Connecting")
 
@@ -57,7 +62,7 @@ export const SplashScreenView = (props) => {
     if (loading) {
         return (
             <div style={{ textAlign: "center", marginTop: "175px" }}>
-                <img src={`${app_icon}`} alt="App Icon" width="100"></img>
+                { app_icon && <img src={`${app_icon}`} alt="App Icon" width="100"></img> }
                 <h2 style={{ marginTop: 16 }}>Connecting...</h2>
                 <Spin size="large" style={{ marginTop: 16 }}></Spin>
             </div>
@@ -65,7 +70,7 @@ export const SplashScreenView = (props) => {
     } else if (errorPresent) {
         return (
             <div style={{ textAlign: "center", marginTop: "175px" }}>
-                <img src={`${app_icon}`} alt="App Icon" width="100"></img>
+                { app_icon && <img src={`${app_icon}`} alt="App Icon" width="100"></img> }
                 <h2>Error: { props.app_name } did not start</h2>
                 <Button type="primary" onClick={ () => { window.location.reload() } }>Retry</Button>
             </div>
@@ -73,7 +78,7 @@ export const SplashScreenView = (props) => {
     } else if (errorPresent) {
         return (
             <div style={{ textAlign: "center", marginTop: "175px" }}>
-                <img src={`${app_icon}`} alt="App Icon" width="100"></img>
+                { app_icon && <img src={`${app_icon}`} alt="App Icon" width="100"></img> }
                 <h2>Error: { props.app_name } did not start</h2>
                 <Button type="primary" onClick={ () => { window.location.reload() } }>Retry</Button>
             </div>
@@ -83,4 +88,4 @@ export const SplashScreenView = (props) => {
         window.location = decoded_url;
     }
 
-}
+})
