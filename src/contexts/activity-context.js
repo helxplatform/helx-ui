@@ -9,18 +9,20 @@ export const ActivityContext = createContext({});
 export const ActivityProvider = ({ children }) => {
     const [activityArray, setActivityArray] = useState([]);
 
-    const addActivity = new_activity => {
-        let newActivityArray = [...activityArray];
-        newActivityArray.unshift(new_activity);
-        setActivityArray(newActivityArray)
-    }
+    const addActivity = useCallback((newActivity) => {
+        setActivityArray((oldActivityArray) => (
+            [ newActivity, ...oldActivityArray ]
+        ))
+    }, [])
 
-    const updateActivity = new_activity => {
-        let filteredArray = [...activityArray];
-        filteredArray = activityArray.filter(value => { return value['sid'] !== new_activity['sid'] })
-        filteredArray.unshift(new_activity);
-        setActivityArray(filteredArray)
-    }
+    const updateActivity = useCallback((newActivity) => {
+        setActivityArray((oldActivityArray) => (
+            [
+                newActivity,
+                ...oldActivityArray.filter((value) => value['sid'] !== newActivity['sid'])
+            ]
+        ))
+    }, [])
 
     return (
         <ActivityContext.Provider
