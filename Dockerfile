@@ -30,4 +30,4 @@ ENV PATH="/usr/src/app/bin:${PATH}"
 
 
 EXPOSE 80
-CMD ["start_server", "/usr/share/nginx/static/frontend/env.json"]
+CMD ["start_server", "/usr/share/nginx/static/frontend/env.json", "/usr/share/nginx/static/frontend/manifest.json"]

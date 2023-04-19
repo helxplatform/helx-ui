@@ -3,8 +3,9 @@
 
 if [ -z "$1" ]
   then
-    echo "Usage: start_server /path/to/output/env.json"
+    echo "Usage: start_server /path/to/output/env.json /path/to/output/manifest.json"
     exit 1
 fi
 populate_env $1
+generate_manifest $2
 nginx -g "daemon off;"

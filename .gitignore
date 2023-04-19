@@ -31,4 +31,5 @@ yarn-error.log*
 
 # Environment
 public/env.json
+public/manifest.json
 misc/

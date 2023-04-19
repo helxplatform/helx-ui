@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ]
+  then
+    echo "Usage: generate_manifest /path/to/output/manifest.json"
+    exit 1
+fi
+
+workspaces_enabled="${REACT_APP_WORKSPACES_ENABLED:-true}"
+search_enabled="${REACT_APP_SEMANTIC_SEARCH_ENABLED:-true}"
+brand_name="${REACT_APP_UI_BRAND_NAME}"
+
+short_name="${brand_name}"
+full_name="${brand_name}"
+
+if [ "$workspaces_enabled" = true ] && [ "$search_enabled" = true ]; then
+    full_name+=" Workspaces"
+elif [ "$workspaces_enabled" = true ]; then
+    full_name+=" Workspaces"
+elif [ "$search_enabled" = true ]; then
+    full_name+=" Semantic Search"
+fi
+
+template='{
+  "short_name": "%SHORT_NAME%",
+  "name": "%FULL_NAME%",
+  "icons": [
+    {
+      "src": "helx-logo-blue.svg",
+      "sizes": "48x48 72x72 96x96 128x128 256x256 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1890ff",
+  "background_color": "#ffffff"
+}'
+
+echo "$template" | sed \
+  -e "s/%SHORT_NAME%/$short_name/" \
+  -e "s/%FULL_NAME%/$full_name/" \
+  > $1
