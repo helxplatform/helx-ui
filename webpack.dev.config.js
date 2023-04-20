@@ -1,5 +1,6 @@
 const express = require('express')
 const path = require('path')
+const webpack = require('webpack')
 const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 const ForkTsCheckerPlugin = require('fork-ts-checker-webpack-plugin')
 const ESLintPlugin = require('eslint-webpack-plugin')
@@ -43,6 +44,9 @@ module.exports = merge(baseConfig, {
         }),
         new ESLintPlugin({
             extensions: ['js', 'jsx', 'ts', 'tsx']
+        }),
+        new webpack.EnvironmentPlugin({
+            'NODE_ENV': 'development'
         })
     ]
 })

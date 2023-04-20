@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const { merge } = require('webpack-merge')
@@ -14,6 +15,11 @@ module.exports = merge(baseConfig, {
     module: {
         rules: [ createBabelLoader({ isDevelopment: false }) ]
     },
+    plugins: [
+        new webpack.EnvironmentPlugin({
+            'NODE_ENV': 'production'
+        })
+    ],
     optimization: {
         minimize: true,
         minimizer: [

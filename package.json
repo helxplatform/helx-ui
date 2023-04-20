@@ -30,7 +30,7 @@
   },
   "scripts": {
     "start": "node_modules/.bin/webpack serve --config webpack.dev.config.js",
-    "build": "NODE_ENV=production node_modules/.bin/webpack --config webpack.prod.config.js",
+    "build": "node_modules/.bin/webpack --config webpack.prod.config.js",
     "lint": "eslint src"
   },
   "eslintConfig": {
