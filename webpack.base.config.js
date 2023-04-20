@@ -28,7 +28,7 @@ const baseConfig = {
                 test: /\.(js|jsx|ts|tsx)$/i,
                 exclude: /node_modules/,
                 use: {
-                    loader: require.resolve('babel-loader'),
+                    loader: 'babel-loader',
                     options: {
                         presets: [
                             '@babel/preset-env',
@@ -41,7 +41,7 @@ const baseConfig = {
                                 { legacy: true }
                             ],
                             ...(isDevelopment ? [
-                                require.resolve('react-refresh/babel')
+                                'react-refresh/babel'
                             ] : [])
                         ]
                     }
@@ -49,7 +49,16 @@ const baseConfig = {
             },
             {
                 test: /\.css$/i,
-                use: [MiniCssExtractPlugin.loader, 'css-loader']
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: 1
+                        }
+                    },
+                    'postcss-loader'
+                ]
             },
             {
                 test: /\.less$/i,
