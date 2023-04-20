@@ -1,11 +1,12 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 
 const paths = {
     src: path.resolve(__dirname, 'src'),
     public: path.resolve(__dirname, 'public'),
-    build: path.resolve(__dirname, 'build')
+    build: path.resolve(__dirname, 'build', 'frontend')
 }
 paths.entryPoint = path.resolve(paths.src, 'index.js')
 
@@ -34,6 +35,15 @@ const createBabelLoader = ({
         }
     }
 })
+const createCopyPlugin = ({
+    isDevelopment
+}) => (
+    new CopyPlugin({
+        patterns: [
+            { from: 'public', to: isDevelopment ? 'static/frontend' : '' }
+        ]
+    })
+)
 const baseConfig = {
     entry: paths.entryPoint,
     output: {
@@ -124,5 +134,6 @@ const baseConfig = {
 module.exports = {
     paths,
     baseConfig,
-    createBabelLoader
+    createBabelLoader,
+    createCopyPlugin
 }

@@ -5,7 +5,7 @@ const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 const ForkTsCheckerPlugin = require('fork-ts-checker-webpack-plugin')
 const ESLintPlugin = require('eslint-webpack-plugin')
 const { merge } = require('webpack-merge')
-const { baseConfig, createBabelLoader, paths } = require('./webpack.base.config.js')
+const { baseConfig, paths, createBabelLoader, createCopyPlugin } = require('./webpack.base.config.js')
 
 module.exports = merge(baseConfig, {
     mode: 'development',
@@ -28,10 +28,6 @@ module.exports = merge(baseConfig, {
                 warnings: false,
                 errors: true
             }
-        },
-        setupMiddlewares: (middlewares, devServer) => {
-            devServer.app.use('/static/frontend/', express.static(path.resolve(paths.public)))
-            return middlewares
         }
     },
     module: {
@@ -47,6 +43,7 @@ module.exports = merge(baseConfig, {
         }),
         new webpack.EnvironmentPlugin({
             'NODE_ENV': 'development'
-        })
+        }),
+        createCopyPlugin({ isDevelopment: true })
     ]
 })
