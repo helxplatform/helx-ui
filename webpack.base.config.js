@@ -51,8 +51,7 @@ const baseConfig = {
         filename: '[name].[fullhash:8].bundle.js',
         sourceMapFilename: '[file].map[query]',
         chunkFilename: '[id].[chunkhash:8].chunk.js',
-        publicPath: '/',
-        clean: true
+        publicPath: '/'
     },
     module: {
         rules: [
@@ -98,7 +97,7 @@ const baseConfig = {
         new HtmlWebpackPlugin({
             template: path.resolve(paths.public, 'index.ejs'),
             templateParameters: {
-                publicUrl: paths.public
+                publicUrl: '/static/frontend/'
             },
             minify: {
                 html5: true,
