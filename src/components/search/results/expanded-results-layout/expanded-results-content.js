@@ -27,11 +27,11 @@ export const ExpandedResultsContent = ({ expanded, closeSelected }) => {
                 title={ <ConceptModalTitle result={ selectedResult } /> }
                 extra={[
                     // <Button icon={ <CompressOutlined /> } type="text" style={{ marginRight: "12px" }} />,
-                    <Button icon={ <CloseOutlined /> } type="text" onClick={ closeSelected } />
+                    <Button key={ 0 } icon={ <CloseOutlined /> } type="text" onClick={ closeSelected } />
                 ]}
                 // Disabled for now, may be useful some time in the future to have this sort of functionality.
                 actions={false && [
-                    <Fragment>
+                    <Fragment key={ 0 }>
                         <Button style={{ float: "left", marginLeft: "16px" }}><LeftOutlined /> Prev</Button>
                         <Button style={{ float: "right", marginRight: "16px" }}>Next <RightOutlined /></Button>
                     </Fragment>

@@ -1,5 +1,6 @@
 import _axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import deepmerge from 'deepmerge'
+import cookies from 'js-cookie'
 import {
     APIError, APIRequestError, APIResponseError,
     LoginResponse, SocialSignupResponse, LogoutResponse, UsersResponse,
@@ -20,10 +21,6 @@ import {
     SocialSignupNotAuthorizedError,
     LaunchAppResponse
 } from './api.types'
-
-/** Typescript would not stop complaining about a declarations file for this package. */
-const cookies = require('js-cookie')
-
 /**
  * Note: for further reference, API design and some core functionalities are pulled from:
  * - https://github.com/frostyfan109/stem-extraction-ui/blob/master/web/src/api/api.ts 
