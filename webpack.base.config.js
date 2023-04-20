@@ -1,8 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const TerserPlugin = require('terser-webpack-plugin')
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 const paths = {
     src: path.resolve(__dirname, 'src'),
@@ -11,42 +9,43 @@ const paths = {
 }
 paths.entryPoint = path.resolve(paths.src, 'index.js')
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
-
+const createBabelLoader = ({
+    isDevelopment
+}) => ({
+    test: /\.(js|jsx|ts|tsx)$/i,
+    exclude: /node_modules/,
+    use: {
+        loader: 'babel-loader',
+        options: {
+            presets: [
+                '@babel/preset-env',
+                '@babel/preset-typescript',
+                ['@babel/preset-react', { runtime: 'automatic' }]
+            ],
+            plugins: [
+                [
+                    '@babel/plugin-proposal-decorators',
+                    { legacy: true }
+                ],
+                ...(isDevelopment ? [
+                    'react-refresh/babel'
+                ] : [])
+            ]
+        }
+    }
+})
 const baseConfig = {
     entry: paths.entryPoint,
     output: {
         path: paths.build,
-        filename: '[name].[hash:8].js',
+        filename: '[name].[fullhash:8].bundle.js',
         sourceMapFilename: '[file].map[query]',
-        chunkFilename: '[id].[chunkhash:8].js',
-        publicPath: '/'
+        chunkFilename: '[id].[chunkhash:8].chunk.js',
+        publicPath: '/',
+        clean: true
     },
     module: {
         rules: [
-            {
-                test: /\.(js|jsx|ts|tsx)$/i,
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: [
-                            '@babel/preset-env',
-                            '@babel/preset-typescript',
-                            ['@babel/preset-react', { runtime: 'automatic' }]
-                        ],
-                        plugins: [
-                            [
-                                '@babel/plugin-proposal-decorators',
-                                { legacy: true }
-                            ],
-                            ...(isDevelopment ? [
-                                'react-refresh/babel'
-                            ] : [])
-                        ]
-                    }
-                }
-            },
             {
                 test: /\.css$/i,
                 use: [
@@ -124,5 +123,6 @@ const baseConfig = {
 
 module.exports = {
     paths,
-    baseConfig
+    baseConfig,
+    createBabelLoader
 }
