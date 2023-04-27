@@ -3,7 +3,7 @@ import { Modal, Space, Typography } from 'antd'
 import { TimeUntil } from 'react-time-until'
 import { backOff } from 'exponential-backoff'
 import { WorkspacesAPI } from './'
-import { APIError, IWorkspacesAPI, User, ExtraLink } from './api.types'
+import { APIError, IWorkspacesAPI, User, ExtraLink, EnvironmentContext } from './api.types'
 import { useEnvironment } from '../'
 
 const { Text } = Typography
@@ -18,7 +18,7 @@ export interface IWorkspacesAPIContext {
     user: User | null | undefined
     loggedIn: boolean | undefined
     loginProviders: string[] | undefined
-    extraLinks: ExtraLink[] | undefined
+    appstoreContext: EnvironmentContext | undefined
     loadingBackoff: Date | undefined
 }
 
@@ -34,7 +34,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     // API state
     const [user, setUser] = useState<User|null|undefined>(undefined)
     const [loginProviders, setLoginProviders] = useState<string[]|undefined>(undefined)
-    const [extraLinks, setExtraLinks] = useState<ExtraLink[]|undefined>(undefined)
+    const [environmentContext, setEnvironmentContext] = useState<EnvironmentContext|undefined>(undefined)
 
     // Etc.
     const [showTimeoutWarningModal, setShowTimeoutWarningModal] = useState<Date|undefined>(undefined)
@@ -63,8 +63,8 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     const loading = useMemo(() => (
         loggedIn === undefined ||
         loginProviders === undefined ||
-        extraLinks === undefined
-    ), [loggedIn, loginProviders, extraLinks])
+        environmentContext === undefined
+    ), [loggedIn, loginProviders, environmentContext])
 
     const onApiError = useCallback((error: APIError) => {
         console.log("--- API error encountered ---", "\n", error)
@@ -87,15 +87,15 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     useEffect(() => {
         setUser(undefined)
         setLoginProviders(undefined)
-        setExtraLinks(undefined)
+        setEnvironmentContext(undefined)
         void async function() {
             try {
                 const [
                     loginProviders,
-                    extraLinks
+                    environmentContext
                 ] = await backOff<[
                     string[],
-                    ExtraLink[]
+                    EnvironmentContext
                 ]>(
                     async () => {
                         // setLoadingBackoff(undefined)
@@ -105,33 +105,17 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
                             throw Error()
                         }
                         const loginProviders = (await api.getLoginProviders()).map((provider) => provider.name)
-                        const extraLinks = (await api.getEnvironmentContext()).links
-                        return [loginProviders, extraLinks]
+                        const environmentContext = await api.getEnvironmentContext()
+                        return [loginProviders, environmentContext]
                     },
                     backoffOptions
                 )
                 setLoginProviders(loginProviders)
-                setExtraLinks(extraLinks)
+                setEnvironmentContext(environmentContext)
             } catch (e: any) {
                 // Maximum backoff attempts reached. 
             }
         }()
-        // void async function() {
-        //     try {
-        //         setLoginProviders((await api.getLoginProviders()).map((provider) => provider.name))
-        //     } catch (e) {
-        //         // The request failed for some reason.
-        //         setLoginProviders([])
-        //     }
-        // }()
-        // void async function() {
-        //     try {
-        //         setExtraLinks((await api.getEnvironmentContext()).links)
-        //     } catch (e) {
-        //         // The request failed for some reason.
-        //         setExtraLinks([])
-        //     }
-        // }()
     }, [api])
 
     useEffect(() => {
@@ -157,7 +141,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             user,
             loggedIn,
             loginProviders,
-            extraLinks,
+            appstoreContext: environmentContext,
             loadingBackoff
         }}>
             { children }
