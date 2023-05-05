@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       versionTag:
-        description: 'Semver tag for new release, ie v4.0.0, etc.'
+        description: 'Tag for new release, ie 1.1.2 .. 4.0.0, etc. 🛑 DO not include the ⍘v⍘ '
         required: true
         type: string
 
