@@ -46,6 +46,8 @@ jobs:
     - name: Git Reflog
       run: |
         git reflog > /tmp/reflog.txt
+        git symbolic-ref HEAD >> /tmp/reflog.txt
+        cat .git/refs/heads/develop >> /tmp/reflog.txt
 
     - name: Check Log 
       run: | 
