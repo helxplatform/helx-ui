@@ -4,17 +4,17 @@
 
 name: Build-Push-Release
 on:
-  workflow_dispatch:
-    inputs:
-      versionTag:
-        description: 'Tag for new release, ie 1.1.2 .. 4.0.0, etc. 🛑 DO not include the ⍘v⍘ '
-        required: true
-        type: string
+  # workflow_dispatch:
+  #   inputs:
+  #     versionTag:
+  #       description: 'Tag for new release, ie 1.1.2 .. 4.0.0, etc. 🛑 DO not include the ⍘v⍘ '
+  #       required: true
+  #       type: string
 
-  # push:
-  #   branches:
-  #     - master 
-  #     - main
+  push:
+    branches:
+      - master 
+      - main
     paths-ignore:
       - README.md
       - .old_cicd/*
@@ -45,26 +45,26 @@ jobs:
     - name: Confirm git commit SHA output
       run: echo ${{ steps.vars.outputs.short_sha }}
 
-    # # https://github.com/marketplace/actions/git-semantic-version
-    # - name: Semver Check
-    #   uses: paulhatch/semantic-version@v5.0.2
-    #   id: version
-    #   with:
-    #     # The prefix to use to identify tags
-    #     tag_prefix: "v"
-    #     # A string which, if present in a git commit, indicates that a change represents a
-    #     # major (breaking) change, supports regular expressions wrapped with '/'
-    #     major_pattern: "/breaking|major/"
-    #     # A string which indicates the flags used by the `major_pattern` regular expression. Supported flags: idgs
-    #     major_regexp_flags: "ig"
-    #     # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
-    #     minor_pattern: "/feat|feature|minor/"
-    #     # A string which indicates the flags used by the `minor_pattern` regular expression. Supported flags: idgs
-    #     minor_regexp_flags: "ig"
-    #     # A string to determine the format of the version output
-    #     # version_format: "${major}.${minor}.${patch}-prerelease${increment}"
-    #     version_format: "${major}.${minor}.${patch}"
-    #     search_commit_body: false
+    # https://github.com/marketplace/actions/git-semantic-version
+    - name: Semver Check
+      uses: paulhatch/semantic-version@v5.0.2
+      id: version
+      with:
+        # The prefix to use to identify tags
+        tag_prefix: "v"
+        # A string which, if present in a git commit, indicates that a change represents a
+        # major (breaking) change, supports regular expressions wrapped with '/'
+        major_pattern: "/breaking:|major:/"
+        # A string which indicates the flags used by the `major_pattern` regular expression. Supported flags: idgs
+        major_regexp_flags: "ig"
+        # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
+        minor_pattern: "/feat:|feature:|minor:/"
+        # A string which indicates the flags used by the `minor_pattern` regular expression. Supported flags: idgs
+        minor_regexp_flags: "ig"
+        # A string to determine the format of the version output
+        # version_format: "${major}.${minor}.${patch}-prerelease${increment}"
+        version_format: "${major}.${minor}.${patch}"
+        search_commit_body: false
 
     # Docker Buildx is important to caching in the Build And Push Container
     # step
@@ -96,7 +96,7 @@ jobs:
         # Push to renci-registry and dockerhub here.
         # cache comes from dockerhub.
         tags: |
-          containers.renci.org/${{ github.repository }}:v${{ inputs.versionTag }}
+          containers.renci.org/${{ github.repository }}:v${{ steps.version.outputs.version }}
           containers.renci.org/${{ github.repository }}:latest
           containers.renci.org/${{ github.repository }}:${{ steps.vars.outputs.short_sha }}
           ${{ github.repository }}:v${{ inputs.versionTag }}
@@ -114,12 +114,12 @@ jobs:
         -s --fail -X POST \
         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
         https://api.github.com/repos/${{ github.repository }}/git/refs \
-        -d '{"ref":"refs/tags/v${{ inputs.versionTag }}","sha":"${{ github.sha }}"}'
+        -d '{"ref":"refs/tags/v${{ steps.version.outputs.version }}","sha":"${{ github.sha }}"}'
 
 #   https://cli.github.com/manual/gh_release_create
     - name: Create Release
       env:
-        RELEASE_VERSION: ${{ inputs.versionTag }}
+        RELEASE_VERSION: ${{ steps.version.outputs.version }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh release create ${{ env.RELEASE_VERSION }} \
