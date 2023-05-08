@@ -1,6 +1,7 @@
 import { Fragment, useEffect } from 'react'
 import { Typography } from 'antd'
 import { useEnvironment } from '../contexts'
+import { useTitle } from './'
 
 const { Title } = Typography
 
@@ -28,10 +29,7 @@ const Documentation = () =>
 
 export const SupportView = () => {
   const { context } = useEnvironment()
-
-  useEffect(() => {
-    document.title = `Support · HeLx UI`
-  }, [])
+  useTitle("Support")
 
   return (
     <Fragment>

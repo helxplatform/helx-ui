@@ -3,6 +3,7 @@ import { HelxSearch, SearchForm, Results, useHelxSearch } from '../components/se
 import { Typography } from 'antd'
 import { Breadcrumbs } from '../components/layout'
 import { useEnvironment } from '../contexts'
+import { useTitle } from './'
 
 const { Title } = Typography
 
@@ -21,13 +22,8 @@ const ScopedSearchView = () => {
     { text: 'Search', path: '/search' },
   ]
 
-  useEffect(() => {
-    if (query) {
-      document.title = `Search · ${query} · HeLx UI`
-    } else {
-      document.title = `HeLx UI`
-    }
-  }, [query])
+  // We need to override the withView useTitle since we have dynamic needs here.
+  useTitle(query ? ["Search", query] : "")
 
   return (
     <Fragment>

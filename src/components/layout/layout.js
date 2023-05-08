@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { Layout as AntLayout, Button, Menu, Grid, Divider } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import { useLocation, Link } from '@gatsbyjs/reach-router'
@@ -12,15 +12,23 @@ const { useBreakpoint } = Grid
 
 export const Layout = ({ children }) => {
   const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
-  const { api, loading: apiLoading, loggedIn, extraLinks } = useWorkspacesAPI()
+  const { api, loading: apiLoading, loggedIn, appstoreContext } = useWorkspacesAPI()
   const { analyticsEvents } = useAnalytics()
   const { md } = useBreakpoint()
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
   const location = useLocation();
 
-  const logout = () => {
+  // Logging out is an async operation. It's better to wait until it's complete to avoid 
+  // session persistence errors (helx-278).
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  const logout = async () => {
+    setLoggingOut(true)
     analyticsEvents.logout()
-    api.logout()
+    try {
+      await api.logout()
+    } catch (e) {}
+    setLoggingOut(false)
     // logoutHandler(helxAppstoreUrl)
   }
   const removeTrailingSlash = (url) => url.endsWith("/") ? url.slice(0, url.length - 1) : url
@@ -52,7 +60,7 @@ export const Layout = ({ children }) => {
                 <Menu.Item key={`${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>
               ))}
               {context.workspaces_enabled && !apiLoading && (
-                extraLinks.map((link) => (
+                appstoreContext.links.map((link) => (
                   <Menu.Item key={ link.title }>
                     <LinkOutlined style={{ marginRight: 12 }} />
                     <a href={ link.link } target="_blank" rel="noopener noreferrer">
@@ -64,7 +72,16 @@ export const Layout = ({ children }) => {
             </Menu>
             {context.workspaces_enabled === 'true' && !apiLoading && loggedIn && (
               <div style={{ height: "100%" }}>
-                <Button type="primary" ghost className="logout-button" onClick={logout}>LOG OUT</Button>
+                <Button
+                  type="primary"
+                  ghost
+                  className="logout-button"
+                  // Could use `loading` property but logout tends to happen so quickly that it doesn't work well.
+                  disabled={ loggingOut }
+                  onClick={logout}
+                >
+                  LOG OUT
+                </Button>
               </div>
             )}
           </div>

@@ -81,12 +81,13 @@ export const EnvironmentProvider = ({ children }) => {
       let context = response.data;
 
       /** Context defaults */
-      if (!context.dockstore_app_specs_dir_url) context.dockstore_app_specs_dir_url = "[ MISSING VALUE ]"
       if (!context.appstore_asset_branch) context.appstore_asset_branch = "master"
       if (!context.brand) context.brand = "helx"
 
       // split the comma-separated string which tells ui the support section to hide
-      context.hidden_support_sections = context.hidden_support_sections.split(',')
+      // also trim leading/trailing spaces to allow spaces between commas
+      context.hidden_support_sections = context.hidden_support_sections.split(',').map((section) => section.trim())
+      context.hidden_result_tabs = context.hidden_result_tabs.split(',').map((tab) => tab.trim())
 
       // Make sure the tranql_url ends with a slash. If it doesn't, it will redirect, which breaks the iframe for some reason. 
       if (!context.tranql_url.endsWith("/")) context.tranql_url += "/"

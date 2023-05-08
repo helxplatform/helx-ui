@@ -1,8 +1,9 @@
-import React, { Fragment, useMemo } from 'react'
 import { Button, Space, Spin, Typography } from 'antd'
 import { TimeUntil, useTimeUntil } from 'react-time-until'
 import { useEnvironment, useWorkspacesAPI } from '../../contexts'
 import { ProtectedView, withAuthentication } from '../protected-view'
+import { withView } from '../'
+import { useTitle } from '../view'
 
 const { Text } = Typography
 
@@ -10,6 +11,8 @@ export const APILoadingProtectedView = ({ children }) => {
     const { loading: apiLoading, loadingBackoff } = useWorkspacesAPI()
     const timeUntil = useTimeUntil({ date: loadingBackoff, countdown: true })
     
+    useTitle(apiLoading ? "" : null)
+
     if (apiLoading) return (
         <Space direction="vertical" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", flex: 1 }}>
             <Spin />

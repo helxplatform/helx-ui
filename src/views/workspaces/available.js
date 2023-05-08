@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { Layout, Col, Spin } from 'antd'
 import { withWorkspaceAuthentication, WorkspaceProtectedView } from './'
+import { withView } from '../'
 import { AppCard } from '../../components/workspaces'
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group'
 import { useApp, useEnvironment, useInstance, useWorkspacesAPI } from '../../contexts'
 import { openNotificationWithIcon } from '../../components/notifications';
 import { Breadcrumbs } from '../../components/layout'
 import '../../components/workspaces/app-card.css'
+import { useTitle } from '../view'
 
 
 export const AvailableView = withWorkspaceAuthentication(() => {
@@ -22,9 +24,7 @@ export const AvailableView = withWorkspaceAuthentication(() => {
         { text: 'Available', path: '/helx/workspaces/available' },
     ]
 
-    useEffect(() => {
-        document.title = `Workspaces · HeLx UI`
-    }, [])
+    useTitle("Workspaces")
 
     useEffect(() => {
         const renderApp = async () => {

@@ -1,7 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import { Button, Card, Spin, Slider, Col, Tooltip, Typography, Row } from 'antd';
-import { Link, navigate } from '@gatsbyjs/reach-router';
+import { navigate } from '@gatsbyjs/reach-router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
+import { ExternalLink } from '../';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
 import { useActivity, useInstance, useAnalytics, useEnvironment, useWorkspacesAPI } from "../../contexts";
 import './app-card.css';
@@ -20,7 +21,7 @@ const validateLocalstorageValue = (config, app_id, min, max) => {
 }
 
 export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources, available }) => {
-    const { api } = useWorkspacesAPI();
+    const { api, appstoreContext } = useWorkspacesAPI();
     const { addActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
     const { context } = useEnvironment()
@@ -74,7 +75,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     }
 
     const getLogoUrl = (app_id) => {
-        return `${context.dockstore_app_specs_dir_url}/${app_id}/icon.png`
+        return `${appstoreContext.dockstore_app_specs_dir_url}/${app_id}/icon.png`
     }
 
     return (
@@ -152,7 +153,10 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                 <div className="app_content">
                     <br />
                     <Typography>{detail}</Typography>
-                    <Link to={docs}>About {name}</Link></div></div>}
+                    <br />
+                    <ExternalLink to={docs}>About {name}</ExternalLink>
+                </div>
+            </div>}
         </Card >
     )
 }

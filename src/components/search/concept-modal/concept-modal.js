@@ -64,10 +64,10 @@ export const ConceptModalBody = ({ result }) => {
   const links = {
     'robokop' : { title: 'ROBOKOP', icon: <RobokopIcon/>, url: "https://robokop.renci.org/" }
   }
-  if (context.tranql_enabled === 'false') {
-    delete tabs['tranql'];
-    delete links['robokop'];
-  }
+  context.hidden_result_tabs.forEach((tab) => {
+    delete tabs[tab]
+    delete links[tab]
+  })
   
   const setCurrentTab = (() => {
     let oldTime = Date.now();
@@ -113,6 +113,7 @@ export const ConceptModalBody = ({ result }) => {
         fetchCdesController.current = new AbortController()
         fetchCdesTranqlController.current.forEach((controller) => controller.abort())
         fetchCdesTranqlController.current = []
+
         const cdeData = await fetchCDEs(result.id, query, {
           signal: fetchCdesController.current.signal
         })
@@ -167,6 +168,10 @@ export const ConceptModalBody = ({ result }) => {
             try {
               relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
             } catch (e) {
+              // Here, we explicitly want to halt execution and forward this error to the outer handler
+              // if a related concept request was aborted, because we now have stale data and don't want to
+              // update state with it.
+              if (e.name === "CanceledError" || e.name === "AbortError") throw e
               relatedConcepts[cdeId] = null
             }
           }))
