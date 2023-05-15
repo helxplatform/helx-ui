@@ -286,7 +286,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                     ]}
                     onCancel={() => setStopAllModalVisibility(false)}
                 >
-                    <div>Are you sure to stop all instances?</div>
+                    <div>Are you sure you want to stop all instances?</div>
                 </Modal> : <div></div>}
                 <Button type="primary" danger onClick={() => setStopAllModalVisibility(true)}>Stop All</Button>
             </Fragment>,
@@ -303,7 +303,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                             ]}
                             onCancel={() => setStopModalVisibility(false)}
                         >
-                            <div>Are you sure to stop <b>{currentRecord.name}</b>?</div>
+                            <div>Are you sure you want to stop <b>{currentRecord.name}</b>?</div>
                         </Modal> : <div></div>}
                         <Button icon={<DeleteOutlined />} onClick={() => handleDeleteModalOpen(record)} />
                     </Fragment>
