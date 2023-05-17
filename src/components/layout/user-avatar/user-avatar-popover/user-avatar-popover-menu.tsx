@@ -11,11 +11,9 @@ interface UserAvatarPopoverMenuProps {
 }
 
 export const UserAvatarPopoverMenu = ({ onOpenChange }: UserAvatarPopoverMenuProps) => {
-    const { api, user } = useWorkspacesAPI()!
+    const { api, user, userCanViewAdmin } = useWorkspacesAPI()!
     const { analyticsEvents } = useAnalytics()
     const navigate = useNavigate()
-
-    const canViewAdminPanel = useMemo(() => user?.staff || user?.superuser, [user])
 
     const logout = useCallback(() => {
         analyticsEvents.logout()
@@ -37,7 +35,7 @@ export const UserAvatarPopoverMenu = ({ onOpenChange }: UserAvatarPopoverMenuPro
                         label: 'Account',
                         onClick: () => navigate(`/helx/workspaces/account`)
                     },
-                    ...(canViewAdminPanel ? [{
+                    ...(userCanViewAdmin ? [{
                         key: 'admin-page',
                         icon: <ControlOutlined />,
                         label: 'Admin',

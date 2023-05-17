@@ -1,6 +1,7 @@
 import { Layout, Menu } from 'antd'
-import { UserOutlined, BellOutlined, LockOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { UserOutlined, BellOutlined, LockOutlined, ShareAltOutlined, ControlOutlined } from '@ant-design/icons'
 import { AccountConnectionsTab, AccountNotificationsTab, AccountPasswordTab, AccountProfileTab } from './tabs'
+import { useWorkspacesAPI } from '../../../contexts'
 
 const { useNavigate } = require('@gatsbyjs/reach-router')
 
@@ -13,6 +14,7 @@ interface AccountLayoutProps {
 }
 
 export const AccountLayout = ({ tab }: AccountLayoutProps) => {
+    const { userCanViewAdmin } = useWorkspacesAPI()!
     const navigate = useNavigate()
 
     return (
@@ -46,7 +48,16 @@ export const AccountLayout = ({ tab }: AccountLayoutProps) => {
                             label: "Connections",
                             icon: <ShareAltOutlined />,
                             onClick: () => navigate(`${ baseAccountPath }/connections`)
-                        }
+                        },
+                        /** This has been fleshed out as a stub in case there is a need for additional administrative controls for staff accounts
+                         * beyond the capabilities of the Django admin panel. Currently there isn't any asks for such a thing though, so it's disabled.
+                         */
+                        ...(userCanViewAdmin && false ? [{
+                            key: "administrative",
+                            label: "Administrative",
+                            icon: <ControlOutlined />,
+                            onClick: () => navigate(`${ baseAccountPath}/administrative`)
+                        }] : [])
                     ]}
                     onSelect={ ({ key }) => {
                     } }

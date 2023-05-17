@@ -78,6 +78,9 @@ export const EnvironmentProvider = ({ children }) => {
       baseRoutes.push({ path: '/workspaces/account/connections', parent: '/workspaces', Component: AccountView,
         props: { key: "account-view", tab: "connections" }
       })
+      // baseRoutes.push({ path: '/workspaces/account/administrative', parent: '/workspaces', Component: AccountView,
+      //   props: { key: "account-view", tab: "administrative" }
+      // })
       // App loading screen
       baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', Component: SplashScreenView })
     }

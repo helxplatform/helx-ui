@@ -16,6 +16,7 @@ export interface IWorkspacesAPIContext {
     api: IWorkspacesAPI
     loading: boolean
     user: User | null | undefined
+    userCanViewAdmin: boolean | undefined
     loggedIn: boolean | undefined
     loginProviders: string[] | undefined
     extraLinks: ExtraLink[] | undefined
@@ -59,6 +60,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     }), [helxAppstoreUrl, sessionTimeoutWarningSeconds])
 
     const loggedIn = useMemo(() => user !== undefined ? !!user : undefined, [user])
+    const userCanViewAdmin = useMemo(() => user?.staff || user?.superuser, [user])
 
     const loading = useMemo(() => (
         loggedIn === undefined ||
@@ -155,6 +157,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             api,
             loading,
             user,
+            userCanViewAdmin,
             loggedIn,
             loginProviders,
             extraLinks,
