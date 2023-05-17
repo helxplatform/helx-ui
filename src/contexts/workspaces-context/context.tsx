@@ -54,9 +54,8 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     }
 
     const api = useMemo<IWorkspacesAPI>(() => new WorkspacesAPI({
-        apiUrl: `${ helxAppstoreUrl }/api/v1/`,
-        sessionTimeoutWarningSeconds
-    }), [helxAppstoreUrl, sessionTimeoutWarningSeconds])
+        apiUrl: `${ helxAppstoreUrl }/api/v1/`
+    }), [helxAppstoreUrl])
 
     const loggedIn = useMemo(() => user !== undefined ? !!user : undefined, [user])
 
@@ -67,12 +66,18 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     ), [loggedIn, loginProviders, environmentContext])
 
     const onApiError = useCallback((error: APIError) => {
-        console.log("--- API error encountered ---", "\n", error)
+        if (error.status === 401 || error.status === 403) {
+            // If the user encounters a 401 or 403, this means their session is no longer valid.
+            // They shouldn't be able to in the first place, since the session timer should log them out automatically,
+            // but this is here just in case.
+            setUser(null)
+        } else {
+            console.log("--- API error encountered ---", "\n", error)
+        }
     }, [])
     const onLoginStateChanged = useCallback((user: User | null, sessionTimeout: boolean) => {
         console.log("User changed", user)
         if (user === null) {
-            // console.log("Session timeout", sessionTimeout)
             setShowTimeoutWarningModal(undefined)
         }
         setUser(user)
@@ -91,37 +96,46 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         void async function() {
             try {
                 const [
+                    user,
                     loginProviders,
                     environmentContext
                 ] = await backOff<[
+                    User | null,
                     string[],
                     EnvironmentContext
                 ]>(
                     async () => {
-                        // setLoadingBackoff(undefined)
-                        await api.updateLoginState()
-                        if (api.user === undefined) {
-                            // The user is still loading, meaning the request has failed to load the login state.
-                            throw Error()
+                        let user: User | null
+                        try {
+                            user = await api.getActiveUser()
+                        } catch (e: any) {
+                            // This could be a 403 (not signed in) or a WhitelistRequiredError, treat it as signed out regardless.
+                            user = null
                         }
                         const loginProviders = (await api.getLoginProviders()).map((provider) => provider.name)
                         const environmentContext = await api.getEnvironmentContext()
-                        return [loginProviders, environmentContext]
+                        return [user, loginProviders, environmentContext]
                     },
                     backoffOptions
                 )
+                setUser(user)
                 setLoginProviders(loginProviders)
                 setEnvironmentContext(environmentContext)
             } catch (e: any) {
                 // Maximum backoff attempts reached. 
+                console.log("Could not load initial app state in a reasonable amount of time.")
             }
         }()
     }, [api])
 
     useEffect(() => {
-        api.onApiError = onApiError
-        api.onLoginStateChanged = onLoginStateChanged
-        api.onSessionTimeoutWarning = onSessionTimeoutWarning
+        const unsubscribeApiError = api.on("apiError", onApiError)
+        // The API itself no longer manages session timeouts, so we know for certain the change in login state is not triggered by a session timeout here.
+        const unsubscribeUserStateChanged = api.on("userStateChanged", (user) => onLoginStateChanged(user, false))
+        return () => {
+            unsubscribeApiError()
+            unsubscribeUserStateChanged()
+        }
     }, [api, onApiError, onLoginStateChanged])
 
     const stayLoggedIn = useCallback(() => {
