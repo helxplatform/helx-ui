@@ -185,6 +185,7 @@ export interface Unsubscribe {
 
 export interface WorkspacesAPIEvents {
     apiError: (error: APIError) => void
+    apiRequest: (methodName: string, promise: Promise<any>) => void
     userStateChanged: (userState: User | null) => void
 }
 

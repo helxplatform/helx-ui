@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Modal, Space, Typography } from 'antd'
 import { TimeUntil } from 'react-time-until'
 import { backOff } from 'exponential-backoff'
@@ -12,9 +12,6 @@ const { Text } = Typography
 const STARTING_DELAY = 10 * 1000 // the coefficient, e.g. the initial delay.
 const TIME_MULTIPLE = 2 // the base, e.g. wait twice as long every backoff.
 // I.e. f(n) = STARTING_DELAY * Math.pow(TIME_MULTIPLE, n) where n is the current attempt count and f(n) is the backoff in ms.
-
-// Throttle activity updates to only once a minute. This limits load on the server from pinging.
-const ACTIVITY_THROTTLE_MS = 60 * 1000
 
 export interface IWorkspacesAPIContext {
     api: IWorkspacesAPI
@@ -34,7 +31,7 @@ interface IWorkspacesAPIProvider {
 
 export const WorkspacesAPIContext = createContext<IWorkspacesAPIContext|undefined>(undefined)
 
-export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, children }: IWorkspacesAPIProvider) => {
+export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=25, children }: IWorkspacesAPIProvider) => {
     // API state
     const [user, setUser] = useState<User|null|undefined>(undefined)
     const [loginProviders, setLoginProviders] = useState<string[]|undefined>(undefined)
@@ -42,16 +39,12 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
 
     // Etc.
     const [showTimeoutWarning, setShowTimeoutWarning] = useState<number|null>(null)
-    // const [showTimeoutWarningModal, setShowTimeoutWarningModal] = useState<Date|undefined>(undefined)
     const [loadingBackoff, setLoadingBackoff] = useState<Date|undefined>(undefined)
 
     const { helxAppstoreUrl } = useEnvironment() as any
 
-    // Throttle activity to make sure we aren't pinging the server too frequently.
-    const [lastActivity, updateLastActivity] = usePageActivity({
-        throttleMs: ACTIVITY_THROTTLE_MS,
-        disableUpdates: showTimeoutWarning !== null
-    })
+    let warningIntervalIdRef = useRef<number>()
+    let logoutIntervalIdRef = useRef<number>()
 
     const backoffOptions = useMemo(() => ({
         startingDelay: STARTING_DELAY,
@@ -76,6 +69,26 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         environmentContext === undefined
     ), [loggedIn, loginProviders, environmentContext])
 
+    const stayLoggedIn = useCallback(async () => {
+        // Hide the logout warning, if it's visible
+        setShowTimeoutWarning(null)
+        try {
+            // Ping the API to refresh the session
+            await api.getActiveUser()
+        } catch (e) {}
+    }, [api])
+
+    const logoutAndHideWarning = useCallback(async () => {
+        // Note: technically, logging the user out will trigger a user state changed event,
+        // which will then hide the warning automatically if the user is successfully logged out.
+        // However, we are also hiding it here manually since `api.logout` has latency due to being an API
+        // request so it's smoother to immediately hide the warning.
+        setShowTimeoutWarning(null)
+        try {
+            await api.logout()
+        } catch (e) {}
+    }, [api])
+
     const onApiError = useCallback((error: APIError) => {
         if (error.status === 401 || error.status === 403) {
             // If the user encounters a 401 or 403, this means their session is no longer valid.
@@ -86,26 +99,57 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             console.log("--- API error encountered ---", "\n", error)
         }
     }, [])
+    
+    const onApiRequest = useCallback((methodName: string, promise: Promise<any>) => {
+        // console.log(`api request ${ methodName } executed`)
+        
+        // Clear current timers
+        clearInterval(warningIntervalIdRef.current)
+        clearInterval(logoutIntervalIdRef.current)
+        if (user) {
+            /**
+             * Note: using intervals, rather than timeouts, to avoid bugs related to process suspension.
+             * Sleeping a computer will most likely suspend the user's browser process which suspends the timeout.
+             * Since timeouts work on a relative delta, when the timeout is suspended, it will no longer execute at the
+             * originally intended timestamp.
+             */
+            const intervalDelayMs = 50
+
+            // Time the user out a second earlier than the actual timeout for good measure.
+            const timeoutDeltaMs = (user.sessionTimeout - 1) * 1000
+            // Timestamp analog of the delta.
+            const timeoutTimestamp = new Date(Date.now() + timeoutDeltaMs).getTime()
+            // Delta to display the warning that the user will be logged out soon.
+            const timeoutWarningDeltaMs = Math.max(0, timeoutDeltaMs - (sessionTimeoutWarningSeconds * 1000))
+            // Timestamp analog of the warning delta.
+            const timeoutWarningTimestamp = new Date(Date.now() + timeoutWarningDeltaMs).getTime()
+            
+            // Set timeout to display logout warning to user
+            warningIntervalIdRef.current = window.setInterval(() => {
+                if (timeoutWarningTimestamp <= Date.now()) {
+                    clearInterval(warningIntervalIdRef.current)
+                    setShowTimeoutWarning(timeoutTimestamp)
+                }
+            }, intervalDelayMs)
+
+            // Set timeout to log the user out
+            logoutIntervalIdRef.current = window.setInterval(async () => {
+                if (timeoutTimestamp <= Date.now()) {
+                    clearInterval(logoutIntervalIdRef.current)
+                    logoutAndHideWarning()
+                }
+            }, intervalDelayMs)
+        }
+    }, [user, stayLoggedIn, logoutAndHideWarning])
 
     const onLoginStateChanged = useCallback((user: User | null) => {
         if (user === null) {
             setShowTimeoutWarning(null)
+            clearInterval(warningIntervalIdRef.current)
+            clearInterval(logoutIntervalIdRef.current)
         }
         setUser(user)
     }, [])
-
-    const pingServer = useCallback(async () => {
-        try {
-            // Ping the API to refresh the session
-            await api.getActiveUser()
-        } catch (e) {
-        }
-    }, [api])
-    
-    const stayLoggedIn = useCallback(() => {
-        pingServer()
-        setShowTimeoutWarning(null)
-    }, [api, pingServer])
 
     useEffect(() => {
         setUser(undefined)
@@ -147,70 +191,16 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     }, [api])
 
     useEffect(() => {
-        const unsubscribeApiError = api.on("apiError", onApiError)
+        const unsubscribeOnApiError = api.on("apiError", onApiError)
         // The API itself no longer manages session timeouts, so we know for certain the change in login state is not triggered by a session timeout here.
         const unsubscribeUserStateChanged = api.on("userStateChanged", (user) => onLoginStateChanged(user))
+        const unsubscribeOnApiRequest = api.on("apiRequest", onApiRequest)
         return () => {
-            unsubscribeApiError()
+            unsubscribeOnApiError()
             unsubscribeUserStateChanged()
+            unsubscribeOnApiRequest()
         }
-    }, [api, onApiError, onLoginStateChanged])
-
-    useEffect(() => {
-        let warningIntervalId: number;
-        let logoutIntervalId: number;
-        if (user) {
-            // Ping the server and hide logout warning (if it's visible).
-            stayLoggedIn()
-
-
-            /**
-             * Note: using intervals, rather than timeouts, to avoid bugs related to process suspension.
-             * Sleeping a computer will most likely suspend the user's browser process which suspends the timeout.
-             * Since timeouts work on a relative delta, when the timeout is suspended, it will no longer execute at the
-             * originally intended timestamp.
-             */
-            const intervalDelayMs = 50
-
-            // Time the user out a second earlier than the actual timeout for good measure.
-            const timeoutDeltaMs = (user.sessionTimeout - 1) * 1000
-            // Timestamp analog of the delta.
-            const timeoutTimestamp = new Date(Date.now() + timeoutDeltaMs).getTime()
-            // Delta to display the warning that the user will be logged out soon.
-            const timeoutWarningDeltaMs = Math.max(0, timeoutDeltaMs - (sessionTimeoutWarningSeconds * 1000))
-            // Timestamp analog of the warning delta.
-            const timeoutWarningTimestamp = new Date(Date.now() + timeoutWarningDeltaMs).getTime()
-            
-            // Set timeout to display logout warning to user
-            warningIntervalId = window.setInterval(() => {
-                if (timeoutWarningTimestamp <= Date.now()) {
-                    clearInterval(warningIntervalId)
-                    console.log("showing warning")
-                    setShowTimeoutWarning(timeoutTimestamp)
-                }
-            }, intervalDelayMs)
-
-            // Set timeout to log the user out
-            logoutIntervalId = window.setInterval(async () => {
-                if (timeoutTimestamp <= Date.now()) {
-                    clearInterval(logoutIntervalId)
-                    // Note: technically, logging the user out will trigger a user state changed event,
-                    // which will then hide the warning automatically if the user is successfully logged out.
-                    // However, we are also hiding it here manually since `api.logout` has latency since it's an API
-                    // request so it's smoother to immediately hide the warning.
-                    api.logout().then(() => {}).catch(() => {})
-                    setShowTimeoutWarning(null)
-                }
-            }, intervalDelayMs)
-        }
-        return () => {
-            clearInterval(warningIntervalId)
-            clearInterval(logoutIntervalId)
-        }
-    /** Note that `lastActivity`, `showTimeoutWarning` are not used in the effect.
-     *  These dependencies are activity refreshers that will induce a rerun of the effect.
-     */
-    }, [api, user, lastActivity, stayLoggedIn])
+    }, [api, onApiError, onLoginStateChanged, onApiRequest])
 
     return (
         <WorkspacesAPIContext.Provider value={{
@@ -228,17 +218,12 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
                 visible={ showTimeoutWarning !== null }
                 onOk={ () => {
                     stayLoggedIn()
-                    updateLastActivity()
                 } }
                 onCancel={ () => {
                     stayLoggedIn()
-                    updateLastActivity()
                 } }
                 cancelButtonProps={{
-                    onClick: () =>  {
-                        api.logout().then(() => {}).catch(() => {})
-                        setShowTimeoutWarning(null)
-                    }
+                    onClick: logoutAndHideWarning
                 }}
                 okText="Stay logged in"
                 cancelText="Log out"

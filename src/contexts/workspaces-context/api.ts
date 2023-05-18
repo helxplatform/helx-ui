@@ -100,6 +100,10 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         return user
     }
 
+    protected emitApiRequestExecuted(requestMethodName: string, promise: Promise<any>) {
+        this.eventEmitter.emit("apiRequest", requestMethodName, promise)
+    }
+
     on<E extends keyof WorkspacesAPIEvents>(event: E, callback: WorkspacesAPIEvents[E]): Unsubscribe {
         return this.eventEmitter.on(event, callback)
     }
@@ -384,7 +388,9 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         /** Note, this is type WorkspacesAPI, not IWorkspacesAPI, for handleError access */
         descriptor.value = async function(this: WorkspacesAPI, ...args: any[]) {
             try {
-                const res = await method.apply(this, args);
+                const apiPromise = method.apply(this, args)
+                this.emitApiRequestExecuted(propertyKey, apiPromise)
+                const res = await apiPromise;
                 return res
             } catch (e: any) {
                 if (e.isAxiosError) {
