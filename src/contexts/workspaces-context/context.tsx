@@ -178,7 +178,6 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             const timeoutTimestamp = new Date(Date.now() + timeoutDeltaMs).getTime()
             // Delta to display the warning that the user will be logged out soon.
             const timeoutWarningDeltaMs = Math.max(0, timeoutDeltaMs - (sessionTimeoutWarningSeconds * 1000))
-            console.log("timeout warning delta", timeoutWarningDeltaMs / 1000)
             // Timestamp analog of the warning delta.
             const timeoutWarningTimestamp = new Date(Date.now() + timeoutWarningDeltaMs).getTime()
             
