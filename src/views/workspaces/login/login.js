@@ -19,10 +19,10 @@ const WhitelistRequired = (props) => (
     <Alert
         showIcon
         type="warning"
-        message={ <Title level={ 5 }>Whitelisting Required</Title> }
+        message={ <Title level={ 5 }>Approval Required</Title> }
         description={
             <Space direction="vertical">
-                <>Your request to gain access to HeLx workspaces has been forwarded to the website administrator for review and whitelisting.</>
+                <>Your request to gain access to HeLx workspaces has been forwarded to the website administrator for review.</>
                 <>Once your request is approved, you will be notified via an email. This security feature is only required one time, for your initial access.</>
             </Space>
         }
