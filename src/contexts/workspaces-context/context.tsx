@@ -47,8 +47,11 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
 
     const { helxAppstoreUrl } = useEnvironment() as any
 
-    // Throttle activity to make sure we aren't pinging the server too frequently. 
-    const lastActivity = usePageActivity(ACTIVITY_THROTTLE_MS)
+    // Throttle activity to make sure we aren't pinging the server too frequently.
+    const [lastActivity, updateLastActivity] = usePageActivity({
+        throttleMs: ACTIVITY_THROTTLE_MS,
+        disableUpdates: showTimeoutWarning !== null
+    })
 
     const backoffOptions = useMemo(() => ({
         startingDelay: STARTING_DELAY,
@@ -85,7 +88,6 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     }, [])
 
     const onLoginStateChanged = useCallback((user: User | null) => {
-        console.log("User changed", user)
         if (user === null) {
             setShowTimeoutWarning(null)
         }
@@ -95,7 +97,6 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     const pingServer = useCallback(async () => {
         try {
             // Ping the API to refresh the session
-            console.log("Sending activity ping")
             await api.getActiveUser()
         } catch (e) {
         }
@@ -159,8 +160,8 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         let warningIntervalId: number;
         let logoutIntervalId: number;
         if (user) {
-            // Ping the server. This won't hide the logout warning (if it's visible) 
-            pingServer()
+            // Ping the server and hide logout warning (if it's visible).
+            stayLoggedIn()
 
 
             /**
@@ -177,6 +178,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             const timeoutTimestamp = new Date(Date.now() + timeoutDeltaMs).getTime()
             // Delta to display the warning that the user will be logged out soon.
             const timeoutWarningDeltaMs = Math.max(0, timeoutDeltaMs - (sessionTimeoutWarningSeconds * 1000))
+            console.log("timeout warning delta", timeoutWarningDeltaMs / 1000)
             // Timestamp analog of the warning delta.
             const timeoutWarningTimestamp = new Date(Date.now() + timeoutWarningDeltaMs).getTime()
             
@@ -184,6 +186,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             warningIntervalId = window.setInterval(() => {
                 if (timeoutWarningTimestamp <= Date.now()) {
                     clearInterval(warningIntervalId)
+                    console.log("showing warning")
                     setShowTimeoutWarning(timeoutTimestamp)
                 }
             }, intervalDelayMs)
@@ -205,7 +208,10 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             clearInterval(warningIntervalId)
             clearInterval(logoutIntervalId)
         }
-    }, [api, user, lastActivity, pingServer])
+    /** Note that `lastActivity`, `showTimeoutWarning` are not used in the effect.
+     *  These dependencies are activity refreshers that will induce a rerun of the effect.
+     */
+    }, [api, user, lastActivity, stayLoggedIn])
 
     return (
         <WorkspacesAPIContext.Provider value={{
@@ -220,14 +226,19 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             { children }
             <Modal
                 title="Inactivity Logout Warning"
-                visible={ !!showTimeoutWarning }
-                onOk={ stayLoggedIn }
-                onCancel={ stayLoggedIn }
+                visible={ showTimeoutWarning !== null }
+                onOk={ () => {
+                    stayLoggedIn()
+                    updateLastActivity()
+                } }
+                onCancel={ () => {
+                    stayLoggedIn()
+                    updateLastActivity()
+                } }
                 cancelButtonProps={{
                     onClick: () =>  {
-                        api.logout()
+                        api.logout().then(() => {}).catch(() => {})
                         setShowTimeoutWarning(null)
-                        
                     }
                 }}
                 okText="Stay logged in"
@@ -236,7 +247,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
                 <Space direction="vertical">
                     <Text style={{ fontSize: 18 }}>
                         You will be logged out <Text strong>
-                            {/* <TimeUntil date={ showTimeoutWarningModal } countdown={ true } finishText="in 0 seconds" /> */}
+                            <TimeUntil date={ new Date(showTimeoutWarning!) } countdown={ true } finishText="in 0 seconds" />
                             {/* {timeoutMinutes > 1 ? `${ timeoutMinutes } minutes` : timeoutMinutes === 1 ? `1 minute` : ``} */}
                         </Text>
                     </Text>
