@@ -118,6 +118,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         return data
     }
 
+    /** Throws Throws403, WhitelistRequiredError */
     @APIRequest(Throws403)
     async getActiveUser(fetchOptions: AxiosRequestConfig={}): Promise<User|null> {
         /** Get information about the active (logged in) user, check if whitelist required */
@@ -281,6 +282,11 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         return this.loginSAML(`${this.apiUrl}../../accounts/github/login/?process=`, 380, 800)
     }
     
+    // Note: this will throw a 403 if the user isn't logged in in the first place. It's unclear
+    // whether this should be considered "acceptable". The UI trying to log a user out when they aren't
+    // logged in is indicative of a bug. I think it would likely be relatively harmless should it occur
+    // (and it would likely only ever be able to occur in the context code itself due to HOC control flow.
+    // If it were to occur here, it would be due to poor cleanup of async code.
     @APIRequest()
     async logout(
         fetchOptions: AxiosRequestConfig={}
