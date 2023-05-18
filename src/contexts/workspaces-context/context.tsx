@@ -31,7 +31,7 @@ interface IWorkspacesAPIProvider {
 
 export const WorkspacesAPIContext = createContext<IWorkspacesAPIContext|undefined>(undefined)
 
-export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=25, children }: IWorkspacesAPIProvider) => {
+export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, children }: IWorkspacesAPIProvider) => {
     // API state
     const [user, setUser] = useState<User|null|undefined>(undefined)
     const [loginProviders, setLoginProviders] = useState<string[]|undefined>(undefined)
