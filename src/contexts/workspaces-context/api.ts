@@ -286,18 +286,20 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         return this.loginSAML(`${this.apiUrl}../../accounts/github/login/?process=`, 380, 800)
     }
     
-    // Note: this will throw a 403 if the user isn't logged in in the first place. It's unclear
-    // whether this should be considered "acceptable". The UI trying to log a user out when they aren't
-    // logged in is indicative of a bug. I think it would likely be relatively harmless should it occur
-    // (and it would likely only ever be able to occur in the context code itself due to HOC control flow.
-    // If it were to occur here, it would be due to poor cleanup of async code.
-    @APIRequest()
+    // This will throw a 403 if you logout without being logged in.
+    @APIRequest(Throws403)
     async logout(
         fetchOptions: AxiosRequestConfig={}
     ): Promise<LogoutResponse> {
         /** Log out */
-        const res = await this.axios.post<LogoutResponse>("/users/logout/", undefined, fetchOptions)
-        await this.emitLoginUpdate()
+        try {
+            const res = await this.axios.post<LogoutResponse>("/users/logout/", undefined, fetchOptions)
+        } finally {
+            // Although the UI generally knows when the user is logged in and avoids calling logout accordingly,
+            // it's possible for the UI to try to log out the user after the session has already timed out unknowningly.
+            // This happens when the tab is suspended (e.g. computer is slept) and the session times out before the process resumes.
+            await this.emitLoginUpdate()
+        }
         return null
     }
 
