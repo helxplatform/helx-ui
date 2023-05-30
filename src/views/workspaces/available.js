@@ -88,7 +88,7 @@ export const AvailableView = withWorkspaceAuthentication(() => {
                 <Spin size="large" /> :
                 (filteredApps !== undefined ?
                     (Object.keys(filteredApps).length !== 0 ?
-                        <div className="grid">{Object.keys(filteredApps).sort().map(appKey => <Col><AppCard key={appKey} {...filteredApps[appKey]} /></Col>)}</div>
+                        <div className="grid">{Object.keys(filteredApps).sort().map(appKey => <Col key={appKey}><AppCard {...filteredApps[appKey]} /></Col>)}</div>
                         : <div>No Apps Available</div>)
                     : <div></div>)}
         </Layout>

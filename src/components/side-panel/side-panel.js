@@ -44,7 +44,7 @@ export const SidePanel = () => {
                 onClose={closeSidePanel}
             >
                 {activity.length !== 0 ? activity.map(this_activity =>
-                    <div>
+                    <div key={ this_activity['sid'] }>
                         <Tag icon={this_activity['status'] === 'processing' ? <SyncOutlined spin /> : (this_activity['status'] === 'success' ? <CheckCircleOutlined /> : <CloseCircleOutlined />)} color={this_activity['status']}>{this_activity['status']}</Tag>
                         <span><TimeAgo datetime={this_activity['timestamp']} /></span>
                         {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
