@@ -71,10 +71,17 @@ export const WorkspaceLoginView = withAPIReady(({
 
     const [form] = useForm()
     const { basePath } = useEnvironment()
-    const { api, user, loginProviders } = useWorkspacesAPI()
+    const { api, user, loggedIn, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
 
     useTitle("Login")
+
+    if (loggedIn) {
+        // User has logged in, redirect back.
+        // If there is no "dest" qs param, then redirect to the provided default url
+        // (e.g. the user manually navigated to the login view while already logged in).
+        redirectToDest(`${ basePath }workspaces/`)
+    }
 
     const allowBasicLogin = useMemo(() => loginProviders.includes("Django"), [loginProviders])
     const allowUncLogin =  useMemo(() => loginProviders.includes("UNC Chapel Hill Single Sign-On"), [loginProviders])
@@ -93,15 +100,6 @@ export const WorkspaceLoginView = withAPIReady(({
             setRevalidateForm(false)
         }
     }, [revalidateForm])
-
-    useEffect(() => {
-        if (user) {
-            // User has logged in, redirect back.
-            // If there is no "dest" qs param, then redirect to the provided default url
-            // (e.g. the user manually navigated to the login view while already logged in).
-            redirectToDest(`${ basePath }workspaces/`)
-        }
-    }, [user])
 
     const validateForm = async () => {
         setCurrentlyValidating(true)
