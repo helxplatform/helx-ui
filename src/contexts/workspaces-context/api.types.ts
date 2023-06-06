@@ -196,7 +196,7 @@ export interface IWorkspacesAPI {
     
     /** General methods */
     on<E extends keyof WorkspacesAPIEvents>(event: E, callback: WorkspacesAPIEvents[E]): Unsubscribe
-
+    
     /** API methods
      * 
      * Note that with many of these methods, the response type is the raw response.

@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row } from 'antd';
-import { DeleteOutlined, RightCircleOutlined } from '@ant-design/icons';
+import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row, Progress, Space, Tooltip } from 'antd';
+import { DeleteOutlined, RightCircleOutlined, LoadingOutlined, CloseOutlined, ExclamationOutlined, QuestionOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
 import { useActivity, useApp, useInstance, useAnalytics, useWorkspacesAPI } from '../../contexts';
@@ -22,7 +22,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
     const { api } = useWorkspacesAPI()
-    const { addActivity, updateActivity } = useActivity();
+    const { appSpecs, appActivityCache, getLatestActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
     const { pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
     const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
@@ -83,15 +83,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
 
         try {
             await api.stopAppInstance(currentRecord.sid)
-            let newActivity = {
-                'sid': currentRecord.sid,
-                'app_name': currentRecord.name,
-                'status': 'success',
-                'timestamp': new Date(),
-                'message': `${currentRecord.name} is stopped.`
-            }
             analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, null)
-            updateActivity(newActivity)
             setRefresh(!refresh)
         }
         catch (e) {
@@ -121,7 +113,6 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                 }
             }
             analyticsEvents.appDeleted(currentRecord.name, currentRecord.sid, newActivity.message);
-            updateActivity(newActivity)
         }
         setStopModalVisibility(false)
         setIsStopping(false)
@@ -134,16 +125,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
             addOrDeleteInstanceTab("close", this_app.sid);
             try {
                 await api.stopAppInstance(this_app.sid)
-            } catch (e) {
-                let newActivity = {
-                    'sid': 'none',
-                    'app_name': this_app.name,
-                    'status': 'error',
-                    'timestamp': new Date(),
-                    'message': `An error has occurred while stopping ${this_app.name}.`
-                }
-                addActivity(newActivity)
-            }
+            } catch (e) {}
         }
         analyticsEvents.allAppsDeleted()
         setRefresh(!refresh)
@@ -179,15 +161,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
             if (data.status === "success") {
                 setUpdateModalVisibility(false);
                 setUpdating(false);
-                let newActivity = {
-                    'sid': currentRecord.sid,
-                    'app_name': currentRecord.name,
-                    'status': 'processing',
-                    'timestamp': new Date(),
-                    'message': `${currentRecord.name} is launching.`
-                }
                 appUpdatedAnalyticsEvent(false)
-                addActivity(newActivity)
                 pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
                 setRefresh(!refresh);
             } else {
@@ -199,15 +173,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
         if (failed) {
             setUpdateModalVisibility(false);
             setUpdating(false);
-            let newActivity = {
-                'sid': 'none',
-                'app_name': currentRecord.name,
-                'status': 'error',
-                'timestamp': new Date(),
-                'message': `Error occured when updating instance ${currentRecord.name}.`
-            }
             appUpdatedAnalyticsEvent(true)
-            addActivity(newActivity)
         }
     }
 
@@ -229,6 +195,80 @@ export const ActiveView = withWorkspaceAuthentication(() => {
 
     // config for the instance table
     const columns = [
+        {
+            title: 'Status',
+            align: 'center',
+            render: (record) => {
+                let activity = getLatestActivity(record.sid)
+                let indicator = null
+                let statusText = null
+                switch (activity?.data.status) {
+                    case "LAUNCHING":
+                        indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
+                        statusText = "Launching"
+                        break
+                    case "LAUNCHED":
+                        indicator = <Progress type="circle" percent={ 100 } width={ 16 } />
+                        statusText = "Ready"
+                        break
+                    case "FAILED":
+                        indicator = (
+                            <Progress
+                                type="circle"
+                                percent={ 100 }
+                                width={ 16 }
+                                status="exception"
+                                strokeColor="#faad14"
+                                format={ () => (
+                                    <ExclamationOutlined style={{ color: "#faad14" }} />
+                                ) }
+                            />
+                        )
+                        statusText = "Failed"
+                        break
+                    case "SUSPENDING":
+                        indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } style={{ color: "#faad14" }} />
+                        statusText = "Suspending"
+                        break
+                    case "TERMINATED":
+                        indicator = (
+                            <Progress
+                                type="circle"
+                                percent={ 100 }
+                                width={ 16 }
+                                status="exception"
+                                strokeColor="rgba(0, 0, 0, 0.45)"
+                                format={ () => (
+                                    <CloseOutlined style={{ color: "rgba(0, 0, 0, 0.45)" }} />
+                                ) }
+                            />
+                        )
+                        statusText = "Terminated"
+                        break
+                    case undefined:
+                        indicator = (
+                            <Progress
+                                type="circle"
+                                percent={ 100 }
+                                width={ 16 }
+                                status="exception"
+                                strokeColor="rgba(0, 0, 0, 0.45)"
+                                format={ () => (
+                                    <QuestionOutlined style={{ color: "rgba(0, 0, 0, 0.45)" }} />
+                                ) }
+                            />
+                        )
+                        statusText = "Unknown"
+                        break
+
+                }
+                return (
+                    <Tooltip title={ statusText }>
+                        { indicator }
+                    </Tooltip>
+                )
+            }
+        },
         {
             title: 'App Name',
             dataIndex: 'name',
@@ -281,8 +321,8 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                     visible={stopAllModalVisibility}
                     title='Stop All Instances'
                     footer={[
-                        <Button key="stop" onClick={() => setStopAllModalVisibility(false)}>Cancel</Button>,
-                        <Button type="primary" key="stop" onClick={() => stopAllInstanceHandler()} danger>{isStoppingAll ? <Spin /> : 'Stop'}</Button>
+                        <Button key="cancel-all" onClick={() => setStopAllModalVisibility(false)}>Cancel</Button>,
+                        <Button key="stop-all" type="primary" onClick={() => stopAllInstanceHandler()} danger>{isStoppingAll ? <Spin /> : 'Stop'}</Button>
                     ]}
                     onCancel={() => setStopAllModalVisibility(false)}
                 >
@@ -298,8 +338,8 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                             visible={stopModalVisibility}
                             title='Stop Instance'
                             footer={[
-                                <Button key="stop" onClick={() => setStopModalVisibility(false)}>Cancel</Button>,
-                                <Button type="primary" key="stop" onClick={() => stopInstanceHandler()} danger>{isStopping ? <Spin /> : 'Stop'}</Button>
+                                <Button key={ `cancel-${ record.aid }-${ record.sid }` } onClick={() => setStopModalVisibility(false)}>Cancel</Button>,
+                                <Button key={ `stop-${ record.aid }-${ record.sid }` } type="primary" onClick={() => stopInstanceHandler()} danger>{isStopping ? <Spin /> : 'Stop'}</Button>
                             ]}
                             onCancel={() => setStopModalVisibility(false)}
                         >
@@ -363,7 +403,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                     </Fragment>
                 )
             }
-        }
+        },
     ]
 
     return (
@@ -374,8 +414,11 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                 (instances === undefined ?
                     <div></div> :
                     (instances.length > 0 ?
-                        <Table columns={columns} dataSource={instances}>
-                        </Table> : <div style={{ textAlign: 'center' }}>No instances running. Redirecting to apps...</div>))}
+                        <Table
+                            columns={columns}
+                            dataSource={instances}
+                            rowKey={ (record) => `${ record.aid }-${ record.sid }` }
+                        /> : <div style={{ textAlign: 'center' }}>No instances running. Redirecting to apps...</div>))}
         </Layout>
     )
 })

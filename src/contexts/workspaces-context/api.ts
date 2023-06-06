@@ -45,7 +45,7 @@ const cookies = require('js-cookie')
  *   It is not going to stop you if you aren't logged in; the request will throw an APIError.
  */
 export class WorkspacesAPI implements IWorkspacesAPI {
-
+    private apiUrl: string
     private axios: AxiosInstance
     private eventEmitter: Emitter<WorkspacesAPIEvents>
     private _samlWindows: { [id: string]: WindowProxy } = {}
@@ -57,6 +57,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         apiUrl: string,
         axiosConfig?: AxiosRequestConfig
     }) {
+        this.apiUrl = apiUrl
         this.axios = _axios.create(
             deepmerge(
                 axiosConfig,
@@ -71,10 +72,6 @@ export class WorkspacesAPI implements IWorkspacesAPI {
             )
         )
         this.eventEmitter = createNanoEvents()
-    }
-
-    private get apiUrl(): string {
-        return this.axios.defaults.baseURL!
     }
 
     protected handleError(error: APIError) {

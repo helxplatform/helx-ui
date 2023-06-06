@@ -3,6 +3,7 @@ import { Modal, Space, Typography } from 'antd'
 import { TimeUntil } from 'react-time-until'
 import { backOff } from 'exponential-backoff'
 import { WorkspacesAPI } from './'
+import { IWebsocketAPI, WebsocketAPI } from './ws'
 import { APIError, IWorkspacesAPI, User, ExtraLink, EnvironmentContext } from './api.types'
 import { useEnvironment } from '../'
 import { usePageActivity } from '../../hooks'
@@ -13,8 +14,11 @@ const STARTING_DELAY = 10 * 1000 // the coefficient, e.g. the initial delay.
 const TIME_MULTIPLE = 2 // the base, e.g. wait twice as long every backoff.
 // I.e. f(n) = STARTING_DELAY * Math.pow(TIME_MULTIPLE, n) where n is the current attempt count and f(n) is the backoff in ms.
 
+const WEBSOCKET_REOPEN_DELAY = 5 * 1000
+
 export interface IWorkspacesAPIContext {
     api: IWorkspacesAPI
+    wsApi: IWebsocketAPI | null
     loading: boolean
     user: User | null | undefined
     loggedIn: boolean | undefined
@@ -40,8 +44,9 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     // Etc.
     const [showTimeoutWarning, setShowTimeoutWarning] = useState<number|null>(null)
     const [loadingBackoff, setLoadingBackoff] = useState<Date|undefined>(undefined)
+    const [wsReconnect, setWsReconnect] = useState<number>(0)
 
-    const { helxAppstoreUrl } = useEnvironment() as any
+    const { helxAppstoreUrl, helxWebsocketUrl } = useEnvironment() as any
 
     let warningIntervalIdRef = useRef<number>()
     let logoutIntervalIdRef = useRef<number>()
@@ -60,6 +65,11 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     const api = useMemo<IWorkspacesAPI>(() => new WorkspacesAPI({
         apiUrl: `${ helxAppstoreUrl }/api/v1/`
     }), [helxAppstoreUrl])
+
+    const [wsApi, setWsApi] = useState<IWebsocketAPI|null>(null)
+    // const wsApi = useMemo<IWebsocketAPI|null>(() => user ? new WebsocketAPI({
+    //     wsUrl: helxWebsocketUrl
+    // }) : null, [helxWebsocketUrl, user, wsReconnect])
 
     const loggedIn = useMemo(() => user !== undefined ? !!user : undefined, [user])
 
@@ -202,9 +212,61 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         }
     }, [api, onApiError, onLoginStateChanged, onApiRequest])
 
+    /*useEffect(() => {
+        let timeout: number
+        const triggerReconnect = () => {
+            console.error(`WebSocket connection was closed prematurely, attempting to reestablish in ${ WEBSOCKET_REOPEN_DELAY / 1E3 }s...`)
+            timeout = window.setTimeout(() => setWsReconnect(wsReconnect + 1), WEBSOCKET_REOPEN_DELAY)
+        }
+        if (wsApi) {
+            wsApi.getWebsocket().addEventListener("close", triggerReconnect)
+        }
+        return () => {
+            window.clearTimeout(timeout)
+            wsApi?.getWebsocket().removeEventListener("close", triggerReconnect)
+            // Make sure to close old websocket connections when the memo hook creates new ones.
+            wsApi?.close()
+        }
+    }, [wsApi])*/
+
+    useEffect(() => {
+        if (!user) {
+            setWsApi(null)
+            return
+        }
+        const createWs = () => new WebsocketAPI({
+            wsUrl: helxWebsocketUrl
+        })
+        const _wsApi = createWs()
+        let timeout: number
+        const setWs = () => setWsApi(_wsApi)
+        const triggerReconnect = () => {
+            console.error(`WebSocket connection was closed prematurely, attempting to reestablish in ${ WEBSOCKET_REOPEN_DELAY / 1E3 }s...`)
+            timeout = window.setTimeout(() => {
+                setWsReconnect(wsReconnect + 1)
+            }, WEBSOCKET_REOPEN_DELAY)
+        }
+        _wsApi.getWebsocket().addEventListener("message", (e) => {
+            // The websocket server presents the connection in the open state while still verifying the user's identity.
+            // Therefore, clients should wait until receiving a _confirmReady event before sending messages.
+            const { type } = JSON.parse(e.data)
+            if (type === "_confirmReady") setWs()
+        })
+        _wsApi.getWebsocket().addEventListener("close", triggerReconnect)
+
+        return () => {
+            // Data has updated, these will now cause stale state if they run, so need to get cleared/removed.
+            clearTimeout(timeout)
+            _wsApi.getWebsocket().removeEventListener("message", setWs)
+            _wsApi.getWebsocket().removeEventListener("close", triggerReconnect)
+            _wsApi.close()
+        }
+    }, [helxWebsocketUrl, user, wsReconnect])
+
     return (
         <WorkspacesAPIContext.Provider value={{
             api,
+            wsApi,
             loading,
             user,
             loggedIn,

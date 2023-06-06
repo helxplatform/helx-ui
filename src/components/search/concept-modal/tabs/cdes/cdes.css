@@ -15,22 +15,3 @@
     /* This is a Space component, which uses inline-flex by default, which messes with spacing. */
     display: flex !important;
 }
-.cde-collapse > .ant-collapse-content > .ant-collapse-content-box {
-    padding-top: 0 !important;
-}
-.cde-collapse .collapse-handle-container {
-    width: 8px;
-    margin-left: 1.5px;
-    margin-right: 16px;
-    display: flex;
-    justify-content: center;
-    cursor: pointer;
-}
-.cde-collapse .collapse-handle {
-    width: 2px;
-    background-color: #eee;
-    transition: background-color 100ms ease-out;
-}
-.cde-collapse .collapse-handle-container:hover > .collapse-handle {
-    background-color: #1890ff;
-}
