@@ -10,7 +10,7 @@ const { Title } = Typography
 const CommunitySupport = () =>
   <Fragment>
     <Title level={1}>Community Support</Title>
-    <Typography>Your HeLx community has access to it's own Discourse, a community-driven forum that provides help and guidance to any HeLx question you may have. On Discourse, you will find members of the HeLx engineering and product management team, as well as other members of your community. Here you can ask questions, answer questions, and engage in community-building for your specific instance of HeLx.</Typography>
+    <Typography>Your HeLx community has access to it&apos;s own Discourse, a community-driven forum that provides help and guidance to any HeLx question you may have. On Discourse, you will find members of the HeLx engineering and product management team, as well as other members of your community. Here you can ask questions, answer questions, and engage in community-building for your specific instance of HeLx.</Typography>
     <br />
     <Typography>Please visit <a href="https://community.helx.renci.org/invites/B2dnCA8xRi" target="_blank" rel="noopener noreferrer">community.helx.renci.org</a> today to create your account, and to join in the discourse!</Typography>
   </Fragment>

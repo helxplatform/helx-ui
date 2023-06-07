@@ -104,8 +104,9 @@ export const StudiesTab = ({ studies }) => {
                 checked={ selectedFacets.includes(facet) }
                 disabled={isFiltered}
                 onChange={ checked => !isFiltered && handleSelectFacet(facet, checked) }
-                children={ `${ facet } (${studiesSource[facet].length})` }
-              />
+              >
+                { `${ facet } (${studiesSource[facet].length})` }
+              </CheckableFacet>
             )
           })
         }

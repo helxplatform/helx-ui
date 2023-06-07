@@ -75,8 +75,9 @@ export const StudiesTab = ({ studies }) => {
               style={ !selectedFacets.includes(facet) ? { border: "1px solid #d9d9d9", background: "#fafafa" } : {} }
               checked={ selectedFacets.includes(facet) }
               onChange={ (checked) => handleSelectFacet(facet, checked) }
-              children={ `${ facet } (${studies.filter((study) => study.type === facet).length})` }
-            />
+            >
+              { `${ facet } (${studies.filter((study) => study.type === facet).length})` }
+            </CheckableFacet>
           ))
         }
       </Space>

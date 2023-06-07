@@ -1,7 +1,7 @@
 ###################
 # Build environment
 ###################
-FROM node:14.16.1-alpine AS builder
+FROM node:18.16-alpine AS builder
 
 ARG REACT_APP_WORKSPACES_ENABLED=true
 ENV REACT_APP_WORKSPACES_ENABLED=$REACT_APP_WORKSPACES_ENABLED
@@ -10,10 +10,10 @@ ENV REACT_APP_WORKSPACES_ENABLED=$REACT_APP_WORKSPACES_ENABLED
 WORKDIR /usr/src/app
 COPY --chown=node:node "package*.json" /usr/src/app/
 RUN npm i -g npm@latest
-RUN npm ci --only=production
+RUN npm ci
 
 COPY --chown=node:node . /usr/src/app
-RUN BUILD_PATH=./build/frontend GENERATE_SOURCEMAP=false npm run build --production --no-audit
+RUN npm run build
 
 ########################
 # Production environment

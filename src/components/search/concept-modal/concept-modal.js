@@ -261,7 +261,7 @@ export const ConceptModalBody = ({ result }) => {
       title="Result not found"
       subTitle="Sorry! It looks like we don't have this concept indexed."
       extra={[
-        <Button type="primary" onClick={() => {
+        <Button key={ 0 } type="primary" onClick={() => {
           // go back one crumb
           setSelectedResult(result.previousResult)
         }}>Go back</Button>
@@ -276,7 +276,14 @@ export const ConceptModalBody = ({ result }) => {
           result.suggestions
             .slice(0, 8)
             .map((suggestedResult) => (
-              <a role="button" style={{ display: "inline", marginRight: "12px", lineHeight: "36px" }} onClick={() => setSelectedResult(suggestedResult)}>{suggestedResult.name}</a>
+              <a
+                key={ suggestedResult.id }
+                role="button"
+                style={{ display: "inline", marginRight: "12px", lineHeight: "36px" }}
+                onClick={() => setSelectedResult(suggestedResult)}
+              >
+                {suggestedResult.name}
+              </a>
             ))
         }
       </div>
@@ -308,7 +315,9 @@ export const ConceptModalBody = ({ result }) => {
           ))
         }
       </Menu>
-      <div className="modal-content-container" children={ tabs[currentTab].content } />
+      <div className="modal-content-container">
+        { tabs[currentTab].content }
+      </div>
     </Space>
   )
 }
