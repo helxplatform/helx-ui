@@ -35,14 +35,16 @@ const ActivityLog = ({ events, setShowEventInfo }) => {
             >
                 <Space direction="vertical" size="middle">
                     {
-                        otherActivities.map((event) => (
+                        otherActivities.length !== 0 && false ? otherActivities.map((event) => (
                             <ActivityEntry
                                 key={ event.uid }
                                 event={ event }
                                 full={ false }
                                 setShowEventInfo={ setShowEventInfo }
                             />
-                        ))
+                        )) : (
+                            <i style={{ color: "rgba(0, 0, 0, 0.45)" }}>No other events have occurred so far</i>
+                        )
                     }
                 </Space>
             </Panel>
