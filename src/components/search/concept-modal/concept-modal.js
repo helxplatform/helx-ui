@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, Menu, Modal, Result, Space, Spin, Typography } from 'antd'
+import { Button, Menu, Modal, Result, Space, Spin, Typography, Tooltip, Divider } from 'antd'
 import CustomIcon, {
   InfoCircleOutlined as OverviewIcon,
   BookOutlined as StudiesIcon,
@@ -9,16 +9,40 @@ import CustomIcon, {
   ExportOutlined as ExternalLinkIcon,
   FullscreenOutlined as FullscreenLayoutIcon,
   UnorderedListOutlined as CdesIcon,
-  ArrowLeftOutlined
+  ArrowLeftOutlined, InfoCircleOutlined
 } from '@ant-design/icons'
 import { CdesTab, OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
 import { useHelxSearch } from '../'
 import { useAnalytics, useEnvironment } from '../../../contexts'
+import { kgLink } from '../../../utils'
 import './concept-modal.css'
 
 const { Text, Paragraph } = Typography
 
 // const RobokopIcon = () => <CustomIcon component={() => <img src="https://robokop.renci.org/pack/favicon.ico" style={{filter: "grayscale(100%)"}} />} />
+
+export const AdvancedConceptInfo = ({ result, style={}, props }) => {
+  const purlUrl = kgLink.get_curie_purl(result.id)
+  const tooltip = (
+    <div>
+      {/* Advanced information
+      <Divider style={{ borderColor: "white", marginTop: 4, marginBottom: 8 }} /> */}
+      <b>ID:</b> { result.id }
+      {purlUrl && <Button
+        type="text"
+        icon={ <ExternalLinkIcon style={{ color: "white" }} /> }
+        href={ purlUrl }
+        target="_blank"
+        rel="noopener noreferrer"
+      /> }
+    </div>
+  )
+  return (
+    <Tooltip title={ tooltip } trigger="hover" placement="right" { ...props }>
+      <InfoCircleOutlined style={{ color: "rgba(0, 0, 0, 0.45)", ...style }} />
+    </Tooltip>
+  )
+}
 
 export const ConceptModalTitle = ({ result }) => {
   const { setSelectedResult } = useHelxSearch()
@@ -27,12 +51,19 @@ export const ConceptModalTitle = ({ result }) => {
   if (name.endsWith(`(${type})`)) name = name.slice(0, name.length - `(${type})`.length)
   
   return (
-    <Space size="middle">
-      {previousResult && <ArrowLeftOutlined className="previous-result-btn" onClick={ () => setSelectedResult(previousResult) } /> }
+    <div style={{ display: "flex", alignItems: "center" }}>
+      {previousResult && (
+        <ArrowLeftOutlined
+          className="previous-result-btn"
+          style={{ marginRight: 8 }}
+          onClick={ () => setSelectedResult(previousResult) }
+        />
+      )}
       <Text>
         { name }{ type ? " (" + type + ")" : "" }
       </Text>
-    </Space>
+      { !result.loading && !result.failed && <AdvancedConceptInfo result={ result } style={{ marginTop: 2, marginLeft: 8 }} /> }
+    </div>
   )
 }
 
