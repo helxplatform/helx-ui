@@ -265,7 +265,7 @@ export const HelxSearch = ({ children }) => {
           setTotalConcepts(result.total_items)
           // setConcepts(hits.valid)
           setIsLoadingConcepts(false)
-          analyticsEvents.searchExecuted(query, Date.now() - startTime, result.total_items)
+          // analyticsEvents.searchExecuted(query, Date.now() - startTime, result.total_items)
         } else {
           const newConceptPages = { ...conceptPages }
           newConceptPages[currentPage] = []
@@ -274,13 +274,13 @@ export const HelxSearch = ({ children }) => {
           // setConcepts([])
           setTotalConcepts(0)
           setIsLoadingConcepts(false)
-          analyticsEvents.searchExecuted(query, Date.now() - startTime, 0)
+          // analyticsEvents.searchExecuted(query, Date.now() - startTime, 0)
         }
       } catch (error) {
         console.log(error)
         setError({ message: 'An error occurred!' })
         setIsLoadingConcepts(false)
-        analyticsEvents.searchExecuted(query, Date.now() - startTime, 0, error)
+        // analyticsEvents.searchExecuted(query, Date.now() - startTime, 0, error.message)
       }
     }
     if (query) {

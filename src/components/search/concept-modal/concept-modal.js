@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Menu, Modal, Result, Space, Spin, Typography, Tooltip, Divider } from 'antd'
 import CustomIcon, {
   InfoCircleOutlined as OverviewIcon,
@@ -100,19 +100,21 @@ export const ConceptModalBody = ({ result }) => {
     delete links[tab]
   })
   
-  const setCurrentTab = (() => {
+  const setCurrentTab = useCallback((() => {
     let oldTime = Date.now();
     return (tabName) => {
       const newTime = Date.now();
       const elapsed = newTime - oldTime;
-      if (tabName !== currentTab) {
-        // Make sure we only track events when the tab actually changes.
-        analyticsEvents.resultTabSelected(tabs[tabName].title, tabs[currentTab].title, elapsed)
-      } 
+      _setCurrentTab((currentTab) => {
+        if (tabName !== currentTab) {
+          // Make sure we only track events when the tab actually changes.
+          analyticsEvents.resultTabSelected(tabs[tabName].title, tabs[currentTab].title, elapsed)
+        } 
+        return tabName
+      })
       oldTime = newTime;
-      _setCurrentTab(tabName);
     }
-  })()
+  })(), [tabs])
 
   useEffect(() => {
     setCurrentTab('overview')

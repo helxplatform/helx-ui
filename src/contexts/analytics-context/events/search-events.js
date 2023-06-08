@@ -1,74 +1,72 @@
-export function searchExecuted(query, execTime, resultCount, error=undefined) {
+export function searchExecuted(query, execTime, resultCount, error=null) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "Search executed",
-        label: `User searched for "${query}"`,
-        value: execTime,
+        category: "ui_interaction",
+        action: "search_executed",
+        label: query,
         customParameters: {
-            "Execution time": execTime,
-            "Search term": query,
-            "Response count": resultCount,
-            "Caused error": error !== undefined,
-            "Error stack": error ? error.stack : undefined
+            "execution_time": execTime,
+            "search_term": query,
+            "response_count": resultCount,
+            "did_fail": !!error,
+            "error_message": error
         }
     });
 }
 export function resultModalOpened(query, result) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "Result modal opened",
-        label: `Opened modal from card for result "${result.name}"`,
+        category: "ui_interaction",
+        action: "result_modal_opened",
+        label: result.name,
         customParameters: {
-            "Search term": query,
-            "Result name": result.name,
-            "Result type": result.type,
-            "Additional search terms": result.search_terms
+            "search_query": query,
+            "result_name": result.name,
+            "result_type": result.type,
+            "additional_search_terms": result.search_terms
         }
     });
 }
 export function resultTabSelected(newTabTitle, oldTabTitle, elapsed) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "Result tab selected",
-        label: `User selected tab "${newTabTitle}"`,
-        value: newTabTitle,
+        category: "ui_interaction",
+        action: "result_tab_selected",
+        label: newTabTitle,
         customParameters: {
-            "Tab name": newTabTitle,
-            "Previous tab name": oldTabTitle,
-            "Time spent on previous tab": elapsed
+            "tab_name": newTabTitle,
+            "previous_tab_name": oldTabTitle,
+            "time_spent_on_previous_tab": elapsed
         }
     });
 }
 export function tranqlLinkClicked(name, url) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "TranQL tab URL clicked",
-        label: `User opened URL for ${name}`,
+        category: "ui_interaction",
+        action: "tranql_tab_url_clicked",
+        label: name,
         customParameters: {
-            "URL name": name,
-            "URL": url
+            "url_name": name,
+            "url": url
         }
     });
 }
 export function searchURLCopied(query) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "Search URL copied",
-        label: "User copied sharable link for search query",
+        category: "ui_interaction",
+        action: "search_url_copied",
+        // label: "User copied sharable link for search query",
         customParameters: {
-            "Search term": query
+            "search_query": query
         }
     });
 }
 export function searchLayoutChanged(query, newLayout, oldLayout) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "Search layout changed",
-        label: `Layout set to "${newLayout}"`,
+        category: "ui_interaction",
+        action: "search_layout_changed",
+        label: newLayout,
         customParameters: {
-            "Search term": query,
-            "Changed from": oldLayout,
-            "Changed to": newLayout
+            "search_query": query,
+            "changed_from": oldLayout,
+            "changed_to": newLayout
         }
     });
 }

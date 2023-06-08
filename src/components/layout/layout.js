@@ -24,12 +24,11 @@ export const Layout = ({ children }) => {
 
   const logout = async () => {
     setLoggingOut(true)
-    analyticsEvents.logout()
+    analyticsEvents.workspacesLogout()
     try {
       await api.logout()
     } catch (e) {}
     setLoggingOut(false)
-    // logoutHandler(helxAppstoreUrl)
   }
   const removeTrailingSlash = (url) => url.endsWith("/") ? url.slice(0, url.length - 1) : url
   const activeRoutes = routes.filter((route) => (

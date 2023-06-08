@@ -12,15 +12,15 @@ const ContextProviders = ({ children }) => {
     <EnvironmentProvider>
       <LocationProvider>
         <DestProvider>
-          <AnalyticsProvider>
-            <WorkspacesAPIProvider>
+          <WorkspacesAPIProvider>
+            <AnalyticsProvider>
               <ActivityProvider>
                 <InstanceProvider>
                   {children}
                 </InstanceProvider>
               </ActivityProvider>
-            </WorkspacesAPIProvider>
-          </AnalyticsProvider>
+            </AnalyticsProvider>
+          </WorkspacesAPIProvider>
         </DestProvider>
       </LocationProvider>
     </EnvironmentProvider >
