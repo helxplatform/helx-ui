@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Divider, Grid, Spin } from 'antd'
+import { Divider, Grid, Spin, Typography, Empty } from 'antd'
 import { SearchForm, useHelxSearch } from '../..'
 import { ExpandedResultsSidebar } from './expanded-results-sidebar'
 import { ExpandedResultsContent } from './expanded-results-content'
@@ -7,10 +7,12 @@ import { ResultsHeader } from '..'
 import classNames from 'classnames'
 import './expanded-results-layout.css'
 
+
+const { Text } = Typography
 const { useBreakpoint } = Grid
 
 export const ExpandedResultsLayout = () => {
-    const { selectedResult, setSelectedResult, concepts, totalConcepts, isLoadingConcepts, query } = useHelxSearch()
+    const { selectedResult, setSelectedResult, concepts, totalConcepts, isLoadingConcepts, query, error } = useHelxSearch()
     const { md } = useBreakpoint()
 
     const [expanded, setExpanded] = useState(true)
@@ -52,6 +54,14 @@ export const ExpandedResultsLayout = () => {
             {isLoadingConcepts && totalConcepts === 0 && (
                 <Spin style={{ display: 'block', margin: '4rem', flexGrow: 1 }} />
             )}
+            { error.message ? (
+                <span style={{ marginTop: -144, padding: "0 6px" }}>{ error.message }</span>
+            ) : concepts.length === 0 && !isLoadingConcepts ? (
+                <Empty style={{ marginTop: -24 }} description={
+                    <Text type="secondary">No results were found for &quot;{ query }&quot;</Text>
+                } />
+                // <span style={{ marginTop: -144, padding: "0 6px" }}>No results found</span>
+            ) : null }
             {totalConcepts > 0 && (
                 <Fragment>
                     {/* { md && <Divider style={{ marginBottom: 0 }} /> } */}

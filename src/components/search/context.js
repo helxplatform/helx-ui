@@ -228,6 +228,7 @@ export const HelxSearch = ({ children }) => {
 
   useEffect(() => {
     setConceptPages({})
+    setError({})
     setTypeFilter(null)
     setSelectedResult(null)
     setVariableStudyResults([])
@@ -279,6 +280,7 @@ export const HelxSearch = ({ children }) => {
       } catch (error) {
         console.log(error)
         setError({ message: 'An error occurred!' })
+        setTotalConcepts(0)
         setIsLoadingConcepts(false)
         analyticsEvents.searchExecuted(query, Date.now() - startTime, 0, error)
       }

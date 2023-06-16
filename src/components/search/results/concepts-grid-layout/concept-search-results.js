@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo, useCallback } from 'react'
-import { Spin, Grid as AntGrid, Typography, Radio, Tooltip } from 'antd'
+import { Spin, Grid as AntGrid, Typography, Radio, Tooltip, Empty } from 'antd'
 import { ConceptCard, useHelxSearch, SearchLayout, ExpandedResultsLayout } from '../../'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { BackTop } from '../../../layout'
@@ -9,8 +9,8 @@ const { Text } = Typography
 const { useBreakpoint } = AntGrid
 
 export const ConceptSearchResults = () => {
-	const { query, conceptPages, perPage, currentPage, pageCount, typeFilter, isLoadingVariableResults,
-			isLoadingConcepts, error, layout, setCurrentPage, setSelectedResult } = useHelxSearch()
+	const { query, conceptPages, perPage, currentPage, pageCount, typeFilter,
+			isLoadingConcepts, error, setCurrentPage, setSelectedResult } = useHelxSearch()
 	const { md } = useBreakpoint();
 	const concepts = useMemo(() => Object.values(conceptPages).flat(), [conceptPages])
 	const hasMore = useMemo(() => (
@@ -25,9 +25,17 @@ export const ConceptSearchResults = () => {
 	return (
 		<Fragment>
 			{
-				query && !error.message && (
+				query && (
 					<Fragment>
 					<div className="results" style={{ flexGrow: 1 }}>
+						{ error.message ? (
+							<span style={{ marginTop: -144, padding: "0 6px" }}>{ error.message }</span>
+						) : concepts.length === 0 && !isLoadingConcepts ? (
+							<Empty style={{ marginTop: -24 }} description={
+								<Text type="secondary">No results were found for &quot;{ query }&quot;</Text>
+							} />
+							// <span style={{ marginTop: -144, padding: "0 6px" }}>No results found</span>
+						) : null }
 						{concepts.length > 0 && <ResultsHeader />}
 						<InfiniteScroll
 							dataLength={concepts.length}
