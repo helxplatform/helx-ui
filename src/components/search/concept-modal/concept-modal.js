@@ -97,11 +97,11 @@ export const ConceptModalBody = ({ result }) => {
   )
 
   const tabs = {
-    'overview': { title: 'Overview',                                      icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
-    'studies':  { title: studyTitle,  icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
-    'cdes':     { title: cdeTitle,        icon: <CdesIcon />,             content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } loading={ cdesLoading } /> },
-    'kgs':      { title: 'Knowledge Graphs',                              icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
-    'tranql':   { title: 'TranQL',                                        icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> }
+    'overview': { title: 'Overview',         icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
+    'studies':  { title: studyTitle,         icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
+    'cdes':     { title: cdeTitle,           icon: <CdesIcon />,             content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } loading={ cdesLoading } /> },
+    'kgs':      { title: 'Knowledge Graphs', icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
+    'tranql':   { title: 'TranQL',           icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> }
   }
   const links = {
     'robokop' : { title: 'ROBOKOP', icon: <RobokopIcon/>, url: "https://robokop.renci.org/" }
