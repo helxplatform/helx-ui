@@ -92,7 +92,7 @@ export const ConceptModalBody = ({ result }) => {
   )
   const cdeTitle = (
     <div style={{ display: "inline" }}>
-      CDEs { cdes ? `(${ Object.keys(cdes).length })` : <BouncingDots /> }
+      CDEs { cdes ? `(${ Object.keys(cdes).length })` : <BouncingDots />  }
     </div>
   )
 

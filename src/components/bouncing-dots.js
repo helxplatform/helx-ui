@@ -1,7 +1,7 @@
-export const BouncingDots = ({ height=8 }) => {
+export const BouncingDots = ({ height=8, style={}, ...props }) => {
     return (
         // Functionality pulled from antd mobile library
-        <svg height={ `${ height }px` } viewBox="0 0 100 40" style={{ verticalAlign: "-0.125em" }}>
+        <svg height={ `${ height }px` } viewBox="0 0 100 40" style={{ verticalAlign: "-0.125em", ...style }} { ...props }>
             <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <g transform="translate(-100.000000, -71.000000)">
                     <g transform="translate(95.000000, 71.000000)">

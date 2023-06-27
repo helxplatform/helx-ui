@@ -1,11 +1,12 @@
 import { Fragment, useState, useEffect, useMemo, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { Badge, Card, Space, Typography } from 'antd'
-import { ExpandOutlined as ViewIcon } from '@ant-design/icons'
+import { ExpandOutlined as ViewIcon, LoadingOutlined } from '@ant-design/icons'
 import { useHelxSearch } from '../'
 import { OverviewTab } from './overview-tab'
 import { StudiesTab } from './studies-tab'
 // import { CdesTab } from './cdes-tab'
+import { BouncingDots } from '../../'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import classNames from 'classnames'
 import './concept-card.css'
@@ -23,11 +24,30 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
   const { context } = useEnvironment()
   const { query, fetchVariablesForConceptId, fetchCDEs } = useHelxSearch()
 
+  const studyTitle = useMemo(() => (
+    <div style={{ display: "inline" }}>
+      { !studies && (
+        <LoadingOutlined style={{ fontSize: 10, marginRight: 8 }} spin /> 
+      ) }
+      Studies
+      { studies && ` (${ Object.keys(studies).length })` }
+    </div>
+  ), [studies])
+  const cdeTitle = useMemo(() => (
+    <div style={{ display: "inline" }}>
+      { !cdeStudies && (
+        <LoadingOutlined style={{ fontSize: 10, marginRight: 8 }} spin /> 
+      ) }
+      CDEs
+      { cdeStudies && ` (${ Object.keys(cdeStudies).length })` }
+    </div>
+  ), [cdeStudies])
+
   const tabs = useMemo(() => ({
-    'overview': { title: 'Overview',         content: <OverviewTab result={ result } /> },
-    'studies':  { title: `Studies`,          content: <StudiesTab studies={ studies } /> },
-    'cdes':     { title: `CDEs`,             content: <StudiesTab studies={ cdeStudies } /> },
-  }), [result, studies, cdeStudies])
+    'overview': { title: 'Overview', content: <OverviewTab result={ result } /> },
+    'studies':  { title: studyTitle, content: <StudiesTab  studies={ studies } /> },
+    'cdes':     { title: cdeTitle,   content: <StudiesTab  studies={ cdeStudies } /> },
+  }), [result, studies, cdeStudies, studyTitle, cdeTitle])
 
   context.hidden_result_tabs.forEach((tab) => {
     delete tabs[tab]
