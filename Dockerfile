@@ -22,7 +22,7 @@ RUN npm run build
 FROM nginx:latest
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /usr/src/app/build/ /usr/share/nginx/static/
-RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
+# RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
 
 WORKDIR /usr/src/app
 COPY bin /usr/src/app/bin

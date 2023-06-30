@@ -90,12 +90,13 @@ const baseConfig = {
             {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,
                 type: 'asset/resource',
-            }
+            },
         ]
     },
     plugins: [
         new HtmlWebpackPlugin({
             template: path.resolve(paths.public, 'index.ejs'),
+            filename: "index_template.html",
             templateParameters: {
                 publicUrl: '/static/frontend/'
             },
@@ -105,7 +106,7 @@ const baseConfig = {
                 minifyCSS: true,
                 minifyJS: true,
                 minifyURLs: true,
-                removeAttributeQuotes: true,
+                removeAttributeQuotes: false,
                 removeComments: true,
                 removeEmptyAttributes: true,
                 removeOptionalTags: true,

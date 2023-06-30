@@ -6,5 +6,12 @@ if [ -z "$1" ]
     echo "Usage: start_server /path/to/output/env.json"
     exit 1
 fi
+
+# Create env.json file
 populate_env $1
+# Generate the index.html file
+create_index /usr/share/nginx/static/frontend 
+# Move into nginx html folder
+mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
+
 nginx -g "daemon off;"

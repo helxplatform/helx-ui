@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ]
+  then
+    echo "Usage: create_index /path/to/build"
+    exit 1
+fi
+
+title="${META_TITLE:-HeLx UI}"
+description="${META_DESCRIPTION:-HeLx UI}"
+
+cat "$1/index_template.html" | sed \
+  -e "s/%META_TITLE%/$title/" \
+  -e "s/%META_DESCRIPTION%/$description/" \
+  > $1/index.html
