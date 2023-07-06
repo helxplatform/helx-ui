@@ -3,6 +3,8 @@ import { List, Collapse, Typography, Space, Button } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
 import _Highlighter from 'react-highlight-words'
 import { RelatedConceptsList } from './related-concepts'
+import { AddToCartIconButton } from 'antd-shopping-cart';
+import { useShoppingCartUtilities } from '../../../../../hooks';
 
 const { Text, Link } = Typography
 const { Panel } = Collapse
@@ -17,8 +19,9 @@ const Section = ({ title, children }) => (
     </Space>
 )
 
-export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
+export const CdeItem = ({ cde, cdeRelatedConcepts, highlight, result }) => {
     const [collapsed, setCollapsed] = useState(false)
+    const { createCdeCartItem } = useShoppingCartUtilities()
 
     const relatedConceptsSource = useMemo(() => (
         cdeRelatedConcepts[cde.id]
@@ -42,6 +45,10 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                                 <Highlighter textToHighlight={ cde.name } />
                             </Text>
                             {/* Only show the "Open study" button if the CDE has a link attached to it. */}
+                            <AddToCartIconButton 
+                                style={{ marginLeft: 8 }}
+                                item={ createCdeCartItem(cde, result) }
+                            />
                             {cde.e_link && (
                                 <Button
                                     type="text"

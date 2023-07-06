@@ -11,7 +11,7 @@ const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 const { Panel } = Collapse
 
-export const CdesTab = ({ cdes, cdeRelatedConcepts, loading }) => {
+export const CdesTab = ({ cdes, cdeRelatedConcepts, loading, result }) => {
   const [search, setSearch] = useState("")
   const { context } = useEnvironment()
 
@@ -57,7 +57,7 @@ export const CdesTab = ({ cdes, cdeRelatedConcepts, loading }) => {
         { !failed && <DebouncedInput setValue={setSearch}/> }
       </div>
       {/* { search && <Text style={{ display: "block", marginTop: "8px", marginBottom: "-16px" }}>Search results for <Text italic>{search.trim()}</Text>:</Text> } */}
-      <CdeList cdes={cdeSource} cdeRelatedConcepts={cdeRelatedConcepts} highlight={highlightTokens} loading={loading} failed={failed}/>
+      <CdeList cdes={cdeSource} cdeRelatedConcepts={cdeRelatedConcepts} highlight={highlightTokens} loading={loading} failed={failed} result={result} />
    </Space>
   )
 }

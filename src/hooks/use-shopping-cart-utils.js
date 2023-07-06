@@ -31,11 +31,23 @@ const createVariableCartItem = (variable, fromStudy) => ({
   bucketId: "variables",
   item: variable,
 })
+const createCdeCartItem = (cde, fromConcept) => ({
+  id: cde.id,
+  name: cde.name,
+  description: cde.description,
+  price: null,
+  tax: null,
+  quantity: 1,
+  from: { type: "concept", value: fromConcept },
+  bucketId: "cdes",
+  item: cde,
+});
 
 export const useShoppingCartUtilities = () => {
   return {
       createConceptCartItem,
       createStudyCartItem,
-      createVariableCartItem
+      createVariableCartItem,
+      createCdeCartItem,
   }
 }

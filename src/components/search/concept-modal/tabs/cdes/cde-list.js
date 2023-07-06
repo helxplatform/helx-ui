@@ -3,7 +3,7 @@ import { CdeItem } from './cde-item'
 
 const { Text } = Typography
 
-export const CdeList = ({ cdes, cdeRelatedConcepts, highlight, loading, failed }) => {
+export const CdeList = ({ cdes, cdeRelatedConcepts, highlight, loading, failed, result }) => {
     if (failed) return (
         <Empty
             image={ Empty.PRESENTED_IMAGE_SIMPLE }
@@ -15,7 +15,7 @@ export const CdeList = ({ cdes, cdeRelatedConcepts, highlight, loading, failed }
             loading={loading}
             dataSource={cdes}
             renderItem={(cde) => (
-                <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } highlight={highlight} />
+                <CdeItem cde={ cde } cdeRelatedConcepts={ cdeRelatedConcepts } highlight={highlight} result={result} />
             )}
         />
     )
