@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Layout as AntLayout, Button, Menu, Grid, Divider, Badge, Popover, Typography, Tag, Space } from 'antd'
 import { ShoppingCartOutlined as ShoppingCartIcon } from '@ant-design/icons'
 import { useLocation, Link, redirectTo, navigate } from '@reach/router'
@@ -6,12 +6,14 @@ import { useEnvironment, useAnalytics } from '../../contexts';
 import { logoutHandler } from '../../api/';
 import { MobileMenu } from './menu';
 import { SidePanel } from '../side-panel/side-panel';
-import { CartPopoverButton } from 'antd-shopping-cart';
+import { CartPopoverButton, useShoppingCart } from 'antd-shopping-cart';
 import './layout.css';
 
 const { Text, Title } = Typography
 const { Header, Content, Footer } = AntLayout
 const { useBreakpoint } = Grid
+
+const ACTIVE_CART_LS_KEY = 'active_cart';
 
 export const Layout = ({ children }) => {
   const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
@@ -19,6 +21,18 @@ export const Layout = ({ children }) => {
   const { md } = useBreakpoint()
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
   const location = useLocation();
+  const { activeCart, setActiveCart } = useShoppingCart();
+
+  // on mount, check if there is a active cart in local storage
+  useEffect(() => {
+    const stored = window.localStorage.getItem(ACTIVE_CART_LS_KEY);
+    if (stored) setActiveCart(stored);
+  }, []);
+
+  // anytime the activeCart is changed, update localStorage
+  useEffect(() => {
+    window.localStorage.setItem(ACTIVE_CART_LS_KEY, activeCart.name);
+  }, [activeCart]);
 
   const logoutButton = context.workspaces_enabled === 'true'
 
