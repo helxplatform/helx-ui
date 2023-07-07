@@ -208,7 +208,7 @@ export const WorkspaceLoginView = withAPIReady(({
                     onFinish={ async () => {
 
                     } }
-                    onFieldsChange={ () => setErrors([]) }
+                    onValuesChange={ () => setErrors([]) }
                     form={ form }
                 >
                     {/* <Alert type="error" message="Your session has expired due to prolonged inactivity. Please login to continue." style={{ marginBottom: 16 }} /> */}

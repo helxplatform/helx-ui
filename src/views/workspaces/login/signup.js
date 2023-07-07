@@ -186,7 +186,7 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
                     onFinish={ async () => {
 
                     } }
-                    onFieldsChange={ () => setErrors([]) }
+                    onValuesChange={ () => setErrors([]) }
                     form={ form }
                 >
                     <UsernameInput name="username" { ...formFieldProps } />
