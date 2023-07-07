@@ -16,6 +16,8 @@ hidden_support_sections="${REACT_APP_HIDDEN_SUPPORT_SECTIONS}"
 hidden_result_tabs="${REACT_APP_HIDDEN_RESULT_TABS}"
 deployment_namespace="${REACT_APP_DEPLOYMENT_NAMESPACE}"
 appstore_asset_branch="${REACT_APP_APPSTORE_ASSET_BRANCH}"
+meta_title="${META_TITLE:-HeLx UI}"
+meta_description="${META_DESCRIPTION:-HeLx UI}"
 
 
 template='{
@@ -36,7 +38,11 @@ template='{
     "hidden_support_sections": "%HIDDEN_SUPPORT_SECTIONS%",
     "hidden_result_tabs": "%HIDDEN_RESULT_TABS%",
     "deployment_namespace": "%DEPLOYMENT_NAMESPACE%",
-    "appstore_asset_branch": "%APPSTORE_ASSET_BRANCH%"
+    "appstore_asset_branch": "%APPSTORE_ASSET_BRANCH%",
+    "meta": {
+      "title": "%META_TITLE%",
+      "description": "%META_DESCRIPTION%"
+    }
 }'
 
 echo "$template" | sed \
@@ -50,4 +56,6 @@ echo "$template" | sed \
   -e "s/%TRANQL_URL%/$tranql_url/" \
   -e "s/%DEPLOYMENT_NAMESPACE%/$deployment_namespace/" \
   -e "s/%APPSTORE_ASSET_BRANCH%/$appstore_asset_branch/" \
+  -e "s/%META_TITLE%/$meta_title/" \
+  -e "s/%META_DESCRIPTION%/$meta_description/" \
   > $1

@@ -112,7 +112,7 @@ const baseConfig = {
                 removeOptionalTags: true,
                 removeRedundantAttributes: true,
                 removeScriptTypeAttributes: true,
-                removeStyleLinkTypeAttributese: true,
+                removeStyleLinkTypeAttributes: true,
                 useShortDoctype: true
             }
         }),
