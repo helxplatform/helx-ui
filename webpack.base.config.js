@@ -78,6 +78,18 @@ const createHtmlWebpackPlugin = ({
         }
     })
 }
+const createMiniCssExtractPlugin = ({
+    isDevelopment
+}) => (
+    // CSS HMR doesn't work with contenthash
+    isDevelopment ? new MiniCssExtractPlugin({
+        filename: '[name].css',
+        chunkFilename: '[id].css'
+    }) : new MiniCssExtractPlugin({
+        filename: '[name].[contenthash].css',
+        chunkFilename: '[id].[contenthash].css'
+    })
+)
 const baseConfig = {
     entry: paths.entryPoint,
     output: {
@@ -127,12 +139,7 @@ const baseConfig = {
             },
         ]
     },
-    plugins: [
-        new MiniCssExtractPlugin({
-            filename: '[name].[contenthash].css',
-            chunkFilename: '[id].[contenthash].css'
-        })
-    ],
+    plugins: [],
     resolve: {
         extensions: ['.js', '.jsx', '.ts', '.tsx']
     },
@@ -148,5 +155,6 @@ module.exports = {
     baseConfig,
     createBabelLoader,
     createCopyPlugin,
-    createHtmlWebpackPlugin
+    createHtmlWebpackPlugin,
+    createMiniCssExtractPlugin
 }

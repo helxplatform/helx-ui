@@ -1,8 +1,13 @@
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin')
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const { merge } = require('webpack-merge')
-const { baseConfig, paths, createBabelLoader, createCopyPlugin, createHtmlWebpackPlugin } = require('./webpack.base.config.js');
+const {
+    baseConfig, paths,
+    createBabelLoader, createCopyPlugin, createHtmlWebpackPlugin,
+    createMiniCssExtractPlugin
+} = require('./webpack.base.config.js')
 
 console.log("Creating optimized production build. This may take a while...")
 module.exports = merge(baseConfig, {
@@ -19,6 +24,7 @@ module.exports = merge(baseConfig, {
         rules: [ createBabelLoader({ isDevelopment: false }) ]
     },
     plugins: [
+        createMiniCssExtractPlugin({ isDevelopment: false }),
         createHtmlWebpackPlugin({ isDevelopment: false }),
         new webpack.EnvironmentPlugin({
             'NODE_ENV': 'production'
