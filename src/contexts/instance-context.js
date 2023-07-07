@@ -62,10 +62,10 @@ export const InstanceProvider = ({ children }) => {
             openedTabs.forEach((item) => {
                 if (item.name.split("-")[0] === `${app_id}`) {
                     item.close();
-                };
+                }
             });
             setTabs(prev => prev.filter(tab => tab.name.split("-")[0] !== `${app_id}`));
-        };
+        }
     };
 
     return (
