@@ -1,4 +1,5 @@
 import _axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+import { createNanoEvents, Emitter } from 'nanoevents' 
 import deepmerge from 'deepmerge'
 import cookies from 'js-cookie'
 import {
@@ -6,6 +7,7 @@ import {
     LoginResponse, SocialSignupResponse, LogoutResponse, UsersResponse,
     User,
     IWorkspacesAPI,
+    WorkspacesAPIEvents,
     ProvidersResponse,
     IAPIError,
     Throws400,
@@ -19,8 +21,10 @@ import {
     UpdateAppInstanceResponse,
     SignupRequiredError,
     SocialSignupNotAuthorizedError,
-    LaunchAppResponse
+    LaunchAppResponse,
+    Unsubscribe,
 } from './api.types'
+
 /**
  * Note: for further reference, API design and some core functionalities are pulled from:
  * - https://github.com/frostyfan109/stem-extraction-ui/blob/master/web/src/api/api.ts 
@@ -40,35 +44,19 @@ import {
  *   It is not going to stop you if you aren't logged in; the request will throw an APIError.
  */
 export class WorkspacesAPI implements IWorkspacesAPI {
-    public onLoginStateChanged: (user: User | null, sessionTimeout: boolean) => void
-    public onApiError: (error: APIError) => void
-    // timeoutDelta: time delta in MS until the user is logged out 
-    public onSessionTimeoutWarning: (timeoutDelta: number) => void
-
-    private sessionTimeoutWarningSeconds: number
-
-    private _user: User | null | undefined = undefined
+    private apiUrl: string
     private axios: AxiosInstance
+    private eventEmitter: Emitter<WorkspacesAPIEvents>
     private _samlWindows: { [id: string]: WindowProxy } = {}
-
-    private lastActivityWarningTimeout: number | undefined = undefined
-    private lastActivitySessionTimeout: number | undefined = undefined
 
     constructor({
         apiUrl,
-        sessionTimeoutWarningSeconds=60,
-        axiosConfig={},
-        onLoginStateChanged=() => {},
-        onApiError=(error: APIError) => {},
-        onSessionTimeoutWarning=() => {}
+        axiosConfig={}
     }: {
         apiUrl: string,
-        sessionTimeoutWarningSeconds?: number,
-        axiosConfig?: AxiosRequestConfig,
-        onLoginStateChanged?: (user: User | null) => void,
-        onApiError?: (error: APIError) => void,
-        onSessionTimeoutWarning?: () => void
+        axiosConfig?: AxiosRequestConfig
     }) {
+        this.apiUrl = apiUrl
         this.axios = _axios.create(
             deepmerge(
                 axiosConfig,
@@ -82,108 +70,38 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                 }
             )
         )
-        this.sessionTimeoutWarningSeconds = sessionTimeoutWarningSeconds
-        this.onLoginStateChanged = onLoginStateChanged
-        this.onApiError = onApiError
-        this.onSessionTimeoutWarning = onSessionTimeoutWarning
-        // this.updateLoginState()
-    }
-
-    private get apiUrl(): string {
-        return this.axios.defaults.baseURL!
-    }
-
-    get user(): User | null | undefined {
-        return this._user
-    }
-    
-    protected updateLastActivity() {
-        this.clearLastActivity()
-        if (!this.user) return
-        /**
-         * Note: these are intervals, not timeout as the variable names may lead you to think.
-         * There was a bug with timeouts where if the user sleeps their computer, the timeout
-         * block would never run (or it would run with messed up timing).
-         */
-        const timeoutDelta = this.user.sessionTimeout * 1000 + 1000
-        const timeoutTimestamp = new Date(
-            Date.now() + timeoutDelta
-        ).getTime()
-        const timeoutWarningDelta = Math.max(0, this.user.sessionTimeout * 1000 - this.sessionTimeoutWarningSeconds * 1000)
-        const timeoutWarningTimestamp = new Date(
-            Date.now() + timeoutWarningDelta
-        ).getTime()
-        // console.log("start warning timeout", timeoutWarningDelta)
-        this.lastActivityWarningTimeout = window.setInterval(() => {
-            if (timeoutWarningTimestamp - Date.now() <= 0) {
-                this.onSessionTimeoutWarning(timeoutTimestamp - timeoutWarningTimestamp)
-                clearInterval(this.lastActivityWarningTimeout)
-            }
-        }, 50)
-        // console.log("start full timeout", timeoutDelta)
-        this.lastActivitySessionTimeout = window.setInterval(() => {
-            if (timeoutTimestamp - Date.now() <= 0) {
-                console.log("Timing out session")
-                this._updateLoginState(null, true)
-                clearInterval(this.lastActivitySessionTimeout)
-            }
-        }, 50)
-    }
-    protected clearLastActivity() {
-        clearInterval(this.lastActivityWarningTimeout)
-        this.lastActivityWarningTimeout = undefined
-        clearInterval(this.lastActivitySessionTimeout)
-        this.lastActivitySessionTimeout = undefined
+        this.eventEmitter = createNanoEvents()
     }
 
     protected handleError(error: APIError) {
-        // This should really only be checking for 401 responses, since a 403 could mean the user
-        // just doesn't have permission to view the resource, not necessarily that they've been logged out.
-        // But Appstore is configured to send 403's for unauthorized requests, so we'll check both for now.
-        if (error.status === 401 || error.status === 403) {
-            // This is due to an inactive session timeout.
-            this._updateLoginState(null, true)
-        } else {
-            this.onApiError(error)
-        }
+        this.eventEmitter.emit("apiError", error)
     }
 
-    // Called once actual login state has been determined.
-    async _updateLoginState(user: User | null | undefined, sessionTimeout: boolean=false) {
-        this.clearLastActivity()
-        const oldUser = this.user
-        this._user = user
-        if (this.user !== oldUser) this.onLoginStateChanged(this.user as User | null, sessionTimeout)
-    }
-    /**
-     * The user will begin as undefined, i.e. the login state has not been loaded yet.
-     * Once it has been loaded, it will always be User or null, where null indicates the user is logged out.
-     */
-    async updateLoginState(sessionTimeout: boolean=false) {
-        let newUser: User | null | undefined
+    // This is responsible for emitting a login state update
+    // but also for throwing any login-state errors (WhitelistRequiredError)
+    private async emitLoginUpdate(): Promise<User|null> {
+        let user: User | null
         try {
-            const userData = await this.getActiveUser()
-            newUser = {
-                username: userData.REMOTE_USER,
-                sessionTimeout: userData.SESSION_TIMEOUT,
-                roles: 0
-            }
+            user = await this.getActiveUser()
         } catch (e: any) {
             if (e.status === 403) {
-                newUser = null
+                user = null
             } else {
-                // If we encounter an unexpected error when loading login state (e.g. the user has no connection)
-                // then maintain the current state, unless this was the call to load initial state, in which we assume
-                // that the user is logged out.
-                // newUser = this.user !== undefined ? this.user : null
-                newUser = undefined
+                // Forward errors such as WhitelistRequiredError
+                throw e
             }
         }
-        this._updateLoginState(newUser, sessionTimeout)
-        // Weird hacky stuff happening here, where updateLastActivity is invoked by APIRequest
-        // right after getActiveUser, but before this.user updates, so it doesn't run.
-        this.updateLastActivity()
-        
+        // Emit event here
+        this.eventEmitter.emit("userStateChanged", user)
+        return user
+    }
+
+    protected emitApiRequestExecuted(requestMethodName: string, promise: Promise<any>) {
+        this.eventEmitter.emit("apiRequest", requestMethodName, promise)
+    }
+
+    on<E extends keyof WorkspacesAPIEvents>(event: E, callback: WorkspacesAPIEvents[E]): Unsubscribe {
+        return this.eventEmitter.on(event, callback)
     }
 
     @APIRequest()
@@ -200,23 +118,20 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         return data
     }
 
+    /** Throws Throws403, WhitelistRequiredError */
     @APIRequest(Throws403)
-    async getActiveUser(fetchOptions: AxiosRequestConfig={}): Promise<UsersResponse> {
-        /** Get information about the active (logged in) user */
+    async getActiveUser(fetchOptions: AxiosRequestConfig={}): Promise<User|null> {
+        /** Get information about the active (logged in) user, check if whitelist required */
         const res = await this.axios.get<UsersResponse>("/users/", fetchOptions)
-        return res.data
-        // try {
-        // } catch (e: any) {
-        //     /**
-        //      * This endpoint throws a 403 if the user is not logged in.
-        //      * This is not an error! A 403 for this endpoint is an actual API response,
-        //      * so we need to handle it here instead of letting automatic error handling take over.
-        //      * 
-        //      * Also, yes, the design of this endpoint does not make a lot of sense.
-        //      */
-        //     if (e.isAxiosError && e.response.status === 403) return null
-        //     throw e
-        // }
+        if (/\/login_whitelist\/?$/.test(res.request.responseURL)) {
+            throw new WhitelistRequiredError()
+        }
+        const { REMOTE_USER, SESSION_TIMEOUT, ACCESS_TOKEN } = res.data
+        return {
+            username: REMOTE_USER,
+            sessionTimeout: SESSION_TIMEOUT,
+            roles: 0
+        }
     }
 
     /** Public endpoints */
@@ -239,7 +154,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                 Accept: "application/json"
             }
         })
-        await this.updateLoginState()
+        await this.emitLoginUpdate()
         return null
     }
 
@@ -279,7 +194,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         if (new URL(res.request.responseURL).pathname === new URL(this.apiUrl + "../../accounts/login/").pathname) {
             throw new SocialSignupNotAuthorizedError()
         }
-        await this.updateLoginState()
+        await this.emitLoginUpdate()
         return null
     }
 
@@ -324,9 +239,10 @@ export class WorkspacesAPI implements IWorkspacesAPI {
                             if (SAMLWindow.location.pathname === "/accounts/social/signup/") {
                                 reject(new SignupRequiredError())
                             } else {
-                                this.updateLoginState().then(() => {
-                                    if (this.user) resolve()
-                                    else reject(new WhitelistRequiredError())
+                                this.emitLoginUpdate().then(() => {
+                                    resolve()
+                                }).catch((error) => {
+                                    reject(error)
                                 })
                             }
                         }
@@ -366,19 +282,21 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         return this.loginSAML(`${this.apiUrl}../../accounts/github/login/?process=`, 380, 800)
     }
     
-    @APIRequest()
+    // This will throw a 403 if you logout without being logged in.
+    @APIRequest(Throws403)
     async logout(
         fetchOptions: AxiosRequestConfig={}
     ): Promise<LogoutResponse> {
         /** Log out */
-        const res = await this.axios.post<LogoutResponse>("/users/logout/", undefined, fetchOptions)
-        await this._updateLoginState(null)
+        try {
+            const res = await this.axios.post<LogoutResponse>("/users/logout/", undefined, fetchOptions)
+        } finally {
+            // Although the UI generally knows when the user is logged in and avoids calling logout accordingly,
+            // it's possible for the UI to try to log out the user after the session has already timed out unknowningly.
+            // This happens when the tab is suspended (e.g. computer is slept) and the session times out before the process resumes.
+            await this.emitLoginUpdate()
+        }
         return null
-        // try {
-        // } catch (e: any) {
-        //     // This endpoint throws a 403 if you try to logout withot actually being logged in.
-        //     if (!e.isAxiosError || e.response.status !== 403) throw e
-        // }
     }
 
     @APIRequest()
@@ -468,8 +386,9 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         /** Note, this is type WorkspacesAPI, not IWorkspacesAPI, for handleError access */
         descriptor.value = async function(this: WorkspacesAPI, ...args: any[]) {
             try {
-                const res = await method.apply(this, args);
-                this.updateLastActivity()
+                const apiPromise = method.apply(this, args)
+                this.emitApiRequestExecuted(propertyKey, apiPromise)
+                const res = await apiPromise;
                 return res
             } catch (e: any) {
                 if (e.isAxiosError) {

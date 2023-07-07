@@ -123,6 +123,7 @@ export const EnvironmentProvider = ({ children }) => {
     <EnvironmentContext.Provider value={{
       helxSearchUrl: context.search_url,
       helxAppstoreUrl: isProduction ? window.location.origin : "http://localhost:8000",
+      helxWebsocketUrl: isProduction ? `wss://${ window.location.host }/ws` : "ws://localhost:5555/ws",
       context: context,
       routes: availableRoutes,
       isProduction,
