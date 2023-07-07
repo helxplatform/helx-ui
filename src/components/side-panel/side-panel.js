@@ -211,9 +211,8 @@ export const SidePanel = () => {
                     <div style={{ flexGrow: 1, overflow: "auto" }}>
                     {
                         Object.keys(activities).length !== 0 ? Object.keys(activities).map((systemId, i) => (
-                            <Fragment>
+                            <Fragment key={ systemId }>
                                 <ActivityLog
-                                    key={ systemId }
                                     events={ activities[systemId] }
                                     setShowEventInfo={ setShowEventInfo }
                                 />
@@ -257,14 +256,14 @@ export const SidePanel = () => {
                     </Descriptions>
                     { eventModalInfo?.data.containerStates && (
                         <Space direction="vertical" size={ 4 }>
-                            <div class="ant-descriptions-title">Container states</div>
+                            <div className="ant-descriptions-title">Container states</div>
                             <Tabs items={ eventModalInfo?.data.containerStates.map((state) => ({
                                 key: `${ eventModalInfo?.uid }-${ state.container_name }`,
                                 label: state.container_name,
                                 children: (
                                     <Descriptions column={ 1 } size="small" bordered>
                                         { Object.keys(state.container_state).map((key) => (
-                                            <Descriptions.Item label={ key }>
+                                            <Descriptions.Item key={ key } label={ key }>
                                                 { state.container_state[key] }
                                             </Descriptions.Item>
                                         )) }

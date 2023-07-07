@@ -48,8 +48,8 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
 
     const { helxAppstoreUrl, helxWebsocketUrl } = useEnvironment() as any
 
-    let warningIntervalIdRef = useRef<number>()
-    let logoutIntervalIdRef = useRef<number>()
+    const warningIntervalIdRef = useRef<number>()
+    const logoutIntervalIdRef = useRef<number>()
 
     const backoffOptions = useMemo(() => ({
         startingDelay: STARTING_DELAY,

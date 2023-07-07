@@ -1,6 +1,7 @@
 import _axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { createNanoEvents, Emitter } from 'nanoevents' 
 import deepmerge from 'deepmerge'
+import cookies from 'js-cookie'
 import {
     APIError, APIRequestError, APIResponseError,
     LoginResponse, SocialSignupResponse, LogoutResponse, UsersResponse,
@@ -23,8 +24,6 @@ import {
     LaunchAppResponse,
     Unsubscribe,
 } from './api.types'
-/** Typescript would not stop complaining about a declarations file for this package. */
-const cookies = require('js-cookie')
 
 /**
  * Note: for further reference, API design and some core functionalities are pulled from:
