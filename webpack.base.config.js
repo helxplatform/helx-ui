@@ -44,6 +44,40 @@ const createCopyPlugin = ({
         ]
     })
 )
+const createHtmlWebpackPlugin = ({
+    isDevelopment
+}) => {
+    /**
+     * In production, we have an extra step where we generate an index template
+     * which is then turned into our final index file using sed substitutions from
+     * environment variables.
+     * 
+     * In development, we just want to directly generate an index.html. 
+     */
+    return new HtmlWebpackPlugin({
+        template: path.resolve(paths.public, 'index.ejs'),
+        filename: isDevelopment ? "index.html" : "index_template.html",
+        templateParameters: {
+            isDevelopment,
+            publicUrl: '/static/frontend/'
+        },
+        minify: {
+            html5: true,
+            collapseWhitespace: true,
+            minifyCSS: true,
+            minifyJS: true,
+            minifyURLs: true,
+            removeAttributeQuotes: false,
+            removeComments: true,
+            removeEmptyAttributes: true,
+            removeOptionalTags: true,
+            removeRedundantAttributes: true,
+            removeScriptTypeAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            useShortDoctype: true
+        }
+    })
+}
 const baseConfig = {
     entry: paths.entryPoint,
     output: {
@@ -94,28 +128,6 @@ const baseConfig = {
         ]
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            template: path.resolve(paths.public, 'index.ejs'),
-            filename: "index_template.html",
-            templateParameters: {
-                publicUrl: '/static/frontend/'
-            },
-            minify: {
-                html5: true,
-                collapseWhitespace: true,
-                minifyCSS: true,
-                minifyJS: true,
-                minifyURLs: true,
-                removeAttributeQuotes: false,
-                removeComments: true,
-                removeEmptyAttributes: true,
-                removeOptionalTags: true,
-                removeRedundantAttributes: true,
-                removeScriptTypeAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                useShortDoctype: true
-            }
-        }),
         new MiniCssExtractPlugin({
             filename: '[name].[contenthash].css',
             chunkFilename: '[id].[contenthash].css'
@@ -135,5 +147,6 @@ module.exports = {
     paths,
     baseConfig,
     createBabelLoader,
-    createCopyPlugin
+    createCopyPlugin,
+    createHtmlWebpackPlugin
 }
