@@ -23,7 +23,7 @@ export const RelatedConceptsList = ({ concepts, highlight }) => {
     ))
 
     if (failed) return (
-        <Text style={{ fontSize: 13, color: "rgba(0, 0, 0, 0.45)" }}>We couldn't load any related concepts.</Text>
+        <Text style={{ fontSize: 13, color: "rgba(0, 0, 0, 0.45)" }}>We couldn&apos;t load any related concepts.</Text>
     )
 
     return (

@@ -1,10 +1,12 @@
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Modal, Space, Typography } from 'antd'
 import { TimeUntil } from 'react-time-until'
 import { backOff } from 'exponential-backoff'
 import { WorkspacesAPI } from './'
+import { IWebsocketAPI, WebsocketAPI } from './ws'
 import { APIError, IWorkspacesAPI, User, ExtraLink, EnvironmentContext } from './api.types'
 import { useEnvironment } from '../'
+import { usePageActivity } from '../../hooks'
 
 const { Text } = Typography
 
@@ -12,8 +14,11 @@ const STARTING_DELAY = 10 * 1000 // the coefficient, e.g. the initial delay.
 const TIME_MULTIPLE = 2 // the base, e.g. wait twice as long every backoff.
 // I.e. f(n) = STARTING_DELAY * Math.pow(TIME_MULTIPLE, n) where n is the current attempt count and f(n) is the backoff in ms.
 
+const WEBSOCKET_REOPEN_DELAY = 5 * 1000
+
 export interface IWorkspacesAPIContext {
     api: IWorkspacesAPI
+    wsApi: IWebsocketAPI | null
     loading: boolean
     user: User | null | undefined
     loggedIn: boolean | undefined
@@ -37,12 +42,16 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
     const [environmentContext, setEnvironmentContext] = useState<EnvironmentContext|undefined>(undefined)
 
     // Etc.
-    const [showTimeoutWarningModal, setShowTimeoutWarningModal] = useState<Date|undefined>(undefined)
+    const [showTimeoutWarning, setShowTimeoutWarning] = useState<number|null>(null)
     const [loadingBackoff, setLoadingBackoff] = useState<Date|undefined>(undefined)
+    const [wsReconnect, setWsReconnect] = useState<number>(0)
 
-    const { helxAppstoreUrl } = useEnvironment() as any
+    const { helxAppstoreUrl, helxWebsocketUrl } = useEnvironment() as any
 
-    const backoffOptions = {
+    const warningIntervalIdRef = useRef<number>()
+    const logoutIntervalIdRef = useRef<number>()
+
+    const backoffOptions = useMemo(() => ({
         startingDelay: STARTING_DELAY,
         timeMultiple: TIME_MULTIPLE,
         numOfAttempts: Infinity,
@@ -51,12 +60,16 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             setLoadingBackoff(new Date(Date.now() + nextDelay))
             return true
         }
-    }
+    }), [])
 
     const api = useMemo<IWorkspacesAPI>(() => new WorkspacesAPI({
-        apiUrl: `${ helxAppstoreUrl }/api/v1/`,
-        sessionTimeoutWarningSeconds
-    }), [helxAppstoreUrl, sessionTimeoutWarningSeconds])
+        apiUrl: `${ helxAppstoreUrl }/api/v1/`
+    }), [helxAppstoreUrl])
+
+    const [wsApi, setWsApi] = useState<IWebsocketAPI|null>(null)
+    // const wsApi = useMemo<IWebsocketAPI|null>(() => user ? new WebsocketAPI({
+    //     wsUrl: helxWebsocketUrl
+    // }) : null, [helxWebsocketUrl, user, wsReconnect])
 
     const loggedIn = useMemo(() => user !== undefined ? !!user : undefined, [user])
 
@@ -66,22 +79,86 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         environmentContext === undefined
     ), [loggedIn, loginProviders, environmentContext])
 
+    const stayLoggedIn = useCallback(async () => {
+        // Hide the logout warning, if it's visible
+        setShowTimeoutWarning(null)
+        try {
+            // Ping the API to refresh the session
+            await api.getActiveUser()
+        } catch (e) {}
+    }, [api])
+
+    const logoutAndHideWarning = useCallback(async () => {
+        // Note: technically, logging the user out will trigger a user state changed event,
+        // which will then hide the warning automatically if the user is successfully logged out.
+        // However, we are also hiding it here manually since `api.logout` has latency due to being an API
+        // request so it's smoother to immediately hide the warning.
+        setShowTimeoutWarning(null)
+        try {
+            await api.logout()
+        } catch (e) {}
+    }, [api])
+
     const onApiError = useCallback((error: APIError) => {
-        console.log("--- API error encountered ---", "\n", error)
+        if (error.status === 401 || error.status === 403) {
+            // If the user encounters a 401 or 403, this means their session is no longer valid.
+            // They shouldn't be able to in the first place, since the session timer should log them out automatically,
+            // but this is here just in case.
+            setUser(null)
+        } else {
+            console.log("--- API error encountered ---", "\n", error)
+        }
     }, [])
-    const onLoginStateChanged = useCallback((user: User | null, sessionTimeout: boolean) => {
-        console.log("User changed", user)
+    
+    const onApiRequest = useCallback((methodName: string, promise: Promise<any>) => {
+        // console.log(`api request ${ methodName } executed`)
+        
+        // Clear current timers
+        clearInterval(warningIntervalIdRef.current)
+        clearInterval(logoutIntervalIdRef.current)
+        if (user) {
+            /**
+             * Note: using intervals, rather than timeouts, to avoid bugs related to process suspension.
+             * Sleeping a computer will most likely suspend the user's browser process which suspends the timeout.
+             * Since timeouts work on a relative delta, when the timeout is suspended, it will no longer execute at the
+             * originally intended timestamp.
+             */
+            const intervalDelayMs = 50
+
+            // Time the user out a second earlier than the actual timeout for good measure.
+            const timeoutDeltaMs = (user.sessionTimeout - 1) * 1000
+            // Timestamp analog of the delta.
+            const timeoutTimestamp = new Date(Date.now() + timeoutDeltaMs).getTime()
+            // Delta to display the warning that the user will be logged out soon.
+            const timeoutWarningDeltaMs = Math.max(0, timeoutDeltaMs - (sessionTimeoutWarningSeconds * 1000))
+            // Timestamp analog of the warning delta.
+            const timeoutWarningTimestamp = new Date(Date.now() + timeoutWarningDeltaMs).getTime()
+            
+            // Set timeout to display logout warning to user
+            warningIntervalIdRef.current = window.setInterval(() => {
+                if (timeoutWarningTimestamp <= Date.now()) {
+                    clearInterval(warningIntervalIdRef.current)
+                    setShowTimeoutWarning(timeoutTimestamp)
+                }
+            }, intervalDelayMs)
+
+            // Set timeout to log the user out
+            logoutIntervalIdRef.current = window.setInterval(async () => {
+                if (timeoutTimestamp <= Date.now()) {
+                    clearInterval(logoutIntervalIdRef.current)
+                    logoutAndHideWarning()
+                }
+            }, intervalDelayMs)
+        }
+    }, [user, stayLoggedIn, logoutAndHideWarning])
+
+    const onLoginStateChanged = useCallback((user: User | null) => {
         if (user === null) {
-            // console.log("Session timeout", sessionTimeout)
-            setShowTimeoutWarningModal(undefined)
+            setShowTimeoutWarning(null)
+            clearInterval(warningIntervalIdRef.current)
+            clearInterval(logoutIntervalIdRef.current)
         }
         setUser(user)
-    }, [])
-    const onSessionTimeoutWarning = useCallback((timeoutDelta: number) => {
-        // console.log("Session timeout warning", timeoutDelta)
-        setShowTimeoutWarningModal(
-            new Date(Date.now() + timeoutDelta)
-        )
     }, [])
 
     useEffect(() => {
@@ -91,52 +168,105 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
         void async function() {
             try {
                 const [
+                    user,
                     loginProviders,
                     environmentContext
                 ] = await backOff<[
+                    User | null,
                     string[],
                     EnvironmentContext
                 ]>(
                     async () => {
-                        // setLoadingBackoff(undefined)
-                        await api.updateLoginState()
-                        if (api.user === undefined) {
-                            // The user is still loading, meaning the request has failed to load the login state.
-                            throw Error()
+                        let user: User | null
+                        try {
+                            user = await api.getActiveUser()
+                        } catch (e: any) {
+                            // This could be a 403 (not signed in) or a WhitelistRequiredError, treat it as signed out regardless.
+                            user = null
                         }
                         const loginProviders = (await api.getLoginProviders()).map((provider) => provider.name)
                         const environmentContext = await api.getEnvironmentContext()
-                        return [loginProviders, environmentContext]
+                        return [user, loginProviders, environmentContext]
                     },
                     backoffOptions
                 )
+                setUser(user)
                 setLoginProviders(loginProviders)
                 setEnvironmentContext(environmentContext)
             } catch (e: any) {
                 // Maximum backoff attempts reached. 
+                console.log("Could not load initial app state in a reasonable amount of time.")
             }
         }()
     }, [api])
 
     useEffect(() => {
-        api.onApiError = onApiError
-        api.onLoginStateChanged = onLoginStateChanged
-        api.onSessionTimeoutWarning = onSessionTimeoutWarning
-    }, [api, onApiError, onLoginStateChanged])
-
-    const stayLoggedIn = useCallback(() => {
-        try {
-            // Ping the API to refresh the session
-            api.getActiveUser()
-            setShowTimeoutWarningModal(undefined)
-        } catch (e) {
-            // Failed to ping API
+        const unsubscribeOnApiError = api.on("apiError", onApiError)
+        // The API itself no longer manages session timeouts, so we know for certain the change in login state is not triggered by a session timeout here.
+        const unsubscribeUserStateChanged = api.on("userStateChanged", (user) => onLoginStateChanged(user))
+        const unsubscribeOnApiRequest = api.on("apiRequest", onApiRequest)
+        return () => {
+            unsubscribeOnApiError()
+            unsubscribeUserStateChanged()
+            unsubscribeOnApiRequest()
         }
-    }, [api])
+    }, [api, onApiError, onLoginStateChanged, onApiRequest])
+
+    /*useEffect(() => {
+        let timeout: number
+        const triggerReconnect = () => {
+            console.error(`WebSocket connection was closed prematurely, attempting to reestablish in ${ WEBSOCKET_REOPEN_DELAY / 1E3 }s...`)
+            timeout = window.setTimeout(() => setWsReconnect(wsReconnect + 1), WEBSOCKET_REOPEN_DELAY)
+        }
+        if (wsApi) {
+            wsApi.getWebsocket().addEventListener("close", triggerReconnect)
+        }
+        return () => {
+            window.clearTimeout(timeout)
+            wsApi?.getWebsocket().removeEventListener("close", triggerReconnect)
+            // Make sure to close old websocket connections when the memo hook creates new ones.
+            wsApi?.close()
+        }
+    }, [wsApi])*/
+
+    useEffect(() => {
+        if (!user) {
+            setWsApi(null)
+            return
+        }
+        const createWs = () => new WebsocketAPI({
+            wsUrl: helxWebsocketUrl
+        })
+        const _wsApi = createWs()
+        let timeout: number
+        const setWs = () => setWsApi(_wsApi)
+        const triggerReconnect = () => {
+            console.error(`WebSocket connection was closed prematurely, attempting to reestablish in ${ WEBSOCKET_REOPEN_DELAY / 1E3 }s...`)
+            timeout = window.setTimeout(() => {
+                setWsReconnect(wsReconnect + 1)
+            }, WEBSOCKET_REOPEN_DELAY)
+        }
+        _wsApi.getWebsocket().addEventListener("message", (e) => {
+            // The websocket server presents the connection in the open state while still verifying the user's identity.
+            // Therefore, clients should wait until receiving a _confirmReady event before sending messages.
+            const { type } = JSON.parse(e.data)
+            if (type === "_confirmReady") setWs()
+        })
+        _wsApi.getWebsocket().addEventListener("close", triggerReconnect)
+
+        return () => {
+            // Data has updated, these will now cause stale state if they run, so need to get cleared/removed.
+            clearTimeout(timeout)
+            _wsApi.getWebsocket().removeEventListener("message", setWs)
+            _wsApi.getWebsocket().removeEventListener("close", triggerReconnect)
+            _wsApi.close()
+        }
+    }, [helxWebsocketUrl, user, wsReconnect])
 
     return (
         <WorkspacesAPIContext.Provider value={{
             api,
+            wsApi,
             loading,
             user,
             loggedIn,
@@ -147,23 +277,23 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             { children }
             <Modal
                 title="Inactivity Logout Warning"
-                visible={ !!showTimeoutWarningModal }
-                onOk={ stayLoggedIn }
-                onCancel={ stayLoggedIn }
+                visible={ showTimeoutWarning !== null }
+                onOk={ () => {
+                    stayLoggedIn()
+                } }
+                onCancel={ () => {
+                    stayLoggedIn()
+                } }
                 cancelButtonProps={{
-                    onClick: () =>  {
-                        api.logout()
-                        setShowTimeoutWarningModal(undefined)
-                        
-                    }
+                    onClick: logoutAndHideWarning
                 }}
                 okText="Stay logged in"
                 cancelText="Log out"
             >
                 <Space direction="vertical">
                     <Text style={{ fontSize: 18 }}>
-                        You will be logged out  <Text strong>
-                            <TimeUntil date={ showTimeoutWarningModal } countdown={ true } finishText="in 0 seconds" />
+                        You will be logged out <Text strong>
+                            <TimeUntil date={ new Date(showTimeoutWarning!) } countdown={ true } finishText="in 0 seconds" />
                             {/* {timeoutMinutes > 1 ? `${ timeoutMinutes } minutes` : timeoutMinutes === 1 ? `1 minute` : ``} */}
                         </Text>
                     </Text>

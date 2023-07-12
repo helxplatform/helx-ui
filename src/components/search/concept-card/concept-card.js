@@ -85,7 +85,7 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
         activeTabKey={currentTab}
         onTabChange={key => setCurrentTab(key)}
         extra={ icon && <IconComponent onClick={ openModal } /> }
-        actions={ [<br />] }
+        actions={ [<br key={ 0 } />] }
       >
         { tabContents[currentTab] }
       </Card>

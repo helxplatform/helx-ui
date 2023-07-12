@@ -19,10 +19,10 @@ const WhitelistRequired = (props) => (
     <Alert
         showIcon
         type="warning"
-        message={ <Title level={ 5 }>Whitelisting Required</Title> }
+        message={ <Title level={ 5 }>Approval Required</Title> }
         description={
             <Space direction="vertical">
-                <>Your request to gain access to HeLx workspaces has been forwarded to the website administrator for review and whitelisting.</>
+                <>Your request to gain access to HeLx workspaces has been forwarded to the website administrator for review.</>
                 <>Once your request is approved, you will be notified via an email. This security feature is only required one time, for your initial access.</>
             </Space>
         }
@@ -71,10 +71,17 @@ export const WorkspaceLoginView = withAPIReady(({
 
     const [form] = useForm()
     const { basePath } = useEnvironment()
-    const { api, user, loginProviders } = useWorkspacesAPI()
+    const { api, user, loggedIn, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
 
     useTitle("Login")
+
+    if (loggedIn) {
+        // User has logged in, redirect back.
+        // If there is no "dest" qs param, then redirect to the provided default url
+        // (e.g. the user manually navigated to the login view while already logged in).
+        redirectToDest(`${ basePath }workspaces/`)
+    }
 
     const allowBasicLogin = useMemo(() => loginProviders.includes("Django"), [loginProviders])
     const allowUncLogin =  useMemo(() => loginProviders.includes("UNC Chapel Hill Single Sign-On"), [loginProviders])
@@ -93,15 +100,6 @@ export const WorkspaceLoginView = withAPIReady(({
             setRevalidateForm(false)
         }
     }, [revalidateForm])
-
-    useEffect(() => {
-        if (user) {
-            // User has logged in, redirect back.
-            // If there is no "dest" qs param, then redirect to the provided default url
-            // (e.g. the user manually navigated to the login view while already logged in).
-            redirectToDest(`${ basePath }workspaces/`)
-        }
-    }, [user])
 
     const validateForm = async () => {
         setCurrentlyValidating(true)
@@ -210,7 +208,7 @@ export const WorkspaceLoginView = withAPIReady(({
                     onFinish={ async () => {
 
                     } }
-                    onFieldsChange={ () => setErrors([]) }
+                    onValuesChange={ () => setErrors([]) }
                     form={ form }
                 >
                     {/* <Alert type="error" message="Your session has expired due to prolonged inactivity. Please login to continue." style={{ marginBottom: 16 }} /> */}

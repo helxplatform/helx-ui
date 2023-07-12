@@ -56,10 +56,17 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
 
     const [form] = useForm()
     const { basePath } = useEnvironment()
-    const { api, user, loginProviders } = useWorkspacesAPI()
+    const { api, user, loggedIn, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
 
     useTitle("Signup")
+    
+    if (loggedIn) {
+        // User has logged in, redirect back.
+        // If there is no "dest" qs param, then redirect to the provided default url
+        // (e.g. the user manually navigated to the login view while already logged in).
+        redirectToDest(`${ basePath }workspaces/`)
+    }
 
     useEffect(() => {
         if (revalidateForm) {
@@ -67,15 +74,6 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
             setRevalidateForm(false)
         }
     }, [revalidateForm])
-
-    useEffect(() => {
-        if (user) {
-            // User has logged in, redirect back.
-            // If there is no "dest" qs param, then redirect to the provided default url
-            // (e.g. the user manually navigated to the login view while already logged in).
-            redirectToDest(`${ basePath }workspaces/`)
-        }
-    }, [user])
 
     const validateForm = async () => {
         setCurrentlyValidating(true)
@@ -188,7 +186,7 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
                     onFinish={ async () => {
 
                     } }
-                    onFieldsChange={ () => setErrors([]) }
+                    onValuesChange={ () => setErrors([]) }
                     form={ form }
                 >
                     <UsernameInput name="username" { ...formFieldProps } />
