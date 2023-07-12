@@ -35,7 +35,7 @@ const ActivityLog = ({ events, setShowEventInfo }) => {
             >
                 <Space direction="vertical" size="middle">
                     {
-                        otherActivities.length !== 0 && false ? otherActivities.map((event) => (
+                        otherActivities.length !== 0 ? otherActivities.map((event) => (
                             <ActivityEntry
                                 key={ event.uid }
                                 event={ event }
