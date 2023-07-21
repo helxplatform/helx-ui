@@ -1,0 +1,22 @@
+.side-collapse-panel .side-collapse-container {
+    display: flex;
+}
+.side-collapse-panel > .ant-collapse-content > .ant-collapse-content-box {
+    padding-top: 0 !important;
+}
+.side-collapse-panel .side-collapse-handle-container {
+    width: 16px;
+    margin-left: -2px;
+    margin-right: 12px;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+}
+.side-collapse-panel .side-collapse-handle {
+    width: 2px;
+    background-color: #eee;
+    transition: background-color 100ms ease-out;
+}
+.side-collapse-panel .side-collapse-handle-container:hover > .side-collapse-handle {
+    background-color: #1890ff;
+}

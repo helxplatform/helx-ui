@@ -9,6 +9,7 @@ import {
     VariablesTableByStudy, variableHistogramConfigStatic,
     updateStudyResults, resetFilterPropertyToNone
 } from './'
+import { InfoTooltip } from '../../../';
 import { useDebounce, useDebouncedCallback } from 'use-debounce'
 import './variable-results.css';
 
@@ -378,22 +379,24 @@ export const VariableSearchResults = () => {
                     }}>
                         <div style={{ display: "flex", alignItems: "center" }}>
                             Variables according to Dug score
-                            <Tooltip trigger="click" title={
-                                <div style={{ padding: "4px 2px" }}>
-                                    <div style={{ fontWeight: 500, textDecoration: "underline" }}>
-                                        Dug score
+                            <InfoTooltip
+                                title={
+                                    <div style={{ padding: "4px 2px" }}>
+                                        <div style={{ fontWeight: 500, textDecoration: "underline" }}>
+                                            Dug score
+                                        </div>
+                                        <ul style={{ marginTop: 2, marginBottom: 2, paddingLeft: 16 }}>
+                                        <li>
+                                            This is the metric used by Dug to describe how relevant a result is
+                                        </li>
+                                        <li>
+                                            The score is calculated from how closely the search query matches information known about a result
+                                        </li></ul>
                                     </div>
-                                    <ul style={{ marginTop: 2, marginBottom: 2, paddingLeft: 16 }}>
-                                    <li>
-                                        This is the metric used by Dug to describe how relevant a result is
-                                    </li>
-                                    <li>
-                                        The score is calculated from how closely the search query matches information known about a result
-                                    </li></ul>
-                                </div>
-                            }>
-                                <InfoCircleFilled className="info-circle" style={{ fontSize: 16, color: "rgb(85, 85, 85)", marginLeft: 8 }} />
-                            </Tooltip>
+                                }
+                                iconProps={{ style: { marginLeft: 8 } }}
+                                trigger="hover"
+                            />
                         </div>
                     </Divider>
                 </Fragment>

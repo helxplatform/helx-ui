@@ -179,28 +179,37 @@ export interface LaunchAppResponse {
     }
 }
 
+export interface Unsubscribe {
+    (): void
+}
+
+export interface WorkspacesAPIEvents {
+    apiError: (error: APIError) => void
+    apiRequest: (methodName: string, promise: Promise<any>) => void
+    userStateChanged: (userState: User | null) => void
+}
+
 export interface IWorkspacesAPI {
     /** Fields */
-    // Session timeout will be true when the logout is the result of a session timeout due to inactivity
-    onLoginStateChanged: (user: User | null, sessionTimeout: boolean) => void
-    onApiError: (error: APIError) => void
-    onSessionTimeoutWarning: (timeoutDelta: number) => void
     
     /** Properties */
-    // A user can be User (logged in), null (logged out), or undefined (unsure, loading)
-    readonly user: User | null | undefined
     
-    /** Methods */
-
-    /** API methods */
+    /** General methods */
+    on<E extends keyof WorkspacesAPIEvents>(event: E, callback: WorkspacesAPIEvents[E]): Unsubscribe
+    
+    /** API methods
+     * 
+     * Note that with many of these methods, the response type is the raw response.
+     * However, this isn't a requirement (see: `getActiveUser`), it just so happens that most raw responses
+     * are already in a usable and intuitive form and require no additional formatting/transforming.
+     * 
+     * Note that any methods involving login state (getActiveUser) are liable to throw a 403 or WhitelistRequiredError
+     */
     login(username: string, password: string, fetchOptions?: AxiosRequestConfig): Promise<LoginResponse>
     socialSignupAllowed(fetchOptions?: AxiosRequestConfig): Promise<boolean>
     socialSignup(username: string, email: string, fetchOptions?: AxiosRequestConfig): Promise<SocialSignupResponse>
-    // Only to be called on initialization to load initial login state. Everything else is handled automatically.
-    updateLoginState(sessionTimeout?: boolean): void
     /**
      * - Void if successful.
-     * - Throws WhitelistRequiredRrror if the user needs to be whitelisted.
      * - Throws SignupRequiredError if the user needs to sign up due to SSO credentials already being in use by another account.
      * - Throws SAMLRejectedError if unsuccessful.
      * - Throws SAMLActiveError if SAML request is already active.
@@ -208,10 +217,10 @@ export interface IWorkspacesAPI {
     loginSAMLUNC(): Promise<void>
     loginSAMLGoogle(): Promise<void>
     logout(fetchOptions?: AxiosRequestConfig): Promise<LogoutResponse>
-    getActiveUser(fetchOptions?: AxiosRequestConfig): Promise<UsersResponse>
+    /** May throw a WhitelistRequiredError */
+    getActiveUser(fetchOptions?: AxiosRequestConfig): Promise<User|null>
     getLoginProviders(fetchOptions?: AxiosRequestConfig): Promise<ProvidersResponse>
     getEnvironmentContext(fetchOptions?: AxiosRequestConfig): Promise<EnvironmentContextResponse>
-
     getAvailableApps(fetchOptions?: AxiosRequestConfig): Promise<AvailableAppsResponse>
     getAppInstances(fetchOptions?: AxiosRequestConfig): Promise<AppInstancesResponse>
     stopAppInstance(sid: string, fetchOptions?: AxiosRequestConfig): Promise<void>
