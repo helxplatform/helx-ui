@@ -1,4 +1,5 @@
-import { ComponentType, useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
+import { useEnvironment } from '../contexts'
 
 interface ViewProps {
     // Note: a null title is equivalent to an empty string or empty array, it will just display "HeLx UI" as the title.
@@ -12,11 +13,15 @@ interface ViewProps {
  * The "HeLx UI" component is appended to the end of all titles, does not need to be included.
  */
 export const useTitle = (title: string | string[] | null) => {
+    const { context } = useEnvironment() as any
     if (title === "") title = []
     const titleSegments = Array.isArray(title) ? title : [title]
+    const websiteTitle = useMemo<string>(() => {
+        return context?.meta.title ?? "HeLx UI"
+    }, [context])
     useEffect(() => {
-        if (title !== null) document.title = [...titleSegments, "HeLx UI"].join(" · ")
-    }, [titleSegments])
+        if (title !== null) document.title = [...titleSegments, websiteTitle].join(" · ")
+    }, [titleSegments, websiteTitle])
 }
 
 // export function withView<T extends object>(
