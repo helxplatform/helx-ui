@@ -52,6 +52,7 @@ export const HelxSearch = ({ children }) => {
   const [searchHistory, setSearchHistory] = useLocalStorage('search_history', [])
   
   /** Abort controllers */
+  const fetchConceptsController = useRef()
   const searchSelectedResultController = useRef()
 
   // const selectedResultLoading = useMemo(() => selectedResult && selectedResult.loading === true, [selectedResult])
@@ -240,15 +241,19 @@ export const HelxSearch = ({ children }) => {
       if (conceptPages[currentPage]) {
         return
       }
-      console.log("Load page", query, currentPage)
+
+      fetchConceptsController.current?.abort()
+      fetchConceptsController.current = new AbortController()
+
       setIsLoadingConcepts(true)
-      // await new Promise((resolve) => setTimeout(resolve, 2500))
       const startTime = Date.now()
       try {
         const result = await executeConceptSearch({
           query: query,
           offset: (currentPage - 1) * PER_PAGE,
           size: PER_PAGE
+        }, {
+          signal: fetchConceptsController.current.signal
         })
         if (result && result.hits) {
           const unsortedHits = result.hits.hits.map(r => r._source)
@@ -278,11 +283,13 @@ export const HelxSearch = ({ children }) => {
           analyticsEvents.searchExecuted(query, Date.now() - startTime, 0)
         }
       } catch (error) {
-        console.log(error)
-        setError({ message: 'An error occurred!' })
-        setTotalConcepts(0)
-        setIsLoadingConcepts(false)
-        analyticsEvents.searchExecuted(query, Date.now() - startTime, 0, error)
+        if (error.name !== "CanceledError") {
+          console.log(error)
+          setError({ message: 'An error occurred!' })
+          setTotalConcepts(0)
+          setIsLoadingConcepts(false)
+          analyticsEvents.searchExecuted(query, Date.now() - startTime, 0, error)
+        }
       }
     }
     if (query) {

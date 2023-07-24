@@ -225,7 +225,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
             suffix={
               type === MINIMAL ? (
                 <div style={{ display: "flex", alignItems: "center", height: "100%"}}>
-                  <Divider type="vertical" style={{ height: "100%" }} />
+                  <Divider type="vertical" style={{ height: "100%", top: 0 }} />
                   <SearchOutlined style={{ fontSize: "16px", marginLeft: "4px" }} />
                 </div>
               ) : undefined
