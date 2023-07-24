@@ -2,7 +2,7 @@
 # Build environment
 ###################
 FROM node:18.16-alpine AS builder
-RUN apk del libtiff6* libxml2* libheif* libldap* libde265* libdav* perl-base*
+RUN apt remove libtiff6 libxml2 libheif1 libldap-2.5-0 libde265-0 libdav1d6
 
 ARG REACT_APP_WORKSPACES_ENABLED=true
 ENV REACT_APP_WORKSPACES_ENABLED=$REACT_APP_WORKSPACES_ENABLED
