@@ -18,6 +18,7 @@
         "react/prop-types": "off",
         "react/react-in-jsx-scope": "off",
         "react/display-name": "off",
+        "@typescript-eslint/no-empty-interface": "off",
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/no-inferrable-types": [
             "error",
