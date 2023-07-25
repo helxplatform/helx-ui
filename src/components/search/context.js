@@ -256,7 +256,10 @@ export const HelxSearch = ({ children }) => {
           signal: fetchConceptsController.current.signal
         })
         if (result && result.hits) {
-          const unsortedHits = result.hits.hits.map(r => r._source)
+          const unsortedHits = result.hits.hits.map(r => ({
+            ...r._source,
+            explanation: r._explanation
+          }))
           // gather invalid concepts: remove from rendered concepts and dump to console.
           let hits = unsortedHits.reduce(validationReducer, { valid: [], invalid: [] })
           if (hits.invalid.length) {
