@@ -1,20 +1,19 @@
-import React, { Fragment, useMemo, useCallback, useState } from 'react'
-import { Spin, Grid as AntGrid, Typography, Radio, Tooltip } from 'antd'
-import {
-  DatabaseOutlined as ConceptViewIcon,
-  BarChartOutlined as VariableViewIcon
-} from '@ant-design/icons'
+import React, { Fragment } from 'react'
 import { ExpandedResultsLayout, ConceptsGridLayout, VariableViewLayout } from './'
 import { useHelxSearch, SearchLayout } from '../'
-import { SearchForm } from '../form'
+import { ResultsCTA } from './results-cta'
 
 import './results.css'
 
 export const Results = () => {
-  const { isLoadingVariableResults, isLoadingConcepts, error, layout } = useHelxSearch()
+  const { isLoadingConcepts, layout } = useHelxSearch()
 
   return (
     <Fragment>
+      {
+        // Todo: determine proper condition to render this CTA
+        !isLoadingConcepts && <ResultsCTA /> }
+
       { layout === SearchLayout.EXPANDED_RESULT ? (
         <ExpandedResultsLayout />
       ) : layout === SearchLayout.GRID ? (
