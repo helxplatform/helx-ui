@@ -1,0 +1,18 @@
+.cta-card {
+  margin: 1rem 0 3rem 0 !important;
+}
+
+.cta-card .text-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 150%;
+  word-wrap: break-word;
+  padding: 1rem;
+}
+
+.cta-card .button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
