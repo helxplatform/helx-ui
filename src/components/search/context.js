@@ -29,6 +29,7 @@ export const HelxSearch = ({ children }) => {
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
   const [error, setError] = useState({})
   const [conceptPages, setConceptPages] = useState({})
+  const [conceptTypes, setConceptTypes] = useState({})
   // const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
@@ -91,10 +92,11 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
-  const executeConceptSearch = async ({ query, offset, size }, axiosOptions) => {
+  const executeConceptSearch = async ({ query, types, offset, size }, axiosOptions) => {
     const params = {
       index: 'concepts_index',
       query,
+      types,
       offset,
       size
     }
@@ -149,30 +151,10 @@ export const HelxSearch = ({ children }) => {
     }
   }, [executeConceptSearch, validationReducer])
 
-  const filteredConceptPages = useMemo(() => {
-    if (typeFilter === null) return conceptPages
-    return Object.fromEntries(Object.entries(conceptPages).map(([page, concepts]) => {
-      return [
-        page,
-        concepts.filter((concept) => concept.type === typeFilter)
-      ]
-    }))
-  }, [conceptPages, typeFilter])
-
-  const conceptTypes = useMemo(() => Object.values(conceptPages).flat().reduce((acc, cur) => {
-    if (!acc.includes(cur.type)) acc.push(cur.type)
-    return acc
-  }, []), [conceptPages])
-  const conceptTypeCounts = useMemo(() => Object.values(conceptPages).flat().reduce((acc, cur) => {
-    if (!acc.hasOwnProperty(cur.type)) acc[cur.type] = 0
-    acc[cur.type] += 1
-    return acc
-  }, {}), [conceptPages])
-
   const concepts = useMemo(() => {
-    if (!filteredConceptPages[currentPage]) return []
-    else return filteredConceptPages[currentPage]
-  }, [filteredConceptPages, currentPage])
+    if (!conceptPages[currentPage]) return []
+    else return conceptPages[currentPage]
+  }, [conceptPages, currentPage])
   
   const setLayout = (newLayout) => {
     // Only track when layout changes
@@ -229,6 +211,7 @@ export const HelxSearch = ({ children }) => {
 
   useEffect(() => {
     setConceptPages({})
+    setConceptTypes({})
     setError({})
     setTypeFilter(null)
     setSelectedResult(null)
@@ -236,6 +219,11 @@ export const HelxSearch = ({ children }) => {
     setVariableResults([])
   }, [query])
 
+  useEffect(() => {
+    setConceptPages({})
+    setCurrentPage(1)
+    setError({})
+  }, [typeFilter])
   useEffect(() => {
     const fetchConcepts = async () => {
       if (conceptPages[currentPage]) {
@@ -250,6 +238,7 @@ export const HelxSearch = ({ children }) => {
       try {
         const result = await executeConceptSearch({
           query: query,
+          types: typeFilter ? [typeFilter] : undefined,
           offset: (currentPage - 1) * PER_PAGE,
           size: PER_PAGE
         }, {
@@ -271,6 +260,7 @@ export const HelxSearch = ({ children }) => {
           newConceptPages[currentPage] = hits.valid
           // setSelectedResult(null)
           setConceptPages(newConceptPages)
+          setConceptTypes(result.concept_types)
           setTotalConcepts(result.total_items)
           // setConcepts(hits.valid)
           setIsLoadingConcepts(false)
@@ -278,9 +268,8 @@ export const HelxSearch = ({ children }) => {
         } else {
           const newConceptPages = { ...conceptPages }
           newConceptPages[currentPage] = []
-          // setSelectedResult(null)
           setConceptPages(newConceptPages)
-          // setConcepts([])
+          setConceptTypes({})
           setTotalConcepts(0)
           setIsLoadingConcepts(false)
           analyticsEvents.searchExecuted(query, Date.now() - startTime, 0)
@@ -298,7 +287,7 @@ export const HelxSearch = ({ children }) => {
     if (query) {
       fetchConcepts()
     }
-  }, [query, currentPage, conceptPages, helxSearchUrl, analyticsEvents])
+  }, [query, currentPage, conceptPages, typeFilter, helxSearchUrl, analyticsEvents])
 
   useEffect(() => {
     setPageCount(Math.ceil(totalConcepts / PER_PAGE))
@@ -496,13 +485,13 @@ export const HelxSearch = ({ children }) => {
       fetchKnowledgeGraphs, fetchCDEs, fetchVariablesForConceptId,
       inputRef,
       error, isLoadingConcepts,
-      concepts, totalConcepts, conceptPages: filteredConceptPages,
+      concepts, totalConcepts, conceptPages,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       selectedResult, setSelectedResult, searchSelectedResult,
       layout, setLayout, setFullscreenResult,
       typeFilter, setTypeFilter,
       searchHistory, setSearchHistory,
-      conceptTypes, conceptTypeCounts,
+      conceptTypes,
       variableStudyResults, variableStudyResultCount,
       variableError, variableResults, isLoadingVariableResults,
       totalVariableResults

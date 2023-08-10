@@ -26,7 +26,7 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
     ), [cdeRelatedConcepts, cde])
 
     const Highlighter = useCallback(({ ...props }) => (
-        <_Highlighter searchWords={highlight} {...props}/>
+        <_Highlighter autoEscape={ true } searchWords={highlight} {...props}/>
     ), [highlight])
 
     return (

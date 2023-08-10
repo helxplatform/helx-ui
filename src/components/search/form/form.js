@@ -175,7 +175,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
       return (
         <Select.Option key={hit.node.id} value={hit.node.name}>
           <SearchCompletion historyEntry={searchHistoryEntry}>
-            <Highlighter textToHighlight={hit.node.name} searchWords={highlightedSearchTerms(searchTerm)} highlightTag={HighlightedText} />
+            <Highlighter autoEscape={ true } textToHighlight={hit.node.name} searchWords={highlightedSearchTerms(searchTerm)} highlightTag={HighlightedText} />
           </SearchCompletion>
         </Select.Option>
       )

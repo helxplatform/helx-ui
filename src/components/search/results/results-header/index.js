@@ -23,7 +23,7 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
         currentPage, pageCount,
         layout, setLayout,
         typeFilter, setTypeFilter,
-        conceptTypeCounts, conceptPages
+        conceptTypes, conceptPages
     } = useHelxSearch()
     const { analyticsEvents } = useAnalytics()
     const { md } = useBreakpoint()
@@ -84,7 +84,7 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
                         >
                             <Option value={null}>All</Option>
                             {
-                                Object.entries(conceptTypeCounts).sort((a, b) => b[1] - a[1]).map(([conceptType, count]) => (
+                                Object.entries(conceptTypes).sort((a, b) => b[1] - a[1]).map(([conceptType, count]) => (
                                 <Option key={conceptType} value={conceptType}>{conceptType} ({count})</Option>
                                 ))
                             }

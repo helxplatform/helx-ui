@@ -38,7 +38,7 @@ export const RelatedConceptTag = ({ concept, highlight }) => {
                 setShowOptions(true)
             }}>
                 <Text key={concept.name}>
-                    <Highlighter searchWords={highlight} textToHighlight={ concept.name } />
+                    <Highlighter autoEscape={ true } searchWords={highlight} textToHighlight={ concept.name } />
                 </Text>
             </Tag>
         </Popover>
