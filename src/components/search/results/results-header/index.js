@@ -50,7 +50,7 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
                     { variables ? (
                         `${ variableStudyResultCount } studies and ${ totalVariableResults } variables`
                     ) : (
-                        `${ totalConcepts } concepts (${ Object.keys(conceptPages).length } of ${ pageCount } pages)`
+                        `${ totalConcepts } concepts`
                     ) }
                 </Text>
                 { !variables && (
