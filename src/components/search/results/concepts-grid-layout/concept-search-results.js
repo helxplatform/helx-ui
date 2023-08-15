@@ -9,13 +9,13 @@ const { Text } = Typography
 const { useBreakpoint } = AntGrid
 
 export const ConceptSearchResults = () => {
-	const { query, conceptPages, perPage, currentPage, pageCount, typeFilter,
+	const { query, conceptPages, perPage, currentPage, pageCount,
 			isLoadingConcepts, error, setCurrentPage, setSelectedResult } = useHelxSearch()
 	const { md } = useBreakpoint();
 	const concepts = useMemo(() => Object.values(conceptPages).flat(), [conceptPages])
 	const hasMore = useMemo(() => (
-		!typeFilter && !isLoadingConcepts && (currentPage < pageCount || pageCount === 0)
-	), [typeFilter, isLoadingConcepts, currentPage, pageCount])
+		!isLoadingConcepts && (currentPage < pageCount || pageCount === 0)
+	), [isLoadingConcepts, currentPage, pageCount])
 	const getNextPage = useCallback(() => {
 		setCurrentPage(currentPage + 1)
 	}, [currentPage])
@@ -62,12 +62,8 @@ export const ConceptSearchResults = () => {
 							currentPage === pageCount ? (
 								null
 							) : (
-								typeFilter ? (
-									<Text style={{ textAlign: "center", marginTop: "24px" }}>Disable filters to load more results.</Text>
-								) : (
-									(currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
-										<Spin style={{ display: "block", margin: "32px" }} />
-									)
+								(currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
+									<Spin style={{ display: "block", margin: "32px" }} />
 								)
 							)
 						}
