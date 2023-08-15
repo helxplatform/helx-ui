@@ -24,6 +24,9 @@ COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /usr/src/app/build/ /usr/share/nginx/static/
 # RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
 
+RUN apk upgrade
+RUN apk add bash cat
+
 WORKDIR /usr/src/app
 COPY bin /usr/src/app/bin
 ENV PATH="/usr/src/app/bin:${PATH}"
