@@ -1,5 +1,13 @@
 .helx-header {
     padding-right: 2px !important;
+    isolation: isolate;
+    position: sticky;
+    top: 0;
+    box-shadow: 0px 2px 6px 4px rgba(0,0,0,0.1);
+}
+
+.layout {
+    isolation: isolate;
 }
 
 .brand_img {

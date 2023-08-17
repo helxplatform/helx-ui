@@ -43,7 +43,7 @@ export const Layout = ({ children }) => {
 
   return (
     <AntLayout className="layout">
-      <Header className="helx-header" style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>
+      <Header className="helx-header" style={{ display: 'flex', zIndex: 100, width: '100%', background: '#fff' }}>
         {context !== undefined ? <Link to={basePath}><img className="brand_img" src={'' + context.logo_url} alt={context.brand}></img></Link> : <span />}
         {md ? (
           <div style={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}>
