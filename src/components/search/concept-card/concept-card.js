@@ -29,8 +29,7 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
       { !studies && (
         <LoadingOutlined style={{ fontSize: 10, marginRight: 8 }} spin /> 
       ) }
-      Studies
-      { studies && ` (${ Object.keys(studies).length })` }
+      Studies      
     </div>
   ), [studies])
   const cdeTitle = useMemo(() => (
