@@ -16,6 +16,9 @@ const ExportFormats = {
   },
   YAML: {
     name: "YAML"
+  },
+  CSV: {
+    name: "CSV"
   }
 }
 
@@ -73,10 +76,25 @@ export const ShoppingCart = () => {
           const name = `${ activeCart.name }_${ (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() }`
           let fileName
 
+          const items = exportItems.length > 0 ? exportItems : activeCart.items;
+
           const cart = {
-            ...activeCart,
-            items: exportItems
+            concept_id: [],
+            study_id: [],
+            variable_id: [],
+            cde_id: [],
           }
+
+          items.forEach(({bucketId, id}) => {
+            switch (bucketId) {
+              case 'concepts': cart.concept_id.push(id); break;
+              case 'studies': cart.study_id.push(id); break;
+              case 'variables': cart.variable_id.push(id); break;
+              case 'cdes': cart.cde_id.push(id); break;
+              default: break;
+            }
+          })
+
           let data
           if (exportFormat === "JSON") {
             fileName = `${ name }.json`
@@ -88,6 +106,16 @@ export const ShoppingCart = () => {
           } else if (exportFormat === "YAML") {
             fileName = `${ name }.yaml`
             data = YAML.stringify(cart)
+          } else if (exportFormat === "CSV") {
+            fileName = `${ name }.csv`
+
+            data = Object.keys(cart).join(',') + '\n';
+
+            const getRow = (i) => Object.keys(cart).map((col) => cart[col][i]);
+
+            for (let i = 0; getRow(i).some((col) => col !== undefined); ++i) {
+              data += getRow(i).join(',') + '\n';
+            }
           }
 
           if (deleteItemsAfterExport) {
