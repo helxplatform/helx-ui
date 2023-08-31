@@ -23,7 +23,7 @@ export const MobileMenu = ({menu}) => {
         <div className="mobile-menu-toggle">
             <Button onClick={() => setVisible(true)}><MenuOutlined /></Button>
             <Drawer
-                title="HeLx UI"
+                title={ context?.meta.title ?? 'HeLx' }
                 placement="right"
                 closable={false}
                 onClose={() => setVisible(false)}
