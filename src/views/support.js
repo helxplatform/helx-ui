@@ -32,7 +32,7 @@ const HEALSupport = () =>
         <Title level={1}>Need Help?</Title>
         <Typography>To report a bug, request technical assistance, submit user feedback, or submit a different request, visit our Help Portal.</Typography>
         <ul>
-            <li><a href="https://renci.atlassian.net/servicedesk/customer/portal/3" target="_blank" rel="noopener noreferrer"><b>Help Portal</b></a></li>
+            <li><a href="http://bit.ly/HEALSemanticSearch_Help" target="_blank" rel="noopener noreferrer"><b>Help Portal</b></a></li>
         </ul>
 
         <Title level={1}>Documentation</Title>
