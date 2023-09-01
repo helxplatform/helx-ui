@@ -1,20 +1,22 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback, Fragment } from 'react'
-import { Typography, Button, Space, Divider, Slider, Tooltip, Collapse } from 'antd'
+import { Typography, Button, Space, Divider, Slider, Tooltip, Collapse, Tag } from 'antd'
 import { ArrowLeftOutlined, ArrowRightOutlined, InfoCircleFilled } from '@ant-design/icons'
 import { generate, presetPalettes, red, volcano, orange, gold, yellow, green, cyan, blue, geekblue, purple, magenta } from '@ant-design/colors'
 import { Column } from '@ant-design/plots';
 import chroma from 'chroma-js'
+import { useDebounce, useDebouncedCallback } from 'use-debounce'
 import { useHelxSearch } from '../../';
 import {
     VariablesTableByStudy, variableHistogramConfigStatic,
     updateStudyResults, resetFilterPropertyToNone
 } from './'
 import { InfoTooltip } from '../../../';
-import { useDebounce, useDebouncedCallback } from 'use-debounce'
+import { Palette, PastelPalette } from '../../../../utils'
 import './variable-results.css';
 
 const { Text, Title } = Typography
 const { Panel } = Collapse
+const { CheckableTag } = Tag
 
 // Between 0-9
 const COLOR_INTENSITY = 4
@@ -266,6 +268,28 @@ export const VariableSearchResults = () => {
         }
     }, [filteredVariables, variableResults, absScoreRange])
 
+    const studyDataSources = useMemo(() => {
+        const palette = new Palette(chroma.rgb(255 * .75, 255 * .25, 255 * .25), {mode: 'hex'})
+        return variableStudyResults.reduce((acc, cur) => {
+            const dataSource = cur.data_source
+            if (!acc.hasOwnProperty(dataSource)) acc[dataSource] = {
+                count: 1,
+                color: palette.getNextColor()
+            }
+            else acc[dataSource].count += 1
+            return acc
+        }, {})
+    }, [variableStudyResults])
+
+    const hiddenDataSources = useMemo(() => {
+        const allDataSources = Object.keys(studyDataSources)
+        const activeDataSources = filteredVariables.reduce((acc, cur) => {
+            if (!acc.includes(cur.data_source)) acc.push(cur.data_source)
+            return acc
+        }, [])
+        return allDataSources.filter((dataSource) => !activeDataSources.includes(dataSource))
+    }, [filteredVariables, studyDataSources])
+
     const [filteredPercentileLower, filteredPercentileUpper] = useMemo(() => {
         const relativeMin = Math.min(...filteredVariables.map((result) => result.score))
         const relativeMax = Math.max(...filteredVariables.map((result) => result.score))
@@ -338,6 +362,20 @@ export const VariableSearchResults = () => {
             setFilteredVariables(newFilteredVariables)
         }
     }, [variableResults, filteredVariables, studyResultsForDisplay, scoreRange])
+
+    const onDataSourceChange = useCallback((dataSource, hidden) => {
+        const histogramObj = variablesHistogram.current.getChart()
+        const newHiddenDataSources = hidden
+            ? [...hiddenDataSources, dataSource]
+            : hiddenDataSources.filter((source) => source !== dataSource)
+        const newFilteredVariables = variableResults.filter((variable) => (
+            !newHiddenDataSources.includes(variable.data_source)
+        ))
+        let updatedStudyResults = updateStudyResults(newFilteredVariables, studyResultsForDisplay);
+        if (filteredVariables.length !== newFilteredVariables.length) {
+            setFilteredVariables(newFilteredVariables)
+        }
+    }, [hiddenDataSources, variableResults, filteredVariables, studyResultsForDisplay])
 
     /**
      * Takes a studyName, selected by the user in the studies table & updates data going to
@@ -504,10 +542,30 @@ export const VariableSearchResults = () => {
             ) }
             <Space direction="vertical" style={{ marginTop: 8 }}>
                 <div className='list'>
+                    <Space direction="horizontal" size={ 0 } style={{ marginTop: 8, marginBottom: 4 }}>
+                        {
+                            Object.entries(studyDataSources).map(([dataSource, { count, color }]) => (
+                                <Tag
+                                    key={ `variable-view-data-source-tag-${ dataSource }` }
+                                    style={{ fontSize: 13 }}
+                                    color={ color }
+                                    // style={ {
+                                    //     fontSize: 13,
+                                    //     ...(hiddenDataSources.includes(dataSource) ? { border: "1px solid #d9d9d9", background: "#fafafa" } : {})
+                                    // } }
+                                    // checked={ !hiddenDataSources.includes(dataSource) }
+                                    // onChange={ (checked) => onDataSourceChange(dataSource, !checked) }
+                                >
+                                    { `${ dataSource } (${ count })` }
+                                </Tag>
+                            ))
+                        }
+                    </Space>
                     <VariablesTableByStudy
                         studyResultsForDisplay={studyResultsForDisplay}
                         studyNamesForDisplay={studyNamesForDisplay}
                         filteredVariables={filteredVariables}
+                        studyDataSources={ studyDataSources }
                         toggleStudyHighlightingInHistogram={toggleStudyHighlightingInHistogram}/>
                 </div>
             </Space>

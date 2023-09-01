@@ -10,7 +10,7 @@ const SHOW_COUNT = 8
 export const RelatedConceptsList = ({ concepts, highlight }) => {
     const [showingAll, setShowingAll] = useState(false)
 
-    const failed = useMemo(() => concepts === null, [concepts])
+    const failed = useMemo(() => concepts === null || concepts.length === 0, [concepts])
     if (failed) concepts = []
 
     const showCount = useMemo(() => showingAll ? concepts.length : SHOW_COUNT, [showingAll, concepts])
