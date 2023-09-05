@@ -1,10 +1,14 @@
 import { ShoppingCartProvider as _ShoppingCartProvider } from 'antd-shopping-cart'
+import { useEnvironment } from './environment-context'
 
 export const ShoppingCartProvider = ({ children }) => {
+    const { helxSearchUrl } = useEnvironment()
+    
     return (
         <_ShoppingCartProvider
             defaultCartName="My cart"
             localStorageKey="shopping_carts"
+            helxSearchUrl={helxSearchUrl}
             buckets={[
                 {
                     id: "concepts",
