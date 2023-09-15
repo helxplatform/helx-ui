@@ -20,7 +20,8 @@ RUN npm run build
 ########################
 
 FROM nginx:1.25.1-alpine-slim
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /usr/src/app/build/ /usr/share/nginx/static/
 # RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
 
