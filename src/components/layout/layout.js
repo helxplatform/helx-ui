@@ -100,7 +100,6 @@ export const Layout = ({ children }) => {
         </Footer>
         : <Footer style={{ textAlign: 'center', paddingTop: 0 }}>&copy;{ context?.meta.title ?? 'HeLx' }{new Date().getFullYear()}</Footer>
       }
-      <Footer style={{ textAlign: 'center', paddingTop: 0 }}></Footer>
     </AntLayout>
   )
 }
