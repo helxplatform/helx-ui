@@ -13,6 +13,7 @@ import {
 import { InfoTooltip } from '../../../';
 import { Palette, PastelPalette } from '../../../../utils'
 import './variable-results.css';
+import { useAnalytics } from '../../../../contexts';
 
 const { Text, Title } = Typography
 const { Panel } = Collapse
@@ -133,7 +134,8 @@ const HistogramLegend = ({ title: _title, items, style, ...props }) =>  {
 
 /** Component that handles display of Variable Results */
 export const VariableSearchResults = () => {
-    const { variableResults, variableStudyResults, totalVariableResults } = useHelxSearch()
+    const { query, variableResults, variableStudyResults, totalVariableResults } = useHelxSearch()
+    const { analyticsEvents } = useAnalytics()
 
     const [collapseHistogram, setCollapseHistogram] = useState(false)
     const [page, setPage] = useState(0)
@@ -303,6 +305,7 @@ export const VariableSearchResults = () => {
      * Triggered by the Start Over button.
      */
     const startOverHandler = () => {
+        analyticsEvents.variableViewStartOverPressed(query)
         /** Restores the variables shown in the histogram back to the original inputs */
         overrideFilterHistory(variableResults)
 
@@ -404,7 +407,11 @@ export const VariableSearchResults = () => {
             <Collapse
                 ghost
                 activeKey={!collapseHistogram ? ["variableViewHistogramPanel"] : []}
-                onChange={ () => setCollapseHistogram(!collapseHistogram) }
+                onChange={ () => {
+                    const isCollapsed = !collapseHistogram
+                    analyticsEvents.variableViewHistogramToggled(query, !isCollapsed)
+                    setCollapseHistogram(isCollapsed)
+                } }
             >
             <Panel key="variableViewHistogramPanel" className="variable-histogram-collapse-panel" header={
                 <Fragment>

@@ -1,11 +1,13 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { List, Spin, Space, Tag, Typography, Divider } from 'antd'
+import { useAnalytics } from '../../../contexts'
 import { Link } from '../../link'
 
 const { Text } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 
 export const StudiesTab = ({ studies }) => {
+  const { analyticsEvents } = useAnalytics()
   const [facets, setFacets] = useState([])
   const [selectedFacets, setSelectedFacets] = useState([])
 
@@ -27,6 +29,10 @@ export const StudiesTab = ({ studies }) => {
     }
     setSelectedFacets([...newSelection])
   }, [selectedFacets])
+
+  const studyLinkClicked = (studyName) => {
+    analyticsEvents.studyLinkClicked(studyName)
+  }
 
   useEffect(() => {
     const facets = (studies ?? []).reduce((acc, study) => {
@@ -93,7 +99,7 @@ export const StudiesTab = ({ studies }) => {
               { (study.c_id && study.c_link) && (
                 <Fragment>
                   { ` ` }
-                  (<Link to={ study.c_link }>{ study.c_id }</Link>)
+                  (<Link to={ study.c_link } onClick={ () => studyLinkClicked(study.c_name) }>{ study.c_id }</Link>)
                 </Fragment>
               )}
             </Text>

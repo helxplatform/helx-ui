@@ -70,3 +70,56 @@ export function searchLayoutChanged(query, newLayout, oldLayout) {
         }
     });
 }
+export function studyLinkClicked(studyName) {
+    console.log("study link", studyName)
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "study_link_clicked",
+        label: studyName,
+    });
+}
+export function variableLinkClicked(variableName) {
+    console.log("variable link", variableName)
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "variable_link_clicked",
+        label: variableName,
+    });
+}
+export function variableViewHistogramToggled(query, expanded) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "variable_view_histogram_toggled",
+        label: query,
+        customParameters: {
+            "expanded": expanded
+        }
+    });
+}
+export function variableViewStartOverPressed(query) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "variable_view_start_over",
+        label: query,
+    });
+}
+export function variableViewStudyToggled(studyName, expanded) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "variable_view_study_toggled",
+        label: studyName,
+        customParameters: {
+            "expanded": expanded
+        }
+    });
+}
+export function variableViewStudyPinToggled(studyName, active) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "variable_view_study_pin_toggled",
+        label: studyName,
+        customParameters: {
+            "active": active
+        }
+    });
+}
