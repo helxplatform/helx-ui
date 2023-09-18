@@ -1,9 +1,11 @@
 import { Menu, Typography } from 'antd'
 import { ExportOutlined, SearchOutlined } from '@ant-design/icons'
+import { useAnalytics } from '../../../../../../contexts'
 
 const { Text } = Typography
 
 export const RelatedConceptOptions = ({ concept, openSearch, openConcept, setClosed }) => {
+    const { analyticsEvents } = useAnalytics()
     return (
         <Menu
             mode="vertical"
@@ -17,7 +19,10 @@ export const RelatedConceptOptions = ({ concept, openSearch, openConcept, setClo
                         <Text>Open</Text>
                     ),
                     icon: <ExportOutlined />,
-                    onClick: openConcept,
+                    onClick: () => {
+                        analyticsEvents.cdeRelatedConceptOpened(concept.id)
+                        openConcept()
+                    },
                 },
                 {
                     key: 1,
@@ -25,7 +30,10 @@ export const RelatedConceptOptions = ({ concept, openSearch, openConcept, setClo
                         <Text>Search</Text>
                     ),
                     icon: <SearchOutlined />,
-                    onClick: openSearch
+                    onClick: () => {
+                        analyticsEvents.cdeRelatedConceptSearched(concept.id)
+                        openSearch()
+                    }
                 },
             ]}
         />

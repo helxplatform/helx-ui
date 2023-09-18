@@ -21,7 +21,7 @@
     "elasticlunr": "^0.9.5",
     "es6-error": "^4.1.1",
     "exponential-backoff": "^3.1.0",
-    "helx-analytics": "^1.0.14",
+    "helx-analytics": "^2.0.0",
     "js-cookie": "^3.0.1",
     "lunr": "^2.3.9",
     "nanoevents": "^6.0.2",

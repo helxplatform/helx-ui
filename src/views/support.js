@@ -1,6 +1,6 @@
 import { Fragment, useEffect } from 'react'
 import { Typography } from 'antd'
-import { useEnvironment } from '../contexts'
+import { useAnalytics, useEnvironment } from '../contexts'
 import { useTitle } from './'
 
 const { Title } = Typography
@@ -27,24 +27,44 @@ const Documentation = () =>
     </ul>
   </Fragment>
 
-const HEALSupport = () =>
+const HEALSupport = () => {
+  const { analyticsEvents } = useAnalytics()
+  return (
     <Fragment>
         <Title level={1}>Need Help?</Title>
-        <Typography>To report a bug, request technical assistance, submit user feedback, or submit a different request, visit our Help Portal.</Typography>
-        <ul>
-            <li><a href="http://bit.ly/HEALSemanticSearch_Help" target="_blank" rel="noopener noreferrer"><b>Help Portal</b></a></li>
-        </ul>
+        <div style={{ fontSize: 15 }}>
+          <Typography>To report a bug, request technical assistance, submit user feedback, or submit a different request, visit our Help Portal.</Typography>
+          <ul>
+              <li>
+                <a
+                  href="http://bit.ly/HEALSemanticSearch_Help"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={ () => {
+                    analyticsEvents.helpPortalOpened()
+                  } }
+                >
+                  <b>Help Portal</b>
+                </a>
+              </li>
+          </ul>
+        </div>
 
-        <Title level={1}>Documentation</Title>
-        <Typography>
-            Our documentation is designed to help guide you through your first steps with HEAL Semantic Search.
-            We encourage you to get started with these introductory materials.
-        </Typography>
-        <ul>
-            <li><b>User Guide</b> (in development)</li>
-            <li><b>FAQs</b> (in development)</li>
-        </ul>
+        <Title level={1} style={{ marginTop: 16 }}>Documentation</Title>
+        <div style={{ fontSize: 15 }}>
+          <Typography>
+              Our documentation is designed to help guide you through your first steps with HEAL Semantic Search.
+              We encourage you to get started with these introductory materials.
+          </Typography>
+          <ul>
+              {/* ADD analytics here when complete. */}
+              <li><b>User Guide</b> (in development)</li>
+              <li><b>FAQs</b> (in development)</li>
+          </ul>
+        </div>
     </Fragment>
+  )
+}
 
 export const SupportView = () => {
   const { context } = useEnvironment()

@@ -6,7 +6,7 @@ import Highlighter from 'react-highlight-words'
 import Select from 'rc-select'
 import { useHelxSearch, SearchLayout } from '../'
 import { SearchCompletion } from './search-suggestion'
-import { useEnvironment } from '../../../contexts'
+import { useAnalytics, useEnvironment } from '../../../contexts'
 import { useAbortController } from '../../../hooks'
 import './form.css'
 
@@ -49,6 +49,7 @@ const highlightedSearchTerms = (highlightedSearch) => {
 export const SearchForm = ({ type=undefined, ...props }) => {
   const { context } = useEnvironment()
   const { doSearch, inputRef, query, totalConcepts, searchHistory, layout, setLayout } = useHelxSearch()
+  const { analyticsEvents } = useAnalytics()
   const [searchTerm, setSearchTerm] = useState(query)
   const [searchSuggestions, setSearchSuggestions] = useState(null) // null = don't appear, [] = "no results found", [...] = show suggestions
   const [loadingSuggestions, setLoadingSuggestions] = useState(false) // true = loading...
@@ -264,6 +265,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
                 ) : null
               }
               onChange={ (e) => {
+                analyticsEvents.searchTypeChanged(e.target.value)
                 switch (e.target.value) {
                   case "concepts":
                     setLayout(SearchLayout.GRID)
