@@ -76,7 +76,10 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
                         <Text style={{ display: !md ? "none" : undefined }}>Filter type:</Text>
                         <Select
                             value={typeFilter}
-                            onChange={(value) => setTypeFilter(value)}
+                            onChange={(value) => {
+                                analyticsEvents.conceptFilterApplied(value)
+                                setTypeFilter(value)
+                            }}
                             placeholder="Filter type"
                             dropdownMatchSelectWidth={false}
                             placement="bottomRight"

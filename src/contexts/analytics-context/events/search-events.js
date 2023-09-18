@@ -52,10 +52,15 @@ export function searchURLCopied(query) {
     this.analytics.trackEvent({
         category: "ui_interaction",
         action: "search_url_copied",
-        // label: "User copied sharable link for search query",
-        customParameters: {
-            "search_query": query
-        }
+        label: query
+    });
+}
+export function conceptFilterApplied(conceptType) {
+    if (conceptType === null) conceptType = "all"
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "concept_filter_applied",
+        label: conceptType
     });
 }
 export function searchLayoutChanged(query, newLayout, oldLayout) {
@@ -70,10 +75,18 @@ export function searchLayoutChanged(query, newLayout, oldLayout) {
         }
     });
 }
+export function searchTypeChanged(searchType) {
+    // searchType: variables | concepts
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "search_type_changed",
+        label: searchType,
+    });
+}
 export function cdeToggled(cdeId, expanded) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "cde_toggle",
+        action: "cde_toggled",
         label: cdeId,
         customParameters: {
             "expanded": expanded
@@ -83,7 +96,7 @@ export function cdeToggled(cdeId, expanded) {
 export function cdeRelatedConceptsToggled(cdeId, expanded) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "cde_related_concepts_toggle",
+        action: "cde_related_concepts_toggled",
         label: cdeId,
         customParameters: {
             "expanded": expanded
@@ -93,14 +106,14 @@ export function cdeRelatedConceptsToggled(cdeId, expanded) {
 export function cdeRelatedConceptOpened(conceptId) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "cde_related_concept_open",
+        action: "cde_related_concept_opened",
         label: conceptId
     });
 }
 export function cdeRelatedConceptSearched(conceptId) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "cde_related_concept_search",
+        action: "cde_related_concept_searched",
         label: conceptId
     });
 }
@@ -122,7 +135,7 @@ export function variableLinkClicked(variableId) {
 export function variableViewHistogramToggled(query, expanded) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "variable_view_histogram_toggle",
+        action: "variable_view_histogram_toggled",
         label: query,
         customParameters: {
             "expanded": expanded
@@ -139,21 +152,21 @@ export function variableViewStartOverPressed(query) {
 export function variableViewHistoryForwardsPressed(query) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "variable_view_history_forward",
+        action: "variable_view_history_forwards",
         label: query,
     });
 }
 export function variableViewHistoryBackwardsPressed(query) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "variable_view_history_backward",
+        action: "variable_view_history_backwards",
         label: query,
     });
 }
 export function variableViewStudyToggled(studyName, expanded) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "variable_view_study_toggle",
+        action: "variable_view_study_toggled",
         label: studyName,
         customParameters: {
             "expanded": expanded
@@ -163,7 +176,7 @@ export function variableViewStudyToggled(studyName, expanded) {
 export function variableViewStudyPinToggled(studyName, active) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "variable_view_study_pin_toggle",
+        action: "variable_view_study_pin_toggled",
         label: studyName,
         customParameters: {
             "active": active
