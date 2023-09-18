@@ -27,6 +27,25 @@ const Documentation = () =>
     </ul>
   </Fragment>
 
+const HEALSupport = () =>
+    <Fragment>
+        <Title level={1}>Need Help?</Title>
+        <Typography>To report a bug, request technical assistance, submit user feedback, or submit a different request, visit our Help Portal.</Typography>
+        <ul>
+            <li><a href="http://bit.ly/HEALSemanticSearch_Help" target="_blank" rel="noopener noreferrer"><b>Help Portal</b></a></li>
+        </ul>
+
+        <Title level={1}>Documentation</Title>
+        <Typography>
+            Our documentation is designed to help guide you through your first steps with HEAL Semantic Search.
+            We encourage you to get started with these introductory materials.
+        </Typography>
+        <ul>
+            <li><b>User Guide</b> (in development)</li>
+            <li><b>FAQs</b> (in development)</li>
+        </ul>
+    </Fragment>
+
 export const SupportView = () => {
   const { context } = useEnvironment()
   useTitle("Support")
@@ -35,6 +54,7 @@ export const SupportView = () => {
     <Fragment>
       {Array.isArray(context.hidden_support_sections) && !context.hidden_support_sections.includes('community') && <CommunitySupport />}
       {Array.isArray(context.hidden_support_sections) && !context.hidden_support_sections.includes('documentation') && <Documentation />}
+      {Array.isArray(context.hidden_support_sections) && !context.hidden_support_sections.includes('heal-support') && <HEALSupport />}
     </Fragment>
   )
 }

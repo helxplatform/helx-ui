@@ -18,6 +18,8 @@ appstore_asset_branch="${REACT_APP_APPSTORE_ASSET_BRANCH}"
 analytics_enabled="${REACT_APP_ANALYTICS_ENABLED:-false}"
 analytics_platform="${REACT_APP_ANALYTICS_PLATFORM}"
 analytics_token="${REACT_APP_ANALYTICS_TOKEN}"
+meta_title="${META_TITLE:-HeLx UI}"
+meta_description="${META_DESCRIPTION:-HeLx UI}"
 
 
 template='{
@@ -35,7 +37,11 @@ template='{
     "hidden_support_sections": "%HIDDEN_SUPPORT_SECTIONS%",
     "hidden_result_tabs": "%HIDDEN_RESULT_TABS%",
     "deployment_namespace": "%DEPLOYMENT_NAMESPACE%",
-    "appstore_asset_branch": "%APPSTORE_ASSET_BRANCH%"
+    "appstore_asset_branch": "%APPSTORE_ASSET_BRANCH%",
+    "meta": {
+      "title": "%META_TITLE%",
+      "description": "%META_DESCRIPTION%"
+    }
 }'
 
 echo "$template" | sed \
@@ -51,4 +57,6 @@ echo "$template" | sed \
   -e "s/%ANALYTICS_ENABLED%/$analytics_enabled/" \
   -e "s/%ANALYTICS_PLATFORM%/$analytics_platform/" \
   -e "s/%ANALYTICS_TOKEN%/$analytics_token/" \
+  -e "s/%META_TITLE%/$meta_title/" \
+  -e "s/%META_DESCRIPTION%/$meta_description/" \
   > $1

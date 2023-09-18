@@ -3,6 +3,7 @@ import { List, Collapse, Typography, Space, Button } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
 import _Highlighter from 'react-highlight-words'
 import { RelatedConceptsList } from './related-concepts'
+import { SideCollapse } from '../../../..'
 
 const { Text, Link } = Typography
 const { Panel } = Collapse
@@ -25,7 +26,7 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
     ), [cdeRelatedConcepts, cde])
 
     const Highlighter = useCallback(({ ...props }) => (
-        <_Highlighter searchWords={highlight} {...props}/>
+        <_Highlighter autoEscape={ true } searchWords={highlight} {...props}/>
     ), [highlight])
 
     return (
@@ -33,62 +34,55 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
             key={ `${cde.id}` }
             className="cde-item"
         >
-            <Collapse ghost activeKey={collapsed ? null : `${cde.id}-panel`} onChange={ () => setCollapsed(!collapsed) }>
-                <Panel
-                key={`${cde.id}-panel`}
-                    header={
-                        <Fragment>
-                            <Text style={{ fontWeight: "500", fontSize: "14px" }}>
-                                <Highlighter textToHighlight={ cde.name } />
-                            </Text>
-                            {/* Only show the "Open study" button if the CDE has a link attached to it. */}
-                            {cde.e_link && (
-                                <Button
-                                    type="text"
-                                    size="small"
-                                    icon={
-                                        <ExportOutlined onClick={(e) => {
-                                            e.preventDefault()
-                                            e.stopPropagation()
-                                            window.open(cde.e_link, "_blank")
-                                        }} />
-                                    }
-                                    style={{ marginLeft: "4px" }}
-                                />
-                            )}
-                        </Fragment>
-                    }
-                    className="cde-collapse"
-                >
-                    <div className="cde-content-container">
-                        <div className="collapse-handle-container" onClick={ () => setCollapsed(true) }>
-                            <div className="collapse-handle" />
-                        </div>
-                        <Space direction="vertical" size="middle" className="cde-content">
-                            <List.Item.Meta
-                                // title={ cde.name }
-                                description={
-                                    <Section title="Description">
-                                        <Text type="secondary">
-                                            <Highlighter textToHighlight={ cde.description } />
-                                        </Text>
-                                    </Section>
+            <SideCollapse
+                collapsed={ collapsed }
+                onCollapse={ setCollapsed }
+                header={
+                    <Fragment>
+                        <Text style={{ fontWeight: "500", fontSize: "14px" }}>
+                            <Highlighter textToHighlight={ cde.name } />
+                        </Text>
+                        {/* Only show the "Open study" button if the CDE has a link attached to it. */}
+                        {cde.e_link && (
+                            <Button
+                                type="text"
+                                size="small"
+                                icon={
+                                    <ExportOutlined onClick={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        window.open(cde.e_link, "_blank")
+                                    }} />
                                 }
+                                style={{ marginLeft: "4px" }}
                             />
-                            <Section title="Related concepts">
-                                <RelatedConceptsList
-                                    concepts={relatedConceptsSource}
-                                    highlight={highlight}
-                                />
+                        )}
+                    </Fragment>
+                }
+            >
+                <Space direction="vertical" size="middle" className="cde-content">
+                    <List.Item.Meta
+                        // title={ cde.name }
+                        description={
+                            <Section title="Description">
+                                <Text type="secondary">
+                                    <Highlighter textToHighlight={ cde.description } />
+                                </Text>
                             </Section>
-                            {false && <Section>
-                                {/* Bottom button container */}
-                                <Button type="primary" size="small" style={{ marginTop: "8px" }}>Go</Button>
-                            </Section>}
-                        </Space>
-                    </div>
-                </Panel>
-            </Collapse>
+                        }
+                    />
+                    <Section title="Related concepts">
+                        <RelatedConceptsList
+                            concepts={relatedConceptsSource}
+                            highlight={highlight}
+                        />
+                    </Section>
+                    {false && <Section>
+                        {/* Bottom button container */}
+                        <Button type="primary" size="small" style={{ marginTop: "8px" }}>Go</Button>
+                    </Section>}
+                </Space>
+            </SideCollapse>
         </List.Item>
     )
 }

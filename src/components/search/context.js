@@ -29,6 +29,7 @@ export const HelxSearch = ({ children }) => {
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
   const [error, setError] = useState({})
   const [conceptPages, setConceptPages] = useState({})
+  const [conceptTypes, setConceptTypes] = useState({})
   // const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
@@ -52,6 +53,7 @@ export const HelxSearch = ({ children }) => {
   const [searchHistory, setSearchHistory] = useLocalStorage('search_history', [])
   
   /** Abort controllers */
+  const fetchConceptsController = useRef()
   const searchSelectedResultController = useRef()
 
   // const selectedResultLoading = useMemo(() => selectedResult && selectedResult.loading === true, [selectedResult])
@@ -90,10 +92,11 @@ export const HelxSearch = ({ children }) => {
     }
   }
 
-  const executeConceptSearch = async ({ query, offset, size }, axiosOptions) => {
+  const executeConceptSearch = async ({ query, types, offset, size }, axiosOptions) => {
     const params = {
       index: 'concepts_index',
       query,
+      types,
       offset,
       size
     }
@@ -148,30 +151,10 @@ export const HelxSearch = ({ children }) => {
     }
   }, [executeConceptSearch, validationReducer])
 
-  const filteredConceptPages = useMemo(() => {
-    if (typeFilter === null) return conceptPages
-    return Object.fromEntries(Object.entries(conceptPages).map(([page, concepts]) => {
-      return [
-        page,
-        concepts.filter((concept) => concept.type === typeFilter)
-      ]
-    }))
-  }, [conceptPages, typeFilter])
-
-  const conceptTypes = useMemo(() => Object.values(conceptPages).flat().reduce((acc, cur) => {
-    if (!acc.includes(cur.type)) acc.push(cur.type)
-    return acc
-  }, []), [conceptPages])
-  const conceptTypeCounts = useMemo(() => Object.values(conceptPages).flat().reduce((acc, cur) => {
-    if (!acc.hasOwnProperty(cur.type)) acc[cur.type] = 0
-    acc[cur.type] += 1
-    return acc
-  }, {}), [conceptPages])
-
   const concepts = useMemo(() => {
-    if (!filteredConceptPages[currentPage]) return []
-    else return filteredConceptPages[currentPage]
-  }, [filteredConceptPages, currentPage])
+    if (!conceptPages[currentPage]) return []
+    else return conceptPages[currentPage]
+  }, [conceptPages, currentPage])
   
   const setLayout = (newLayout) => {
     // Only track when layout changes
@@ -228,6 +211,8 @@ export const HelxSearch = ({ children }) => {
 
   useEffect(() => {
     setConceptPages({})
+    setConceptTypes({})
+    setError({})
     setTypeFilter(null)
     setSelectedResult(null)
     setVariableStudyResults([])
@@ -235,22 +220,35 @@ export const HelxSearch = ({ children }) => {
   }, [query])
 
   useEffect(() => {
+    setConceptPages({})
+    setCurrentPage(1)
+    setError({})
+  }, [typeFilter])
+  useEffect(() => {
     const fetchConcepts = async () => {
       if (conceptPages[currentPage]) {
         return
       }
-      console.log("Load page", query, currentPage)
+
+      fetchConceptsController.current?.abort()
+      fetchConceptsController.current = new AbortController()
+
       setIsLoadingConcepts(true)
-      // await new Promise((resolve) => setTimeout(resolve, 2500))
       const startTime = Date.now()
       try {
         const result = await executeConceptSearch({
           query: query,
+          types: typeFilter ? [typeFilter] : undefined,
           offset: (currentPage - 1) * PER_PAGE,
           size: PER_PAGE
+        }, {
+          signal: fetchConceptsController.current.signal
         })
         if (result && result.hits) {
-          const unsortedHits = result.hits.hits.map(r => r._source)
+          const unsortedHits = result.hits.hits.map(r => ({
+            ...r._source,
+            explanation: r._explanation
+          }))
           // gather invalid concepts: remove from rendered concepts and dump to console.
           let hits = unsortedHits.reduce(validationReducer, { valid: [], invalid: [] })
           if (hits.invalid.length) {
@@ -262,6 +260,7 @@ export const HelxSearch = ({ children }) => {
           newConceptPages[currentPage] = hits.valid
           // setSelectedResult(null)
           setConceptPages(newConceptPages)
+          setConceptTypes(result.concept_types)
           setTotalConcepts(result.total_items)
           // setConcepts(hits.valid)
           setIsLoadingConcepts(false)
@@ -269,24 +268,26 @@ export const HelxSearch = ({ children }) => {
         } else {
           const newConceptPages = { ...conceptPages }
           newConceptPages[currentPage] = []
-          // setSelectedResult(null)
           setConceptPages(newConceptPages)
-          // setConcepts([])
+          setConceptTypes({})
           setTotalConcepts(0)
           setIsLoadingConcepts(false)
           // analyticsEvents.searchExecuted(query, Date.now() - startTime, 0)
         }
       } catch (error) {
-        console.log(error)
-        setError({ message: 'An error occurred!' })
-        setIsLoadingConcepts(false)
-        // analyticsEvents.searchExecuted(query, Date.now() - startTime, 0, error.message)
+        if (error.name !== "CanceledError") {
+          console.log(error)
+          setError({ message: 'An error occurred!' })
+          setTotalConcepts(0)
+          setIsLoadingConcepts(false)
+          // analyticsEvents.searchExecuted(query, Date.now() - startTime, 0, error)
+        }
       }
     }
     if (query) {
       fetchConcepts()
     }
-  }, [query, currentPage, conceptPages, helxSearchUrl, analyticsEvents])
+  }, [query, currentPage, conceptPages, typeFilter, helxSearchUrl, analyticsEvents])
 
   useEffect(() => {
     setPageCount(Math.ceil(totalConcepts / PER_PAGE))
@@ -443,10 +444,18 @@ export const HelxSearch = ({ children }) => {
           size: 10000
         }
         const response = await axios.post(`${helxSearchUrl}/search_var`, params)
-        if (response.status === 200 && response.data.status === 'success' && response?.data?.result?.DbGaP) {
+        if (response.status === 200 && response.data.status === 'success' && response?.data?.result && Object.keys(response?.data?.result).length > 0) {
           
           // Data structure of studies matches API response 
-          const studies = response.data.result.DbGaP.map(r => r)
+          const studies = Object.entries(response.data.result).reduce((acc, [studySource, studies]) => {
+            studies.forEach((study) => {
+              study.data_source = studySource
+              study.elements.forEach((variable) => {
+                variable.data_source = studySource
+              })
+            })
+            return [...acc, ...studies]
+          }, [])
 
           // Data structure of sortedVariables is designed to populate the histogram feature
           const {sortedVariables, variablesCount, studiesWithVariablesMarked, studiesCount} = collectVariablesAndUpdateStudies(studies)
@@ -484,13 +493,13 @@ export const HelxSearch = ({ children }) => {
       fetchKnowledgeGraphs, fetchCDEs, fetchVariablesForConceptId,
       inputRef,
       error, isLoadingConcepts,
-      concepts, totalConcepts, conceptPages: filteredConceptPages,
+      concepts, totalConcepts, conceptPages,
       currentPage, setCurrentPage, perPage: PER_PAGE, pageCount,
       selectedResult, setSelectedResult, searchSelectedResult,
       layout, setLayout, setFullscreenResult,
       typeFilter, setTypeFilter,
       searchHistory, setSearchHistory,
-      conceptTypes, conceptTypeCounts,
+      conceptTypes,
       variableStudyResults, variableStudyResultCount,
       variableError, variableResults, isLoadingVariableResults,
       totalVariableResults

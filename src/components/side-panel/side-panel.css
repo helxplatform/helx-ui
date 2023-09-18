@@ -9,3 +9,21 @@
     margin-left: -10px;
     color: red;
 }
+
+.activity-log .ant-collapse-header {
+    padding: 4px 8px !important;
+}
+.activity-log .ant-collapse-content-box {
+    padding-left: 32px !important;
+    padding-right: 8px !important;
+    /* padding-left: 8px !important;
+    padding-right: 8px !important; */
+}
+.activity-entry .info-button {
+    float: right;
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+.activity-entry:hover .info-button {
+    opacity: 1;
+}

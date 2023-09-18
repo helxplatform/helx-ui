@@ -1,3 +1,12 @@
+.variable-histogram-collapse-panel > .ant-collapse-header {
+    padding: 0 !important;
+    align-items: center !important;
+    margin-bottom: 16px;
+}
+.variable-histogram-collapse-panel > .ant-collapse-content > .ant-collapse-content-box {
+    padding: 0 !important;
+}
+
 .histogram-startover-btn {
     margin-bottom: 10px;
 }

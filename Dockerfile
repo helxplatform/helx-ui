@@ -1,7 +1,7 @@
 ###################
 # Build environment
 ###################
-FROM node:18.16-alpine AS builder
+FROM node:lts-bullseye-slim AS builder
 
 ARG REACT_APP_WORKSPACES_ENABLED=true
 ENV REACT_APP_WORKSPACES_ENABLED=$REACT_APP_WORKSPACES_ENABLED
@@ -19,10 +19,13 @@ RUN npm run build
 # Production environment
 ########################
 
-FROM nginx:latest
+FROM nginx:1.25.1-alpine-slim
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /usr/src/app/build/ /usr/share/nginx/static/
-RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
+# RUN mv /usr/share/nginx/static/frontend/index.html /usr/share/nginx/html/
+
+RUN apk upgrade
+RUN apk add bash
 
 WORKDIR /usr/src/app
 COPY bin /usr/src/app/bin
