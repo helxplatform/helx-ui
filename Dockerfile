@@ -25,6 +25,9 @@ FROM nginx:1.25.1-alpine-slim
 RUN addgroup -g 1000 -S helxui && \
     adduser -u 1000 -h /helxui -G helxui -S helxui
 
+RUN apk upgrade
+RUN apk add bash
+
 COPY --chown=helxui:helxui nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --chown=helxui:helxui nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder --chown=helxui:helxui /usr/src/app/build/ /usr/share/nginx/static/
