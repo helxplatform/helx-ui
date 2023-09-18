@@ -526,12 +526,18 @@ export const VariableSearchResults = () => {
                             </Button>
                         </Tooltip>
                         <Tooltip title="Undo zoom">
-                        <Button onClick={ () => setPage(page - 1) } disabled={ page === 0 } style={{ marginLeft: 4 }}>
+                        <Button onClick={ () => {
+                            setPage(page - 1)
+                            analyticsEvents.variableViewHistoryBackwardsPressed(query)
+                        } } disabled={ page === 0 } style={{ marginLeft: 4 }}>
                             <ArrowLeftOutlined />
                         </Button>
                         </Tooltip>
                         <Tooltip title="Redo zoom">
-                            <Button onClick={ () => setPage(page + 1) } disabled={ page === _filteredVariables.length - 1 } style={{ marginLeft: 4 }}>
+                            <Button onClick={ () => {
+                                setPage(page + 1)
+                                analyticsEvents.variableViewHistoryForwardsPressed(query)
+                            } } disabled={ page === _filteredVariables.length - 1 } style={{ marginLeft: 4 }}>
                                 <ArrowRightOutlined />
                             </Button>
                         </Tooltip>

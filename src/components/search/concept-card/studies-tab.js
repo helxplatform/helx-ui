@@ -30,8 +30,8 @@ export const StudiesTab = ({ studies }) => {
     setSelectedFacets([...newSelection])
   }, [selectedFacets])
 
-  const studyLinkClicked = (studyName) => {
-    analyticsEvents.studyLinkClicked(studyName)
+  const studyLinkClicked = (studyId) => {
+    analyticsEvents.studyLinkClicked(studyId)
   }
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export const StudiesTab = ({ studies }) => {
               { (study.c_id && study.c_link) && (
                 <Fragment>
                   { ` ` }
-                  (<Link to={ study.c_link } onClick={ () => studyLinkClicked(study.c_name) }>{ study.c_id }</Link>)
+                  (<Link to={ study.c_link } onClick={ () => studyLinkClicked(study.c_id) }>{ study.c_id }</Link>)
                 </Fragment>
               )}
             </Text>

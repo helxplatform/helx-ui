@@ -8,7 +8,7 @@ export const StudyVariable = ({ variable, highlight, ...props }) => {
   const { analyticsEvents } = useAnalytics()
 
   const variableLinkClicked = () => {
-    analyticsEvents.variableLinkClicked(variable.name)
+    analyticsEvents.variableLinkClicked(variable.id)
   }
   return (
     <div className="study-variables-list-item" {...props}>

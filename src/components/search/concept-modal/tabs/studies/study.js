@@ -12,7 +12,7 @@ const { Panel } = Collapse
 export const Study = ({ study, highlight, collapsed, ...panelProps }) => {
     const { analyticsEvents } = useAnalytics()
     const studyLinkClicked = () => {
-      analyticsEvents.studyLinkClicked(study.c_name)
+      analyticsEvents.studyLinkClicked(study.c_id)
     }
     const highlightedVariables = study.elements.filter((variable) => {
       return highlight.some((token) => (

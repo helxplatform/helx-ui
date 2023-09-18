@@ -70,26 +70,59 @@ export function searchLayoutChanged(query, newLayout, oldLayout) {
         }
     });
 }
-export function studyLinkClicked(studyName) {
+export function cdeToggled(cdeId, expanded) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "cde_toggle",
+        label: cdeId,
+        customParameters: {
+            "expanded": expanded
+        }
+    });
+}
+export function cdeRelatedConceptsToggled(cdeId, expanded) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "cde_related_concepts_toggle",
+        label: cdeId,
+        customParameters: {
+            "expanded": expanded
+        }
+    });
+}
+export function cdeRelatedConceptOpened(conceptId) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "cde_related_concept_open",
+        label: conceptId
+    });
+}
+export function cdeRelatedConceptSearched(conceptId) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "cde_related_concept_search",
+        label: conceptId
+    });
+}
+export function studyLinkClicked(studyId) {
     console.log("study link", studyName)
     this.analytics.trackEvent({
         category: "ui_interaction",
         action: "study_link_clicked",
-        label: studyName,
+        label: studyId,
     });
 }
-export function variableLinkClicked(variableName) {
-    console.log("variable link", variableName)
+export function variableLinkClicked(variableId) {
     this.analytics.trackEvent({
         category: "ui_interaction",
         action: "variable_link_clicked",
-        label: variableName,
+        label: variableId,
     });
 }
 export function variableViewHistogramToggled(query, expanded) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "variable_view_histogram_toggled",
+        action: "variable_view_histogram_toggle",
         label: query,
         customParameters: {
             "expanded": expanded
@@ -103,10 +136,24 @@ export function variableViewStartOverPressed(query) {
         label: query,
     });
 }
+export function variableViewHistoryForwardsPressed(query) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "variable_view_history_forward",
+        label: query,
+    });
+}
+export function variableViewHistoryBackwardsPressed(query) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "variable_view_history_backward",
+        label: query,
+    });
+}
 export function variableViewStudyToggled(studyName, expanded) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "variable_view_study_toggled",
+        action: "variable_view_study_toggle",
         label: studyName,
         customParameters: {
             "expanded": expanded
@@ -116,7 +163,7 @@ export function variableViewStudyToggled(studyName, expanded) {
 export function variableViewStudyPinToggled(studyName, active) {
     this.analytics.trackEvent({
         category: "ui_interaction",
-        action: "variable_view_study_pin_toggled",
+        action: "variable_view_study_pin_toggle",
         label: studyName,
         customParameters: {
             "active": active

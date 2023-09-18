@@ -4,6 +4,7 @@ import { ExportOutlined } from '@ant-design/icons'
 import _Highlighter from 'react-highlight-words'
 import { RelatedConceptsList } from './related-concepts'
 import { SideCollapse } from '../../../..'
+import { useAnalytics } from '../../../../../contexts'
 
 const { Text, Link } = Typography
 const { Panel } = Collapse
@@ -20,6 +21,8 @@ const Section = ({ title, children }) => (
 
 export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
     const [collapsed, setCollapsed] = useState(false)
+    
+    const { analyticsEvents } = useAnalytics()
 
     const relatedConceptsSource = useMemo(() => (
         cdeRelatedConcepts[cde.id]
@@ -36,7 +39,10 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
         >
             <SideCollapse
                 collapsed={ collapsed }
-                onCollapse={ setCollapsed }
+                onCollapse={ (collapsed) => {
+                    analyticsEvents.cdeToggled(cde.id, !collapsed)
+                    setCollapsed(collapsed)
+                } }
                 header={
                     <Fragment>
                         <Text style={{ fontWeight: "500", fontSize: "14px" }}>
@@ -75,6 +81,9 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                         <RelatedConceptsList
                             concepts={relatedConceptsSource}
                             highlight={highlight}
+                            onShowMore={ (expanded) => {
+                                analyticsEvents.cdeRelatedConceptsToggled(cde.id, expanded)
+                            } }
                         />
                     </Section>
                     {false && <Section>
