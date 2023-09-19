@@ -2,6 +2,7 @@ import { Fragment, useEffect } from 'react'
 import { Typography } from 'antd'
 import { useAnalytics, useEnvironment } from '../contexts'
 import { useTitle } from './'
+import {faqsOpened, userGuideOpened} from "../contexts/analytics-context/events/support-events";
 
 const { Title } = Typography
 
@@ -57,9 +58,30 @@ const HEALSupport = () => {
               We encourage you to get started with these introductory materials.
           </Typography>
           <ul>
-              {/* ADD analytics here when complete. */}
-              <li><b>User Guide</b> (in development)</li>
-              <li><b>FAQs</b> (in development)</li>
+              <li>
+                  <a
+                      href="https://docs.google.com/document/d/1M43Ex0eg_ObvXIGvWFUuwqKAYpWATXa8vYSpB5gUa6Q/edit?pli=1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={ () => {
+                          analyticsEvents.userGuideOpened()
+                      } }
+                  >
+                      <b>User Guide</b>
+                  </a>
+              </li>
+              <li>
+                  <a
+                      href="https://docs.google.com/document/d/1njtRJbdHePRE-1kYtmyli-NqVuwU9bdqZ-42RNQGpBI/edit"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={ () => {
+                          analyticsEvents.faqsOpened()
+                      } }
+                  >
+                    <b>FAQs</b>
+                  </a>
+              </li>
           </ul>
         </div>
     </Fragment>
