@@ -61,6 +61,6 @@ class Modal extends Component {
             </Background>
     )
   }
-};
+}
 
 export {Modal};
