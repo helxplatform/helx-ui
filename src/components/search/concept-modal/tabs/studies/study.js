@@ -4,11 +4,16 @@ import Highlighter from 'react-highlight-words'
 import { Link } from '../../../../link'
 import { StudyVariables } from './study-variables'
 import { StudyVariable } from './study-variable'
+import { useAnalytics } from '../../../../../contexts'
 
 const { Text, Paragraph } = Typography
 const { Panel } = Collapse
 
 export const Study = ({ study, highlight, collapsed, ...panelProps }) => {
+    const { analyticsEvents } = useAnalytics()
+    const studyLinkClicked = () => {
+      analyticsEvents.studyLinkClicked(study.c_id)
+    }
     const highlightedVariables = study.elements.filter((variable) => {
       return highlight.some((token) => (
         variable.name.includes(token) ||
@@ -21,7 +26,7 @@ export const Study = ({ study, highlight, collapsed, ...panelProps }) => {
           header={
             <Text>
               <Highlighter autoEscape={ true } searchWords={ highlight } textToHighlight={ study.c_name } />{ ` ` }
-              (<Link to={ study.c_link }>{ study.c_id }</Link>)
+              (<Link to={ study.c_link } onClick={ studyLinkClicked }>{ study.c_id }</Link>)
             </Text>
           }
           extra={ <Text>{ study.elements.length } variable{ study.elements.length === 1 ? '' : 's' }</Text> }

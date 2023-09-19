@@ -4,6 +4,7 @@ import {
     PushpinOutlined as UnselectedIcon,
     PushpinFilled as SelectedIcon,
 } from '@ant-design/icons'
+import { useAnalytics } from '../../../../contexts'
 const { Text } = Typography
 const { Panel } = Collapse
 
@@ -26,10 +27,16 @@ const VariableList = ({ study, filteredVariables }) => {
 }
 
 const VariablePanel = ({ study, filteredVariables, dataSource, selected, onSelect }) => {
+    const { analyticsEvents } = useAnalytics()
     const [collapsed, setCollapsed] = useState(true)
+    const toggleCollapsed = () => {
+        const isCollapsed = !collapsed
+        setCollapsed(isCollapsed)
+        analyticsEvents.variableViewStudyToggled(study.c_name, !isCollapsed)
+    }
     return (
         <Fragment>
-        <Collapse ghost activeKey={collapsed ? null : `panel_${study.c_name}`} onChange={ () => setCollapsed(!collapsed) }>
+        <Collapse ghost activeKey={collapsed ? null : `panel_${study.c_name}`} onChange={ toggleCollapsed }>
             <Panel
                 key={`panel_${study.c_name}`}
                 className={ [
@@ -97,6 +104,7 @@ export const VariablesTableByStudy = ({
     studyDataSources,
     toggleStudyHighlightingInHistogram
 }) => {
+    const { analyticsEvents } = useAnalytics()
     return (
         <div className="variables-collapse">
             {
@@ -108,7 +116,11 @@ export const VariablesTableByStudy = ({
                             filteredVariables={ filteredVariables }
                             dataSource={ studyDataSources[study.data_source] }
                             selected={ studyNamesForDisplay.includes(study.c_name) }
-                            onSelect={ () => toggleStudyHighlightingInHistogram(study.c_name) }
+                            onSelect={ () => {
+                                const pinActive = studyNamesForDisplay.includes(study.c_name)
+                                analyticsEvents.variableViewStudyPinToggled(study.c_name, pinActive)
+                                toggleStudyHighlightingInHistogram(study.c_name)
+                            } }
                         />   
                     )
                 })
