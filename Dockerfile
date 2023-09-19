@@ -9,8 +9,8 @@ ENV REACT_APP_WORKSPACES_ENABLED=$REACT_APP_WORKSPACES_ENABLED
 # Copy and install requirements
 WORKDIR /usr/src/app
 COPY --chown=node:node "package*.json" /usr/src/app/
-RUN npm i -g npm@latest
-RUN npm ci
+RUN npm install -g npm@latest
+RUN npm clean-install
 
 COPY --chown=node:node . /usr/src/app
 RUN npm run build
@@ -32,6 +32,10 @@ WORKDIR /usr/src/app
 COPY bin /usr/src/app/bin
 ENV PATH="/usr/src/app/bin:${PATH}"
 
+# Allow GID=0 to modify files/dirs.  Mainly for OpenShift but can be used
+# elsewhere.
+RUN chgrp -R 0 /usr/share/nginx && \
+    chmod -R g=u /usr/share/nginx
 
 EXPOSE 80
 CMD ["start_server", "/usr/share/nginx/static/frontend/env.json"]
