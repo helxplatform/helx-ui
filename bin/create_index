@@ -8,8 +8,12 @@ fi
 
 title="${META_TITLE:-HeLx UI}"
 description="${META_DESCRIPTION:-HeLx UI}"
+brand_name="${REACT_APP_UI_BRAND_NAME}"
+appstore_asset_branch="${REACT_APP_APPSTORE_ASSET_BRANCH}"
 
 cat "$1/index_template.html" | sed \
   -e "s/%META_TITLE%/$title/" \
   -e "s/%META_DESCRIPTION%/$description/" \
+  -e "s/%BRAND%/$brand_name/" \
+  -e "s/%APPSTORE_ASSET_BRANCH%/$appstore_asset_branch/" \
   > $1/index.html

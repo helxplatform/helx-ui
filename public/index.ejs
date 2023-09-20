@@ -2,7 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/x-icon" href="<%= publicUrl %>favicon.ico" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="<%= isDevelopment
+        ? publicUrl + "favicon.ico"
+        : "https://raw.githubusercontent.com/helxplatform/appstore/%APPSTORE_ASSET_BRANCH%/appstore/core/static/images/%BRAND%/favicon.ico"
+      %>"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
