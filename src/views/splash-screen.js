@@ -33,7 +33,10 @@ export const SplashScreenView = withWorkspaceAuthentication((props) => {
         (async () => {
             try {
                 await callWithRetry(async () => { 
-                    const res = await axios.get(decoded_url) 
+                    const res = await fetch(decoded_url, {
+                        method: "GET",
+                        redirect: "manual"
+                    }) 
                     if (res.status === 200 && shouldCancel === false) {
                         setLoading(false)
                     } else {
