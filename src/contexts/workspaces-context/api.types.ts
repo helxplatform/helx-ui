@@ -139,6 +139,7 @@ export interface AppInstance {
     cpus: number
     gpus: number
     memory: string
+    is_ready: boolean
     url: string
     status: string
 }
@@ -146,6 +147,10 @@ export interface AvailableAppsResponse {
     [appName: string]: AvailableApp
 }
 export type AppInstancesResponse = AppInstance[]
+export interface AppInstanceIsReadyResponse {
+    is_ready: boolean
+}
+
 export interface UpdateAppInstanceResponse {
     status: "success" | "error"
     message: string

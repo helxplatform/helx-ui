@@ -317,6 +317,12 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     }
 
     @APIRequest()
+    async getAppInstanceIsReady(sid: string, fetchOptions: AxiosRequestConfig={}): Promise<AppInstanceIsReadyResponse> {
+        const res = await this.axios.get<AppInstanceIsReadyResponse>(`/instances/${ sid }/is_ready/`);
+        return res.data;
+    }
+
+    @APIRequest()
     async updateAppInstance(
         sid: string,
         workspace: string,
