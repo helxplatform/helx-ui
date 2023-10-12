@@ -361,16 +361,11 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         let sid = (parts.length >= 2)?parts[parts.length - 2]:"";
 
         if(sid.length == 0) return false;
-        try {
-            const res = await this.axios.get<AppInstanceIsReadyResponse>(`/instances/${ sid }/is_ready/`, {
-                ...fetchOptions
-            });
-            if(res.data) return res.data.is_ready;
-            return false;
-        } catch (e: any) {
-            console.log("error getting ready status",e)
-            return false
-        }
+        const res = await this.axios.get<AppInstanceIsReadyResponse>(`/instances/${ sid }/is_ready/`, {
+            ...fetchOptions
+        });
+        if(res.data) return res.data.is_ready;
+        return false;
     }
 }
 

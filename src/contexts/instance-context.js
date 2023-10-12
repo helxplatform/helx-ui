@@ -27,10 +27,13 @@ export const InstanceProvider = ({ children }) => {
     // Clear its timeout when the instance is deleted by user.
 
     const pollingInstance = (app_id, sid, app_url, app_name) => {
-        // let ready = false;
         const decoded_url = decodeURIComponent(app_url);
         const executePoll = async () => {
-            const isAppReady = await api.getAppReady(decoded_url);
+            let isAppReady = false;
+
+            try {
+               isAppReady = await api.getAppReady(decoded_url);
+            } catch(e) {} // just absorb the exception, the default false is correct here
             if (isAppReady) {
                 let newActivity = {
                     'sid': sid,
