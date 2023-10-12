@@ -317,12 +317,6 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     }
 
     @APIRequest()
-    async getAppInstanceIsReady(sid: string, fetchOptions: AxiosRequestConfig={}): Promise<AppInstanceIsReadyResponse> {
-        const res = await this.axios.get<AppInstanceIsReadyResponse>(`/instances/${ sid }/is_ready/`);
-        return res.data;
-    }
-
-    @APIRequest()
     async updateAppInstance(
         sid: string,
         workspace: string,
@@ -362,19 +356,22 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     }
 
     @APIRequest()
-    async getAppReady(appUrl: string, fetchOptions: AxiosRequestConfig={}): Promise<boolean> {
+    async getAppReady(decodedURL: string, fetchOptions: AxiosRequestConfig={}): Promise<boolean> {
+        let parts = decodedURL.split('/');
+        let sid = (parts.length >= 2)?parts[parts.length - 2]:"";
+
+        if(sid.length == 0) return false;
         try {
-            // appUrl is a full URL, not a relative path.
-            const res = await this.axios.get(appUrl, {
-                ...fetchOptions,
-                baseURL: undefined
-            })
-            return res.status === 200
+            const res = await this.axios.get<AppInstanceIsReadyResponse>(`/instances/${ sid }/is_ready/`, {
+                ...fetchOptions
+            });
+            if(res.data) return res.data.is_ready;
+            return false;
         } catch (e: any) {
+            console.log("error getting ready status",e)
             return false
         }
     }
-
 }
 
 /**

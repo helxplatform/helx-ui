@@ -32,12 +32,9 @@ export const SplashScreenView = withWorkspaceAuthentication((props) => {
         let shouldCancel = false;
         (async () => {
             try {
-                let parts = decoded_url.split('/');
-                let sid = (parts.length >= 2)?parts[parts.length - 2]:"";
-
                 await callWithRetry(async () => { 
-                    const res = await api.getAppInstanceIsReady(sid);
-                    if (res.is_ready == true && shouldCancel === false) {
+                    const is_ready = await api.getAppReady(decoded_url);
+                    if (is_ready && shouldCancel === false) {
                         setLoading(false)
                     } else {
                         throw new Error("app not ready")

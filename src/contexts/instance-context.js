@@ -30,7 +30,7 @@ export const InstanceProvider = ({ children }) => {
         // let ready = false;
         const decoded_url = decodeURIComponent(app_url);
         const executePoll = async () => {
-            const isAppReady = await api.getAppReady(app_url);
+            const isAppReady = await api.getAppReady(decoded_url);
             if (isAppReady) {
                 let newActivity = {
                     'sid': sid,
