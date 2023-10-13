@@ -15,7 +15,7 @@ export const SplashScreenView = withWorkspaceAuthentication((props) => {
     if(header !== null) header.style.visibility = "hidden";
     if(sidePanel !== null) sidePanel.style.visibility = "hidden";
     const { context } = useEnvironment();
-    const { appstoreContext } = useWorkspacesAPI()
+    const { api, appstoreContext } = useWorkspacesAPI()
     const [loading, setLoading] = useState(true);
     const [errorPresent, setErrorPresent] = useState(false);
 
@@ -33,14 +33,14 @@ export const SplashScreenView = withWorkspaceAuthentication((props) => {
         (async () => {
             try {
                 await callWithRetry(async () => { 
-                    const res = await axios.get(decoded_url) 
-                    if (res.status === 200 && shouldCancel === false) {
+                    const isReady = await api.getAppReady(decoded_url);
+                    if (isReady && shouldCancel === false) {
                         setLoading(false)
                     } else {
-                        throw new Error("Could not ensure readiness of app URL")
+                        throw new Error("app not ready")
                     }
                 }, {
-                    failedCallback: () => {
+                    failedCallback: (e) => {
                         return shouldCancel
                     },
                     timeout: 240000,
