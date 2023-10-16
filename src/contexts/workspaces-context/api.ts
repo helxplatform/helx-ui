@@ -23,6 +23,7 @@ import {
     SocialSignupNotAuthorizedError,
     LaunchAppResponse,
     Unsubscribe,
+    AppInstanceIsReadyResponse,
 } from './api.types'
 
 /**
@@ -357,8 +358,8 @@ export class WorkspacesAPI implements IWorkspacesAPI {
 
     @APIRequest()
     async getAppReady(decodedURL: string, fetchOptions: AxiosRequestConfig={}): Promise<boolean> {
-        let parts = decodedURL.split('/');
-        let sid = (parts.length >= 2)?parts[parts.length - 2]:"";
+        const parts = decodedURL.split('/');
+        const sid = (parts.length >= 2)?parts[parts.length - 2]:"";
 
         if(sid.length == 0) return false;
         const res = await this.axios.get<AppInstanceIsReadyResponse>(`/instances/${ sid }/is_ready/`, {

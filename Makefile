@@ -1,7 +1,8 @@
 SHELL 			 := /bin/bash
 BRANCH_NAME	 	 := $(shell git branch --show-current | sed -r 's/[/]+/_/g')
 override VERSION := ${BRANCH_NAME}-${VER}
-DOCKER_ORG   	 := helxplatform
+#DOCKER_ORG   	 := helxplatform
+DOCKER_ORG   	 := containers.renci.org/helxplatform
 DOCKER_TAG   	 := helx-ui:${VERSION}
 BUILD_PATH   	 := ./build/frontend
 TYCHO_BRANCH 	 := develop
@@ -31,7 +32,7 @@ build.npm:
 build.image:
 	if [ -z "$(VER)" ]; then echo "Please provide a value for the VER variable like this:"; echo "make VER=4 build.image"; false; fi;
 	echo "Building docker image: $(DOCKER_TAG)"
-	docker build . --no-cache --pull -t $(DOCKER_ORG)/$(DOCKER_TAG)
+	docker buildx build --platform=linux/amd64 . --no-cache --pull -t $(DOCKER_ORG)/$(DOCKER_TAG)
 
 #build: build project and image
 build: build.npm build.image
