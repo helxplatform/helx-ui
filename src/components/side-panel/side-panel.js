@@ -14,12 +14,7 @@ const ActivityLog = ({ events, setShowEventInfo }) => {
     const { appSpecs } = useActivity()
 
     const [collapsed, setCollapsed] = useState(true)
-    const cleanedEvents = useMemo(() => events.filter((event) => {
-        // If an event exists for an app that has been removed from
-        // the available apps list, then we need to remove that event.
-        return event.hasOwnProperty("data") && appSpecs.hasOwnProperty(event.data.appId)
-    }), [events, appSpecs])
-    const [latestActivity, ...otherActivities] = useMemo(() => cleanedEvents, [cleanedEvents])
+    const [latestActivity, ...otherActivities] = useMemo(() => events, [events])
 
     return (
         <Collapse
@@ -156,18 +151,23 @@ const ActivityEntry = ({ event, full, setShowEventInfo }) => {
 }
 
 export const SidePanel = () => {
-    const { appActivityCache, clearActivity } = useActivity();
+    const { appActivityCache, appSpecs, clearActivity } = useActivity();
     const { wsApi } = useWorkspacesAPI();
     const [visible, setVisible] = useState(false);
     const [seenActivities, setSeenActivities] = useLocalStorage("seen_activities", [])
     const [eventModalInfo, setShowEventInfo] = useState()
     
     const activities = useMemo(() => appActivityCache.reduce((acc, cur) => {
+        const aid = cur.data.appId
         const sid = cur.data.systemId
-        if (!acc[sid]) acc[sid] = []
-        acc[sid].push(cur)
+        // If an event exists for an app that isn't in the available apps
+        // list anymore, then we shouldn't include that event.
+        if (appSpecs.hasOwnProperty(aid)) {
+            if (!acc[sid]) acc[sid] = []
+            acc[sid].push(cur)
+        }
         return acc
-    }, {}), [appActivityCache])
+    }, {}), [appActivityCache, appSpecs])
     const notificationCount = useMemo(() => {
         return appActivityCache.filter((event) => !seenActivities.includes(event.uid)).length
     }, [appActivityCache, seenActivities])
