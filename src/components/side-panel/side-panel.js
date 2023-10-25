@@ -11,9 +11,15 @@ import './side-panel.css';
 const { Panel } = Collapse
 
 const ActivityLog = ({ events, setShowEventInfo }) => {
-    const [collapsed, setCollapsed] = useState(true)
+    const { appSpecs } = useActivity()
 
-    const [latestActivity, ...otherActivities] = useMemo(() => events, [events])
+    const [collapsed, setCollapsed] = useState(true)
+    const cleanedEvents = useMemo(() => events.filter((event) => {
+        // If an event exists for an app that has been removed from
+        // the available apps list, then we need to remove that event.
+        return appSpecs.hasOwnProperty(event.data.appId)
+    }), [events, appSpecs])
+    const [latestActivity, ...otherActivities] = useMemo(() => cleanedEvents, [cleanedEvents])
 
     return (
         <Collapse
