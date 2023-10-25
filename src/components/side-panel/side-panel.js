@@ -17,7 +17,7 @@ const ActivityLog = ({ events, setShowEventInfo }) => {
     const cleanedEvents = useMemo(() => events.filter((event) => {
         // If an event exists for an app that has been removed from
         // the available apps list, then we need to remove that event.
-        return appSpecs.hasOwnProperty(event.data.appId)
+        return event.hasOwnProperty("data") && appSpecs.hasOwnProperty(event.data.appId)
     }), [events, appSpecs])
     const [latestActivity, ...otherActivities] = useMemo(() => cleanedEvents, [cleanedEvents])
 
