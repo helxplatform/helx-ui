@@ -11,8 +11,9 @@ import './side-panel.css';
 const { Panel } = Collapse
 
 const ActivityLog = ({ events, setShowEventInfo }) => {
-    const [collapsed, setCollapsed] = useState(true)
+    const { appSpecs } = useActivity()
 
+    const [collapsed, setCollapsed] = useState(true)
     const [latestActivity, ...otherActivities] = useMemo(() => events, [events])
 
     return (
@@ -150,18 +151,23 @@ const ActivityEntry = ({ event, full, setShowEventInfo }) => {
 }
 
 export const SidePanel = () => {
-    const { appActivityCache, clearActivity } = useActivity();
+    const { appActivityCache, appSpecs, clearActivity } = useActivity();
     const { wsApi } = useWorkspacesAPI();
     const [visible, setVisible] = useState(false);
     const [seenActivities, setSeenActivities] = useLocalStorage("seen_activities", [])
     const [eventModalInfo, setShowEventInfo] = useState()
     
     const activities = useMemo(() => appActivityCache.reduce((acc, cur) => {
+        const aid = cur.data.appId
         const sid = cur.data.systemId
-        if (!acc[sid]) acc[sid] = []
-        acc[sid].push(cur)
+        // If an event exists for an app that isn't in the available apps
+        // list anymore, then we shouldn't include that event.
+        if (appSpecs.hasOwnProperty(aid)) {
+            if (!acc[sid]) acc[sid] = []
+            acc[sid].push(cur)
+        }
         return acc
-    }, {}), [appActivityCache])
+    }, {}), [appActivityCache, appSpecs])
     const notificationCount = useMemo(() => {
         return appActivityCache.filter((event) => !seenActivities.includes(event.uid)).length
     }, [appActivityCache, seenActivities])

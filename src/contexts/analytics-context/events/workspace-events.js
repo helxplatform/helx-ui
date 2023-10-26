@@ -1,63 +1,70 @@
 export function appLaunched(appName, sid, cpu, gpu, mem, failed=false) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "App launched",
-        label: `User launched new app "${appName}" (${sid})`,
+        category: "ui_interaction",
+        action: "app_launched",
+        label: `${appName}-${sid}`,
         customParameters: {
-            "App name": appName,
-            "App SID": sid,
-            "CPU allocated": cpu,
-            "GPU allocated": gpu,
-            "Memory allocated": mem,
-            "Action failed": failed
+            "app_name": appName,
+            "app_sid": sid,
+            "cpu": cpu,
+            "gpu": gpu,
+            "memory": mem,
+            "did_fail": failed
             
         }
     });
 }
 export function appOpened(appName, sid) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "App opened",
-        label: `User opened app "${appName}" (${sid})`,
+        category: "ui_interaction",
+        action: "app_opened",
+        label: `${appName}-${sid}`,
         customParameters: {
-            "App name": appName,
-            "App SID": sid
+            "app_name": appName,
+            "app_sid": sid
         }
     });
 }
 export function appDeleted(appName, sid, error=null) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "App deleted",
-        label: `User deleted app "${appName}" (${sid})`,
+        category: "ui_interaction",
+        action: "app_deleted",
+        label: `${appName}-${sid}`,
         customParameters: {
-            "App name": appName,
-            "App SID": sid,
-            "Action failed": !!error,
-            "Error message": error
+            "app_name": appName,
+            "app_sid": sid,
+            "did_fail": !!error,
+            "error_message": error
         }
     });
 }
 export function allAppsDeleted() {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "All apps deleted",
-        label: `User deleted all apps`
+        category: "ui_interaction",
+        action: "all_apps_deleted",
+        // label: `User deleted all apps`
     });
 }
 export function appUpdated(appName, sid, workspace, cpu, gpu, mem, failed=false) {
     this.analytics.trackEvent({
-        category: "UI Interaction",
-        action: "App updated",
-        label: `User updated app "${appName}" (${sid})`,
+        category: "ui_interaction",
+        action: "app_updated",
+        label: `${appName}-${sid}`,
         customParameters: {
-            "App name": appName,
-            "App SID": sid,
-            "Workspace": workspace,
-            "CPU allocated": cpu,
-            "GPU allocated": gpu,
-            "Memory allocated": mem,
-            "Action failed": failed
+            "app_name": appName,
+            "app_sid": sid,
+            "workspace": workspace,
+            "cpu": cpu,
+            "gpu": gpu,
+            "memory": mem,
+            "did_fail": failed
         }
+    });
+}
+export function workspacesLogout() {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "workspaces_logout",
+        // label: `User logged out.`
     });
 }

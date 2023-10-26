@@ -1,7 +1,8 @@
 import { Fragment, useEffect } from 'react'
 import { Typography } from 'antd'
-import { useEnvironment } from '../contexts'
+import { useAnalytics, useEnvironment } from '../contexts'
 import { useTitle } from './'
+import {faqsOpened, userGuideOpened} from "../contexts/analytics-context/events/support-events";
 
 const { Title } = Typography
 
@@ -27,6 +28,66 @@ const Documentation = () =>
     </ul>
   </Fragment>
 
+const HEALSupport = () => {
+  const { analyticsEvents } = useAnalytics()
+  return (
+    <Fragment>
+        <Title level={1}>Need Help?</Title>
+        <div style={{ fontSize: 15 }}>
+          <Typography>To report a bug, request technical assistance, submit user feedback, or submit a different request, visit our Help Portal.</Typography>
+          <ul>
+              <li>
+                <a
+                  href="http://bit.ly/HEALSemanticSearch_Help"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={ () => {
+                    analyticsEvents.helpPortalOpened()
+                  } }
+                >
+                  <b>Help Portal</b>
+                </a>
+              </li>
+          </ul>
+        </div>
+
+        <Title level={1} style={{ marginTop: 16 }}>Documentation</Title>
+        <div style={{ fontSize: 15 }}>
+          <Typography>
+              Our documentation is designed to help guide you through your first steps with HEAL Semantic Search.
+              We encourage you to get started with these introductory materials.
+          </Typography>
+          <ul>
+              <li>
+                  <a
+                      href="https://docs.google.com/document/d/1M43Ex0eg_ObvXIGvWFUuwqKAYpWATXa8vYSpB5gUa6Q/edit?pli=1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={ () => {
+                          analyticsEvents.userGuideOpened()
+                      } }
+                  >
+                      <b>User Guide</b>
+                  </a>
+              </li>
+              <li>
+                  <a
+                      href="https://docs.google.com/document/d/1njtRJbdHePRE-1kYtmyli-NqVuwU9bdqZ-42RNQGpBI/edit"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={ () => {
+                          analyticsEvents.faqsOpened()
+                      } }
+                  >
+                    <b>FAQs</b>
+                  </a>
+              </li>
+          </ul>
+        </div>
+    </Fragment>
+  )
+}
+
 export const SupportView = () => {
   const { context } = useEnvironment()
   useTitle("Support")
@@ -35,6 +96,7 @@ export const SupportView = () => {
     <Fragment>
       {Array.isArray(context.hidden_support_sections) && !context.hidden_support_sections.includes('community') && <CommunitySupport />}
       {Array.isArray(context.hidden_support_sections) && !context.hidden_support_sections.includes('documentation') && <Documentation />}
+      {Array.isArray(context.hidden_support_sections) && !context.hidden_support_sections.includes('heal-support') && <HEALSupport />}
     </Fragment>
   )
 }

@@ -21,7 +21,7 @@ const KnowledgeGraph = ({ graph, highlight }) => {
   }, [graph])
 
   const Highlighter = useCallback(({ ...props }) => (
-    <_Highlighter searchWords={highlight} {...props}/>
+    <_Highlighter autoEscape={ true } searchWords={highlight} {...props}/>
 ), [highlight])
 
   return interactions.map((interaction, i) => (

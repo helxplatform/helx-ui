@@ -1,0 +1,9 @@
+.navigation-tab-group > .ant-tabs-nav {
+    width:100%;
+    justify-content: center;
+}
+
+.navigation-tab-group .ant-tabs-nav-wrap {
+    align-self: normal !important;
+    flex: initial !important;
+}

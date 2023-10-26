@@ -23,7 +23,7 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
         currentPage, pageCount,
         layout, setLayout,
         typeFilter, setTypeFilter,
-        conceptTypeCounts, conceptPages
+        conceptTypes, conceptPages
     } = useHelxSearch()
     const { analyticsEvents } = useAnalytics()
     const { md } = useBreakpoint()
@@ -50,7 +50,7 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
                     { variables ? (
                         `${ variableStudyResultCount } studies and ${ totalVariableResults } variables`
                     ) : (
-                        `${ totalConcepts } concepts (${ Object.keys(conceptPages).length } of ${ pageCount } pages)`
+                        `${ totalConcepts } concepts`
                     ) }
                 </Text>
                 { !variables && (
@@ -76,7 +76,10 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
                         <Text style={{ display: !md ? "none" : undefined }}>Filter type:</Text>
                         <Select
                             value={typeFilter}
-                            onChange={(value) => setTypeFilter(value)}
+                            onChange={(value) => {
+                                analyticsEvents.conceptFilterApplied(value)
+                                setTypeFilter(value)
+                            }}
                             placeholder="Filter type"
                             dropdownMatchSelectWidth={false}
                             placement="bottomRight"
@@ -84,7 +87,7 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
                         >
                             <Option value={null}>All</Option>
                             {
-                                Object.entries(conceptTypeCounts).sort((a, b) => b[1] - a[1]).map(([conceptType, count]) => (
+                                Object.entries(conceptTypes).sort((a, b) => b[1] - a[1]).map(([conceptType, count]) => (
                                 <Option key={conceptType} value={conceptType}>{conceptType} ({count})</Option>
                                 ))
                             }

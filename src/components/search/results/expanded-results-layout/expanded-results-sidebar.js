@@ -21,7 +21,7 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
     const {
         conceptPages, selectedResult, setSelectedResult,
         pageCount, isLoadingConcepts, setLayout,
-        currentPage, setCurrentPage, typeFilter
+        currentPage, setCurrentPage
     } = useHelxSearch()
     const { md } = useBreakpoint()
     const cardRefs = useRef({})
@@ -29,8 +29,8 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
     
     const concepts = useMemo(() => Object.values(conceptPages).flat(), [conceptPages])
     const hasMore = useMemo(() => (
-        !typeFilter && !isLoadingConcepts && (currentPage < pageCount || pageCount === 0)
-    ), [typeFilter, isLoadingConcepts, currentPage, pageCount])
+        !isLoadingConcepts && (currentPage < pageCount || pageCount === 0)
+    ), [isLoadingConcepts, currentPage, pageCount])
 
     const getNextPage = useCallback(() => {
         setCurrentPage(currentPage + 1)
@@ -101,16 +101,11 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                                 {
                                     currentPage === pageCount ? (
                                          null
-                                    ) : (
-                                        typeFilter ? (
-                                            <Text style={{ textAlign: "center" }}>Disable filters to load more results.</Text>
-                                        ) : (
-                                            (currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
-                                                <Spin
-                                                    className={classNames("results-list-spin", concepts.length === 0 && isLoadingConcepts && "full-load")}
-                                                    style={{ display: "block", margin: "0 16px" }}
-                                                />
-                                            )
+                                    ) : ((currentPage === 0 || currentPage < pageCount || isLoadingConcepts) && (
+                                            <Spin
+                                                className={classNames("results-list-spin", concepts.length === 0 && isLoadingConcepts && "full-load")}
+                                                style={{ display: "block", margin: "0 16px" }}
+                                            />
                                         )
                                     )
                                 }

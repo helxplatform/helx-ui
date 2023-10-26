@@ -11,11 +11,15 @@ search_enabled="${REACT_APP_SEMANTIC_SEARCH_ENABLED:-true}"
 search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
 tranql_url="${REACT_APP_TRANQL_URL:-\/tranql}"
-analytics="${REACT_APP_ANALYTICS:-}"
 hidden_support_sections="${REACT_APP_HIDDEN_SUPPORT_SECTIONS}"
 hidden_result_tabs="${REACT_APP_HIDDEN_RESULT_TABS}"
 deployment_namespace="${REACT_APP_DEPLOYMENT_NAMESPACE}"
 appstore_asset_branch="${REACT_APP_APPSTORE_ASSET_BRANCH}"
+analytics_enabled="${REACT_APP_ANALYTICS_ENABLED:-false}"
+analytics_platform="${REACT_APP_ANALYTICS_PLATFORM}"
+analytics_token="${REACT_APP_ANALYTICS_TOKEN}"
+meta_title="${META_TITLE:-HeLx UI}"
+meta_description="${META_DESCRIPTION:-HeLx UI}"
 
 
 template='{
@@ -26,17 +30,18 @@ template='{
     "workspaces_enabled": "%WORKSPACES_ENABLED%",
     "tranql_url": "%TRANQL_URL%",
     "analytics": {
-      "enabled": true,
-      "platform": "mixpanel",
-      "auth": {
-      "mixpanel_token": "%ANALYTICS%",
-      "ga_property": ""
-      }
+      "enabled": %ANALYTICS_ENABLED%,
+      "platform": "%ANALYTICS_PLATFORM%",
+      "token": "%ANALYTICS_TOKEN%"
     },
     "hidden_support_sections": "%HIDDEN_SUPPORT_SECTIONS%",
     "hidden_result_tabs": "%HIDDEN_RESULT_TABS%",
     "deployment_namespace": "%DEPLOYMENT_NAMESPACE%",
-    "appstore_asset_branch": "%APPSTORE_ASSET_BRANCH%"
+    "appstore_asset_branch": "%APPSTORE_ASSET_BRANCH%",
+    "meta": {
+      "title": "%META_TITLE%",
+      "description": "%META_DESCRIPTION%"
+    }
 }'
 
 echo "$template" | sed \
@@ -46,8 +51,12 @@ echo "$template" | sed \
   -e "s/%BRAND%/$brand_name/" \
   -e "s/%HIDDEN_SUPPORT_SECTIONS%/$hidden_support_sections/" \
   -e "s/%HIDDEN_RESULT_TABS%/$hidden_result_tabs/" \
-  -e "s/%ANALYTICS%/$analytics/" \
   -e "s/%TRANQL_URL%/$tranql_url/" \
   -e "s/%DEPLOYMENT_NAMESPACE%/$deployment_namespace/" \
   -e "s/%APPSTORE_ASSET_BRANCH%/$appstore_asset_branch/" \
+  -e "s/%ANALYTICS_ENABLED%/$analytics_enabled/" \
+  -e "s/%ANALYTICS_PLATFORM%/$analytics_platform/" \
+  -e "s/%ANALYTICS_TOKEN%/$analytics_token/" \
+  -e "s/%META_TITLE%/$meta_title/" \
+  -e "s/%META_DESCRIPTION%/$meta_description/" \
   > $1

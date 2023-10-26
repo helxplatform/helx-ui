@@ -44,6 +44,52 @@ const createCopyPlugin = ({
         ]
     })
 )
+const createHtmlWebpackPlugin = ({
+    isDevelopment
+}) => {
+    /**
+     * In production, we have an extra step where we generate an index template
+     * which is then turned into our final index file using sed substitutions from
+     * environment variables.
+     * 
+     * In development, we just want to directly generate an index.html. 
+     */
+    return new HtmlWebpackPlugin({
+        template: path.resolve(paths.public, 'index.ejs'),
+        filename: isDevelopment ? "index.html" : "index_template.html",
+        templateParameters: {
+            isDevelopment,
+            publicUrl: '/static/frontend/'
+        },
+        minify: {
+            html5: true,
+            collapseWhitespace: true,
+            minifyCSS: true,
+            minifyJS: true,
+            minifyURLs: true,
+            removeAttributeQuotes: false,
+            removeComments: true,
+            removeEmptyAttributes: true,
+            removeOptionalTags: true,
+            removeRedundantAttributes: true,
+            removeScriptTypeAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            useShortDoctype: true
+        }
+    })
+}
+const createMiniCssExtractPlugin = ({
+    isDevelopment
+}) => (
+    // CSS HMR doesn't work with contenthash
+    isDevelopment ? new MiniCssExtractPlugin({
+        filename: '[name].css',
+        chunkFilename: '[id].css'
+    }) : new MiniCssExtractPlugin({
+        filename: '[name].[contenthash].css',
+        chunkFilename: '[id].[contenthash].css'
+    })
+)
 const baseConfig = {
     entry: paths.entryPoint,
     output: {
@@ -90,36 +136,10 @@ const baseConfig = {
             {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,
                 type: 'asset/resource',
-            }
+            },
         ]
     },
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: path.resolve(paths.public, 'index.ejs'),
-            templateParameters: {
-                publicUrl: '/static/frontend/'
-            },
-            minify: {
-                html5: true,
-                collapseWhitespace: true,
-                minifyCSS: true,
-                minifyJS: true,
-                minifyURLs: true,
-                removeAttributeQuotes: true,
-                removeComments: true,
-                removeEmptyAttributes: true,
-                removeOptionalTags: true,
-                removeRedundantAttributes: true,
-                removeScriptTypeAttributes: true,
-                removeStyleLinkTypeAttributese: true,
-                useShortDoctype: true
-            }
-        }),
-        new MiniCssExtractPlugin({
-            filename: '[name].[contenthash].css',
-            chunkFilename: '[id].[contenthash].css'
-        })
-    ],
+    plugins: [],
     resolve: {
         extensions: ['.js', '.jsx', '.ts', '.tsx']
     },
@@ -134,5 +154,7 @@ module.exports = {
     paths,
     baseConfig,
     createBabelLoader,
-    createCopyPlugin
+    createCopyPlugin,
+    createHtmlWebpackPlugin,
+    createMiniCssExtractPlugin
 }

@@ -58,6 +58,14 @@
   margin-bottom: -16px;
 }
 
+.explanation-score-progress {
+  display: inline-flex !important;
+  align-items: center;
+}
+.explanation-score-progress .ant-progress-outer {
+  display: inline-flex;
+}
+
 @media (min-width: 600px) {
   .tab-name {
     display: inline;

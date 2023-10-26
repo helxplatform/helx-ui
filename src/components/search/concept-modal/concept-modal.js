@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Menu, Modal, Result, Space, Spin, Typography, Tooltip, Divider } from 'antd'
 import CustomIcon, {
   InfoCircleOutlined as OverviewIcon,
@@ -9,10 +9,12 @@ import CustomIcon, {
   ExportOutlined as ExternalLinkIcon,
   FullscreenOutlined as FullscreenLayoutIcon,
   UnorderedListOutlined as CdesIcon,
+  QuestionCircleOutlined as ExplanationIcon,
   ArrowLeftOutlined, InfoCircleOutlined
 } from '@ant-design/icons'
-import { CdesTab, OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab } from './tabs'
+import { CdesTab, OverviewTab, StudiesTab, KnowledgeGraphsTab, TranQLTab, ExplanationTab } from './tabs'
 import { useHelxSearch } from '../'
+import { BouncingDots } from '../../'
 import { useAnalytics, useEnvironment } from '../../../contexts'
 import { kgLink } from '../../../utils'
 import './concept-modal.css'
@@ -84,13 +86,24 @@ export const ConceptModalBody = ({ result }) => {
   const fetchCdesTranqlController = useRef([])
   const fetchKgsController = useRef()
 
+  const studyTitle = (
+    <div style={{ display: "inline" }}>
+      Studies
+    </div>
+  )
+  const cdeTitle = (
+    <div style={{ display: "inline" }}>
+      CDEs
+    </div>
+  )
+
   const tabs = {
-    'overview': { title: 'Overview',            icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
-    'studies':  { title: 'Studies',             icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
-    'cdes':     { title: `CDEs`,                icon: <CdesIcon />,             content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } loading={ cdesLoading } /> },
-    'kgs':      { title: 'Knowledge Graphs',    icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
-    'tranql':   { title: 'TranQL',              icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> },
-    // 'robokop':   { title: 'Robokop',            icon: <RobokopIcon/>,           content: <RobokopTab /> }
+    'overview':     { title: 'Overview',         icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
+    'studies':      { title: studyTitle,         icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
+    'cdes':         { title: cdeTitle,           icon: <CdesIcon />,             content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } loading={ cdesLoading } /> },
+    'kgs':          { title: 'Knowledge Graphs', icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
+    'explanation':  { title: 'Explanation',      icon: <ExplanationIcon />,      content: <ExplanationTab result={ result } /> },
+    'tranql':       { title: 'TranQL',           icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> }
   }
   const links = {
     'robokop' : { title: 'ROBOKOP', icon: <RobokopIcon/>, url: "https://robokop.renci.org/" }
@@ -100,19 +113,21 @@ export const ConceptModalBody = ({ result }) => {
     delete links[tab]
   })
   
-  const setCurrentTab = (() => {
+  const setCurrentTab = useCallback((() => {
     let oldTime = Date.now();
     return (tabName) => {
       const newTime = Date.now();
       const elapsed = newTime - oldTime;
-      if (tabName !== currentTab) {
-        // Make sure we only track events when the tab actually changes.
-        analyticsEvents.resultTabSelected(tabs[tabName].title, tabs[currentTab].title, elapsed)
-      } 
+      _setCurrentTab((currentTab) => {
+        if (tabName !== currentTab) {
+          // Make sure we only track events when the tab actually changes.
+          analyticsEvents.resultTabSelected(tabs[tabName].title, tabs[currentTab].title, elapsed)
+        } 
+        return tabName
+      })
       oldTime = newTime;
-      _setCurrentTab(tabName);
     }
-  })()
+  })(), [tabs])
 
   useEffect(() => {
     setCurrentTab('overview')

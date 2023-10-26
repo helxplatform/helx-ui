@@ -7,10 +7,10 @@ const { Text } = Typography
 
 const SHOW_COUNT = 8
 
-export const RelatedConceptsList = ({ concepts, highlight }) => {
+export const RelatedConceptsList = ({ concepts, highlight, onShowMore }) => {
     const [showingAll, setShowingAll] = useState(false)
 
-    const failed = useMemo(() => concepts === null, [concepts])
+    const failed = useMemo(() => concepts === null || concepts.length === 0, [concepts])
     if (failed) concepts = []
 
     const showCount = useMemo(() => showingAll ? concepts.length : SHOW_COUNT, [showingAll, concepts])
@@ -56,8 +56,10 @@ export const RelatedConceptsList = ({ concepts, highlight }) => {
                     size="small"
                     type="link"
                     style={{ fontSize: "12px" }}
-                    onClick={ () => setShowingAll(!showingAll)
-                    }
+                    onClick={ () => {
+                        onShowMore(!showingAll)
+                        setShowingAll(!showingAll)
+                    } }
                 >
                     { !showingAll ? `Show ${hiddenConcepts.length - hiddenHighlighted.length} more results` : "Show less" }
                 </Button>

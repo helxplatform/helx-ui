@@ -24,12 +24,11 @@ export const Layout = ({ children }) => {
 
   const logout = async () => {
     setLoggingOut(true)
-    analyticsEvents.logout()
+    analyticsEvents.workspacesLogout()
     try {
       await api.logout()
     } catch (e) {}
     setLoggingOut(false)
-    // logoutHandler(helxAppstoreUrl)
   }
   const removeTrailingSlash = (url) => url.endsWith("/") ? url.slice(0, url.length - 1) : url
   const activeRoutes = routes.filter((route) => (
@@ -93,7 +92,14 @@ export const Layout = ({ children }) => {
         {children}
         {context.workspaces_enabled === 'true' && <SidePanel />}
       </Content>
-      <Footer style={{ textAlign: 'center', paddingTop: 0 }}>&copy; HeLx {new Date().getFullYear()}</Footer>
+      {
+        context?.brand === 'heal'
+        ? <Footer style={{ textAlign: 'center', paddingTop: 0 }}>
+          NIH HEAL Semantic Search is powered by Dug, an open source semantic search developed
+          by <a href="https://renci.org" target="_blank" rel="noopener noreferrer">RENCI</a> and <a href="https://www.rti.org/" target="_blank" rel="noopener noreferrer">RTI International</a>
+        </Footer>
+        : <Footer style={{ textAlign: 'center', paddingTop: 0 }}>&copy;{ context?.meta.title ?? 'HeLx' }{new Date().getFullYear()}</Footer>
+      }
     </AntLayout>
   )
 }

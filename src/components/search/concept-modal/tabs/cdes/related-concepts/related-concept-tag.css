@@ -4,6 +4,7 @@
 }
 .related-concept-popover-overlay .ant-popover-inner-content {
     padding: 0;
+    width: 100%;
 }
 .related-concept-popover-overlay .ant-popover-title {
     padding: 8px 12px;

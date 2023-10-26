@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef, useMemo, Fragment } from 'react'
-import { Collapse, List, Typography, Button, Space, Divider, Tooltip } from 'antd'
+import { Collapse, List, Typography, Button, Space, Divider, Tooltip, Badge } from 'antd'
 import {
     PushpinOutlined as UnselectedIcon,
     PushpinFilled as SelectedIcon,
 } from '@ant-design/icons'
+import { useAnalytics } from '../../../../contexts'
 const { Text } = Typography
 const { Panel } = Collapse
 
@@ -16,7 +17,7 @@ const VariableList = ({ study, filteredVariables }) => {
                 <div className={`study-variables-list-item within-filter-${ !!filteredVariables.find((result) => result.id === variable.id) }`} style={{ borderLeft: "none" }}>
                     <Text className="variable-name">
                         {variable.name}&nbsp;
-                        ({variable.e_link ? <a href={variable.e_link}>{variable.id}</a> : variable.id})
+                        ({variable.e_link ? <a href={variable.e_link} target="_blank" rel="noreferrer">{variable.id}</a> : variable.id})
                     </Text><br />
                     <Text className="variable-description"> {variable.description}</Text>
                 </div>
@@ -25,11 +26,17 @@ const VariableList = ({ study, filteredVariables }) => {
     )
 }
 
-const VariablePanel = ({ study, filteredVariables, selected, onSelect }) => {
+const VariablePanel = ({ study, filteredVariables, dataSource, selected, onSelect }) => {
+    const { analyticsEvents } = useAnalytics()
     const [collapsed, setCollapsed] = useState(true)
+    const toggleCollapsed = () => {
+        const isCollapsed = !collapsed
+        setCollapsed(isCollapsed)
+        analyticsEvents.variableViewStudyToggled(study.c_name, !isCollapsed)
+    }
     return (
         <Fragment>
-        <Collapse ghost activeKey={collapsed ? null : `panel_${study.c_name}`} onChange={ () => setCollapsed(!collapsed) }>
+        <Collapse ghost activeKey={collapsed ? null : `panel_${study.c_name}`} onChange={ toggleCollapsed }>
             <Panel
                 key={`panel_${study.c_name}`}
                 className={ [
@@ -37,13 +44,35 @@ const VariablePanel = ({ study, filteredVariables, selected, onSelect }) => {
                     selected ? 'selected' : 'unselected',
                 ] }
                 header={
-                    <span className="study-panel-header">
-                        <Text>{study.c_name}{` `}</Text>
+                    <span className="study-panel-header" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        <Tooltip title={ study.data_source } placement="right" >
+                            <div style={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: '50%',
+                                background: dataSource.color,
+                                marginRight: 8
+                            }} />
+                        </Tooltip>
+                        <Text>{study.c_name}&nbsp;</Text>
+                        ({ study.c_link ? (
+                            <a
+                                href={study.c_link}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={ (e) => {
+                                    e.stopPropagation()
+                                } }
+                            >
+                                {study.c_id}
+                            </a>
+                        ) : study.c_id })
                         <Tooltip title="Highlight variables from study" align={{ offset: [ 0, 4 ] }}>
                             <Button
                                 type="link"
                                 className="study-selection-button"
                                 onClick={ (e) => (e.stopPropagation(), onSelect()) }
+                                style={{ paddingLeft: 8, paddingRight: 8 }}
                             >
                             {
                                 selected
@@ -68,7 +97,14 @@ const VariablePanel = ({ study, filteredVariables, selected, onSelect }) => {
     )
 }
 
-export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisplay, filteredVariables, toggleStudyHighlightingInHistogram}) => {
+export const VariablesTableByStudy = ({
+    studyResultsForDisplay,
+    studyNamesForDisplay,
+    filteredVariables,
+    studyDataSources,
+    toggleStudyHighlightingInHistogram
+}) => {
+    const { analyticsEvents } = useAnalytics()
     return (
         <div className="variables-collapse">
             {
@@ -78,8 +114,13 @@ export const VariablesTableByStudy = ({studyResultsForDisplay, studyNamesForDisp
                             key = { study.c_id }
                             study={ study }
                             filteredVariables={ filteredVariables }
+                            dataSource={ studyDataSources[study.data_source] }
                             selected={ studyNamesForDisplay.includes(study.c_name) }
-                            onSelect={ () => toggleStudyHighlightingInHistogram(study.c_name) }
+                            onSelect={ () => {
+                                const pinActive = studyNamesForDisplay.includes(study.c_name)
+                                analyticsEvents.variableViewStudyPinToggled(study.c_name, pinActive)
+                                toggleStudyHighlightingInHistogram(study.c_name)
+                            } }
                         />   
                     )
                 })
