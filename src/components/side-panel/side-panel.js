@@ -158,6 +158,7 @@ export const SidePanel = () => {
     const [eventModalInfo, setShowEventInfo] = useState()
     
     const activities = useMemo(() => appActivityCache.reduce((acc, cur) => {
+        if (!appSpecs) return []
         const aid = cur.data.appId
         const sid = cur.data.systemId
         // If an event exists for an app that isn't in the available apps
