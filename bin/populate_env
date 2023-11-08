@@ -8,6 +8,7 @@ fi
 
 workspaces_enabled="${REACT_APP_WORKSPACES_ENABLED:-true}"
 search_enabled="${REACT_APP_SEMANTIC_SEARCH_ENABLED:-true}"
+default_space="${REACT_APP_DEFAULT_SPACE:-workspaces}"
 search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
 tranql_url="${REACT_APP_TRANQL_URL:-\/tranql}"
@@ -28,6 +29,7 @@ template='{
     "search_url": "%SEARCH_URL%",
     "search_enabled": "%SEARCH_ENABLED%",
     "workspaces_enabled": "%WORKSPACES_ENABLED%",
+    "default_space": "%DEFAULT_SPACE%",
     "tranql_url": "%TRANQL_URL%",
     "analytics": {
       "enabled": %ANALYTICS_ENABLED%,
@@ -47,6 +49,7 @@ template='{
 echo "$template" | sed \
   -e "s/%WORKSPACES_ENABLED%/$workspaces_enabled/" \
   -e "s/%SEARCH_ENABLED%/$search_enabled/" \
+  -e "s/%DEFAULT_SPACE%/$default_space/" \
   -e "s/%SEARCH_URL%/$search_url/" \
   -e "s/%BRAND%/$brand_name/" \
   -e "s/%HIDDEN_SUPPORT_SECTIONS%/$hidden_support_sections/" \

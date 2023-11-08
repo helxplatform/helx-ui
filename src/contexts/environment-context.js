@@ -43,18 +43,25 @@ export const EnvironmentProvider = ({ children }) => {
   // If workspace module is enabled, all relevant paths will be added. (/workspaces/active, workspace/available, ...)
   // Note: `parent` property refers to another equivalent or encapsulating route that occupies an entry in the site's header.
   // It's important to include this if applicable so that the header entry stays active, e.g. on subroutes of workspaces.
-  const generateRoutes = (searchEnabled, workspaceEnabled) => {
+  const generateRoutes = (searchEnabled, workspaceEnabled, defaultSpace) => {
     const baseRoutes = [];
-    if (searchEnabled === 'true') {
-      // route homepage to search if search is enabled
+    
+    // First push path for the landing space depending on what is defined in defaultSpace and enabled.
+    if (defaultSpace=='workspaces' && workspaceEnabled=='true') {
+      baseRoutes.push({ path: '/', parent: '/workspaces', text: '', Component: AvailableView })  
+    }
+    else if(defaultSpace=='search' && searchEnabled=='true') {
       baseRoutes.push({ path: '/', parent: '/search', text: '', Component: SearchView })
+    }
+    else{
+      baseRoutes.push({ path: '/', parent: '/support', text: '', Component: SupportView })
+    }
+
+    // Push space related paths
+    if (searchEnabled == 'true') {
       baseRoutes.push({ path: '/search', text: 'Search', Component: SearchView })
     }
     if (workspaceEnabled === 'true') {
-      // route homepage to apps page if search is disabled
-      if (searchEnabled === 'false') {
-        baseRoutes.push({ path: '/', parent: '/workspaces', text: '', Component: AvailableView })
-      }
       baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
       baseRoutes.push({ path: '/workspaces/login', parent: '/workspaces', text: '', Component: WorkspaceLoginView })
       baseRoutes.push({ path: '/workspaces/login/success', parent: '/workspaces', text: '', Component: LoginSuccessRedirectView })
@@ -62,10 +69,6 @@ export const EnvironmentProvider = ({ children }) => {
       baseRoutes.push({ path: '/workspaces/available', parent: '/workspaces', text: '', Component: AvailableView })
       baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: '', Component: ActiveView })
       baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', text: '', Component: SplashScreenView })
-    }
-    if (searchEnabled === 'false' && workspaceEnabled === 'false') {
-      // route homepage to support page if both search and workspaces are disabled
-      baseRoutes.push({ path: '/', parent: '/support', text: '', Component: SupportView })
     }
     baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
     return baseRoutes;
@@ -106,7 +109,7 @@ export const EnvironmentProvider = ({ children }) => {
   // If workspace is enabled, all routes should have a '/helx' basePath as the ui is embedded in the appstore
   useEffect(() => {
     if (Object.keys(context).length !== 0) {
-      const routes = generateRoutes(context.search_enabled, context.workspaces_enabled);
+      const routes = generateRoutes(context.search_enabled, context.workspaces_enabled, context.default_space);
       setAvailableRoutes(routes);
       if (context.workspaces_enabled === 'true') {
         setBasePath('/helx/');
