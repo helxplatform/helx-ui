@@ -8,7 +8,7 @@ fi
 
 workspaces_enabled="${REACT_APP_WORKSPACES_ENABLED:-true}"
 search_enabled="${REACT_APP_SEMANTIC_SEARCH_ENABLED:-true}"
-default_space="${REACT_APP_DEFAULT_SPACE:-workspaces}"
+default_space="${REACT_APP_DEFAULT_SPACE:-search}"
 search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
 tranql_url="${REACT_APP_TRANQL_URL:-\/tranql}"
