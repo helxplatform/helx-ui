@@ -1,1 +1,1 @@
-{ "brand": "", "color_scheme": { "primary": "#8a5a91", "secondary": "#505057" }, "search_url": "", "search_enabled": "true", "workspaces_enabled": "true" }
+{ "brand": "", "color_scheme": { "primary": "#8a5a91", "secondary": "#505057" }, "search_url": "", "search_enabled": "true", "workspaces_enabled": "true", "default_space": "workspaces" }
