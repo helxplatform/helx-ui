@@ -66,6 +66,7 @@ directly rather than regenerating it.
 See `.env.example` for the most up to date variables and appropriate default values.
 - `REACT_APP_REACT_APP_WORKSPACES_ENABLED`: enables workspaces functionality (requires Appstore)
 - `REACT_APP_SEMANTIC_SEARCH_ENABLED`: enables semantic search functionality
+- `REACT_APP_DEFAULT_SPACE`: identify default landing space: workspaces | search | support
 - `REACT_APP_HELX_SEARCH_URL`: points the UI to the Dug semantic search API
 - `REACT_APP_UI_BRAND_NAME`: heal | braini | catalyst | scidas | eduhelx | helx
 - `REACT_APP_TRANQL_ENABLED`: enables the TranQL visualization pane in search results
