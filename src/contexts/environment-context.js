@@ -10,6 +10,7 @@ import {
   SearchView,
   SplashScreenView,
   WorkspaceSignupView,
+  EduhelxAssignmentView
 } from '../views'
 
 // Setup global csrf token
@@ -43,7 +44,7 @@ export const EnvironmentProvider = ({ children }) => {
   // If workspace module is enabled, all relevant paths will be added. (/workspaces/active, workspace/available, ...)
   // Note: `parent` property refers to another equivalent or encapsulating route that occupies an entry in the site's header.
   // It's important to include this if applicable so that the header entry stays active, e.g. on subroutes of workspaces.
-  const generateRoutes = (searchEnabled, workspaceEnabled) => {
+  const generateRoutes = (searchEnabled, workspaceEnabled, isEduhelx) => {
     const baseRoutes = [];
     if (searchEnabled === 'true') {
       // route homepage to search if search is enabled
@@ -55,13 +56,18 @@ export const EnvironmentProvider = ({ children }) => {
       if (searchEnabled === 'false') {
         baseRoutes.push({ path: '/', parent: '/workspaces', text: '', Component: AvailableView })
       }
-      baseRoutes.push({ path: '/workspaces', text: 'Workspaces', Component: AvailableView })
+      baseRoutes.push({ path: '/workspaces', text: 'Workspaces', subMenu: true, Component: AvailableView })
       baseRoutes.push({ path: '/workspaces/login', parent: '/workspaces', text: '', Component: WorkspaceLoginView })
       baseRoutes.push({ path: '/workspaces/login/success', parent: '/workspaces', text: '', Component: LoginSuccessRedirectView })
       baseRoutes.push({ path: '/workspaces/signup/social', parent: '/workspaces', text: '', Component: WorkspaceSignupView })
       baseRoutes.push({ path: '/workspaces/available', parent: '/workspaces', text: '', Component: AvailableView })
-      baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: '', Component: ActiveView })
+      baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: 'Active', Component: ActiveView })
       baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', text: '', Component: SplashScreenView })
+
+      if (isEduhelx) {
+        baseRoutes.push({ path: '/workspaces/edu', parent: '/workspaces', subMenu: true, text: 'Eduhelx', Component: () => null })
+        baseRoutes.push({ path: '/workspaces/edu/assignment', parent: '/workspaces/edu', text: 'Assignments', Component: EduhelxAssignmentView })
+      }
     }
     if (searchEnabled === 'false' && workspaceEnabled === 'false') {
       // route homepage to support page if both search and workspaces are disabled
@@ -106,7 +112,7 @@ export const EnvironmentProvider = ({ children }) => {
   // If workspace is enabled, all routes should have a '/helx' basePath as the ui is embedded in the appstore
   useEffect(() => {
     if (Object.keys(context).length !== 0) {
-      const routes = generateRoutes(context.search_enabled, context.workspaces_enabled);
+      const routes = generateRoutes(context.search_enabled, context.workspaces_enabled, context.brand === "eduhelx");
       setAvailableRoutes(routes);
       if (context.workspaces_enabled === 'true') {
         setBasePath('/helx/');

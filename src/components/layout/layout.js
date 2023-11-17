@@ -31,14 +31,49 @@ export const Layout = ({ children }) => {
     setLoggingOut(false)
   }
   const removeTrailingSlash = (url) => url.endsWith("/") ? url.slice(0, url.length - 1) : url
+  const getRouteAncestors = (route, ancestors=[]) => {
+    if (!route.parent) return ancestors
+    const parent = routes.find((r) => r.path === route.parent)
+    return getRouteAncestors(parent, [...ancestors, parent])
+  }
+  const makeMenuRoute = (route, props, children=undefined) => ({
+    key: route.path,
+    label: (
+      <Link to={`${baseLinkPath}${route.path}`}>{route.text}</Link>
+    ),
+    children,
+    ...props
+  })
+  const generateMenuRoute = (route) => {
+    // We don't include any routes text as menu items
+    if (!route.text) return null
+    // If the route is not a submenu, include it as a top-level menu item
+    if (!route.subMenu) return makeMenuRoute(route)
+    // Route is a submenu, include children routes as well.
+    const childrenRoutes = routes.filter((r) => r.text && r.parent === route.path)
+    // The submenus looked really bad, removing for the time being.
+    return makeMenuRoute(route)
+    // return makeMenuRoute(route, {}, childrenRoutes.map((c) => generateMenuRoute(c)).filter((r) => r !== null))
+  }
+  const menuRoutes = [
+    // These 3 empty items are a legacy styling thing that affect spacing.
+    makeMenuRoute({}, { key: 0, style: { visibility: "hidden" } }),
+    makeMenuRoute({}, { key: 1, style: { visibility: "hidden" } }),
+    makeMenuRoute({}, { key: 2, style: { visibility: "hidden" } }),
+    ...routes.filter((r) => r.text && !r.parent).map((route) => generateMenuRoute(route)),
+  ]
+  /**
+   * 1) Find the routes whose paths exactly match the current URL path
+   * 2) Also include all parents of routes whose paths are matched in (1)
+   */
   const activeRoutes = routes.filter((route) => (
     // route.text !== "" &&
     removeTrailingSlash(`${baseLinkPath}${route.path}`) === removeTrailingSlash(location.pathname)
   )).flatMap((route) => ([
     route,
-    ...routes.filter((m) => m.path === route.parent)
+    ...getRouteAncestors(route)
   ])).map((route) => route.path)
-
+  console.log(menuRoutes, activeRoutes)
   return (
     <AntLayout className="layout">
       <Header className="helx-header" style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>
@@ -50,13 +85,16 @@ export const Layout = ({ children }) => {
               theme="light"
               mode="horizontal"
               selectedKeys={activeRoutes}
+              items={ menuRoutes }
               style={{ display: "flex", flexGrow: 1, justifyContent: "flex-end" }}
             >
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               {routes.map(m => m['text'] !== '' && (
-                <Menu.Item key={`${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>
+                <Menu.Item key={`${m.path}`}>
+                  <Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link>
+                </Menu.Item>
               ))}
               {context.workspaces_enabled && !apiLoading && (
                 appstoreContext.links.map((link) => (
