@@ -100,6 +100,9 @@ wiki article for how to setup these providers.
 For UNC/Onyen SAML login, you'll need to send in a ticket to ITS requesting for them to register a SAML entity for you.
 You can register a ticket [here](https://help.unc.edu/sp) by clicking Report an Issue.
 
+## CICD
+This project uses github actions to test, build, and release both development and new release images depending on the branch code is merged to. A development image is built upon merge to the develop branch and a new relelase is created, tagged (based on Semver) when merging to the main/master branch.
+
 #### Fail on Vulnerability Detection
 
 During PR's several vulnerability scanners are run. If there are vulnerabilities detected, the pr checks will fail and a report will be sent to Github Security Dashboard for viewing. Please ensure the vulnerability is mitigated prior to continuing the merge to protected branches.
