@@ -162,10 +162,12 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
                     subTitle={
                         <div style={{ display: "flex", flexDirection: "column" }}>
                             { !asComponent ? <Paragraph style={{ fontSize: 14, maxWidth: 800, margin: "0 auto" }}>
-                                The HeLx Workspaces are the primary user experience component of the HeLx data science platform.
-                                Through the Workspaces, users discover and interact with analytic tools and data to explore scientific problems.
-                                Its ability to empower researchers to leverage advanced analytical tools without installation or other infrastructure concerns
-                                has broad reaching benefits and can be applied in many domains.
+                            <a href="https://helxplatform.github.io/">HeLx</a> empowers researchers in domains from plant genomics to neuroscience to work with their preferred tools and apps in the cloud at scale.
+                            Its ability to empower researchers to leverage advanced analytical tools without installation or other infrastructure concerns has broad reaching benefits and can be applied in many domains.
+                            <br />&nbsp;<br />
+                            The HeLx Workspaces provide a wide array of data science tools for use by these researchers. Through the Workspaces, users explore and interact with analytic tools and data to support scientific discovery.
+                            <br />&nbsp;<br />
+                            Please sign in with one of the following options to access the HeLx Workspaces.
                             </Paragraph> : null }
                             <Paragraph style={{ fontSize: 14, maxWidth: 800, margin: "0 auto", textAlign: "start" }}>
                                 <Alert
@@ -182,7 +184,6 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
                             </Paragraph>
                         </div>
                     }
-                    logo={ <AppstoreOutlined /> }
                     onFinish={ async () => {
 
                     } }
