@@ -1,6 +1,7 @@
-import { Typography } from 'antd'
+import {Button, Typography} from 'antd'
 import Highlighter from 'react-highlight-words'
 import { useAnalytics } from '../../../../../contexts'
+import {ExportOutlined} from "@ant-design/icons";
 
 const { Text } = Typography
 
@@ -19,6 +20,20 @@ export const StudyVariable = ({ variable, highlight, ...props }) => {
       <Text className="variable-description">
         <Highlighter autoEscape={ true } searchWords={ highlight } textToHighlight={ variable.description } />
       </Text>
+        <ul>
+            <li><tt>TAPSPrescriptionMedUseScl</tt> from Tobacco, Alcohol, Prescription medications, and other Substance (TAPS) <Button
+                type="text"
+                size="small"
+                icon={
+                    <ExportOutlined onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        window.open("https://heal.nih.gov/files/CDEs/2023-05/taps-cdes.xlsx", "_blank")
+                    }} />
+                }
+                style={{ marginLeft: "4px" }}
+            /></li>
+        </ul>
     </div>
   )
 }
