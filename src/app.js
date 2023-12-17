@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { LocationProvider, Router as ReachRouter, globalHistory, useLocation } from '@gatsbyjs/reach-router'
 import {
   EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider,
-  AnalyticsProvider, DestProvider, useEnvironment, useAnalytics, WorkspacesAPIProvider
+  AnalyticsProvider, DestProvider, useEnvironment, useAnalytics, WorkspacesAPIProvider, EduhelxProvider
 } from './contexts'
 import { Layout } from './components/layout'
 import { NotFoundView } from './views'
@@ -15,9 +15,11 @@ const ContextProviders = ({ children }) => {
           <WorkspacesAPIProvider>
             <AnalyticsProvider>
               <ActivityProvider>
-                <InstanceProvider>
-                  {children}
-                </InstanceProvider>
+                <EduhelxProvider>
+                  <InstanceProvider>
+                    {children}
+                  </InstanceProvider>
+                </EduhelxProvider>
               </ActivityProvider>
             </AnalyticsProvider>
           </WorkspacesAPIProvider>

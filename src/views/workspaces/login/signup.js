@@ -61,12 +61,14 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
 
     useTitle("Signup")
     
-    if (loggedIn) {
-        // User has logged in, redirect back.
-        // If there is no "dest" qs param, then redirect to the provided default url
-        // (e.g. the user manually navigated to the login view while already logged in).
-        redirectToDest(`${ basePath }workspaces/`)
-    }
+    useEffect(() => {
+        if (loggedIn) {
+            // User has logged in, redirect back.
+            // If there is no "dest" qs param, then redirect to the provided default url
+            // (e.g. the user manually navigated to the login view while already logged in).
+            redirectToDest(`${ basePath }workspaces/`)
+        }
+    }, [loggedIn])
 
     useEffect(() => {
         if (revalidateForm) {

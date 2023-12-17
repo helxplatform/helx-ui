@@ -12,6 +12,7 @@ import {
     IAPIError,
     Throws400,
     Throws403,
+    Throws404,
     SAMLRejectedError,
     SAMLActiveError,
     WhitelistRequiredError,
@@ -356,7 +357,8 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         return res.data
     }
 
-    @APIRequest()
+    // This will throw a 404 if you try to get the readiness of a deleted/nonexistent app
+    @APIRequest(Throws404)
     async getAppReady(decodedURL: string, fetchOptions: AxiosRequestConfig={}): Promise<boolean> {
         const parts = decodedURL.split('/');
         const sid = (parts.length >= 2)?parts[parts.length - 2]:"";

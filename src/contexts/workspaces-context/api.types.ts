@@ -38,6 +38,9 @@ export const Throws400: IAPIError = {
 export const Throws403: IAPIError = {
     status: 403
 }
+export const Throws404: IAPIError = {
+    status: 404
+}
 
 export class SocialSignupNotAuthorizedError extends ExtendableError {
     constructor() {

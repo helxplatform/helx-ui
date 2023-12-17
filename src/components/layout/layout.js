@@ -73,7 +73,7 @@ export const Layout = ({ children }) => {
     route,
     ...getRouteAncestors(route)
   ])).map((route) => route.path)
-  console.log(menuRoutes, activeRoutes)
+  
   return (
     <AntLayout className="layout">
       <Header className="helx-header" style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>

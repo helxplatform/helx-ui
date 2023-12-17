@@ -3,7 +3,7 @@ import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spi
 import { DeleteOutlined, RightCircleOutlined, LoadingOutlined, CloseOutlined, ExclamationOutlined, QuestionOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
 import { openNotificationWithIcon } from '../../components/notifications';
-import { useActivity, useApp, useInstance, useAnalytics, useWorkspacesAPI } from '../../contexts';
+import { useActivity, useApp, useInstance, useAnalytics, useWorkspacesAPI, EDUHELX_ASSN_QS_PARAM } from '../../contexts';
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
@@ -134,8 +134,14 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     }
 
     const connectInstance = (aid, sid, url, name) => {
+        const qs = new URLSearchParams(window.location.search)
+        const eduassn = qs.get(EDUHELX_ASSN_QS_PARAM)
         try {
             const urlObject = new URL(url);
+            if (eduassn) {
+                // Basically, include the eduassn query param in the launched app tab's query string as well.
+                urlObject.searchParams.set(EDUHELX_ASSN_QS_PARAM)
+            }
             const appUrl = `${window.location.origin}/helx/connect/${aid}/${encodeURIComponent(urlObject.pathname)}`;
             const connectTabRef = `${sid}-tab`;
             const connectTab = window.open(appUrl, connectTabRef);

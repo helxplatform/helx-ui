@@ -10,7 +10,7 @@ import './app-card.css';
 const { Meta } = Card;
 
 // each app config value from localstorage will be validated here
-const validateLocalstorageValue = (config, app_id, min, max) => {
+export const validateLocalstorageValue = (config, app_id, min, max) => {
     let prev = localStorage.getItem(`${app_id}-${config}`);
     if (prev !== null && prev >= min && prev <= max) {
         return parseFloat(prev);

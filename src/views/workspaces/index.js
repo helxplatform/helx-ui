@@ -1,4 +1,5 @@
 export * from './workspace-protected-view'
+export * from './eduhelx-assignment-view'
 export * from './available'
 export * from './active'
 export * from './login'
