@@ -70,7 +70,7 @@ export const WorkspaceLoginView = withAPIReady(({
     const [revalidateForm, setRevalidateForm] = useState(false)
 
     const [form] = useForm()
-    const { basePath } = useEnvironment()
+    const { context, basePath } = useEnvironment()
     const { api, user, loggedIn, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
 
@@ -84,7 +84,7 @@ export const WorkspaceLoginView = withAPIReady(({
     }
 
     const allowBasicLogin = useMemo(() => loginProviders.includes("Django"), [loginProviders])
-    const allowUncLogin =  useMemo(() => loginProviders.includes("UNC Chapel Hill Single Sign-On"), [loginProviders])
+    const allowUncLogin = useMemo(() => loginProviders.includes("UNC Chapel Hill Single Sign-On"), [loginProviders])
     const allowGoogleLogin = useMemo(() => loginProviders.includes("Google"), [loginProviders])
     const allowGithubLogin =  useMemo(() => loginProviders.includes("GitHub"), [loginProviders])
 
@@ -181,15 +181,12 @@ export const WorkspaceLoginView = withAPIReady(({
                         )
                     }}
                     title="HeLx Workspaces"
+                    logo={ <AppstoreOutlined /> }
                     subTitle={
                         !asComponent ? <Paragraph style={{ fontSize: 14, maxWidth: 800, margin: "0 auto" }}>
-                            The HeLx Workspaces are the primary user experience component of the HeLx data science platform.
-                            Through the Workspaces, users discover and interact with analytic tools and data to explore scientific problems.
-                            Its ability to empower researchers to leverage advanced analytical tools without installation or other infrastructure concerns
-                            has broad reaching benefits and can be applied in many domains.
+                            { context.login_text }
                         </Paragraph> : null
                     }
-                    logo={ <AppstoreOutlined /> }
                     actions={ hasAdditionalProviders ? (
                             <SSOLoginOptions
                                 main={ !allowBasicLogin }
