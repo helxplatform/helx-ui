@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { Fragment, createContext, useContext, useEffect, useState } from 'react'
 import axios, { CanceledError } from 'axios';
 import {
   ActiveView,
@@ -86,6 +86,30 @@ export const EnvironmentProvider = ({ children }) => {
       /** Context defaults */
       if (!context.appstore_asset_branch) context.appstore_asset_branch = "master"
       if (!context.brand) context.brand = "helx"
+      /** Hardcoded for now, if you want custom login text for a brand add it as a case here. */
+      switch (context.brand) {
+        case "eduhelx":
+          context.login_text = (
+            <Fragment>
+              <a href="https://helxplatform.github.io/">HeLx</a> empowers researchers in domains from plant genomics to neuroscience to work with their preferred tools and apps in the cloud at scale. 
+              EduHeLx, which is a derivative of HeLx, is designed for educational purposes.
+              HeLx/EduHeLx empower researchers, students and educators to leverage advanced analytical tools without installation or other infrastructure concerns, which has broad reaching benefits and can be applied in many domains.
+              <br />&nbsp;<br />
+              The HeLx and EduHeLx Workspaces provide a wide array of data science tools for use by these researchers. Through the Workspaces, users explore and interact with analytic tools and data to support scientific discovery.
+            </Fragment>
+          )
+          break
+        default:
+          context.login_text = (
+            <Fragment>
+              <a href="https://helxplatform.github.io/">HeLx</a> empowers researchers in domains from plant genomics to neuroscience to work with their preferred tools and apps in the cloud at scale.
+              Its ability to empower researchers to leverage advanced analytical tools without installation or other infrastructure concerns has broad reaching benefits and can be applied in many domains.
+              <br />&nbsp;<br />
+              The HeLx Workspaces provide a wide array of data science tools for use by these researchers. Through the Workspaces, users explore and interact with analytic tools and data to support scientific discovery.
+            </Fragment>
+          )
+          break
+      }
 
       // split the comma-separated string which tells ui the support section to hide
       // also trim leading/trailing spaces to allow spaces between commas
