@@ -55,7 +55,7 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
     const [revalidateForm, setRevalidateForm] = useState(false)
 
     const [form] = useForm()
-    const { basePath } = useEnvironment()
+    const { context, basePath } = useEnvironment()
     const { api, user, loggedIn, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
 
@@ -159,16 +159,11 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
                         )
                     }}
                     title="HeLx Workspaces"
+                    logo={ <AppstoreOutlined /> }
                     subTitle={
                         <div style={{ display: "flex", flexDirection: "column" }}>
                             { !asComponent ? <Paragraph style={{ fontSize: 14, maxWidth: 800, margin: "0 auto" }}>
-                            <a href="https://helxplatform.github.io/">HeLx</a> empowers researchers in domains from plant genomics to neuroscience to work with their preferred tools and apps in the cloud at scale. 
-                            EduHeLx, which is a derivative of HeLx, is designed for educational purposes.
-                            HeLx/EduHeLx empower researchers, students and educators to leverage advanced analytical tools without installation or other infrastructure concerns, which has broad reaching benefits and can be applied in many domains.
-                            <br />&nbsp;<br />
-                            The HeLx and EduHeLx Workspaces provide a wide array of data science tools for use by these researchers. Through the Workspaces, users explore and interact with analytic tools and data to support scientific discovery.
-                            <br />&nbsp;<br />
-                            Please sign in with one of the following options to access the HeLx Workspaces.
+                            { context.login_text }
                             </Paragraph> : null }
                             <Paragraph style={{ fontSize: 14, maxWidth: 800, margin: "0 auto", textAlign: "start" }}>
                                 <Alert
