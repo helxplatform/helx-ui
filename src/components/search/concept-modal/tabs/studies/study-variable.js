@@ -12,28 +12,31 @@ export const StudyVariable = ({ variable, highlight, ...props }) => {
     analyticsEvents.variableLinkClicked(variable.id)
   }
   return (
-    <div className="study-variables-list-item" {...props}>
-      <Text className="variable-name">
-      <Highlighter autoEscape={ true } searchWords={ highlight } textToHighlight={ variable.name } /> &nbsp;
-        ({ variable.e_link ? <a href={ variable.e_link } onClick={ variableLinkClicked }>{ variable.id }</a> : variable.id })
-      </Text><br />
-      <Text className="variable-description">
-        <Highlighter autoEscape={ true } searchWords={ highlight } textToHighlight={ variable.description } />
-      </Text>
-        <ul>
-            <li><tt>TAPSPrescriptionMedUseScl</tt> from Tobacco, Alcohol, Prescription medications, and other Substance (TAPS) <Button
-                type="text"
-                size="small"
-                icon={
-                    <ExportOutlined onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        window.open("https://heal.nih.gov/files/CDEs/2023-05/taps-cdes.xlsx", "_blank")
-                    }} />
-                }
-                style={{ marginLeft: "4px" }}
-            /></li>
-        </ul>
-    </div>
+      <>
+          <div className="study-variables-list-item" {...props}>
+              Related to CDEs in <em>Tobacco, Alcohol, Prescription medications, and other Substance (TAPS)</em><Button
+              type="text"
+              size="small"
+              icon={
+                  <ExportOutlined onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      window.open("https://heal.nih.gov/files/CDEs/2023-05/taps-cdes.xlsx", "_blank")
+                  }}/>
+              }
+              style={{marginLeft: "4px"}}
+          />
+          </div>
+          <div className="study-variables-list-item" {...props}>
+              <Text className="variable-name">
+                  <Highlighter autoEscape={true} searchWords={highlight} textToHighlight={variable.name}/> &nbsp;
+                  ({variable.e_link ?
+                  <a href={variable.e_link} onClick={variableLinkClicked}>{variable.id}</a> : variable.id})
+              </Text><br/>
+              <Text className="variable-description">
+                  <Highlighter autoEscape={true} searchWords={highlight} textToHighlight={variable.description}/>
+              </Text>
+          </div>
+      </>
   )
 }

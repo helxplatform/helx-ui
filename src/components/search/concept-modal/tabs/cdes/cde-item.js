@@ -81,11 +81,6 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                         <ul>
                             <li>Discovery of Biomarker Signatures Prognostic for Neuropathic Pain after Acute Spinal Cord Injury (<a href="https://healdata.org/portal/discovery/HDP00337">HEALDATAPLATFORM:HDP00337</a>)
                             </li>
-                            <ul>
-                                <li>tapsprescriptionmedusescl</li>
-                                <Text><em>5. in the past 12 months, how often have you used any prescription medications just for the feeling, more than prescribed or that were not prescribed for you? prescription medications that may be used this way include: opiate pain relievers (for example, oxycontin, vicodin, percocet, methadone) medications for anxiety or sleeping (for example, xanax, ativan, klonopin) medications for adhd (forexample, adderall or ritalin)</em></Text>
-
-                            </ul>
                         </ul>
                     </Section>
                     <Section title="Related concepts">
