@@ -21,7 +21,8 @@ analytics_platform="${REACT_APP_ANALYTICS_PLATFORM}"
 analytics_token="${REACT_APP_ANALYTICS_TOKEN}"
 meta_title="${META_TITLE:-HeLx UI}"
 meta_description="${META_DESCRIPTION:-HeLx UI}"
-
+login_title="${REACT_APP_LOGIN_TITLE}"
+login_text="${REACT_APP_LOGIN_TEXT}"
 
 template='{
     "brand": "%BRAND%",
@@ -43,7 +44,9 @@ template='{
     "meta": {
       "title": "%META_TITLE%",
       "description": "%META_DESCRIPTION%"
-    }
+    },
+    "login_title": "%LOGIN_TITLE%",
+    "login_text": "%LOGIN_TEXT%"
 }'
 
 echo "$template" | sed \
@@ -62,4 +65,6 @@ echo "$template" | sed \
   -e "s/%ANALYTICS_TOKEN%/$analytics_token/" \
   -e "s/%META_TITLE%/$meta_title/" \
   -e "s/%META_DESCRIPTION%/$meta_description/" \
+  -e "s/%LOGIN_TITLE%/$login_title/" \
+  -e "s/%LOGIN_TEXT%/$login_text/" \
   > $1

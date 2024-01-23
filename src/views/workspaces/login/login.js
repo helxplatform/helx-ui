@@ -180,7 +180,7 @@ export const WorkspaceLoginView = withAPIReady(({
                             </Button>
                         )
                     }}
-                    title="HeLx Workspaces"
+                    title= { context.login_title }
                     logo={ <AppstoreOutlined /> }
                     subTitle={
                         !asComponent ? <Paragraph style={{ fontSize: 14, maxWidth: 800, margin: "0 auto" }}>
