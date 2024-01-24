@@ -314,7 +314,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
 
     @APIRequest()
     async stopAppInstance(sid: string, fetchOptions: AxiosRequestConfig={}): Promise<void> {
-        await this.axios.delete(`/instances/${ sid }`)
+        await this.axios.delete(`/instances/${ sid }/`)
     }
 
     @APIRequest()
@@ -334,7 +334,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
         if (workspace.length > 0) data.labels = {
             "app-name": workspace
         }
-        const res = await this.axios.patch(`/instances/${ sid }`, data, fetchOptions)
+        const res = await this.axios.patch(`/instances/${ sid }/`, data, fetchOptions)
         return res.data
     }
 
