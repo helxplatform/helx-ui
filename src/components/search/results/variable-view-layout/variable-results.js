@@ -29,6 +29,14 @@ const GRADIENT_CONSTITUENTS = [
 // ]
 const COLOR_GRADIENT = chroma.scale(GRADIENT_CONSTITUENTS).mode("lrgb")
 
+// Determines the order in which data sources appear in the tag list.
+const DATA_SOURCES_ORDER = [
+    "HEAL Studies",
+    "HEAL Research Programs",
+    "CDE",
+    "Non-HEAL Studies"
+].map((x) => x.toLowerCase())
+
 const DebouncedRangeSlider = ({ value, onChange, onInternalChange=() => {}, debounce=500, ...props }) => {
     const [_internalValue, setInternalValue] = useState(undefined)
     const [internalValue] = useDebounce(_internalValue, debounce)
@@ -272,15 +280,16 @@ export const VariableSearchResults = () => {
 
     const studyDataSources = useMemo(() => {
         const palette = new Palette(chroma.rgb(255 * .75, 255 * .25, 255 * .25), {mode: 'hex'})
-        return variableStudyResults.reduce((acc, cur) => {
-            const dataSource = cur.data_source
-            if (!acc.hasOwnProperty(dataSource)) acc[dataSource] = {
-                count: 1,
-                color: palette.getNextColor()
-            }
-            else acc[dataSource].count += 1
-            return acc
-        }, {})
+        return variableStudyResults
+            .reduce((acc, cur) => {
+                const dataSource = cur.data_source
+                if (!acc.hasOwnProperty(dataSource)) acc[dataSource] = {
+                    count: 1,
+                    color: palette.getNextColor()
+                }
+                else acc[dataSource].count += 1
+                return acc
+            }, {})
     }, [variableStudyResults])
 
     const hiddenDataSources = useMemo(() => {
@@ -557,20 +566,31 @@ export const VariableSearchResults = () => {
                 <div className='list'>
                     <Space direction="horizontal" size={ 0 } style={{ marginTop: 8, marginBottom: 4 }}>
                         {
-                            Object.entries(studyDataSources).map(([dataSource, { count, color }]) => (
-                                <Tag
-                                    key={ `variable-view-data-source-tag-${ dataSource }` }
-                                    style={{ fontSize: 13 }}
-                                    color={ color }
-                                    // style={ {
-                                    //     fontSize: 13,
-                                    //     ...(hiddenDataSources.includes(dataSource) ? { border: "1px solid #d9d9d9", background: "#fafafa" } : {})
-                                    // } }
-                                    // checked={ !hiddenDataSources.includes(dataSource) }
-                                    // onChange={ (checked) => onDataSourceChange(dataSource, !checked) }
-                                >
-                                    { `${ dataSource } (${ count })` }
-                                </Tag>
+                            Object.keys(studyDataSources)
+                                .sort((a, b) => {
+                                    let aIndex = DATA_SOURCES_ORDER.indexOf(a.toLowerCase())
+                                    let bIndex = DATA_SOURCES_ORDER.indexOf(b.toLowerCase())
+                                    // Sort unrecognized data sources alphabetically.
+                                    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b)
+                                    // Put unrecognized data sources at the end of the array.
+                                    if (aIndex === -1) return 1
+                                    if (bIndex === -1) return -1
+                                    return aIndex - bIndex
+                                })
+                                .map((dataSource) => (
+                                    <Tag
+                                        key={ `variable-view-data-source-tag-${ dataSource }` }
+                                        style={{ fontSize: 13 }}
+                                        color={ studyDataSources[dataSource].color }
+                                        // style={ {
+                                        //     fontSize: 13,
+                                        //     ...(hiddenDataSources.includes(dataSource) ? { border: "1px solid #d9d9d9", background: "#fafafa" } : {})
+                                        // } }
+                                        // checked={ !hiddenDataSources.includes(dataSource) }
+                                        // onChange={ (checked) => onDataSourceChange(dataSource, !checked) }
+                                    >
+                                        { `${ dataSource } (${ studyDataSources[dataSource].count })` }
+                                    </Tag>
                             ))
                         }
                     </Space>
