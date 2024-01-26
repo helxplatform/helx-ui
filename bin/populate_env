@@ -23,6 +23,9 @@ meta_title="${META_TITLE:-HeLx UI}"
 meta_description="${META_DESCRIPTION:-HeLx UI}"
 login_title="${REACT_APP_LOGIN_TITLE}"
 login_text="${REACT_APP_LOGIN_TEXT}"
+support_help_url="${REACT_APP_SUPPORT_HELP_PORTAL_URL}"
+support_user_guide_url="${REACT_APP_SUPPORT_USER_GUIDE_URL}"
+support_faqs_url="${REACT_APP_SUPPORT_FAQS_URL}"
 
 template='{
     "brand": "%BRAND%",
@@ -46,7 +49,12 @@ template='{
       "description": "%META_DESCRIPTION%"
     },
     "login_title": "%LOGIN_TITLE%",
-    "login_text": "%LOGIN_TEXT%"
+    "login_text": "%LOGIN_TEXT%",
+    "support": {
+      "help_portal_url": "%SUPPORT_HELP_PORTAL_URL%",
+      "user_guide_url": "%SUPPORT_USER_GUIDE_URL%",
+      "faqs_url": "%SUPPORT_FAQS_URL%"
+    }
 }'
 
 echo "$template" | sed \
@@ -67,4 +75,7 @@ echo "$template" | sed \
   -e "s/%META_DESCRIPTION%/$meta_description/" \
   -e "s/%LOGIN_TITLE%/$login_title/" \
   -e "s/%LOGIN_TEXT%/$login_text/" \
+  -e "s/%SUPPORT_HELP_PORTAL_URL%/$support_help_url/" \
+  -e "s/%SUPPORT_USER_GUIDE_URL%/$support_user_guide_url/" \
+  -e "s/%SUPPORT_FAQS_URL%/$support_faqs_url/" \
   > $1
