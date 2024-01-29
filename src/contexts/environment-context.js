@@ -103,11 +103,23 @@ export const EnvironmentProvider = ({ children }) => {
         )
       }
       else {
-        context.login_text = (
-          <Fragment>
-            { context.login_text }
-          </Fragment>
-        )
+        context.login_text = (<Fragment>Testing out read</Fragment>)
+        fetch('https://raw.githubusercontent.com/helxplatform/appstore/test-hs/appstore/core/static/html/test-read.html')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.text();
+        })
+        .then(text => {
+          console.log('File contents:', text);
+          context.login_text = ( <Fragment>
+            <div dangerouslySetInnerHTML={{ __html: text }} />
+            </Fragment> )
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+        });
       }
       // switch (context.brand) {
       //   case "eduhelx":
