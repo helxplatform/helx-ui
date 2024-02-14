@@ -120,9 +120,8 @@ export const EnvironmentProvider = ({ children }) => {
       }
       getLoginDesc();
 
-      // split the comma-separated string which tells ui the support section to hide
+      // split the comma-separated string which tells ui which result tabs to hide
       // also trim leading/trailing spaces to allow spaces between commas
-      context.hidden_support_sections = context.hidden_support_sections.split(',').map((section) => section.trim())
       context.hidden_result_tabs = context.hidden_result_tabs.split(',').map((tab) => tab.trim())
 
       // Make sure the tranql_url ends with a slash. If it doesn't, it will redirect, which breaks the iframe for some reason. 
