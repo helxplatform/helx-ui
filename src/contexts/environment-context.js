@@ -102,14 +102,12 @@ export const EnvironmentProvider = ({ children }) => {
       );
 
       const getLoginDesc = async () => {
-        console.log(`${relativeHost}/static/frontend/brand_desc.html`)
         try{
           let response = await fetch(`${relativeHost}/static/frontend/brand_desc.html`)
           if (!response.ok) {
             context.login_text = default_login_text
           }
           const htmlContent = await response.text();
-          console.log("*** GOT THE TEXT: ", htmlContent);
           context.login_text = ( 
             <Fragment>
             <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
