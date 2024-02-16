@@ -92,6 +92,7 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                                             key={result.id}
                                             className={classNames("expanded-result-option-concept-card", result.id === selectedResult?.id && "selected")}
                                             result={result}
+                                            resultRank={ concepts.indexOf(result) + 1 }
                                             icon={result.id === selectedResult?.id ? null : ArrowRightOutlined}
                                             openModalHandler={ () => setSelectedResult(result) }
                                             ref={(ref) => cardRefs.current[result.id] = ref}
