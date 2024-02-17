@@ -77,6 +77,12 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                             </Section>
                         }
                     />
+                    <Section title="Studies using this measure">
+                        <ul>
+                            <li>Discovery of Biomarker Signatures Prognostic for Neuropathic Pain after Acute Spinal Cord Injury (<a href="https://healdata.org/portal/discovery/HDP00337">HEALDATAPLATFORM:HDP00337</a>)
+                            </li>
+                        </ul>
+                    </Section>
                     <Section title="Related concepts">
                         <RelatedConceptsList
                             concepts={relatedConceptsSource}
