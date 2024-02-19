@@ -152,6 +152,13 @@ export const EduhelxAssignmentView = withWorkspaceAuthentication(() => {
         setCurrentStep((currentStep) => currentStep + 1)
     }, [])
 
+    const openJupyter = async () => {
+        if (!app) return
+        const instances = await api.getAppInstances()
+        const appInstance = instances.find(({ aid }) => aid === app.app_id)!
+        window.location.href = appInstance.url
+    }
+
     const steps = useMemo(() => {
         const steps: any[] = [
             {
@@ -170,7 +177,7 @@ export const EduhelxAssignmentView = withWorkspaceAuthentication(() => {
                 key: 2,
                 title: 'Finished',
                 icon: <CheckOutlined />,
-                content: <RedirectingPane done={ () => console.log("Done!") } />
+                content: <RedirectingPane done={ () => openJupyter() } />
             }
         ]
         if (failed) {

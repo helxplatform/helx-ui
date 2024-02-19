@@ -85,7 +85,8 @@ export const SplashScreenView = withWorkspaceAuthentication((props) => {
         );
     }
     else {
-        window.location = decoded_url;
+        window.location = decoded_url
+        return null
     }
 
 })
