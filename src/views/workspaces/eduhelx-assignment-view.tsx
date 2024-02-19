@@ -157,7 +157,7 @@ export const EduhelxAssignmentView = withWorkspaceAuthentication(() => {
         const instances = await api.getAppInstances()
         const appInstance = instances.find(({ aid }) => aid === app.app_id)!
         const qs = new URLSearchParams(window.location.search)
-        window.location.href = appInstance.url + `?${ EDUHELX_ASSN_QS_PARAM }=${ eduhelxAssn }`
+        window.location.href = appInstance.url + "?" + qs.toString()
     }
 
     const steps = useMemo(() => {
