@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Layout, Progress, Result, Spin, Steps, Typography } from 'antd'
-import { DownloadOutlined, RocketOutlined, LoadingOutlined, CheckOutlined } from '@ant-design/icons'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Button, Layout, Progress, Result, Spin, StepProps, Steps, Typography } from 'antd'
+import { DownloadOutlined, RocketOutlined, LoadingOutlined, CheckOutlined, WarningOutlined } from '@ant-design/icons'
 import { withWorkspaceAuthentication } from './workspace-protected-view'
 import { useTitle } from '../view'
 import { Breadcrumbs } from '../../components/layout'
@@ -12,6 +12,7 @@ import { toBytes, bytesToMegabytes } from '../../utils/memory-converter'
 const { useLocation, useNavigate } = require('@gatsbyjs/reach-router')
 
 const { Title, Text } = Typography
+const { Content } = Layout
 
 export const EDUHELX_ASSN_QS_PARAM = "eduassn"
 
@@ -151,26 +152,37 @@ export const EduhelxAssignmentView = withWorkspaceAuthentication(() => {
         setCurrentStep((currentStep) => currentStep + 1)
     }, [])
 
-    const steps = useMemo(() => [
-        {
-            key: 0,
-            title: 'Downloading',
-            icon: <DownloadOutlined />,
-            content: <DownloadPane done={ () => nextStep() } />
-        },
-        {
-            key: 1,
-            title: 'Launching',
-            icon: <RocketOutlined />,
-            content: <LaunchingPane appIcon={ appIcon } appReady={ appReady } done={ () => nextStep() } />
-        },
-        {
-            key: 2,
-            title: 'Finished',
-            icon: <CheckOutlined />,
-            content: <RedirectingPane done={ () => console.log("Done!") } />
+    const steps = useMemo(() => {
+        const steps: any[] = [
+            {
+                key: 0,
+                title: 'Downloading',
+                icon: <DownloadOutlined />,
+                content: <DownloadPane done={ () => nextStep() } />
+            },
+            {
+                key: 1,
+                title: 'Launching',
+                icon: <RocketOutlined />,
+                content: <LaunchingPane appIcon={ appIcon } appReady={ appReady } done={ () => nextStep() } />
+            },
+            {
+                key: 2,
+                title: 'Finished',
+                icon: <CheckOutlined />,
+                content: <RedirectingPane done={ () => console.log("Done!") } />
+            }
+        ]
+        if (failed) {
+            steps[currentStep].title = (
+                <span style={{ color: "#ff4d4f" }}>{ steps[currentStep].title }</span>
+            )
+            steps[currentStep].icon = <span style={{ color: "#ff4d4f" }}>
+                <WarningOutlined style={{ fontSize: 18, marginBottom: 4 }} />
+            </span>
         }
-    ], [appIcon, appReady, nextStep])
+        return steps
+    }, [appIcon, appReady, currentStep, failed, nextStep])
     
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
@@ -187,13 +199,17 @@ export const EduhelxAssignmentView = withWorkspaceAuthentication(() => {
         if (!api || !appstoreContext) return
 
         void async function() {
-            const apps = await api.getAvailableApps()
-            
-            const jupyterApp = Object.values(apps).find(({ app_id }) => /jupyter/i.test(app_id))!
-            const jupyterIconUrl = `${appstoreContext.dockstore_app_specs_dir_url}/${jupyterApp.app_id}/icon.png`
+            try {
+                const apps = await api.getAvailableApps()
+                
+                const jupyterApp = Object.values(apps).find(({ app_id }) => /jupyter/i.test(app_id))!
+                const jupyterIconUrl = `${appstoreContext.dockstore_app_specs_dir_url}/${jupyterApp.app_id}/icon.png`
 
-            setApp(jupyterApp)
-            setAppIcon(jupyterIconUrl)
+                setApp(jupyterApp)
+                setAppIcon(jupyterIconUrl)
+            } catch (e: any) {
+                setFailed(true)
+            }
         }()
     }, [api, appstoreContext])
 
@@ -206,15 +222,19 @@ export const EduhelxAssignmentView = withWorkspaceAuthentication(() => {
 
         // Launch Jupyter if an instance does not already exist
         void async function() {
-            const instances = await api.getAppInstances()
-            appInstance = instances.find(({ aid }) => aid === app.app_id)
-            if (!appInstance) {
-                console.log("Jupyter instance doesn't exist, launching new one...")
-                const { app_id: appId, minimum_resources: min, maximum_resources: max } = app
-                const cpu = validateLocalstorageValue('cpu', appId, min.cpus, max.cpus)
-                const gpu = validateLocalstorageValue('gpu', appId, min.gpus, max.gpus)
-                const mem = validateLocalstorageValue('memory', appId, toBytes(min.memory), toBytes(max.memory))
-                await api.launchApp(appId, cpu, gpu, bytesToMegabytes(mem))
+            try {
+                const instances = await api.getAppInstances()
+                appInstance = instances.find(({ aid }) => aid === app.app_id)
+                if (!appInstance) {
+                    console.log("Jupyter instance doesn't exist, launching new one...")
+                    const { app_id: appId, minimum_resources: min, maximum_resources: max } = app
+                    const cpu = validateLocalstorageValue('cpu', appId, min.cpus, max.cpus)
+                    const gpu = validateLocalstorageValue('gpu', appId, min.gpus, max.gpus)
+                    const mem = validateLocalstorageValue('memory', appId, toBytes(min.memory), toBytes(max.memory))
+                    await api.launchApp(appId, cpu, gpu, bytesToMegabytes(mem))
+                }
+            } catch (e: any) {
+                setFailed(true) 
             }
         }()
 
@@ -227,7 +247,6 @@ export const EduhelxAssignmentView = withWorkspaceAuthentication(() => {
             } catch (e: any) {
                 if (e.status === 404) {
                     // The app was deleted, don't retry.
-                    console.log("FAILED")
                     setFailed(true)
                 } else {
                     // Unclear, retry.
@@ -262,7 +281,24 @@ export const EduhelxAssignmentView = withWorkspaceAuthentication(() => {
             <Title level={ 3 } style={{ marginBottom: 16 }}>Eduhelx &bull; Assignment 01</Title>
             <Layout style={{ display: "flex", flexDirection: "column" }}>
                 <Steps current={ currentStep } items={ steps } />
-                <div style={{ flexGrow: "1", marginTop: 16, display: "flex" }}>{ steps[currentStep].content }</div>
+                { failed ? (
+                    <Content style={{ }}>
+                        <Result
+                            status="error"
+                            title={ `${ currentStep === 0 ? "Downloading " : currentStep === 1 ? "Launching " : "Assignment " }Failed` }
+                            subTitle="Please refresh the page and try again or contact support."
+                            extra={[
+                                <Button key={ 0 } onClick={ () => {
+                                    window.location.reload ()
+                                } }>Try again</Button>
+                            ]}
+                            style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}
+                        >   
+                        </Result>
+                    </Content>
+                ) : (
+                    <div style={{ flexGrow: "1", marginTop: 16, display: "flex" }}>{ steps[currentStep].content }</div>
+                ) }
             </Layout>
         </Layout>
     )
