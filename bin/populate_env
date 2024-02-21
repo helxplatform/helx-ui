@@ -12,7 +12,6 @@ default_space="${REACT_APP_DEFAULT_SPACE:-search}"
 search_url="${REACT_APP_HELX_SEARCH_URL}"
 brand_name="${REACT_APP_UI_BRAND_NAME}"
 tranql_url="${REACT_APP_TRANQL_URL:-\/tranql}"
-hidden_support_sections="${REACT_APP_HIDDEN_SUPPORT_SECTIONS}"
 hidden_result_tabs="${REACT_APP_HIDDEN_RESULT_TABS}"
 deployment_namespace="${REACT_APP_DEPLOYMENT_NAMESPACE}"
 appstore_asset_branch="${REACT_APP_APPSTORE_ASSET_BRANCH}"
@@ -21,7 +20,10 @@ analytics_platform="${REACT_APP_ANALYTICS_PLATFORM}"
 analytics_token="${REACT_APP_ANALYTICS_TOKEN}"
 meta_title="${META_TITLE:-HeLx UI}"
 meta_description="${META_DESCRIPTION:-HeLx UI}"
-
+login_title="${REACT_APP_LOGIN_TITLE}"
+support_help_url="${REACT_APP_SUPPORT_HELP_PORTAL_URL}"
+support_user_guide_url="${REACT_APP_SUPPORT_USER_GUIDE_URL}"
+support_faqs_url="${REACT_APP_SUPPORT_FAQS_URL}"
 
 template='{
     "brand": "%BRAND%",
@@ -36,13 +38,18 @@ template='{
       "platform": "%ANALYTICS_PLATFORM%",
       "token": "%ANALYTICS_TOKEN%"
     },
-    "hidden_support_sections": "%HIDDEN_SUPPORT_SECTIONS%",
     "hidden_result_tabs": "%HIDDEN_RESULT_TABS%",
     "deployment_namespace": "%DEPLOYMENT_NAMESPACE%",
     "appstore_asset_branch": "%APPSTORE_ASSET_BRANCH%",
     "meta": {
       "title": "%META_TITLE%",
       "description": "%META_DESCRIPTION%"
+    },
+    "login_title": "%LOGIN_TITLE%",
+    "support": {
+      "help_portal_url": "%SUPPORT_HELP_PORTAL_URL%",
+      "user_guide_url": "%SUPPORT_USER_GUIDE_URL%",
+      "faqs_url": "%SUPPORT_FAQS_URL%"
     }
 }'
 
@@ -52,7 +59,6 @@ echo "$template" | sed \
   -e "s/%DEFAULT_SPACE%/$default_space/" \
   -e "s/%SEARCH_URL%/$search_url/" \
   -e "s/%BRAND%/$brand_name/" \
-  -e "s/%HIDDEN_SUPPORT_SECTIONS%/$hidden_support_sections/" \
   -e "s/%HIDDEN_RESULT_TABS%/$hidden_result_tabs/" \
   -e "s/%TRANQL_URL%/$tranql_url/" \
   -e "s/%DEPLOYMENT_NAMESPACE%/$deployment_namespace/" \
@@ -62,4 +68,8 @@ echo "$template" | sed \
   -e "s/%ANALYTICS_TOKEN%/$analytics_token/" \
   -e "s/%META_TITLE%/$meta_title/" \
   -e "s/%META_DESCRIPTION%/$meta_description/" \
+  -e "s/%LOGIN_TITLE%/$login_title/" \
+  -e "s/%SUPPORT_HELP_PORTAL_URL%/$support_help_url/" \
+  -e "s/%SUPPORT_USER_GUIDE_URL%/$support_user_guide_url/" \
+  -e "s/%SUPPORT_FAQS_URL%/$support_faqs_url/" \
   > $1

@@ -158,7 +158,7 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
                             </Button>
                         )
                     }}
-                    title="HeLx Workspaces"
+                    title={ context.login_title }
                     logo={ <AppstoreOutlined /> }
                     subTitle={
                         <div style={{ display: "flex", flexDirection: "column" }}>
