@@ -24,7 +24,6 @@ const ScopedSearchView = () => {
 
   // We need to override the withView useTitle since we have dynamic needs here.
   useTitle(query ? ["Search", query] : "")
-
   return (
     <Fragment>
 

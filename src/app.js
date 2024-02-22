@@ -2,7 +2,9 @@ import { useEffect } from 'react'
 import { LocationProvider, Router as ReachRouter, globalHistory, useLocation } from '@gatsbyjs/reach-router'
 import {
   EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider,
-  AnalyticsProvider, DestProvider, useEnvironment, useAnalytics, WorkspacesAPIProvider
+  AnalyticsProvider, DestProvider, useEnvironment, useAnalytics, WorkspacesAPIProvider,
+  TourProvider,
+  useTourContext
 } from './contexts'
 import { Layout } from './components/layout'
 import { NotFoundView } from './views'
@@ -16,7 +18,9 @@ const ContextProviders = ({ children }) => {
             <AnalyticsProvider>
               <ActivityProvider>
                 <InstanceProvider>
-                  {children}
+                  <TourProvider>
+                    {children}
+                  </TourProvider>
                 </InstanceProvider>
               </ActivityProvider>
             </AnalyticsProvider>
@@ -32,7 +36,8 @@ const Router = () => {
   const { analytics, analyticsEvents } = useAnalytics();
   const location = useLocation();
   const baseRouterPath = context.workspaces_enabled === 'true' ? '/helx' : '/'
-
+  const { tour } = useTourContext()
+  window.tour = tour
   // Component mount
   useEffect(() => {
     const unlisten = globalHistory.listen(({ location }) => {
