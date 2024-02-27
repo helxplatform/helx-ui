@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid'
 const prepareMaskContainer = (): HTMLDivElement => {
     const mask = document.createElement("div")
     mask.id = "mask-" + uuid()
-    mask.style.position = "relative"
+    mask.style.position = "absolute"
     mask.style.zIndex = "999999"
     mask.style.pointerEvents = "none"
     mask.style.borderRadius = "4px"
@@ -69,7 +69,7 @@ export const useSyntheticDOMMask = (
         }
     }, [selector, selectorInterval])
 
-    // Make sure the mask displays properly and maintain proper position/size
+    // Make sure the mask displays properly and maintains correct position/size
     useEffect(() => {
         const observers: IntersectionObserver[] = []
         let interval: number
@@ -77,7 +77,7 @@ export const useSyntheticDOMMask = (
         if (!mask || !elementMasks) return
         if (!show) mask.style.display = "none"
         else {
-            mask.style.display = "initial"
+            mask.style.display = "block"
             
             const resizeMasks = () => {
                 const elements = Array.from(elementMasks.keys())
@@ -104,7 +104,6 @@ export const useSyntheticDOMMask = (
 
             Array.from(elementMasks.keys()).forEach((element) => {
                 const elementMask = elementMasks.get(element)!
-                elementMask.style.backgroundColor = "red"
             })
 
             /*
