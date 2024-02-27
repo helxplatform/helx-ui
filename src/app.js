@@ -7,6 +7,7 @@ import {
   useTourContext
 } from './contexts'
 import { Layout } from './components/layout'
+import { HelxSearch } from './components/search'
 import { NotFoundView } from './views'
 
 const ContextProviders = ({ children }) => {
@@ -18,9 +19,11 @@ const ContextProviders = ({ children }) => {
             <AnalyticsProvider>
               <ActivityProvider>
                 <InstanceProvider>
-                  <TourProvider>
-                    {children}
-                  </TourProvider>
+                  <HelxSearch>
+                    <TourProvider>
+                      {children}
+                    </TourProvider>
+                  </HelxSearch>
                 </InstanceProvider>
               </ActivityProvider>
             </AnalyticsProvider>

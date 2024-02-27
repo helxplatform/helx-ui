@@ -1,5 +1,5 @@
-import { Fragment, useEffect } from 'react'
-import { HelxSearch, SearchForm, Results, useHelxSearch } from '../components/search'
+import { Fragment } from 'react'
+import { Results, useHelxSearch } from '../components/search'
 import { Typography } from 'antd'
 import { Breadcrumbs } from '../components/layout'
 import { useEnvironment } from '../contexts'
@@ -7,13 +7,7 @@ import { useTitle } from './'
 
 const { Title } = Typography
 
-export const SearchView = () => (
-  <HelxSearch>
-    <ScopedSearchView />
-  </HelxSearch>
-)
-
-const ScopedSearchView = () => {
+export const SearchView = () => {
   const { context } = useEnvironment();
   const { query } = useHelxSearch()
 

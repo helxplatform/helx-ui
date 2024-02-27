@@ -17,7 +17,6 @@ if (!window.hasOwnProperty("localStorage2")) {
   }  
 }
 window.localStorage.setItem = function() {
-  console.log("value:", arguments[1])
   const cancelled = window.dispatchEvent(new CustomEvent("localStorageModified", {
     // If arguments undefined,
     detail: { type: "set", key: arguments[0], value: arguments[1] },
@@ -43,7 +42,14 @@ window.localStorage.clear = function() {
   !cancelled && window.localStorage2.clear.apply(this, arguments)
 }
 
-export const useLocalStorage = (key, initialValue) => {
+/**
+ * 
+ * @param {string} key - Name of the key in localStorage to use.
+ * @param {any} initialValue - Default value (if key is not set), may be any JSON-serializable value 
+ * @param {boolean} [observeOtherPages=false] - If true, watches for external localStorage changes to the value in other tabs/windows.
+ * @returns 
+ */
+export const useLocalStorage = (key, initialValue, observeOtherPages=true) => {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
   const [storedValue, setStoredValue] = useState(() => {
@@ -78,6 +84,10 @@ export const useLocalStorage = (key, initialValue) => {
   
   useEffect(() => {
     const storageCallback = (e) => {
+      const newValue = JSON.parse(localStorage.getItem(key))
+      setStoredValue(newValue)
+    }
+    const modifiedCallback = (e) => {
       const { type } = e.detail
       let newValue
       switch (type) {
@@ -98,15 +108,18 @@ export const useLocalStorage = (key, initialValue) => {
           break
         }
       }
-      console.log("storage callback new value", key, newValue)
       // Don't double set state, could lead to weird race conditions with other code working with localStorage.
       setStoredValue(newValue)
     }
-    window.addEventListener("localStorageModified", storageCallback)
+    // Storage changed in another tab/window
+    if (observeOtherPages) window.addEventListener("storage", storageCallback)
+    // Storage changed in this tab
+    window.addEventListener("localStorageModified", modifiedCallback)
     return () => {
-      window.removeEventListener("localStorageModified", storageCallback)
+      window.removeEventListener("storage", storageCallback)
+      window.removeEventListener("localStorageModified", modifiedCallback)
     }
-  }, [key])
+  }, [key, observeOtherPages])
 
   return [storedValue, setValue]
 }

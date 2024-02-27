@@ -1,48 +1,67 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 
-export const useSyntheticDOMMask = (selector: string, boundInterval: number = 10, selectorInterval: number = 1000) => {
-    // const mask = useRef<HTMLDivElement>(document.createElement("div"))
+const prepareMaskContainer = (): HTMLDivElement => {
+    const mask = document.createElement("div")
+    mask.id = "mask-" + uuid()
+    mask.style.position = "relative"
+    mask.style.zIndex = "999999"
+    mask.style.pointerEvents = "none"
+    mask.style.borderRadius = "4px"
+    mask.style.display = "none"
+    document.body.prepend(mask)
+    return mask
+}
+
+export const useSyntheticDOMMask = (
+    selector: string,
+    padding: number = 0,
+    resizeInterval: number = 0,
+    selectorInterval: number = 10
+) => {
+    const [mask] = useState<HTMLDivElement>(prepareMaskContainer)
     const [elements, setElements] = useState<Element[] | undefined>(undefined)
-    const [mask, setMask] = useState<HTMLDivElement | undefined>(undefined)
     const [elementMasks, setElementMasks] = useState<Map<Element, HTMLElement> | undefined>(undefined)
     const [show, setShow] = useState<boolean>(false)
-    const maskContainerId = useRef<string>("mask-" + uuid())
 
-    const resize = (element: HTMLElement, bb: DOMRect) => {
-        element.style.top = (bb.top) + "px"
-        element.style.left = (bb.left) + "px"
-        element.style.width = (bb.width) + "px"
-        element.style.height = (bb.height) + "px"
-    }
+    const resize = useCallback((element: HTMLElement, bb: DOMRect) => {
+        const elBB = element.getBoundingClientRect()
+        if (elBB.x !== bb.x) element.style.left = (bb.x) + "px"
+        if (elBB.y !== bb.y) element.style.top = (bb.y) + "px"
+        if (elBB.width !== bb.width) element.style.width = (bb.width) + "px"
+        if (elBB.height !== bb.height) element.style.height = (bb.height) + "px"
+    }, [])
 
-    const computeMinimumBounds = (elements: Element[]): DOMRect => {
-        if (elements.length === 0) throw new Error()
+    const computeMinimumBounds = useCallback((elements: Element[]): DOMRect => {
+        if (elements.length === 0) return new DOMRect(0, 0, 0, 0)
         let [x1, y1, x2, y2] = [Infinity, Infinity, -Infinity, -Infinity]
         elements.forEach((element) => {
             const bb = element.getBoundingClientRect()
             if (bb.width === 0 || bb.height === 0) return
-            x1 = Math.min(x1, bb.x)
-            y1 = Math.min(y1, bb.y)
-            x2 = Math.max(x2, bb.right)
-            y2 = Math.max(y2, bb.bottom)
+            x1 = Math.min(x1, bb.x - padding)
+            y1 = Math.min(y1, bb.y - padding)
+            x2 = Math.max(x2, bb.right + padding)
+            y2 = Math.max(y2, bb.bottom + padding)
         })
         return new DOMRect(x1, y1, x2 - x1, y2 - y1)
-    }
+    }, [padding])
 
+    // Maintain up-to-date list of DOM elements matching the given selector
     useEffect(() => {
         const interval = window.setInterval(() => {
             const elements = Array.from(document.querySelectorAll(selector))
-            const equal = (elems1: Element[], elems2: Element[]): boolean => {
-                if (elems1.length !== elems2.length) return false
-                return elems1.every((e1) => {
-                    return elems2.includes(e1)
-                })
-            }
             setElements((oldElements) => {
-                if (oldElements === undefined) return elements
-                if (equal(oldElements, elements)) return oldElements
-                return elements
+                // We absolutely don't want to update if query set hasn't changed.
+                // Can't use JSON comparison because of circular references in DOM nodes.
+                if (!oldElements) return elements
+                if (oldElements.length !== elements.length) return elements
+                const equal = oldElements.every((oldElement, i) => {
+                    const element = elements[i]
+                    return element === oldElement
+                })
+                if (equal) return oldElements
+                else return elements
+
             })
         }, selectorInterval)
         return () => {
@@ -50,53 +69,101 @@ export const useSyntheticDOMMask = (selector: string, boundInterval: number = 10
         }
     }, [selector, selectorInterval])
 
+    // Make sure the mask displays properly and maintain proper position/size
     useEffect(() => {
+        const observers: IntersectionObserver[] = []
         let interval: number
+        let cancelled = false
         if (!mask || !elementMasks) return
-        if (!show) mask.remove()
+        if (!show) mask.style.display = "none"
         else {
-            document.body.prepend(mask)
-            interval = window.setInterval(() => {
+            mask.style.display = "initial"
+            
+            const resizeMasks = () => {
                 const elements = Array.from(elementMasks.keys())
+                const maskBounds = computeMinimumBounds(elements)
                 elements.forEach((element) => {
                     const elementMask = elementMasks.get(element)!
-                    resize(elementMask, element.getBoundingClientRect())
+                    const elementBB = element.getBoundingClientRect()
+                    // Mask elements are positioned relative to the mask container
+                    resize(elementMask, new DOMRect(
+                        elementBB.x - maskBounds.x,
+                        elementBB.y - maskBounds.y,
+                        elementBB.width,
+                        elementBB.height
+                    ))
                 })
-                resize(mask, computeMinimumBounds(elements))
-            }, boundInterval)
+                resize(mask, maskBounds)
+            }
+            
+            const resizeLoop = () => {
+                resizeMasks()
+                if (!cancelled) window.requestAnimationFrame(resizeLoop)
+            }
+            resizeLoop()
+
+            Array.from(elementMasks.keys()).forEach((element) => {
+                const elementMask = elementMasks.get(element)!
+                elementMask.style.backgroundColor = "red"
+            })
+
+            /*
+            Array.from(elementMasks.keys()).forEach((element) => {
+                const elementMask = elementMasks.get(element)!
+                elementMask.style.backgroundColor = "red"
+
+                // For some reason, intersection observers not working on Chrome when root is specified...
+                // The idea here is that we observe the intersection ratio between the mask and the element,
+                // and if the ratio ever goes below 1.0 (100% intersection), then we know the element has changed
+                // position/size and the mask needs to be resized. This would be the most "efficient" solution for us.
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        console.log(entry, entry.intersectionRatio)
+                    })
+                }, { root: element })
+                observer.observe(element)
+                observers.push(observer)
+            })
+            */
         }
 
         return () => {
-            mask.remove()
+            observers.forEach((observer) => observer.disconnect())
             window.clearInterval(interval)
+            cancelled = true
         }
-    }, [mask, elementMasks, show, boundInterval])
+    }, [mask, elementMasks, show, resizeInterval, computeMinimumBounds])
 
+    // Generate the mask
     useEffect(() => {
         if (!elements) return
-        const maskContainer = document.createElement("div")
-        maskContainer.id = maskContainerId.current
-        maskContainer.style.position = "fixed"
-        maskContainer.style.zIndex = "999999"
-        maskContainer.style.pointerEvents = "none"
 
-        const masks = new Map<Element, HTMLElement>()
+        // Delete old masks.
+        mask.innerHTML = ""
+        const newMasks = new Map<Element, HTMLElement>()
         elements.forEach((element) => {
             const maskElement = document.createElement("div")
             maskElement.style.backgroundColor = "transparent"
-            maskElement.style.position = "fixed"
-            maskContainer.appendChild(maskElement)
-            masks.set(element, maskElement)
+            maskElement.style.position = "absolute"
+            mask.appendChild(maskElement)
+            newMasks.set(element, maskElement)
         })
 
-        setMask(maskContainer)
-        setElementMasks(masks)
+        setElementMasks(newMasks)
+    }, [mask, elements])
 
-    }, [elements])
+    useEffect(() => {
+        document.body.prepend(mask)
+        return () => {
+            mask.remove()
+        }
+    }, [])
 
     return {
         showMask: () => setShow(true),
         hideMask: () => setShow(false),
-        selector: "#" + maskContainerId.current
+        selector: "#" + mask.id,
+        element: mask
     } as const
 }

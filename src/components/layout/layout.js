@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react'
 import { Layout as AntLayout, Button, Menu, Grid, Divider } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import { useLocation, useNavigate, Link } from '@gatsbyjs/reach-router'
-import { useEnvironment, useAnalytics, useWorkspacesAPI } from '../../contexts';
+import { useEnvironment, useAnalytics, useWorkspacesAPI, useTourContext } from '../../contexts';
 import { MobileMenu } from './menu';
 import { SidePanel } from '../side-panel/side-panel';
 import './layout.css';
@@ -13,6 +13,7 @@ const { useBreakpoint } = Grid
 export const Layout = ({ children }) => {
   const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
   const { api, loading: apiLoading, loggedIn, appstoreContext } = useWorkspacesAPI()
+  const { tour } = useTourContext()
   const { analyticsEvents } = useAnalytics()
   const { md } = useBreakpoint()
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
@@ -86,6 +87,7 @@ export const Layout = ({ children }) => {
                 </Button>
               </div>
             )}
+            <div style={{ height: "100%" }}><Button ghost type="primary" onClick={ () => tour.start() }>Tour</Button></div>
           </div>
         ) : (
           <MobileMenu menu={routes} />
