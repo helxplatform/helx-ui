@@ -22,21 +22,9 @@ export interface ITourProvider {
 
 export const TourContext = createContext<ITourContext|undefined>(undefined)
 
-function setNativeValue(element: any, value: any) {
-    const valueSetter = (Object as any).getOwnPropertyDescriptor(element, 'value').set;
-    const prototype = (Object as any).getPrototypeOf(element);
-    const prototypeValueSetter = (Object as any).getOwnPropertyDescriptor(prototype, 'value').set;
-
-    if (valueSetter && valueSetter !== prototypeValueSetter) {
-        prototypeValueSetter.call(element, value);
-    } else {
-        valueSetter.call(element, value);
-    }
-}
-
 export const TourProvider = ({ children }: ITourProvider ) => {
     const { context, routes, basePath} = useEnvironment() as any
-    const { layout } = useHelxSearch() as any
+    const { doSearch, query, layout, setLayout } = useHelxSearch() as any
     const location = useLocation()
     const navigate = useNavigate()
 
@@ -50,7 +38,6 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             ...routes.filter((m: any) => m.path === route.parent)
         ])).map((route: any) => route.path)
     }, [basePath, routes])
-    const isSearchActive = useMemo(() => activeRoutes?.some((route) => route.component instanceof SearchView), [activeRoutes])
 
     const searchBarDomMask = useSyntheticDOMMask(".search-bar, .search-button")
 
@@ -79,17 +66,21 @@ export const TourProvider = ({ children }: ITourProvider ) => {
         useModalOverlay: true
     }), [])
     
-    const tourSteps = useMemo<(ShepherdOptionsWithTypeFixed)[]>(() => ([
+    const tourSteps = useMemo<ShepherdOptionsWithTypeFixed[]>(() => ([
         {
             id: 'search.intro',
             attachTo: {
                 element: searchBarDomMask.selector!,
                 on: 'bottom'
             },
-            beforeShowPromise: async () => {
+            beforeShowPromise: async function() {
                 await navigate(basePath)
                 const input = document.querySelector(".search-bar input") as HTMLInputElement
-                if (input) input.focus()
+                // Shepherd automatically focuses its own step tooltip when it displays. There
+                // is currently no option to disable this behavior.
+                // See: https://github.com/shepherd-pro/shepherd/issues/1588
+                // Not a good solution but really no good workaround here without modifying Shepherd.
+                setTimeout(() => input.focus(), 500)
             },
             buttons: [
                 {
@@ -100,14 +91,18 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 {
                     classes: 'shepherd-button-primary',
                     text: 'Next',
-                    type: 'next'
+                    action: () => {
+                        const input = document.querySelector(".search-bar input") as HTMLInputElement
+                        doSearch("Diabetes")
+                        tour.next()
+                    }
                 }
             ],
             title: `Welcome to ${ context.meta.title }`,
             text: renderToStaticMarkup(
                 <div>
                     You can search for biomedical concepts, studies, and variables here.<br /><br />
-                    Try typing something and press enter or click search.
+                    Try typing a disease and press enter or click search.
                 </div>
             ),
             when: {
@@ -118,10 +113,10 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             }
         },
         {
-            id: 'search.concept.intro',
+            id: "search.concept.intro",
             attachTo: {
                 element: ".result-card",
-                on: 'right'
+                on: "right"
             },
             beforeShowPromise: async () => {},
             scrollTo: false,
@@ -133,15 +128,23 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 </div>
             ),
             when: {
-                show: () => { searchBarDomMask.showMask() },
+                // show: () => { searchBarDomMask.showMask() },
                 // hide: () => { searchBarDomMask.hideMask() },
                 // cancel: () => { searchBarDomMask.hideMask() },
                 // complete: () => { searchBarDomMask.hideMask() }
             }
         }
-    ]), [isSearchActive, searchBarDomMask, basePath, navigate])
+    ]), [searchBarDomMask, basePath, navigate, doSearch])
 
-    const tour = useShepherdTour({ tourOptions, steps: tourSteps })
+    const tour = useShepherdTour({ tourOptions, steps: tourSteps });
+    (window as any).tour = tour
+
+    /** Step 1: if the user searches something, move to step 2. */
+    useEffect(() => {
+        if (!tour) return
+        // if (tour)
+        // if (query)
+    }, [tour, query])
     
     useEffect(() => {
         let existingSettings = new Map<string, string | null>()

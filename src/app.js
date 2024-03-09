@@ -40,7 +40,7 @@ const Router = () => {
   const location = useLocation();
   const baseRouterPath = context.workspaces_enabled === 'true' ? '/helx' : '/'
   const { tour } = useTourContext()
-  window.tour = tour
+  
   // Component mount
   useEffect(() => {
     const unlisten = globalHistory.listen(({ location }) => {
