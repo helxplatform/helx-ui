@@ -37,7 +37,7 @@ const DATA_SOURCES_ORDER = [
     "Non-HEAL Studies"
 ].map((x) => x.toLowerCase())
 
-const DebouncedRangeSlider = ({ value, onChange, onInternalChange=() => {}, debounce=500, ...props }) => {
+export const DebouncedRangeSlider = ({ value, onChange, onInternalChange=() => {}, debounce=500, ...props }) => {
     const [_internalValue, setInternalValue] = useState(undefined)
     const [internalValue] = useDebounce(_internalValue, debounce)
 
@@ -112,7 +112,7 @@ const HistogramLegendItem = ({ id, name: _name, description: _description, marke
         </div>
     )
 }
-const HistogramLegend = ({ title: _title, items, style, ...props }) =>  {
+export const HistogramLegend = ({ title: _title, items, style, ...props }) =>  {
     if (typeof _title === "string") _title = { title: _title }
     const { title, style: titleStyle={} } = _title
 
@@ -171,6 +171,29 @@ export const VariableSearchResults = () => {
     /** noResults indicates that the search yielded no variables. The layout should be hidden. */
     const noResults = useMemo(() => totalVariableResults === 0, [totalVariableResults])
 
+    const studySources = useMemo(() => {
+        const palette = new Palette(chroma.rgb(255 * .75, 255 * .25, 255 * .25), {mode: 'hex'})
+        return variableStudyResults
+            .reduce((acc, cur) => {
+                const dataSource = cur.data_source
+                if (!acc.hasOwnProperty(dataSource)) acc[dataSource] = {
+                    count: 1,
+                    color: palette.getNextColor()
+                }
+                else acc[dataSource].count += 1
+                return acc
+            }, {})
+    }, [variableStudyResults])
+
+    const hiddenDataSources = useMemo(() => {
+        const allDataSources = Object.keys(studySources)
+        const activeDataSources = filteredVariables.reduce((acc, cur) => {
+            if (!acc.includes(cur.data_source)) acc.push(cur.data_source)
+            return acc
+        }, [])
+        return allDataSources.filter((dataSource) => !activeDataSources.includes(dataSource))
+    }, [filteredVariables, studySources])
+
     const absScoreRange = useMemo(() => {
         // if (variableResults.length < 2) return undefined
         return [
@@ -185,7 +208,7 @@ export const VariableSearchResults = () => {
             Math.max(...filteredVariables.map((result) => result.score))
         ]
     }, [filteredVariables])
-
+    
     const studyResultsForDisplay = useMemo(() => {
         const filteredIds = filteredVariables.map((result) => result.id)
         return variableStudyResults.filter((study) => study.elements.some((variable) => filteredIds.includes(variable.id)))
@@ -204,29 +227,6 @@ export const VariableSearchResults = () => {
     const variablesHistogram = useRef()
     const variableHistogramConfig = useMemo(() => {
         const [minScore, maxScore] = absScoreRange
-        const hex = (x) => {
-            x = x.toString(16)
-            return (x.length === 1) ? '0' + x : x
-        }
-        // const absScoredVariables = filteredVariables.reduce((acc, variable) => {
-        //     const absRatio = (variable.score - minScore) / (maxScore - minScore)
-        //     const colorIdx = absRatio < 1 ? Math.floor((COLOR_GRADIENT.length - 1) * absRatio) : COLOR_GRADIENT.length - 2
-        //     acc[variable.id] = {
-        //         absRatio,
-        //         colorIdx
-        //     }
-        //     return acc
-        // }, {})
-        // for (let colorIdx=0; colorIdx<COLOR_GRADIENT.length-1; colorIdx++) {
-        //     const valuesInIdx = Object.values(absScoredVariables).filter(({ colorIdx: curIdx }) => colorIdx === curIdx)
-        //     const minRatio = Math.min(...valuesInIdx.map((val) => val.absRatio))
-        //     const maxRatio = Math.max(...valuesInIdx.map((val) => val.absRatio))
-        //     valuesInIdx.forEach((val) => {
-        //         val.relRatio = (val.absRatio - minRatio) / (maxRatio - minRatio)
-        //     })
-        //     console.log(valuesInIdx.length, minRatio, maxRatio)
-        // }
-        const clamp = (x, min, max) => Math.max(min, Math.min(x, max))
         return {
             ...variableHistogramConfigStatic,
             data: [...filteredVariables].sort((a, b) => a.score - b.score),
@@ -240,66 +240,8 @@ export const VariableSearchResults = () => {
                  */
                 return COLOR_GRADIENT(absRatio).toString()
             },
-            /*seriesField: "id",
-            legend: {
-                layout: "vertical",
-                position: "right-top",
-                title: {
-                    text: "Score Legend",
-                    spacing: 12
-                },
-                offsetX : 24,
-                custom: true,
-                items: GRADIENT_CONSTITUENTS.map((color, i) => ({
-                    id: color,
-                    name: (() => {
-                        const startRatio = Math.round(i / GRADIENT_CONSTITUENTS.length * 100) / 100
-                        const endRatio = Math.round((i + 1) / GRADIENT_CONSTITUENTS.length * 100) / 100
-                        const startScore = (startRatio * maxScore) - (startRatio * minScore) + minScore
-                        const endScore = (endRatio * maxScore) - (endRatio   * minScore) + minScore
-                        const count = variableResults.filter((result) => result.score >= startScore && result.score <= endScore).length
-                        return `${ startRatio === 0 ? Math.floor(startScore) : Math.ceil(startScore) } - ${ endRatio === 1 ? Math.ceil(endScore) : Math.floor(endScore) }`
-                    })(),
-                    // value: "",
-                    marker: {
-                        spacing: 28,
-                        style: {
-                            fill: color
-                        },
-                        symbol: (x, y, r) => {
-                            const x_r = 24
-                            const y_r = 6
-                            return [["M", x - x_r, y - y_r], ["L", x + x_r, y - y_r], ["L", x + x_r, y + y_r], ["L", x - x_r, y + y_r], ["Z"]]
-                            // return [["M", x - r, y - r], ["L", x + r, y - r], ["L", x + r, y + r], ["L", x - r, y + r], ["Z"]]
-                        }
-                    }
-                }))
-            }*/
         }
     }, [filteredVariables, variableResults, absScoreRange])
-
-    const studyDataSources = useMemo(() => {
-        const palette = new Palette(chroma.rgb(255 * .75, 255 * .25, 255 * .25), {mode: 'hex'})
-        return variableStudyResults
-            .reduce((acc, cur) => {
-                const dataSource = cur.data_source
-                if (!acc.hasOwnProperty(dataSource)) acc[dataSource] = {
-                    count: 1,
-                    color: palette.getNextColor()
-                }
-                else acc[dataSource].count += 1
-                return acc
-            }, {})
-    }, [variableStudyResults])
-
-    const hiddenDataSources = useMemo(() => {
-        const allDataSources = Object.keys(studyDataSources)
-        const activeDataSources = filteredVariables.reduce((acc, cur) => {
-            if (!acc.includes(cur.data_source)) acc.push(cur.data_source)
-            return acc
-        }, [])
-        return allDataSources.filter((dataSource) => !activeDataSources.includes(dataSource))
-    }, [filteredVariables, studyDataSources])
 
     const [filteredPercentileLower, filteredPercentileUpper] = useMemo(() => {
         const relativeMin = Math.min(...filteredVariables.map((result) => result.score))
@@ -412,7 +354,7 @@ export const VariableSearchResults = () => {
     }
 
     return (
-        <div style={{ flexGrow: 1, display: noResults ? "none" : undefined }}>
+        <div style={{ flexGrow: 1, display: noResults ? "none" : "none" }}>
             <Collapse
                 ghost
                 activeKey={!collapseHistogram ? ["variableViewHistogramPanel"] : []}
@@ -491,9 +433,7 @@ export const VariableSearchResults = () => {
                             />
                         </div>
                         <HistogramLegend
-                            title={{
-                                title: "Score Legend"
-                            }}
+                            title="Score Legend"
                             items={ GRADIENT_CONSTITUENTS.map((color, i) => {
                                 const [minScore, maxScore] = absScoreRange
                                 const startRatio = Math.round(i / GRADIENT_CONSTITUENTS.length * 100) / 100
@@ -566,7 +506,7 @@ export const VariableSearchResults = () => {
                 <div className='list'>
                     <Space direction="horizontal" size={ 0 } style={{ marginTop: 8, marginBottom: 4 }}>
                         {
-                            Object.keys(studyDataSources)
+                            Object.keys(studySources)
                                 .sort((a, b) => {
                                     let aIndex = DATA_SOURCES_ORDER.indexOf(a.toLowerCase())
                                     let bIndex = DATA_SOURCES_ORDER.indexOf(b.toLowerCase())
@@ -576,12 +516,11 @@ export const VariableSearchResults = () => {
                                     if (aIndex === -1) return 1
                                     if (bIndex === -1) return -1
                                     return aIndex - bIndex
-                                })
-                                .map((dataSource) => (
+                                }).map((dataSource) => (
                                     <Tag
                                         key={ `variable-view-data-source-tag-${ dataSource }` }
                                         style={{ fontSize: 13 }}
-                                        color={ studyDataSources[dataSource].color }
+                                        color={ studySources[dataSource].color }
                                         // style={ {
                                         //     fontSize: 13,
                                         //     ...(hiddenDataSources.includes(dataSource) ? { border: "1px solid #d9d9d9", background: "#fafafa" } : {})
@@ -589,7 +528,7 @@ export const VariableSearchResults = () => {
                                         // checked={ !hiddenDataSources.includes(dataSource) }
                                         // onChange={ (checked) => onDataSourceChange(dataSource, !checked) }
                                     >
-                                        { `${ dataSource } (${ studyDataSources[dataSource].count })` }
+                                        { `${ dataSource } (${ studySources[dataSource].count })` }
                                     </Tag>
                             ))
                         }
@@ -598,7 +537,7 @@ export const VariableSearchResults = () => {
                         studyResultsForDisplay={studyResultsForDisplay}
                         studyNamesForDisplay={studyNamesForDisplay}
                         filteredVariables={filteredVariables}
-                        studyDataSources={ studyDataSources }
+                        studyDataSources={ studySources }
                         toggleStudyHighlightingInHistogram={toggleStudyHighlightingInHistogram}/>
                 </div>
             </Space>

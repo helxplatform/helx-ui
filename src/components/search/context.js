@@ -410,6 +410,7 @@ export const HelxSearch = ({ children }) => {
       study.elements.forEach((variable, indexByVariable) => {
         const variableToUpdate = Object.assign({}, variable);
         variableToUpdate["study_name"] = study.c_name
+        variableToUpdate["study"] = study
         variableToUpdate["withinFilter"] = "none"
         variables.push(variableToUpdate)
         

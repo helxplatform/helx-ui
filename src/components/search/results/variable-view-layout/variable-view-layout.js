@@ -1,6 +1,7 @@
 import { Fragment } from 'react'
 import { Spin, Typography, Empty } from 'antd'
 import { VariableSearchResults } from './'
+import { VariableSearchResults2 } from './variable-results-new'
 import { ResultsHeader } from '../'
 import { useHelxSearch, SearchForm } from '../../'
 
@@ -26,6 +27,7 @@ export const VariableViewLayout = () => {
                     ) : null }
                     {totalVariableResults > 0 && <ResultsHeader variables={ true } />}
                     <VariableSearchResults />
+                    <VariableSearchResults2 />
                 </Fragment>
             ) }
         </Fragment>

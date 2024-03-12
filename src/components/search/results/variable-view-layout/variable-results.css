@@ -83,3 +83,19 @@ div.within-filter-false a:hover {
     border: none;
     transform: translate(-50%, 0) !important;
 } */
+
+.variable-view-data-source-tag.inactive:active {
+    background: var(--hover-color) !important;
+}
+
+.variable-view-data-source-tag.inactive:hover {
+    color: var(--hover-color) !important;
+}
+
+.study-info-tooltip .ant-popover-inner-content {
+    width: 100%;
+}
+
+.study-info-tooltip .study-info-tooltip-statistic:first-child {
+    margin-top: 0 !important;
+}
