@@ -104,15 +104,14 @@ export const EnvironmentProvider = ({ children }) => {
       const getLoginDesc = async () => {
         try{
           let response = await fetch(`${relativeHost}/static/frontend/brand_desc.html`)
-          if (!response.ok) {
-            context.login_text = default_login_text
-          }
-          const htmlContent = await response.text();
-          context.login_text = ( 
-            <Fragment>
-            <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-            </Fragment> 
-          )
+          if (response.ok) {
+            const htmlContent = await response.text();
+            context.login_text = ( 
+              <Fragment>
+              <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+              </Fragment> 
+            )
+          } else context.login_text = default_login_text
         } catch (error) {
           console.log("Error reading description file, reverting to default values")
           context.login_text = default_login_text;
