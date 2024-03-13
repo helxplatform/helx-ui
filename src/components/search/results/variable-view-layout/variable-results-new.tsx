@@ -1,6 +1,6 @@
-import { Fragment, ReactNode, useMemo, useState } from 'react'
-import { Button, Card, Collapse, Divider, Space, Statistic, Tag, Tooltip, Typography } from 'antd'
-import { ExportOutlined as ExternalLinkIcon } from '@ant-design/icons'
+import { Fragment, ReactNode, useCallback, useMemo, useState } from 'react'
+import { Button, Card, Collapse, Divider, Popover, Space, Statistic, Tag, Tooltip, Typography } from 'antd'
+import { ExportOutlined as ExternalLinkIcon, CaretDownFilled } from '@ant-design/icons'
 import { SliderBaseProps } from 'antd/lib/slider'
 import { Column } from '@ant-design/plots'
 import { Column as G2Column, ColumnOptions as G2ColumnConfig } from '@antv/g2plot'
@@ -8,7 +8,7 @@ import { HistogramLegend, DebouncedRangeSlider } from './variable-results'
 import { useHelxSearch } from '../../context'
 import { useAnalytics } from '../../../../contexts'
 import { InfoButton, InfoPopover, InfoTooltip } from '../../../info-helpers'
-import { ISearchContext, StudyResult, VariableResult, VariableViewProvider, useVariableView } from './variable-view-context'
+import { DataSource, ISearchContext, StudyResult, VariableResult, VariableViewProvider, useVariableView } from './variable-view-context'
 
 const { Text, Link, Title } = Typography
 const { Panel } = Collapse
@@ -21,17 +21,25 @@ interface ChartRef {
     getChart: GetChart
 }
 
+interface VariableDataSourceProps {
+    dataSource: DataSource
+}
+
 interface StudyInfoTooltipProps {
     study: StudyResult
+}
+
+interface VariableListItemProps {
+    variable: VariableResult
 }
 
 const VariableViewHistogram = () => {
     const { analyticsEvents } = useAnalytics()
     const { query, variableResults, totalVariableResults } = useHelxSearch() as ISearchContext
     const {
-        filteredVariables, variableHistogramConfig, absScoreRange,
-        scoreLegendItems, filteredPercentile, onScoreSliderChange,
-        variablesHistogram
+        filteredVariables, variableHistogramConfig,
+        scoreFilter, setScoreFilter,
+        scoreLegendItems, filteredPercentile, variablesHistogram
     } = useVariableView()!
     const [collapse, setCollapse] = useState<boolean>(false)
     return (
@@ -93,8 +101,11 @@ const VariableViewHistogram = () => {
                                 style={{ padding: 0 }}
                             />
                             <DebouncedRangeSlider
-                                value={ absScoreRange }
-                                onChange={ (change?: [number, number]) => change !== undefined && onScoreSliderChange(change) }
+                                value={ scoreFilter ? scoreFilter : [
+                                    Math.min(...variableResults.map((result) => result.score)),
+                                    Math.max(...variableResults.map((result) => result.score))
+                                ] }
+                                onChange={ setScoreFilter }
                                 min={ Math.min(...variableResults.map((result) => result.score)) }
                                 max={ Math.max(...variableResults.map((result) => result.score)) }
                                 step={ null }
@@ -124,39 +135,56 @@ const VariableViewHistogram = () => {
     )
 }
 
-export const VariableListDataSources = () => {
-    const { dataSources, hiddenDataSources, setHiddenDataSources } = useVariableView()!
+const VariableDataSource = ({ dataSource }: VariableDataSourceProps) => {
+    const { hiddenDataSources, setHiddenDataSources } = useVariableView()!
+    const active = useMemo(() => !hiddenDataSources.includes(dataSource.name), [hiddenDataSources, dataSource])
+    const setActive = useCallback((active: boolean) => setHiddenDataSources((prevDataSources) => {
+        if (active) return prevDataSources.filter((s) => s !== dataSource.name)
+        else return [...prevDataSources, dataSource.name]
+    }), [dataSource])
     return (
-        <Space direction="horizontal" size={ 0 } style={{ marginTop: 8, marginBottom: 4 }}>
+        <CheckableTag
+            className={ `variable-view-data-source-tag ${ hiddenDataSources.includes(dataSource.name) ? "inactive" : "active" }` }
+            style={{
+                fontSize: 13,
+                background: !hiddenDataSources.includes(dataSource.name) ? dataSource.color : undefined,
+                border: hiddenDataSources.includes(dataSource.name) ? "1px solid rgba(0, 0, 0, 0.15)" : undefined,
+                margin: 0,
+                ["--hover-color" as any]: dataSource.color 
+            }}
+            checked={ active }
+            onChange={ () => setActive(!active) }
+        >
+            { `${ dataSource.name } (${ dataSource.variables.length })` }
+        </CheckableTag>
+    )
+}
+
+const VariableListDataSources = () => {
+    const { dataSources } = useVariableView()!
+    return (
+        <Space direction="horizontal" size={ 8 } wrap style={{ flexGrow: 1 }}>
             {
                 Object.values(dataSources).map((dataSource) => (
-                        <CheckableTag
-                            key={ `variable-view-data-source-tag-${ dataSource.name }` }
-                            className={ `variable-view-data-source-tag ${ hiddenDataSources.includes(dataSource.name) ? "inactive" : "active" }` }
-                            style={{
-                                fontSize: 13,
-                                background: !hiddenDataSources.includes(dataSource.name) ? dataSource.color : undefined,
-                                border: hiddenDataSources.includes(dataSource.name) ? "1px solid rgba(0, 0, 0, 0.15)" : undefined,
-                                ["--hover-color" as any]: dataSource.color 
-                            }}
-                            checked={ !hiddenDataSources.includes(dataSource.name) }
-                            onChange={ () => setHiddenDataSources((oldSources) => {
-                                if (oldSources.includes(dataSource.name)) {
-                                    return oldSources.filter((source) => source !== dataSource.name)
-                                } else return [...oldSources, dataSource.name]
-                            }) }
-                            // style={ {
-                            //     fontSize: 13,
-                            //     ...(hiddenDataSources.includes(dataSource) ? { border: "1px solid #d9d9d9", background: "#fafafa" } : {})
-                            // } }
-                            // checked={ !hiddenDataSources.includes(dataSource) }
-                            // onChange={ (checked) => onDataSourceChange(dataSource, !checked) }
-                        >
-                            { `${ dataSource.name } (${ dataSource.variables.length })` }
-                        </CheckableTag>
+                    <VariableDataSource key={ `variable-view-data-source-tag-${ dataSource.name }` } dataSource={ dataSource } />
                 ))
             }
         </Space>
+    )
+}
+
+const VariableFilterMenu = () => {
+    return (
+        <Popover trigger="click" placement="bottom" content={
+            <div>
+                filter content
+            </div>
+        }>
+            <Button>
+                Filters
+                <CaretDownFilled style={{ fontSize: 12 }} />
+            </Button>
+        </Popover>
     )
 }
 
@@ -188,7 +216,7 @@ const StudyInfoTooltip = ({ study }: StudyInfoTooltipProps) => {
     return (
         <InfoPopover
             overlayClassName="study-info-tooltip"
-            trigger="click"
+            trigger="hover"
             title={
                 <div style={{ display: "flex", alignItems: "center", margin: "8px 0" }}>
                     <Title level={ 5 } style={{
@@ -209,6 +237,7 @@ const StudyInfoTooltip = ({ study }: StudyInfoTooltipProps) => {
             content={
                 <div>
                     <StudyInfoTooltipStatistic name="Identifier" value={ study.c_id } />
+                    <Divider style={{ margin: "8px 0" }} />
                     <StudyInfoTooltipStatistic name="Variables" value={ study.elements.length } />
                     {/* <StudyInfoTooltipStatistic name="Data source" value={ study.data_source } /> */}
                 </div>
@@ -221,12 +250,67 @@ const StudyInfoTooltip = ({ study }: StudyInfoTooltipProps) => {
     )
 }
 
+const VariableListItem = ({ variable }: VariableListItemProps) => {
+    const { dataSources } = useVariableView()!
+    return (
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                flexWrap: "nowrap",
+                paddingRight: 16
+            }}
+        >
+            <span
+                className="study-panel-header"
+                style={{
+                    flex: "auto",
+                    display: "inline-flex",
+                    alignItems: "center"
+                }}
+            >
+                <Tooltip title={ variable.data_source } placement="right" >
+                    <div style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: dataSources[variable.data_source].color,
+                        marginRight: 8
+                    }} />
+                </Tooltip>
+                <Text>{variable.name}&nbsp;</Text>
+                ({ variable.e_link ? (
+                    <a
+                        href={variable.e_link}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={ (e) => {
+                            e.stopPropagation()
+                        } }
+                    >
+                        {variable.id}
+                    </a>
+                ) : variable.id })
+            </span>
+            <Text italic style={{ fontSize: 13 }}>
+                { variable.description }
+            </Text>
+            <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12, color: "rgba(0, 0, 0, 0.45)" }}>
+                Source:&nbsp;<i>{ variable.study.c_name }</i>&nbsp;
+                <StudyInfoTooltip study={ variable.study } />
+            </span>
+        </div>
+    )
+}
+
 export const VariableList = () => {
-    const { filteredVariables, variablesSource, dataSources } = useVariableView()!
+    const { filteredVariables, variablesSource } = useVariableView()!
     return (
         <div className="variable-list">
-            <Divider orientation="left" orientationMargin={ 0 } style={{ fontSize: 15, marginTop: 24, marginBottom: 0 }}>Variables</Divider>
-            <VariableListDataSources />
+            <Divider orientation="left" orientationMargin={ 0 } style={{ fontSize: 15, marginTop: 24, marginBottom: 0 }}>
+                Variables
+            </Divider>
             { filteredVariables.length < variablesSource.length && (
                 <div style={{ marginTop: 6, marginBottom: -4 }}>
                     <Text type="secondary" style={{ fontSize: 14, fontStyle: "italic" }}>
@@ -234,59 +318,15 @@ export const VariableList = () => {
                     </Text>
                 </div>
             ) }
-            { filteredVariables.map((variable, i) => (
-                <div
-                    key={ variable.id }
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        flexWrap: "nowrap",
-                        paddingRight: 16,
-                        paddingBottom: 16,
-                        paddingTop: i === 0 ? 16 : 0
-                    }}
-                >
-                    <span
-                        className="study-panel-header"
-                        style={{
-                            flex: "auto",
-                            display: "inline-flex",
-                            alignItems: "center"
-                        }}
-                    >
-                        <Tooltip title={ variable.data_source } placement="right" >
-                            <div style={{
-                                width: 8,
-                                height: 8,
-                                borderRadius: '50%',
-                                background: dataSources[variable.data_source].color,
-                                marginRight: 8
-                            }} />
-                        </Tooltip>
-                        <Text>{variable.name}&nbsp;</Text>
-                        ({ variable.e_link ? (
-                            <a
-                                href={variable.e_link}
-                                target="_blank"
-                                rel="noreferrer"
-                                onClick={ (e) => {
-                                    e.stopPropagation()
-                                } }
-                            >
-                                {variable.id}
-                            </a>
-                        ) : variable.id })
-                    </span>
-                    <Text italic style={{ fontSize: 13 }}>
-                        { variable.description }
-                    </Text>
-                    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12, color: "rgba(0, 0, 0, 0.45)" }}>
-                        Source:&nbsp;<i>{ variable.study.c_name }</i>&nbsp;
-                        <StudyInfoTooltip study={ variable.study } />
-                    </span>
-                </div>
-            )) }
+            <div style={{ display: "flex", marginTop: 8 }}>
+                <VariableListDataSources />
+                <VariableFilterMenu />
+            </div>
+            <Space direction="vertical" style={{ marginTop: 8}}>
+                { filteredVariables.map((variable, i) => (
+                    <VariableListItem key={ variable.id } variable={ variable }/>
+                )) }
+            </Space>
         </div>
     )
 }

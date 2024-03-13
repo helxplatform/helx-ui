@@ -17,7 +17,7 @@ const GRADIENT_CONSTITUENTS = [
 // ]
 const COLOR_GRADIENT = chroma.scale(GRADIENT_CONSTITUENTS).mode("lrgb")
 
-interface DataSource {
+export interface DataSource {
     name: string
     color: string
     studies: string[]
@@ -56,14 +56,12 @@ export interface ISearchContext {
     totalVariableResults: number
 }
 
-interface OnScoreSliderChange {
-    (score: [number, number]): void
-}
-
 export interface IVariableViewContext {
     variablesSource: VariableResult[]
     filteredVariables: VariableResult[]
     absScoreRange: [number, number]
+    scoreFilter: [number, number] | undefined
+    setScoreFilter: React.Dispatch<React.SetStateAction<[number, number] | undefined>>
     variablesHistogram: React.MutableRefObject<ChartRef | undefined>
     variableHistogramConfig: G2ColumnConfig
     dataSources: { [dataSource: string]: DataSource }
@@ -71,7 +69,6 @@ export interface IVariableViewContext {
     setHiddenDataSources: React.Dispatch<React.SetStateAction<string[]>>
     scoreLegendItems: any[]
     filteredPercentile: [number, number]
-    onScoreSliderChange: OnScoreSliderChange
 }
 
 interface VariableViewProviderProps {
@@ -86,20 +83,42 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
 
     const [collapseHistogram, setCollapseHistogram] = useState<boolean>(false)
     const [historyPage, setHistoryPage] = useState<number>(0)
-    const [filteredVariables, setFilteredVariables] = useState<VariableResult[]>([])
+
+    /**
+     * Filters
+     */
     const [hiddenDataSources, setHiddenDataSources] = useState<string[]>([])
+    const [scoreFilter, setScoreFilter] = useState<[number, number] | undefined>()
 
     const variablesSource = useMemo<VariableResult[]>(() => {
         return variableResults.sort((a, b) => a.score - b.score )
     }, [variableResults])
 
+    const filteredVariables = useMemo<VariableResult[]>(() => variablesSource.filter((variable) => {
+        if (scoreFilter) {
+            const [minScore, maxScore] = scoreFilter
+            if (variable.score < minScore || variable.score > maxScore) return false
+        }
+        if (hiddenDataSources.includes(variable.data_source)) return false
+        return true
+    }), [variablesSource, scoreFilter, hiddenDataSources])
+
     const absScoreRange = useMemo<[number, number]>(() => {
-        // if (variableResults.length < 2) return undefined
+        if (variableResults.length < 2) return [variableResults[0]?.score, variableResults[0]?.score]
         return [
             Math.min(...variableResults.map((result) => result.score)),
             Math.max(...variableResults.map((result) => result.score))   
         ]
     }, [variableResults])
+
+    const filteredScoreRange = useMemo<[number, number] | undefined>(() => {
+        if (filteredVariables.length === 0) return undefined
+        if (filteredVariables.length === 1) return [filteredVariables[0].score, filteredVariables[0].score]
+        return [
+            Math.min(...filteredVariables.map((result) => result.score)),
+            Math.max(...filteredVariables.map((result) => result.score))   
+        ]
+    }, [filteredVariables])
 
     const variablesHistogram = useRef<ChartRef>()
     const variableHistogramConfig = useMemo<G2ColumnConfig>(() => {
@@ -181,17 +200,6 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
         }, {})
     }, [variablesSource])
 
-    const onScoreSliderChange = useCallback(([minScore, maxScore]: [number, number]) => {
-        setFilteredVariables(variablesSource.filter((variable) => (
-            variable.score >= minScore && variable.score <= maxScore
-        )))
-    }, [variablesSource])
-
-    /** Reset filter whenever the underlying search results change */
-    useEffect(() => {
-        setFilteredVariables(variablesSource)
-    }, [variablesSource])
-
     useEffect(() => {
     }, [hiddenDataSources])
 
@@ -201,7 +209,10 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
         const histogramObj = variablesHistogram.current.getChart()
         const handle = (e: any) => {
             const { filteredData } = e.view
-            setFilteredVariables(filteredData)
+            setScoreFilter([
+                Math.min(...filteredData.map((result: VariableResult) => result.score)),
+                Math.max(...filteredData.map((result: VariableResult) => result.score))   
+            ])
         }
         histogramObj.on('mouseup', handle)
         return () => {
@@ -219,15 +230,24 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
 
     return (
         <VariableViewContext.Provider value={{
+            /**
+             * Variables
+             */
             variablesSource,
             filteredVariables,
+            /**
+             * Filters
+             */
+            scoreFilter, setScoreFilter,
+            /**
+             * Misc
+             */
             absScoreRange,
             variablesHistogram,
             variableHistogramConfig,
             dataSources, hiddenDataSources, setHiddenDataSources,
             scoreLegendItems,
             filteredPercentile,
-            onScoreSliderChange
         }}>
             { children }
         </VariableViewContext.Provider>
