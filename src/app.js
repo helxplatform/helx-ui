@@ -66,9 +66,9 @@ const Router = () => {
 export const App = () => {
   return (
     <ContextProviders>
-      <Layout>
+      {/* <Layout> */}
         <Router />
-      </Layout>
+      {/* </Layout> */}
     </ContextProviders>
   )
 }

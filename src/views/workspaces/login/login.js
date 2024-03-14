@@ -10,7 +10,7 @@ import { withAPIReady } from '../'
 import { useDest, useEnvironment, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
 import  './login.css'
-import { useTitle } from '../..'
+import { withView } from '../..'
 
 const { Title, Text, Paragraph } = Typography
 const { useForm } = Form
@@ -60,7 +60,7 @@ const SSOLoginOptions = ({ main, unc, google, github, onWhitelistRequired, onSig
     </div>
 )
 
-export const WorkspaceLoginView = withAPIReady(({
+export const WorkspaceLoginView = withView(withAPIReady(({
     // If true, changes the presentation so that it can be embedded within a view rather than as its own standalone page view.
     asComponent=false
 }) => {
@@ -73,8 +73,6 @@ export const WorkspaceLoginView = withAPIReady(({
     const { context, basePath } = useEnvironment()
     const { api, user, loggedIn, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
-
-    useTitle("Login")
 
     if (loggedIn) {
         // User has logged in, redirect back.
@@ -223,4 +221,4 @@ export const WorkspaceLoginView = withAPIReady(({
             </FormWrapper>
         </div>
     )
-})
+}), { title: "Login" })

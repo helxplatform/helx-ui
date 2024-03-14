@@ -10,13 +10,13 @@ import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-conve
 import { updateTabName } from '../../utils/update-tab-name';
 import { withWorkspaceAuthentication } from '.';
 import { navigate } from '@gatsbyjs/reach-router';
-import { useTitle } from '..';
+import { withView } from '../';
 
 const memoryFormatter = (value) => {
     return formatBytes(value, 2);
 }
 
-export const ActiveView = withWorkspaceAuthentication(() => {
+export const ActiveView = withView(withWorkspaceAuthentication(() => {
     const [instances, setInstances] = useState();
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
@@ -41,8 +41,6 @@ export const ActiveView = withWorkspaceAuthentication(() => {
         { text: 'Workspaces', path: '/helx/workspaces' },
         { text: 'Active', path: '/helx/workspaces/active' },
     ]
-
-    useTitle("Active Workspaces")
 
     useEffect(() => {
         const renderInstance = async () => {
@@ -421,4 +419,4 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                         /> : <div style={{ textAlign: 'center' }}>No instances running. Redirecting to apps...</div>))}
         </Layout>
     )
-})
+}), { title: "Active Workspaces" })

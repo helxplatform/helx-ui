@@ -1,7 +1,7 @@
 import { Fragment, useEffect } from 'react'
 import { Typography } from 'antd'
 import { useAnalytics, useEnvironment } from '../contexts'
-import { useTitle } from './'
+import { withView } from './'
 import {faqsOpened, userGuideOpened} from "../contexts/analytics-context/events/support-events";
 
 const { Title } = Typography
@@ -92,15 +92,13 @@ const UserGuide = (context) => {
 
 
 
-export const SupportView = () => {
+export const SupportView = withView(() => {
   const { context } = useEnvironment()
-  useTitle("Support")
-  console.log(context.support.help_portal_url)
+  
   return (
     <Fragment>
       {context.support.help_portal_url && <HelpPortal help_portal_url={context.support.help_portal_url} />}
       {(context.support.user_guide_url || context.support.faqs_url) && <Documentation user_guide_url={context.support.user_guide_url} faqs_url={context.support.faqs_url}/>}
     </Fragment>
   )
-}
-      
+}, { title: "Support" })

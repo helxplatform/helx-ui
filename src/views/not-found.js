@@ -2,15 +2,13 @@ import { Fragment, useEffect } from 'react'
 import { Button, Result, Typography } from 'antd'
 import { useNavigate } from '@gatsbyjs/reach-router'
 import { useEnvironment } from '../contexts'
-import { useTitle } from './'
+import { withView } from './'
 
 const { Title } = Typography
 
-export const NotFoundView = () => {
+export const NotFoundView = withView(() => {
   const { basePath } = useEnvironment()
   const navigate = useNavigate()
-
-  useTitle("Not Found")
 
   return (
     <Fragment>
@@ -22,4 +20,4 @@ export const NotFoundView = () => {
       />
     </Fragment>
   )
-}
+}, { title: "Not Found" })

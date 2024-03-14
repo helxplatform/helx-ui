@@ -8,10 +8,8 @@ import { useActivity, useApp, useEnvironment, useInstance, useWorkspacesAPI } fr
 import { openNotificationWithIcon } from '../../components/notifications';
 import { Breadcrumbs } from '../../components/layout'
 import '../../components/workspaces/app-card.css'
-import { useTitle } from '../view'
 
-
-export const AvailableView = withWorkspaceAuthentication(() => {
+export const AvailableView = withView(withWorkspaceAuthentication(() => {
     const { api } = useWorkspacesAPI()
     const { appSpecs: apps } = useActivity()
     const [runningInstances, setRunningInstances] = useState();
@@ -24,8 +22,6 @@ export const AvailableView = withWorkspaceAuthentication(() => {
     ]
 
     const isLoading = useMemo(() => !apps || !runningInstances, [apps, runningInstances])
-
-    useTitle("Workspaces")
 
     useEffect(() => {
         const filterApps = async (a) => {
@@ -84,4 +80,4 @@ export const AvailableView = withWorkspaceAuthentication(() => {
                     : <div></div>)}
         </Layout>
     )
-})
+}), { title: "Workspaces" })

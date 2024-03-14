@@ -3,15 +3,14 @@ import { TimeUntil, useTimeUntil } from 'react-time-until'
 import { useEnvironment, useWorkspacesAPI } from '../../contexts'
 import { ProtectedView, withAuthentication } from '../protected-view'
 import { withView } from '../'
-import { useTitle } from '../view'
 
 const { Text } = Typography
 
-export const APILoadingProtectedView = ({ children }) => {
+export const APILoadingProtectedView = withView(({ setTitle, children }) => {
     const { loading: apiLoading, loadingBackoff } = useWorkspacesAPI()
     const timeUntil = useTimeUntil({ date: loadingBackoff, countdown: true })
     
-    useTitle(apiLoading ? "" : null)
+    setTitle(apiLoading ? "" : null)
 
     if (apiLoading) return (
         <Space direction="vertical" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", flex: 1 }}>
@@ -28,7 +27,7 @@ export const APILoadingProtectedView = ({ children }) => {
     return (
         children
     )
-}
+}, { title: null, wrapper: true })
 
 export const WorkspaceProtectedView = ({ props, children }) => {
     const { basePath } = useEnvironment()

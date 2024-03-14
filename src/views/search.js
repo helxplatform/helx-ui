@@ -3,17 +3,17 @@ import { HelxSearch, SearchForm, Results, useHelxSearch } from '../components/se
 import { Typography } from 'antd'
 import { Breadcrumbs } from '../components/layout'
 import { useEnvironment } from '../contexts'
-import { useTitle } from './'
+import { withView } from './'
 
 const { Title } = Typography
 
-export const SearchView = () => (
+export const SearchView = withView(({ setTitle }) => (
   <HelxSearch>
-    <ScopedSearchView />
+    <ScopedSearchView setTitle={ setTitle } />
   </HelxSearch>
-)
+), { title: "" })
 
-const ScopedSearchView = () => {
+const ScopedSearchView = ({ setTitle }) => {
   const { context } = useEnvironment();
   const { query } = useHelxSearch()
 
@@ -22,8 +22,8 @@ const ScopedSearchView = () => {
     { text: 'Search', path: '/search' },
   ]
 
-  // We need to override the withView useTitle since we have dynamic needs here.
-  useTitle(query ? ["Search", query] : "")
+  // We need to override the withView setTitle since we have dynamic needs here.
+  setTitle(query ? ["Search", query] : "")
 
   return (
     <Fragment>

@@ -85,7 +85,7 @@ export const ExpandedResultsSidebar = ({ expanded, setExpanded }) => {
                             next={getNextPage}
                             hasMore={hasMore}
                         >
-                            <div className="results-list grid" style={{ whiteSpace: "normal", maxWidth: md ? "500px" : undefined }}>
+                            <div className="results-list grid" style={{ whiteSpace: "normal", maxWidth: md ? "500px" : undefined, overflow: "hidden" }}>
                                 {
                                     concepts.map((result, i) => (
                                         <ConceptCard

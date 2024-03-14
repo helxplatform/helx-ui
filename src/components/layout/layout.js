@@ -1,11 +1,12 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Layout as AntLayout, Button, Menu, Grid, Divider } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
-import { useLocation, Link } from '@gatsbyjs/reach-router'
+import { useLocation, Link, useParams } from '@gatsbyjs/reach-router'
 import { useEnvironment, useAnalytics, useWorkspacesAPI } from '../../contexts';
 import { MobileMenu } from './menu';
 import { SidePanel } from '../side-panel/side-panel';
 import './layout.css';
+import { View } from '../../views';
 
 const { Header, Content, Footer } = AntLayout
 const { useBreakpoint } = Grid
@@ -17,6 +18,7 @@ export const Layout = ({ children }) => {
   const { md } = useBreakpoint()
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
   const location = useLocation();
+  const urlParams = useParams()
 
   // Logging out is an async operation. It's better to wait until it's complete to avoid 
   // session persistence errors (helx-278).
@@ -38,6 +40,21 @@ export const Layout = ({ children }) => {
     route,
     ...routes.filter((m) => m.path === route.parent)
   ])).map((route) => route.path)
+
+  useEffect(() => {
+    routes.forEach((route) => {
+      if (!route.Component?.__isRouterView) console.error(
+        `WARNING: Route ${ route.path } "${ route.Component.name ?? "unknown" }" is not wrapped using withView. This may be a mistake.`
+      )
+    })
+  }, [routes])
+
+  console.log(urlParams)
+  // console.log(routes.filter((route) => {
+  //   const fullPathTemplate = `${baseLinkPath}${route.path}`
+  //   const fullPathParams = fullPathTemplate
+  //   removeTrailingSlash() === removeTrailingSlash(location.pathname)
+  // }))
 
   return (
     <AntLayout className="layout">

@@ -11,7 +11,7 @@ import { useDest, useEnvironment, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
 import  './login.css'
 import { SocialSignupNotAuthorizedError } from '../../../contexts/workspaces-context/api.types'
-import { useTitle } from '../..'
+import { withView } from '../..'
 
 const { Title, Text, Paragraph } = Typography
 const { useForm } = Form
@@ -46,7 +46,7 @@ const withSocialSignupAllowed = (View) => {
     })
 }
 
-export const WorkspaceSignupView = withSocialSignupAllowed(({
+export const WorkspaceSignupView = withView(withSocialSignupAllowed(({
     // If true, changes the presentation so that it can be embedded within a view rather than as its own standalone page view.
     asComponent=false
 }) => {
@@ -58,8 +58,6 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
     const { context, basePath } = useEnvironment()
     const { api, user, loggedIn, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
-
-    useTitle("Signup")
     
     if (loggedIn) {
         // User has logged in, redirect back.
@@ -192,4 +190,4 @@ export const WorkspaceSignupView = withSocialSignupAllowed(({
             </FormWrapper>
         </div>
     )
-})
+}), { title: "Signup" })

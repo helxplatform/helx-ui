@@ -2,14 +2,12 @@ import { useEffect, useMemo } from 'react'
 import { Result } from 'antd'
 import { useLocation } from '@gatsbyjs/reach-router'
 import { useDest, useEnvironment } from '../../../contexts'
-import { useTitle } from '../..'
+import { withView } from '../..'
 
-export const LoginSuccessRedirectView = ({ }) => {
+export const LoginSuccessRedirectView = withView(({ }) => {
     const location = useLocation()
     const { basePath } = useEnvironment()
     const { redirectToDest } = useDest()
-
-    useTitle("Login")
 
     const delay = useMemo(() => {
         const redirectDelay = new URLSearchParams(location.search).get("redirect_delay")
@@ -35,4 +33,4 @@ export const LoginSuccessRedirectView = ({ }) => {
             />
         </div>
     )
-}
+}, { title: "Login" })
