@@ -12,7 +12,6 @@ import './results.css'
 
 export const Results = () => {
   const { isLoadingVariableResults, isLoadingConcepts, error, layout } = useHelxSearch()
-
   return (
     <Fragment>
       { layout === SearchLayout.EXPANDED_RESULT ? (
