@@ -257,6 +257,9 @@ export const SidePanel = () => {
                         <Descriptions.Item label="Status">{ eventModalInfo?.data.status }</Descriptions.Item>
                         <Descriptions.Item label="App ID">{ eventModalInfo?.data.appId }</Descriptions.Item>
                         <Descriptions.Item label="System ID">{ eventModalInfo?.data.systemId }</Descriptions.Item>
+                        { eventModalInfo?.data.reason && (
+                            <Descriptions.Item label="Reason">{ eventModalInfo?.data.reason }</Descriptions.Item>
+                        ) }
                         <Descriptions.Item label="Timestamp">
                             { eventModalInfo?.timestamp } <small>({ new Date(eventModalInfo?.timestamp * 1000).toString() })</small>
                         </Descriptions.Item>

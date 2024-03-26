@@ -41,7 +41,8 @@ export interface AppStatusEvent extends WebsocketEvent<{
     // `systemId` uniquely identifies the app instance
     systemId: string
     status: AppStatus
-    containerStates: ContainerStatus[]
+    reason: string | null
+    containerStates: ContainerStatus[] | null
     
 }> {
     type: 'app_status'
