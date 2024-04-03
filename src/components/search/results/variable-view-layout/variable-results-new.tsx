@@ -180,7 +180,7 @@ const VariableFilterMenu = () => {
                 filter content
             </div>
         }>
-            <Button>
+            <Button style={{ padding: "4px 8px" }}>
                 Filters
                 <CaretDownFilled style={{ fontSize: 12 }} />
             </Button>
