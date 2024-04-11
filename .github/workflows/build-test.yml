@@ -1,19 +1,19 @@
-name: Code-Checks
+name: Build-Test
 on:
   push:
-    branches-ignore:
-      - master
-      - main
-      - develop
-    paths-ignore:
-      - README.md
-      - .old_cicd/*
-      - .github/*
-      - .github/workflows/*
-      - LICENSE
-      - .gitignore
-      - .dockerignore
-      - .githooks
+    # branches-ignore:
+    #   - master
+    #   - main
+    #   - develop
+    # paths-ignore:
+    #   - README.md
+    #   - .old_cicd/*
+    #   - .github/*
+    #   - .github/workflows/*
+    #   - LICENSE
+    #   - .gitignore
+    #   - .dockerignore
+    #   - .githooks
   pull_request:
     branches:
       - develop
@@ -22,36 +22,6 @@ on:
     types: [ opened, synchronize ]
 
 jobs:
-  test-image-build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set short git commit SHA
-      id: vars
-      run: |
-        echo "short_sha=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
-    # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
-
-    - name: Confirm git commit SHA output
-      run: echo ${{ steps.vars.outputs.short_sha }}
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-        logout: true
-
-    # Notes on Cache: 
-    # https://docs.docker.com/build/ci/github-actions/examples/#inline-cache
-    - name: Build Container
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: false
-        cache-from: type=registry,ref=${{ github.repository }}:buildcache
-        cache-to: type=registry,ref=${{ github.repository }}:buildcache,mode=max
+  build-test:
+    uses: helxplatform/helx-github-actions/.github/workflows/build-test.yml@develop
+    secrets: inherit
