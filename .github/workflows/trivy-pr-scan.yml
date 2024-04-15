@@ -1,6 +1,5 @@
 name: trivy-pr-scan 
 on:
-  push: #get rid of this after testing
   pull_request:
     branches:
       - develop

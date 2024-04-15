@@ -4,13 +4,13 @@
 name: Build-Push-Dev-Image
 on:
   push:
-    # branches:
-    #   - develop
+    branches:
+      - develop
     paths-ignore:
       - README.md
       - .old_cicd/*
-      # - .github/*
-      # - .github/workflows/* This remains commented out after testing
+      - .github/*
+      # - .github/workflows/* 
       - LICENSE
       - .gitignore
       - .dockerignore
