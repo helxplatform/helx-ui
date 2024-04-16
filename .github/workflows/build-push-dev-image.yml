@@ -10,7 +10,7 @@ on:
       - README.md
       - .old_cicd/*
       - .github/*
-      # - .github/workflows/* 
+      - .github/workflows/* 
       - LICENSE
       - .gitignore
       - .dockerignore
