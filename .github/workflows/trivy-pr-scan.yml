@@ -18,5 +18,5 @@ on:
 
 jobs:
   trivy-pr-scan:
-    uses: helxplatform/helx-github-actions/.github/workflows/trivy-pr-scan.yml@develop
+    uses: helxplatform/helx-github-actions/.github/workflows/trivy-pr-scan.yml@main
     secrets: inherit

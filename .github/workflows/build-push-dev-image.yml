@@ -23,5 +23,5 @@ on:
 
 jobs:
   build-push-dev-image:
-    uses: helxplatform/helx-github-actions/.github/workflows/build-push-dev-image.yml@develop
+    uses: helxplatform/helx-github-actions/.github/workflows/build-push-dev-image.yml@main
     secrets: inherit
