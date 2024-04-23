@@ -71,7 +71,6 @@ See `.env.example` for the most up to date variables and appropriate default val
 - `REACT_APP_UI_BRAND_NAME`: heal | braini | catalyst | scidas | eduhelx | helx
 - `REACT_APP_TRANQL_ENABLED`: enables the TranQL visualization pane in search results
 - `REACT_APP_TRANQL_URL`: points the UI to the TranQL deployment
-- `REACT_APP_HIDDEN_SUPPORT_SECTIONS`: hides support page sections, if necessary
 - `REACT_APP_DOCKSTORE_BRANCH`: used to point the UI to an alternative Dockstore branch
 - `REACT_APP_APPSTORE_ASSET_BRANCH`: used to point the UI to an alternative Appstore branch to load static assets
 

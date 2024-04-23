@@ -218,9 +218,9 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                                 percent={ 100 }
                                 width={ 16 }
                                 status="exception"
-                                strokeColor="#faad14"
+                                strokeColor="#f5222d"
                                 format={ () => (
-                                    <ExclamationOutlined style={{ color: "#faad14" }} />
+                                    <ExclamationOutlined style={{ color: "#f5222d" }} />
                                 ) }
                             />
                         )
