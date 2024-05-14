@@ -491,12 +491,14 @@ export const VariableSearchResults = () => {
                                 const endRatio = Math.round((i + 1) / GRADIENT_CONSTITUENTS.length * 100) / 100
                                 const startScore = (startRatio * maxScore) - (startRatio * minScore) + minScore
                                 const endScore = (endRatio * maxScore) - (endRatio   * minScore) + minScore
+                                console.log(i, startRatio, endRatio, GRADIENT_CONSTITUENTS.length, startScore, endScore)
                                 const count = variableResults.filter((result) => result.score >= startScore && result.score <= endScore).length
                                 const filteredCount = filteredVariables.filter((result) => result.score >= startScore && result.score <= endScore).length
                                 return {
                                     id: color,
                                     name: {
-                                        name: `${ startRatio === 0 ? Math.floor(startScore) : Math.ceil(startScore) } - ${ endRatio === 1 ? Math.ceil(endScore) : Math.floor(endScore) }`,
+                                        //name: `${ startRatio === 0 ? Math.floor(startScore) : Math.ceil(startScore) } - ${ endRatio === 1 ? Math.ceil(endScore) : Math.floor(endScore) }`,
+                                        name: `${startRatio} - ${endRatio}`,
                                         style: filteredCount === 0 ? { color: "rgba(0, 0, 0, 0.25)" } : undefined
                                     },
                                     description: {
