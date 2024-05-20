@@ -131,7 +131,7 @@ export const EnvironmentProvider = ({ children }) => {
       let brandAssetFolder = context.brand
       // `catalyst` is the supported name, but support `cat` and `bdc` as well.
       if (brandAssetFolder === "cat" || brandAssetFolder === "bdc") brandAssetFolder = "bdc"
-      context.logo_url = `https://raw.githubusercontent.com/helxplatform/appstore/${ context.appstore_asset_branch }/appstore/core/static/images/${ brandAssetFolder }/logo.png`
+      context.logo_url = `${ context.appstore_asset_base_url }/${ context.appstore_asset_branch }/appstore/core/static/images/${ brandAssetFolder }/logo.png`
       setContext(context);
       setIsLoadingContext(false);
     }
