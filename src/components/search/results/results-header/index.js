@@ -46,19 +46,19 @@ export const ResultsHeader = ({ variables=false, type=FULL, ...props }) => {
         <div className="results-header" {...props}>
             {type === FULL && (
                 <Fragment>
-                <Text>
-                    { variables ? (
-                        `${ variableStudyResultCount } studies and ${ totalVariableResults } variables`
-                    ) : (
-                        `${ totalConcepts } concepts`
+                    <Text>
+                        { variables ? (
+                            `${ variableStudyResultCount } studies and ${ totalVariableResults } variables`
+                        ) : (
+                            `${ totalConcepts } concepts`
+                        ) }
+                    </Text>
+                    { !variables && (
+                        <Tooltip title="Shareable link" placement="top">
+                            {/* Just want anchor styling */}
+                            <Link onClick={NotifyLinkCopied} style={{ marginLeft: '16px', marginRight: '16px' }}><LinkIcon /></Link>
+                        </Tooltip>
                     ) }
-                </Text>
-                { !variables && (
-                    <Tooltip title="Shareable link" placement="top">
-                        {/* Just want anchor styling */}
-                        <Link onClick={NotifyLinkCopied} style={{ marginLeft: '16px', marginRight: '16px' }}><LinkIcon /></Link>
-                    </Tooltip>
-                ) }
                 </Fragment>
             )}
             <div

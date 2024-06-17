@@ -453,9 +453,9 @@ export const HelxSearch = ({ children }) => {
           size: MAX_SEARCH_VAR_ALL_VARIABLES_SIZE,
         }
         const response = await axios.post(`${helxSearchUrl}/search_var`, params)
-        if (response.status === 200 && response.data.status === 'success' && response?.data?.result && Object.keys(response?.data?.result).length > 0) {
-
-          // Data structure of studies matches API response
+        if (response.status === 200 && response.data.status === 'success' && response?.data?.result && Object.keys(response?.data?.result).length > 0 && response?.data?.result.total_items !== 0) {
+          
+          // Data structure of studies matches API response 
           const studies = Object.entries(response.data.result).reduce((acc, [studySource, studies]) => {
             studies.forEach((study) => {
               study.data_source = studySource
@@ -465,7 +465,6 @@ export const HelxSearch = ({ children }) => {
             })
             return [...acc, ...studies]
           }, [])
-
           // Data structure of sortedVariables is designed to populate the histogram feature
           const {sortedVariables, variablesCount, studiesWithVariablesMarked, studiesCount} = collectVariablesAndUpdateStudies(studies)
           setVariableStudyResults(studiesWithVariablesMarked)

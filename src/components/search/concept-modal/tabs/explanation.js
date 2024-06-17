@@ -154,7 +154,7 @@ export const ExplanationTab = ({ result }) => {
                 textAlign: "center"
             },
             autoRotate: false,
-            formatter: (v) => v.value.toFixed(1)
+            formatter: (v) => (v.value/totalScore*100).toFixed(0)+'%'
         },
         tooltip: {
             formatter: (datum) => {
