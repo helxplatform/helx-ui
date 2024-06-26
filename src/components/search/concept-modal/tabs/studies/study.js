@@ -25,7 +25,7 @@ export const Study = ({ study, highlight, collapsed, ...panelProps }) => {
         <Panel
           header={
             <Text>
-              <Highlighter autoEscape={ true } searchWords={ highlight } textToHighlight='Trying' />{ ` ` }
+              <Highlighter autoEscape={ true } searchWords={ highlight } textToHighlight={ study.c_name } />{ ` ` }
               (<Link to={ study.c_link } onClick={ studyLinkClicked }>{ study.c_id }</Link>)
             </Text>
           }
