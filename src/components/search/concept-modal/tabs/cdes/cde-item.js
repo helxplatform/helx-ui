@@ -3,6 +3,7 @@ import { List, Collapse, Typography, Space, Button } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
 import _Highlighter from 'react-highlight-words'
 import { RelatedConceptsList } from './related-concepts'
+import Highlighter from 'react-highlight-words'
 import { SideCollapse } from '../../../..'
 import { useAnalytics } from '../../../../../contexts'
 
@@ -19,7 +20,31 @@ const Section = ({ title, children }) => (
     </Space>
 )
 
-export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
+const RelatedStudiesList = ({relatedStudySource}) => {
+    const { analyticsEvents } = useAnalytics()
+    const studyLinkClicked = () => {
+      analyticsEvents.studyLinkClicked(study.c_id)
+    }
+
+    return (
+        <List
+            dataSource={relatedStudySource}
+            renderItem={(study) => (
+                <List.Item key={study.c_id}>
+                <List.Item.Meta
+                    description={
+                        <>
+                        <a href={study.c_link} target="_blank" rel="noopener noreferrer">{study.c_id}</a> - {study.c_name}
+                        </>
+                    }
+                />
+                </List.Item>
+            )}
+        />
+    )
+}
+
+export const CdeItem = ({ cde, cdeRelatedConcepts, cdeRelatedStudies, highlight }) => {
     const [collapsed, setCollapsed] = useState(false)
     
     const { analyticsEvents } = useAnalytics()
@@ -27,6 +52,10 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
     const relatedConceptsSource = useMemo(() => (
         cdeRelatedConcepts[cde.id]
     ), [cdeRelatedConcepts, cde])
+
+    const relatedStudySource = useMemo(() => (
+        cdeRelatedStudies[cde.id]
+    ), [cdeRelatedStudies, cde])
 
     const Highlighter = useCallback(({ ...props }) => (
         <_Highlighter autoEscape={ true } searchWords={highlight} {...props}/>
@@ -84,6 +113,11 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                             onShowMore={ (expanded) => {
                                 analyticsEvents.cdeRelatedConceptsToggled(cde.id, expanded)
                             } }
+                        />
+                    </Section>
+                    <Section title="Studies using this measure">
+                        <RelatedStudiesList
+                            relatedStudySource={relatedStudySource}
                         />
                     </Section>
                     {false && <Section>
