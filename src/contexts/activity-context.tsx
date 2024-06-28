@@ -3,6 +3,7 @@ import { backOff } from 'exponential-backoff'
 import { useWorkspacesAPI } from './'
 import { AvailableApp, AvailableAppsResponse } from './workspaces-context/api.types'
 import { AppStatusEvent } from './workspaces-context/websocket-events'
+import { openNotificationWithIcon } from '../components'
 
 const BACKOFF_OPTIONS = {
     startingDelay: 1,
@@ -69,7 +70,7 @@ export const ActivityProvider = ({ children }: { children: any }) => {
                     retry: (e: any, attemptNumber: number) => {
                         console.error("Failed to load available app specs, retrying...")
                         if (cancelled) {
-                            console.log("API or login state has changed, cancelling app spec retry...")
+                            openNotificationWithIcon( "error", "Error", "API or login state has changed, cancelling app spec retry...")
                             // Stop retrying.
                             return false
                         }
