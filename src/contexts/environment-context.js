@@ -1,5 +1,6 @@
 import React, { Fragment, createContext, useContext, useEffect, useState } from 'react'
 import axios, { CanceledError } from 'axios';
+import { openNotificationWithIcon } from '../components';
 import {
   ActiveView,
   AvailableView,
@@ -114,7 +115,7 @@ export const EnvironmentProvider = ({ children }) => {
             </Fragment> 
           )
         } catch (error) {
-          console.log("Error reading description file, reverting to default values")
+          openNotificationWithIcon("error","Error", "Error reading description file, reverting to default values")
           context.login_text = default_login_text;
         }
       }
