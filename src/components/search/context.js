@@ -381,7 +381,7 @@ export const HelxSearch = ({ children }) => {
       setSelectedResult(null)
       setQuery(trimmedQuery)
       setCurrentPage(1)
-      navigate(`${basePath}search?q=${trimmedQuery}&p=1`)
+      navigate(`${basePath}search?q=${encodeURIComponent(trimmedQuery)}&p=1`)
       const existingHistoryEntry = searchHistory.find((searchHistoryEntry) => searchHistoryEntry.search === trimmedQuery)
       if (!existingHistoryEntry) {
         setSearchHistory([...searchHistory, {
