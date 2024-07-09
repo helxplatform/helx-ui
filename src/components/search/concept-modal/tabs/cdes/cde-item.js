@@ -10,6 +10,8 @@ import { useAnalytics } from '../../../../../contexts'
 const { Text, Link } = Typography
 const { Panel } = Collapse
 
+const SHOW_MORE_CUTOFF = 4
+
 const Section = ({ title, children }) => (
     <Space size="small" direction="vertical" className="cde-section">
         <div style={{ display: "flex", alignItems: "center" }}>
@@ -22,25 +24,40 @@ const Section = ({ title, children }) => (
 
 const RelatedStudiesList = ({relatedStudySource}) => {
     const { analyticsEvents } = useAnalytics()
-    const studyLinkClicked = () => {
-      analyticsEvents.studyLinkClicked(study.c_id)
-    }
+    // const studyLinkClicked = () => {
+    //   analyticsEvents.studyLinkClicked(study.c_id)
+    // }
+    const [showMore, setShowMore] = useState(false)
 
     return (
-        <List
-            dataSource={relatedStudySource}
-            renderItem={(study) => (
-                <List.Item key={study.c_id}>
-                <List.Item.Meta
-                    description={
-                        <>
-                        <a href={study.c_link} target="_blank" rel="noopener noreferrer">{study.c_id}</a> - {study.c_name}
-                        </>
-                    }
-                />
-                </List.Item>
-            )}
-        />
+        <div>
+            <List
+                size="small"
+                dataSource={showMore ? relatedStudySource : relatedStudySource.slice(0, SHOW_MORE_CUTOFF-1)}
+                renderItem={(study) => (
+                    <List.Item key={study.c_id}>
+                    <List.Item.Meta
+                        size="small"
+                        description={
+                            <>
+                            <font size="-1"><a href={study.c_link} target="_blank" rel="noopener noreferrer">{study.c_id}</a></font>: {study.c_name}
+                            </>
+                        }
+                    />
+                    </List.Item>
+                )}
+            />
+            { relatedStudySource.length > SHOW_MORE_CUTOFF && (
+                        <Button
+                            type="link"
+                            size="small"
+                            style={{ padding: 0 }}
+                            onClick={ () => setShowMore(!showMore) }
+                        >
+                            { showMore ? "Show less" : "Show more" }
+                        </Button>
+            ) }
+        </div>
     )
 }
 
