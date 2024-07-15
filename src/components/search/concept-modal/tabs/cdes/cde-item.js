@@ -30,6 +30,10 @@ const RelatedStudiesList = ({relatedStudySource}) => {
     // }
     const [showMore, setShowMore] = useState(false)
 
+    if (!relatedStudySource) return (
+        <Text style={{ fontSize: 13, color: "rgba(0, 0, 0, 0.45)" }}>We couldn&apos;t load any related studies.</Text>
+    )
+
     return (
         <div>
             <List
