@@ -34,11 +34,14 @@ const RelatedStudiesList = ({relatedStudySource}) => {
         <Text style={{ fontSize: 13, color: "rgba(0, 0, 0, 0.45)" }}>We couldn&apos;t load any related studies.</Text>
     )
 
+    // Sort the related studies.
+    const relatedStudies = relatedStudySource.sort((a, b) => { return b.c_id < a.c_id});
+
     return (
         <div>
             <List
                 size="small"
-                dataSource={showMore ? relatedStudySource : relatedStudySource.slice(0, SHOW_MORE_CUTOFF)}
+                dataSource={showMore ? relatedStudies : relatedStudies.slice(0, SHOW_MORE_CUTOFF)}
                 renderItem={(study) => (
                     <List.Item key={study.c_id}>
                     <List.Item.Meta
@@ -52,7 +55,7 @@ const RelatedStudiesList = ({relatedStudySource}) => {
                     </List.Item>
                 )}
             />
-            { relatedStudySource.length >= SHOW_MORE_CUTOFF && (
+            { relatedStudies.length >= SHOW_MORE_CUTOFF && (
                         <Button
                             type="link"
                             size="small"
