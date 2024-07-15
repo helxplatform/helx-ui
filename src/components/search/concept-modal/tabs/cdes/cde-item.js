@@ -10,7 +10,8 @@ import { useAnalytics } from '../../../../../contexts'
 const { Text, Link } = Typography
 const { Panel } = Collapse
 
-const SHOW_MORE_CUTOFF = 4
+/** Only display these many related studies initially. */
+const SHOW_MORE_CUTOFF = 3
 
 const Section = ({ title, children }) => (
     <Space size="small" direction="vertical" className="cde-section">
@@ -47,7 +48,7 @@ const RelatedStudiesList = ({relatedStudySource}) => {
                     </List.Item>
                 )}
             />
-            { relatedStudySource.length > SHOW_MORE_CUTOFF && (
+            { relatedStudySource.length >= SHOW_MORE_CUTOFF && (
                         <Button
                             type="link"
                             size="small"
