@@ -214,7 +214,7 @@ export const ConceptModalBody = ({ result }) => {
             return `\
       SELECT publication->study
       FROM "/schema"
-      WHERE cde="${cdeId}"`
+      WHERE publication="${cdeId}"`
           }
           const tranqlUrl = context.tranql_url
           const controller = new AbortController()
