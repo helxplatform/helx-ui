@@ -140,7 +140,7 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, cdeRelatedStudies, highlight 
                             } }
                         />
                     </Section>
-                    <Section title="Studies using this measure">
+                    <Section title={"Studies using this measure (" + (relatedStudySource ? relatedStudySource.length : 0) + ")"}>
                         <RelatedStudiesList
                             relatedStudySource={relatedStudySource}
                         />
