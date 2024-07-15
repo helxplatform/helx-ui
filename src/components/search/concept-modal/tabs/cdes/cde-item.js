@@ -38,7 +38,7 @@ const RelatedStudiesList = ({relatedStudySource}) => {
         <div>
             <List
                 size="small"
-                dataSource={showMore ? relatedStudySource : relatedStudySource.slice(0, SHOW_MORE_CUTOFF-1)}
+                dataSource={showMore ? relatedStudySource : relatedStudySource.slice(0, SHOW_MORE_CUTOFF)}
                 renderItem={(study) => (
                     <List.Item key={study.c_id}>
                     <List.Item.Meta
