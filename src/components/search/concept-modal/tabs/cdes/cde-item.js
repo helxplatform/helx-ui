@@ -37,6 +37,10 @@ const RelatedStudiesList = ({relatedStudySource}) => {
     // Sort the related studies.
     const relatedStudies = relatedStudySource.sort((a, b) => { return b.c_id < a.c_id});
 
+    if (relatedStudies.length === 0) return (
+        <Text style={{ fontSize: 13, color: "rgba(0, 0, 0, 0.45)" }}>We don&apos;t know of any related studies.</Text>
+    )
+
     return (
         <div>
             <List
