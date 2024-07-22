@@ -26,7 +26,6 @@ export const VariableViewLayout = () => {
                         // <span style={{ marginTop: -144, padding: "0 6px" }}>No results found</span>
                     ) : null }
                     { variableResults.length > 0 && <ResultsHeader variables={ true } />}
-                    {/* <VariableSearchResults /> */}
                     <VariableSearchResults2 />
                 </Fragment>
             ) }

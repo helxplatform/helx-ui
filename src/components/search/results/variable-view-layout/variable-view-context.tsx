@@ -71,6 +71,7 @@ export interface ISearchContext {
 }
 
 export interface IVariableViewContext {
+    normalizedVariableResults: VariableResult[]
     variablesSource: VariableResult[]
     filteredVariables: VariableResult[]
     studiesSource: StudyResult[]
@@ -123,24 +124,38 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     const [sortOrderOption, setSortOrderOption] = useState<string>("descending")
     const [collapseIntoVariables, setCollapseIntoVariables] = useState<boolean>(true)
 
+    const normalizedVariableResults = useMemo(() => {
+        const values = variableResults.map(result => result.score);
+        const min = Math.min(...values)
+        const max = Math.max(...values)
+        if (min === max) {
+            // If all values are the same, avoid division by zero and set them all to 1 (or 0)
+            return variableResults.map(result => ({ ...result, score: 100 }));
+         }
+         return variableResults.map(result => ({
+            ...result,
+            score: ((result.score - min) / (max - min)) * 100
+        }));
+    }, [variableResults])
+
     const variablesSource = useMemo<VariableResult[]>(() => {
-        return [...variableResults].sort((a, b) => {
+        const dataSources = normalizedVariableResults.reduce<{ [source: string]: number }>((acc, cur) => {
+            if (acc.hasOwnProperty(cur.data_source)) acc[cur.data_source]++
+            else acc[cur.data_source] = 1
+            return acc
+        }, {})
+        return [...normalizedVariableResults].sort((a, b) => {
             if (sortOrderOption === "descending") [a, b] = [b, a]
 
             if (sortOption === "score") return a.score - b.score
             else if (sortOption === "data_source") {
-                const dataSources = variableResults.reduce<{ [source: string]: number }>((acc, cur) => {
-                    if (acc.hasOwnProperty(cur.data_source)) acc[cur.data_source]++
-                    else acc[cur.data_source] = 1
-                    return acc
-                }, {})
                 return dataSources[a.data_source] - dataSources[b.data_source]
             }
             else {
                 throw new Error(`Unimplemented sort option "${ sortOption }"`)
             }
         })
-    }, [variableResults, sortOption, sortOrderOption])
+    }, [normalizedVariableResults, sortOption, sortOrderOption])
 
     // We want to maintain the ordering of the variables, so compute using the ordered variables source.
     const studiesSource = useMemo<StudyResult[]>(() => {
@@ -203,12 +218,12 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     }, [studiesSource, filteredVariables])
 
     const absScoreRange = useMemo<[number, number]>(() => {
-        if (variableResults.length < 2) return [variableResults[0]?.score, variableResults[0]?.score]
+        if (normalizedVariableResults.length < 2) return [normalizedVariableResults[0]?.score, normalizedVariableResults[0]?.score]
         return [
-            Math.min(...variableResults.map((result) => result.score)),
-            Math.max(...variableResults.map((result) => result.score))   
+            Math.min(...normalizedVariableResults.map((result) => result.score)),
+            Math.max(...normalizedVariableResults.map((result) => result.score))   
         ]
-    }, [variableResults])
+    }, [normalizedVariableResults])
 
     const filteredScoreRange = useMemo<[number, number] | undefined>(() => {
         if (filteredVariables.length === 0) return undefined
@@ -244,12 +259,13 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
         const endRatio = Math.round((i + 1) / GRADIENT_CONSTITUENTS.length * 100) / 100
         const startScore = (startRatio * maxScore) - (startRatio * minScore) + minScore
         const endScore = (endRatio * maxScore) - (endRatio * minScore) + minScore
-        const count = variableResults.filter((result) => result.score >= startScore && result.score <= endScore).length
+        const count = normalizedVariableResults.filter((result) => result.score >= startScore && result.score <= endScore).length
         const filteredCount = filteredVariables.filter((result) => result.score >= startScore && result.score <= endScore).length
         return {
             id: color,
             name: {
-                name: `${ startRatio === 0 ? Math.floor(startScore) : Math.ceil(startScore) } - ${ endRatio === 1 ? Math.ceil(endScore) : Math.floor(endScore) }`,
+                // name: `${ startRatio === 0 ? Math.floor(startScore) : Math.ceil(startScore) } - ${ endRatio === 1 ? Math.ceil(endScore) : Math.floor(endScore) }`,
+                name: `${startRatio * 100} - ${endRatio * 100}`,
                 style: filteredCount === 0 ? { color: "rgba(0, 0, 0, 0.25)" } : undefined
             },
             description: {
@@ -268,16 +284,16 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
                 }
             }
         }
-    }), [absScoreRange, variableResults, filteredVariables])
+    }), [absScoreRange, normalizedVariableResults, filteredVariables])
 
     const filteredPercentile = useMemo<[number, number]>(() => {
         const relativeMin = Math.min(...filteredVariables.map((result) => result.score))
         const relativeMax = Math.max(...filteredVariables.map((result) => result.score))
         return [
-            (variableResults.filter((result) => result.score <= relativeMin).length / variableResults.length) * 100,
-            (variableResults.filter((result) => result.score <= relativeMax).length / variableResults.length) * 100
+            (normalizedVariableResults.filter((result) => result.score <= relativeMin).length / normalizedVariableResults.length) * 100,
+            (normalizedVariableResults.filter((result) => result.score <= relativeMax).length / normalizedVariableResults.length) * 100
         ]
-    }, [variableResults, filteredVariables])
+    }, [normalizedVariableResults, filteredVariables])
 
     const dataSources = useMemo<{[dataSource: string]: DataSource}>(() => {
         return variablesSource.reduce<{[dataSource: string]: DataSource}>((acc, cur) => {
@@ -319,13 +335,13 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     useEffect(() => {
         setHiddenDataSources([])
         setScoreFilter([
-            Math.min(...variableResults.map((result) => result.score)),
-            Math.max(...variableResults.map((result) => result.score))
+            Math.min(...normalizedVariableResults.map((result) => result.score)),
+            Math.max(...normalizedVariableResults.map((result) => result.score))
         ])
         setSubsearch("")
         setSortOption("score")
         setSortOrderOption("descending")
-    }, [variableResults])
+    }, [normalizedVariableResults])
 
     /** Drag-filtering on histogram */
     useEffect(() => {
@@ -357,6 +373,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             /**
              * Variables
              */
+            normalizedVariableResults,
             variablesSource,
             studiesSource,
             filteredVariables,

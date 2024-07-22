@@ -55,11 +55,21 @@ const VariableViewHistogram = () => {
     const { analyticsEvents } = useAnalytics()
     const { query, variableResults } = useHelxSearch() as ISearchContext
     const {
-        filteredVariables, variableHistogramConfig,
+        normalizedVariableResults, filteredVariables, variableHistogramConfig,
         scoreFilter, setScoreFilter,
         scoreLegendItems, filteredPercentile, variablesHistogram
     } = useVariableView()!
+    
     const [collapse, setCollapse] = useState<boolean>(false)
+
+    const histogram = useMemo(() => (
+        <Column
+            { ...variableHistogramConfig }
+            ref={ variablesHistogram }
+            style={{ padding: 0 }}
+        />
+    ), [variableHistogramConfig])
+
     return (
         <Collapse
             ghost
@@ -113,18 +123,14 @@ const VariableViewHistogram = () => {
                 <Space direction="vertical" size="middle">
                     <div style={{ display: "flex" }}>
                         <div style={{ flexGrow: 1, width: 0 }}>
-                            <Column
-                                { ...variableHistogramConfig }
-                                ref={ variablesHistogram }
-                                style={{ padding: 0 }}
-                            />
+                            { histogram }
                             <DebouncedRangeSlider
                                 value={ scoreFilter }
                                 onChange={ setScoreFilter }
-                                min={ Math.min(...variableResults.map((result) => result.score)) }
-                                max={ Math.max(...variableResults.map((result) => result.score)) }
+                                min={ Math.min(...normalizedVariableResults.map((result) => result.score)) }
+                                max={ Math.max(...normalizedVariableResults.map((result) => result.score)) }
                                 step={ null }
-                                marks={ variableResults.reduce<SliderBaseProps["marks"]>((acc, cur) => ({
+                                marks={ normalizedVariableResults.reduce<SliderBaseProps["marks"]>((acc, cur) => ({
                                     ...acc,
                                     [cur.score]: {
                                         label: cur.score,
