@@ -121,7 +121,7 @@ export const ConceptModalBody = ({ result }) => {
       _setCurrentTab((currentTab) => {
         if (tabName !== currentTab) {
           // Make sure we only track events when the tab actually changes.
-          analyticsEvents.resultTabSelected(tabs[tabName].title, tabs[currentTab].title, elapsed)
+          analyticsEvents.resultModalTabSelected(tabs[tabName].title, tabs[currentTab].title, elapsed)
         } 
         return tabName
       })

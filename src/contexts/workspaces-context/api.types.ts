@@ -101,6 +101,8 @@ export interface EnvironmentContext {
         primary: string
         secondary: string
     }
+    login_text: string
+    login_title: string
     links: ExtraLink[]
     capabilities: Capability[]
     dockstore_app_specs_dir_url: string

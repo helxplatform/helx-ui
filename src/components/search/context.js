@@ -11,6 +11,15 @@ export const useHelxSearch = () => useContext(HelxSearchContext)
 
 const PER_PAGE = 20
 
+// The maximum number of search results to retrieve when calling /search_var.
+// "Pain" has 2095 elements, so limiting this to 3000 is probably fine for now.
+const MAX_SEARCH_VAR_SIZE = 3000
+
+// The maximum number of search results to retrieve when calling /search_var
+// from the fetchAllVariables() function. I assume this is used in variable
+// search, and so needs to be able to grab _all_ possible variables.
+const MAX_SEARCH_VAR_ALL_VARIABLES_SIZE = 10000
+
 export const SearchLayout = Object.freeze({
   GRID: 'GRID',
   // LIST: 'LIST',
@@ -51,17 +60,17 @@ export const HelxSearch = ({ children }) => {
   const inputRef = useRef()
   const navigate = useNavigate()
   const [searchHistory, setSearchHistory] = useLocalStorage('search_history', [])
-  
+
   /** Abort controllers */
   const fetchConceptsController = useRef()
   const searchSelectedResultController = useRef()
 
   // const selectedResultLoading = useMemo(() => selectedResult && selectedResult.loading === true, [selectedResult])
   // const selectedResultFailed = useMemo(() => selectedResult && selectedResult.failed === true, [selectedResult])
-  
+
   /** Decorate `selectedResult` with fields:
    * - previousResult: the last value of `selectedResult`
-   * 
+   *
    */
   const setSelectedResult = useCallback((result) => {
     // Make sure to cancel searchSelectedResult requests so that calls to it don't override state with stale data.
@@ -118,8 +127,8 @@ export const HelxSearch = ({ children }) => {
     let foundConceptResult,
         synonymousConcepts,
         results
-    
-    
+
+
     if (searchSelectedResultController.current) searchSelectedResultController.current.abort()
     searchSelectedResultController.current = new AbortController()
 
@@ -155,7 +164,7 @@ export const HelxSearch = ({ children }) => {
     if (!conceptPages[currentPage]) return []
     else return conceptPages[currentPage]
   }, [conceptPages, currentPage])
-  
+
   const setLayout = (newLayout) => {
     // Only track when layout changes
     if (layout !== newLayout) {
@@ -318,7 +327,7 @@ export const HelxSearch = ({ children }) => {
         concept: _id,
         index: 'variables_index',
         query: _query,
-        size: 1000
+        size: MAX_SEARCH_VAR_SIZE,
       }, axiosOptions)
       if (!result) {
         return []
@@ -327,7 +336,7 @@ export const HelxSearch = ({ children }) => {
         .reduce((studies, key) => {
           if (key !== "cde") {
             const newStudies = [...result[key].map(item => ({ type: key, ...item }))]
-            return [...newStudies, ...studies]        
+            return [...newStudies, ...studies]
           }
           return [...studies]
         }, [])
@@ -345,7 +354,7 @@ export const HelxSearch = ({ children }) => {
         concept: _id,
         index: 'variables_index',
         query: _query,
-        size: 1000
+        size: MAX_SEARCH_VAR_SIZE,
       }, axiosOptions)
       if (!result) {
         return null
@@ -354,7 +363,7 @@ export const HelxSearch = ({ children }) => {
         .reduce((studies, key) => {
           if (key === 'cde') {
             const newStudies = [...result[key].map(item => ({ type: key, ...item }))]
-            return [...newStudies, ...studies]        
+            return [...newStudies, ...studies]
           }
           return [...studies]
         }, [])
@@ -372,7 +381,7 @@ export const HelxSearch = ({ children }) => {
       setSelectedResult(null)
       setQuery(trimmedQuery)
       setCurrentPage(1)
-      navigate(`${basePath}search?q=${trimmedQuery}&p=1`)
+      navigate(`${basePath}search?q=${encodeURIComponent(trimmedQuery)}&p=1`)
       const existingHistoryEntry = searchHistory.find((searchHistoryEntry) => searchHistoryEntry.search === trimmedQuery)
       if (!existingHistoryEntry) {
         setSearchHistory([...searchHistory, {
@@ -413,7 +422,7 @@ export const HelxSearch = ({ children }) => {
         variableToUpdate["study"] = study
         variableToUpdate["withinFilter"] = "none"
         variables.push(variableToUpdate)
-        
+
         studyToUpdate["elements"].push(variableToUpdate)
       })
 
@@ -442,10 +451,10 @@ export const HelxSearch = ({ children }) => {
         const params = {
           index: 'variables_index',
           query: query,
-          size: 10000
+          size: MAX_SEARCH_VAR_ALL_VARIABLES_SIZE,
         }
         const response = await axios.post(`${helxSearchUrl}/search_var`, params)
-        if (response.status === 200 && response.data.status === 'success' && response?.data?.result && Object.keys(response?.data?.result).length > 0) {
+        if (response.status === 200 && response.data.status === 'success' && response?.data?.result && Object.keys(response?.data?.result).length > 0 && response?.data?.result.total_items !== 0) {
           
           // Data structure of studies matches API response 
           const studies = Object.entries(response.data.result).reduce((acc, [studySource, studies]) => {
@@ -457,7 +466,6 @@ export const HelxSearch = ({ children }) => {
             })
             return [...acc, ...studies]
           }, [])
-
           // Data structure of sortedVariables is designed to populate the histogram feature
           const {sortedVariables, variablesCount, studiesWithVariablesMarked, studiesCount} = collectVariablesAndUpdateStudies(studies)
           setVariableStudyResults(studiesWithVariablesMarked)

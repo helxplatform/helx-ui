@@ -24,7 +24,7 @@ const FIXED_DATA_SOURCES: { [string: string]: string } = {
     "HEAL Studies": "#40bf65",
     "HEAL Research Programs": "#bfaf40",
     "Non-HEAL Studies": "#bf4040",
-    "CDE": "#8a40bf",
+    "cde": "#8a40bf",
     "dbGaP": "#40aabf",
     "AnVIL": "#bf4085",
     "Cancer Data Commons": "#60bf40",
