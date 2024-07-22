@@ -1,18 +1,31 @@
-import { Fragment, ReactNode, useCallback, useMemo, useState } from 'react'
-import { Button, Card, Collapse, Divider, Popover, Space, Statistic, Tag, Tooltip, Typography } from 'antd'
+import { Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Button, Card, Checkbox, Collapse, Divider, Empty, Form, Input, Popover, Select, Space, Statistic, Tag, Tooltip, Typography } from 'antd'
 import { ExportOutlined as ExternalLinkIcon, CaretDownFilled } from '@ant-design/icons'
 import { SliderBaseProps } from 'antd/lib/slider'
 import { Column } from '@ant-design/plots'
 import { Column as G2Column, ColumnOptions as G2ColumnConfig } from '@antv/g2plot'
+import _InfiniteScroll from 'react-infinite-scroll-component'
+import _Highlighter from 'react-highlight-words'
+import Texty from 'rc-texty'
+import classNames from 'classnames'
 import { HistogramLegend, DebouncedRangeSlider } from './variable-results'
+import { DataSource, ISearchContext, StudyResult, VariableResult, VariableViewProvider, useVariableView } from './variable-view-context'
 import { useHelxSearch } from '../../context'
+import { BackTop } from '../../../layout'
 import { useAnalytics } from '../../../../contexts'
 import { InfoButton, InfoPopover, InfoTooltip } from '../../../info-helpers'
-import { DataSource, ISearchContext, StudyResult, VariableResult, VariableViewProvider, useVariableView } from './variable-view-context'
+import { DebouncedInput } from '../../../debounced-input'
+import { SideCollapse } from '../../../side-collapse'
+import { useLunrSearch } from '../../../../hooks'
 
+const InfiniteScroll = _InfiniteScroll as any
 const { Text, Link, Title } = Typography
 const { Panel } = Collapse
 const { CheckableTag } = Tag
+
+const VARIABLE_DESCRIPTION_CUTOFF = 500
+// Loads this many more variables when reaching the bottom of infinite scroll
+const ITEMS_PER_PAGE = 20
 
 interface GetChart {
     (): G2Column
@@ -29,13 +42,18 @@ interface StudyInfoTooltipProps {
     study: StudyResult
 }
 
-interface VariableListItemProps {
+interface StudyListItemProps {
+    study: StudyResult    
+}
+interface VariableListItemProps extends React.HTMLProps<HTMLDivElement> {
     variable: VariableResult
+    showStudySource?: boolean
+    showDataSource?: boolean
 }
 
 const VariableViewHistogram = () => {
     const { analyticsEvents } = useAnalytics()
-    const { query, variableResults, totalVariableResults } = useHelxSearch() as ISearchContext
+    const { query, variableResults } = useHelxSearch() as ISearchContext
     const {
         filteredVariables, variableHistogramConfig,
         scoreFilter, setScoreFilter,
@@ -85,7 +103,7 @@ const VariableViewHistogram = () => {
                     </Divider>
                 </Fragment>
             }>
-                { filteredVariables.length < totalVariableResults && (
+                { filteredVariables.length < variableResults.length && (
                     <div style={{ marginTop: -8, marginBottom: 16 }}>
                         <Text type="secondary">
                             Viewing {filteredVariables.length} variables within the {Math.floor(filteredPercentile[0])}-{Math.floor(filteredPercentile[1])} percentiles
@@ -101,10 +119,7 @@ const VariableViewHistogram = () => {
                                 style={{ padding: 0 }}
                             />
                             <DebouncedRangeSlider
-                                value={ scoreFilter ? scoreFilter : [
-                                    Math.min(...variableResults.map((result) => result.score)),
-                                    Math.max(...variableResults.map((result) => result.score))
-                                ] }
+                                value={ scoreFilter }
                                 onChange={ setScoreFilter }
                                 min={ Math.min(...variableResults.map((result) => result.score)) }
                                 max={ Math.max(...variableResults.map((result) => result.score)) }
@@ -161,11 +176,11 @@ const VariableDataSource = ({ dataSource }: VariableDataSourceProps) => {
 }
 
 const VariableListDataSources = () => {
-    const { dataSources } = useVariableView()!
+    const { orderedDataSources } = useVariableView()!
     return (
         <Space direction="horizontal" size={ 8 } wrap style={{ flexGrow: 1 }}>
             {
-                Object.values(dataSources).map((dataSource) => (
+                orderedDataSources.map((dataSource) => (
                     <VariableDataSource key={ `variable-view-data-source-tag-${ dataSource.name }` } dataSource={ dataSource } />
                 ))
             }
@@ -173,14 +188,92 @@ const VariableListDataSources = () => {
     )
 }
 
-const VariableFilterMenu = () => {
+const VariableFilterMenuContent = () => {
+    const {
+        subsearch, setSubsearch,
+        sortOption, setSortOption,
+        sortOrderOption, setSortOrderOption,
+        collapseIntoVariables, setCollapseIntoVariables
+    } = useVariableView()!
+    
+    const sortOptions = useMemo(() => ([
+        {
+            value: "score",
+            label: "Score"
+        },
+        {
+            value: "data_source",
+            label: "Data source"
+        }
+    ]), [])
+    
+    const sortOrderOptions = useMemo(() => ([
+        {
+            value: "descending",
+            label: "Descending"
+        },
+        {
+            value: "ascending",
+            label: "Ascending"
+        }
+    ]), [])
+
     return (
-        <Popover trigger="click" placement="bottom" content={
-            <div>
-                filter content
+        <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{
+                margin: 0,
+                fontSize: 12,
+                fontWeight: 500,
+                letterSpacing: "0.5px",
+                color: "#434343",
+                textTransform: "uppercase",
+                overflow: "hidden"
+            }}>Filters</span>
+            <Divider style={{ margin: "8px 0" }} />
+            <div className="filter-menu-form-item filter-menu-form-item-vertical">
+                <span className="filter-menu-form-label">Subsearch:</span>
+                <DebouncedInput
+                    setValue={ setSubsearch }
+                    inputProps={{ placeholder: "Find specific terms...", style: { width: "100%" } }}
+                />
             </div>
+            <div className="filter-menu-form-item">
+                <span className="filter-menu-form-label">Group by study:</span>
+                <Checkbox checked={ !collapseIntoVariables } onChange={ (e) => setCollapseIntoVariables(!e.target.checked) } />
+            </div>
+            <Divider style={{ margin: "4px 0" }} />
+            <div className="filter-menu-form-item filter-menu-form-item-vertical">
+                <span className="filter-menu-form-label">Sort by:</span>
+                <div style={{ display: "flex", gap: 8 }}>
+                    <Select
+                        options={ sortOptions }
+                        value={ sortOption }
+                        onChange={ setSortOption }
+                        style={{ flexGrow: 1, minWidth: 125 }}
+                    />
+                    <Select
+                        options={ sortOrderOptions }
+                        value={ sortOrderOption }
+                        onChange={ setSortOrderOption }
+                        style={{ flexGrow: 1, minWidth: 125 }}
+                    />
+                </div>
+            </div>
+        </div>
+    )
+}
+
+const VariableFilterMenuButton = () => {
+    return (
+        <Popover trigger="click" placement="bottomRight" content={
+            <VariableFilterMenuContent />
         }>
-            <Button style={{ padding: "4px 8px" }}>
+            <Button type="primary" style={{
+                display: "inline-flex",
+                alignItems: "center",
+                height: 28,
+                padding: "4px 8px",
+            }}>
                 Filters
                 <CaretDownFilled style={{ fontSize: 12 }} />
             </Button>
@@ -195,7 +288,9 @@ const StudyInfoTooltipStatistic = ({ name, value }: { name: ReactNode, value: Re
             style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginTop: 8
+                alignItems: "center",
+                marginTop: 8,
+                gap: 16
             }}>
             <span style={{
                 margin: 0,
@@ -218,8 +313,15 @@ const StudyInfoTooltip = ({ study }: StudyInfoTooltipProps) => {
             overlayClassName="study-info-tooltip"
             trigger="hover"
             title={
-                <div style={{ display: "flex", alignItems: "center", margin: "8px 0" }}>
-                    <Title level={ 5 } style={{
+                <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    margin: "8px 0",
+                    gap: 8,
+                    maxWidth: 500,
+                }}>
+                    <Title level={ 5 } ellipsis title={ study.c_name } style={{
                         margin: 0,
                         fontSize: 12.5,
                         letterSpacing: "0.5px",
@@ -228,7 +330,7 @@ const StudyInfoTooltip = ({ study }: StudyInfoTooltipProps) => {
                         overflow: "hidden"
                     }}>{ study.c_name }</Title>
                     { study.c_link && (
-                        <Link href={ study.c_link } target="_blank" style={{ marginLeft: 8 }}>
+                        <Link href={ study.c_link } target="_blank">
                             <ExternalLinkIcon />
                         </Link>
                     ) }
@@ -239,7 +341,8 @@ const StudyInfoTooltip = ({ study }: StudyInfoTooltipProps) => {
                     <StudyInfoTooltipStatistic name="Identifier" value={ study.c_id } />
                     <Divider style={{ margin: "8px 0" }} />
                     <StudyInfoTooltipStatistic name="Variables" value={ study.elements.length } />
-                    {/* <StudyInfoTooltipStatistic name="Data source" value={ study.data_source } /> */}
+                    <Divider style={{ margin: "8px 0" }} />
+                    <StudyInfoTooltipStatistic name="Source" value={ study.data_source } />
                 </div>
             }
             color="white"
@@ -250,17 +353,111 @@ const StudyInfoTooltip = ({ study }: StudyInfoTooltipProps) => {
     )
 }
 
-const VariableListItem = ({ variable }: VariableListItemProps) => {
-    const { dataSources } = useVariableView()!
+const StudyListItem = ({ study }: StudyListItemProps) => {
+    const { analyticsEvents } = useAnalytics()
+    const { dataSources, highlightTokens } = useVariableView()!
+
+    const [collapsed, setCollapsed] = useState<boolean>(true)
+
+    const Highlighter = useCallback(({ ...props }) => (
+        <_Highlighter autoEscape={ true } searchWords={ highlightTokens } {...props} />
+    ), [highlightTokens])
+
+    return (
+        <SideCollapse
+            collapsed={ collapsed }
+            onCollapse={ (collapsed) => {
+                analyticsEvents.variableViewStudyToggled(study.c_name, !collapsed)
+                setCollapsed(collapsed)
+            } }
+            header={
+                <span className="study-panel-header" style={{
+                    display: "inline",
+                    wordBreak: "break-word"
+                }}>
+                    <Tooltip title={ study.data_source } placement="right" >
+                        <div style={{
+                            display: "inline-block",
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            background: dataSources[study.data_source].color,
+                            marginRight: 8
+                        }} />
+                    </Tooltip>
+                    <Text>
+                        <Highlighter textToHighlight={ study.c_name } />
+                        &nbsp;
+                    </Text>
+                    ({ study.c_link ? (
+                        <a
+                            href={ study.c_link }
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={ (e) => {
+                                e.stopPropagation()
+                            } }
+                        >
+                            { study.c_id }
+                        </a>
+                    ) : study.c_id })
+                </span>
+            }
+            panelProps={{
+                className: "study-panel",
+                extra: [
+                    <Text key={`text_${study.c_name}`} style={{
+                        overflow: "none",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                        marginLeft: 8
+                    }}>
+                        {study.elements.length} variable{study.elements.length === 1 ? '' : 's'}
+                    </Text>,
+                ]
+            }}
+        >
+            <Space direction="vertical">
+                { study.elements.map((variable, i) => (
+                    <Fragment key={ variable.id }>
+                        <VariableListItem
+                            variable={ variable }
+                            showStudySource={ false }
+                            showDataSource={ false }
+                        />
+                        { i !== study.elements.length - 1 && <Divider style={{ margin: "2px 0" }} /> }
+                    </Fragment>
+                )) }
+            </Space>
+        </SideCollapse>
+    )
+}
+
+const VariableListItem = ({ variable, showStudySource=true, showDataSource=true, style={}, ...props }: VariableListItemProps) => {
+    const { dataSources, highlightTokens } = useVariableView()!
+    
+    const [showMore, setShowMore] = useState<boolean>(false)
+    
+    const descriptionRef = useRef<HTMLSpanElement>(null)
+    
+    const displayShowMore = useMemo(() => variable.description.length > VARIABLE_DESCRIPTION_CUTOFF, [variable])
+
+    const Highlighter = useCallback(({ ...props }) => (
+        <_Highlighter autoEscape={ true } searchWords={ highlightTokens } {...props} />
+    ), [highlightTokens])
+
     return (
         <div
             style={{
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
+                alignItems: "flex-start",
                 flexWrap: "nowrap",
-                paddingRight: 16
+                paddingRight: 16,
+                ...style
             }}
+            { ...props }
         >
             <span
                 className="study-panel-header"
@@ -270,16 +467,21 @@ const VariableListItem = ({ variable }: VariableListItemProps) => {
                     alignItems: "center"
                 }}
             >
-                <Tooltip title={ variable.data_source } placement="right" >
-                    <div style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        background: dataSources[variable.data_source].color,
-                        marginRight: 8
-                    }} />
-                </Tooltip>
-                <Text>{variable.name}&nbsp;</Text>
+                { showDataSource && (
+                    <Tooltip title={ variable.data_source } placement="right" >
+                        <div style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            background: dataSources[variable.data_source].color,
+                            marginRight: 8
+                        }} />
+                    </Tooltip>
+                ) }
+                <Text>
+                    <Highlighter textToHighlight={ variable.name } />
+                    &nbsp;
+                </Text>
                 ({ variable.e_link ? (
                     <a
                         href={variable.e_link}
@@ -293,47 +495,125 @@ const VariableListItem = ({ variable }: VariableListItemProps) => {
                     </a>
                 ) : variable.id })
             </span>
-            <Text italic style={{ fontSize: 13 }}>
-                { variable.description }
-            </Text>
-            <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12, color: "rgba(0, 0, 0, 0.45)" }}>
-                Source:&nbsp;<i>{ variable.study.c_name }</i>&nbsp;
-                <StudyInfoTooltip study={ variable.study } />
+            <span className={ classNames("variable-list-item-description" ) } ref={ descriptionRef }>
+                <Highlighter textToHighlight={ displayShowMore && !showMore 
+                    ? variable.description.slice(0, VARIABLE_DESCRIPTION_CUTOFF) + "..."
+                    : variable.description
+                } />
+                { displayShowMore && (
+                    <Button
+                        type="link"
+                        size="small"
+                        style={{ padding: 0, fontSize: 13, marginLeft: 8 }}
+                        onClick={ () => setShowMore(!showMore) }
+                    >
+                        { showMore ? "Show less" : "Show more" }
+                    </Button>
+                ) }
             </span>
+            { showStudySource && (
+                <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12, color: "rgba(0, 0, 0, 0.45)" }}>
+                    Source:&nbsp;<i>
+                        <Highlighter textToHighlight={ variable.study.c_name } />
+                    </i>&nbsp;
+                    <StudyInfoTooltip study={ variable.study } />
+                </span>
+            ) }
         </div>
     )
 }
 
 export const VariableList = () => {
-    const { filteredVariables, variablesSource } = useVariableView()!
+    const { query } = useHelxSearch() as ISearchContext
+    const { filteredVariables, variablesSource, filteredStudies, studiesSource, collapseIntoVariables } = useVariableView()!
+    
+    const [currentPage, setCurrentPage] = useState<number>(1)
+
+    const totalPages = useMemo(() => {
+        const items = collapseIntoVariables ? filteredVariables : filteredStudies
+        return Math.ceil(items.length / ITEMS_PER_PAGE)
+    }, [filteredVariables, filteredStudies, collapseIntoVariables])
+
+    const hasMore = useMemo(() => currentPage < totalPages, [currentPage, totalPages])
+
+    const renderedVariables = useMemo(() => {
+        return filteredVariables.slice(0, currentPage * ITEMS_PER_PAGE)
+    }, [filteredVariables, currentPage])
+
+    const renderedStudies = useMemo(() => {
+        return filteredStudies.slice(0, currentPage * ITEMS_PER_PAGE)
+    }, [filteredStudies, currentPage])
+
+    const isFiltered = useMemo(() => (
+        collapseIntoVariables
+            ? filteredVariables.length < variablesSource.length
+            : filteredStudies.length < studiesSource.length
+    ), [filteredVariables, variablesSource, filteredStudies, studiesSource, collapseIntoVariables])
+
+    const getNextPage = useCallback(() => {
+        setCurrentPage((page) => page + 1)
+    }, [])
+
+    useEffect(() => {
+        if (collapseIntoVariables) setCurrentPage(1)
+    }, [filteredVariables, collapseIntoVariables])
+
+    useEffect(() => {
+        if (!collapseIntoVariables) setCurrentPage(1)
+    }, [filteredStudies, collapseIntoVariables])
+    
+
     return (
         <div className="variable-list">
-            <Divider orientation="left" orientationMargin={ 0 } style={{ fontSize: 15, marginTop: 24, marginBottom: 0 }}>
-                Variables
+            <Divider orientation="left" orientationMargin={ 0 } style={{
+                fontSize: 15,
+                marginTop: 24,
+                marginBottom: 0
+            }}>
+                { collapseIntoVariables ? "Variables" : "Studies" }
             </Divider>
-            { filteredVariables.length < variablesSource.length && (
+            {/* { console.log(renderedVariables[0]?.score, renderedVariables[1]?.score, renderedVariables[2]?.score)} */}
+            { isFiltered && (
                 <div style={{ marginTop: 6, marginBottom: -4 }}>
                     <Text type="secondary" style={{ fontSize: 14, fontStyle: "italic" }}>
-                        Showing { filteredVariables.length } of { variablesSource.length } variables
+                        {
+                            collapseIntoVariables
+                                ? `Showing ${ filteredVariables.length } of ${ variablesSource.length } variables`
+                                : `Showing ${ filteredStudies.length } of ${ studiesSource.length } studies`
+                        }
                     </Text>
                 </div>
             ) }
-            <div style={{ display: "flex", marginTop: 8 }}>
+            <div style={{ display: "flex", marginTop: 8, gap: 8 }}>
                 <VariableListDataSources />
-                <VariableFilterMenu />
+                <VariableFilterMenuButton />
             </div>
-            <Space direction="vertical" style={{ marginTop: 8}}>
-                { filteredVariables.map((variable, i) => (
-                    <VariableListItem key={ variable.id } variable={ variable }/>
-                )) }
-            </Space>
+            <InfiniteScroll
+                dataLength={ renderedVariables.length }
+                next={ getNextPage }
+                hasMore={ hasMore }
+            >
+                <Space direction="vertical" className="variables-collapse" style={{ marginTop: 8 }}>
+                    { collapseIntoVariables ? renderedVariables.map((variable, i) => (
+                        <VariableListItem key={ variable.id } variable={ variable } style={ i === 0 ? { marginTop: 4 } : {} } />
+                    )) : renderedStudies.map((study) => (
+                        <StudyListItem key={ study.c_id } study={ study } />
+                    )) }
+                    { (collapseIntoVariables ? renderedVariables.length === 0 : renderedStudies.length === 0) && (
+                        <Empty description={
+                            <Text type="secondary">No results were found matching your filters.</Text>
+                        } />
+                    ) }
+                </Space>
+            </InfiniteScroll>
+            <BackTop />
         </div>
     )
 }
 
 export const VariableSearchResults2 = () => {
-    const { totalVariableResults } = useHelxSearch() as any
-    const noResults = useMemo(() => totalVariableResults === 0, [totalVariableResults])
+    const { variableResults } = useHelxSearch() as any
+    const noResults = useMemo(() => variableResults.length === 0, [variableResults])
     return (
         <VariableViewProvider>
             <div style={{ flexGrow: 1, display: noResults ? "none" : undefined }}>

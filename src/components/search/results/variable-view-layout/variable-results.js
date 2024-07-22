@@ -34,7 +34,11 @@ const DATA_SOURCES_ORDER = [
     "HEAL Studies",
     "HEAL Research Programs",
     "CDE",
-    "Non-HEAL Studies"
+    "Non-HEAL Studies",
+    "dbGaP",
+    "AnVIL",
+    "Cancer Data Commons",
+    "Kids First"
 ].map((x) => x.toLowerCase())
 
 export const DebouncedRangeSlider = ({ value, onChange, onInternalChange=() => {}, debounce=500, ...props }) => {

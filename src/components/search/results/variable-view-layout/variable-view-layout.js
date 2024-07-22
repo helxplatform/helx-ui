@@ -8,7 +8,7 @@ import { useHelxSearch, SearchForm } from '../../'
 const { Text } = Typography
 
 export const VariableViewLayout = () => {
-    const { query, error, totalVariableResults, isLoadingVariableResults } = useHelxSearch()
+    const { query, error, variableResults, isLoadingVariableResults } = useHelxSearch()
     
     return (
         <Fragment>
@@ -19,14 +19,14 @@ export const VariableViewLayout = () => {
                 <Fragment>
                     { error.message ? (
                         <span style={{ marginTop: -144, padding: "0 6px" }}>{ error.message }</span>
-                    ) : query && totalVariableResults === 0 ? (
+                    ) : query && variableResults.length === 0 ? (
                         <Empty style={{ marginTop: -24 }} description={
                             <Text type="secondary">No results were found for &quot;{ query }&quot;</Text>
                         } />
                         // <span style={{ marginTop: -144, padding: "0 6px" }}>No results found</span>
                     ) : null }
-                    {totalVariableResults > 0 && <ResultsHeader variables={ true } />}
-                    <VariableSearchResults />
+                    { variableResults.length > 0 && <ResultsHeader variables={ true } />}
+                    {/* <VariableSearchResults /> */}
                     <VariableSearchResults2 />
                 </Fragment>
             ) }

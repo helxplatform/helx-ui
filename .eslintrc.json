@@ -25,7 +25,8 @@
                 "ignoreParameters": true,
                 "ignoreProperties": true
             }
-        ]
+        ],
+        "@typescript-eslint/no-var-requires": "off"
     },
     "settings": {
         "react": {

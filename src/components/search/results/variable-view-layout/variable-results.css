@@ -24,6 +24,12 @@ div.within-filter-false a:hover {
     /* padding-top: 4px !important;
     padding-bottom: 4px !important; */
 }
+.variables-collapse .study-panel .side-collapse-handle-container {
+    margin-left: -6px;
+}
+.variables-collapse .study-panel .side-collapse-handle {
+    background-color: #dddddd;
+}
 .variables-collapse .study-panel .ant-collapse-header {
     padding-left: 0px !important;
     align-items: center !important;
@@ -98,4 +104,28 @@ div.within-filter-false a:hover {
 
 .study-info-tooltip .study-info-tooltip-statistic:first-child {
     margin-top: 0 !important;
+}
+
+.variable-list-item-description {
+    font-size: 13px;
+    font-style: italic;
+}
+
+.filter-menu-form-item {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    gap: 8px;
+}
+.filter-menu-form-item.filter-menu-form-item-vertical {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.truncated {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
 }
