@@ -239,9 +239,9 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
         const [minScore, maxScore] = absScoreRange
         return {
             ...(variableHistogramConfigStatic as any),
-            data: [...variablesSource].sort((a, b) => a.score - b.score),
+            data: [...filteredVariables].sort((a, b) => a.score - b.score),
             color: ({ id }) => {
-                const { score } = variablesSource.find((result) => result.id === id)!
+                const { score } = normalizedVariableResults.find((result) => result.id === id)!
                 const absRatio = (score - minScore) / (maxScore - minScore)
                 // const continuousRatio = ([...variableResults].sort((a, b) => a.score - b.score).findIndex((result) => result.id === id) + 1) / variableResults.length
                 /**
@@ -251,7 +251,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
                 return COLOR_GRADIENT(absRatio).toString()
             },
         } as const
-    }, [variablesSource, absScoreRange])
+    }, [filteredVariables, normalizedVariableResults, absScoreRange])
 
     const scoreLegendItems = useMemo(() => GRADIENT_CONSTITUENTS.map((color, i) => {
         const [minScore, maxScore] = absScoreRange
@@ -366,7 +366,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
         if (!variablesHistogram.current) return
         const histogramObj = variablesHistogram.current.getChart()
         histogramObj.update({ ...variableHistogramConfig, data: [...filteredVariables].sort((a, b) => a.score - b.score) })
-    }, [variableHistogramConfig, variablesSource, filteredVariables])
+    }, [variableHistogramConfig, filteredVariables])
 
     return (
         <VariableViewContext.Provider value={{

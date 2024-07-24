@@ -578,7 +578,6 @@ export const VariableList = () => {
             }}>
                 { collapseIntoVariables ? "Variables" : "Studies" }
             </Divider>
-            {/* { console.log(renderedVariables[0]?.score, renderedVariables[1]?.score, renderedVariables[2]?.score)} */}
             { isFiltered && (
                 <div style={{ marginTop: 6, marginBottom: -4 }}>
                     <Text type="secondary" style={{ fontSize: 14, fontStyle: "italic" }}>
