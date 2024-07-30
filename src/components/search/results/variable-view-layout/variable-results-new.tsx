@@ -1,6 +1,6 @@
 import { Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Card, Checkbox, Collapse, Divider, Empty, Form, Input, Popover, Select, Space, Statistic, Tag, Tooltip, Typography } from 'antd'
-import { ExportOutlined as ExternalLinkIcon, CaretDownFilled } from '@ant-design/icons'
+import { ExportOutlined as ExternalLinkIcon, CaretDownFilled, CloseOutlined } from '@ant-design/icons'
 import { SliderBaseProps } from 'antd/lib/slider'
 import { Column } from '@ant-design/plots'
 import { Column as G2Column, ColumnOptions as G2ColumnConfig } from '@antv/g2plot'
@@ -199,7 +199,8 @@ const VariableFilterMenuContent = () => {
         subsearch, setSubsearch,
         sortOption, setSortOption,
         sortOrderOption, setSortOrderOption,
-        collapseIntoVariables, setCollapseIntoVariables
+        collapseIntoVariables, setCollapseIntoVariables,
+        resetFilters, isFiltered
     } = useVariableView()!
     
     const sortOptions = useMemo(() => ([
@@ -226,15 +227,29 @@ const VariableFilterMenuContent = () => {
 
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{
-                margin: 0,
-                fontSize: 12,
-                fontWeight: 500,
-                letterSpacing: "0.5px",
-                color: "#434343",
-                textTransform: "uppercase",
-                overflow: "hidden"
-            }}>Filters</span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{
+                    margin: 0,
+                    fontSize: 12,
+                    fontWeight: 500,
+                    letterSpacing: "0.5px",
+                    color: "#434343",
+                    textTransform: "uppercase",
+                    overflow: "hidden"
+                }}>Filters</span>
+                { isFiltered && <Button type="link" style={{ 
+                    height: 24,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    margin: 0,
+                    fontSize: 12,
+                    fontWeight: 500,
+                    letterSpacing: "0.5px",
+                    textTransform: "uppercase",
+                    padding: "2px 8px",
+                    overflow: "hidden"
+                }} onClick={ resetFilters }>Clear</Button> }
+            </div>
             <Divider style={{ margin: "8px 0" }} />
             <div className="filter-menu-form-item filter-menu-form-item-vertical">
                 <span className="filter-menu-form-label">Subsearch:</span>
@@ -531,7 +546,7 @@ const VariableListItem = ({ variable, showStudySource=true, showDataSource=true,
 
 export const VariableList = () => {
     const { query } = useHelxSearch() as ISearchContext
-    const { filteredVariables, variablesSource, filteredStudies, studiesSource, collapseIntoVariables } = useVariableView()!
+    const { filteredVariables, variablesSource, filteredStudies, studiesSource, collapseIntoVariables, isFiltered } = useVariableView()!
     
     const [currentPage, setCurrentPage] = useState<number>(1)
 
@@ -549,12 +564,6 @@ export const VariableList = () => {
     const renderedStudies = useMemo(() => {
         return filteredStudies.slice(0, currentPage * ITEMS_PER_PAGE)
     }, [filteredStudies, currentPage])
-
-    const isFiltered = useMemo(() => (
-        collapseIntoVariables
-            ? filteredVariables.length < variablesSource.length
-            : filteredStudies.length < studiesSource.length
-    ), [filteredVariables, variablesSource, filteredStudies, studiesSource, collapseIntoVariables])
 
     const getNextPage = useCallback(() => {
         setCurrentPage((page) => page + 1)

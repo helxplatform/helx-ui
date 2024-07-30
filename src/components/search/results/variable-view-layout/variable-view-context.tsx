@@ -91,6 +91,8 @@ export interface IVariableViewContext {
     setHiddenDataSources: React.Dispatch<React.SetStateAction<string[]>>
     collapseIntoVariables: boolean
     setCollapseIntoVariables: React.Dispatch<React.SetStateAction<boolean>>
+    isFiltered: boolean
+    resetFilters: () => void
 
     variablesHistogram: React.MutableRefObject<ChartRef | undefined>
     variableHistogramConfig: G2ColumnConfig
@@ -332,7 +334,13 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             .map(([name, dataSource]) => dataSource)
     }, [dataSources])
 
-    useEffect(() => {
+    const isFiltered = useMemo(() => (
+        collapseIntoVariables
+            ? filteredVariables.length < variablesSource.length
+            : filteredStudies.length < studiesSource.length
+    ), [filteredVariables, variablesSource, filteredStudies, studiesSource, collapseIntoVariables])
+
+    const resetFilters = useCallback(() => {
         setHiddenDataSources([])
         setScoreFilter([
             Math.min(...normalizedVariableResults.map((result) => result.score)),
@@ -342,6 +350,10 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
         setSortOption("score")
         setSortOrderOption("descending")
     }, [normalizedVariableResults])
+
+    useEffect(() => {
+        resetFilters()
+    }, [normalizedVariableResults, resetFilters])
 
     /** Drag-filtering on histogram */
     useEffect(() => {
@@ -386,6 +398,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             sortOption, setSortOption,
             sortOrderOption, setSortOrderOption,
             collapseIntoVariables, setCollapseIntoVariables,
+            isFiltered, resetFilters,
             /**
              * Misc
              */
