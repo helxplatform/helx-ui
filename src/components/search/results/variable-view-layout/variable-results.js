@@ -374,7 +374,7 @@ export const VariableSearchResults = () => {
     }
 
     return (
-        <div style={{ flexGrow: 1, display: noResults ? "none" : "none" }}>
+        <div style={{ flexGrow: 1, display: noResults ? "none" : undefined }}>
             <Collapse
                 ghost
                 activeKey={!collapseHistogram ? ["variableViewHistogramPanel"] : []}

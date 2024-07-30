@@ -126,7 +126,16 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     const [sortOrderOption, setSortOrderOption] = useState<string>("descending")
     const [collapseIntoVariables, setCollapseIntoVariables] = useState<boolean>(true)
 
+    const variableIdMap = useMemo<Map<string, VariableResult>>(() => {
+        const map = new Map()
+        variableResults.forEach((variable) => {
+            map.set(variable.id, variable)
+        })
+        return map
+    }, [variableResults])
+
     const normalizedVariableResults = useMemo(() => {
+        console.log("rerender normalized")
         const values = variableResults.map(result => result.score);
         const min = Math.min(...values)
         const max = Math.max(...values)
@@ -192,8 +201,9 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     const { index, lexicalSearch } = useLunrSearch(lunrConfig)
 
     const [filteredVariables, highlightTokens] = useMemo<[VariableResult[], string[]]>(() => {
+        console.log("rerender filtered")
         const { hits, tokens } = lexicalSearch(subsearch)
-        const matchedVariables = hits.map(({ ref: id }) => variablesSource.find((v) => v.id === id)!)
+        const matchedVariables = hits.map(({ ref: id }) => variableIdMap.get(id)!)
         const highlightTokens = subsearch.length > 3 ? tokens.map((token) => token.toString()) : []
 
         const filtered = [...variablesSource].filter((variable) => {
@@ -206,7 +216,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             return true
         })
         return [filtered, highlightTokens]
-    }, [variablesSource, scoreFilter, subsearch, lexicalSearch, hiddenDataSources])
+    }, [variablesSource, variableIdMap, scoreFilter, subsearch, lexicalSearch, hiddenDataSources])
 
     const filteredStudies = useMemo<StudyResult[]>(() => {
         return [...studiesSource].reduce<StudyResult[]>((acc, study) => {
@@ -220,6 +230,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     }, [studiesSource, filteredVariables])
 
     const absScoreRange = useMemo<[number, number]>(() => {
+        console.log("rerender abs range")
         if (normalizedVariableResults.length < 2) return [normalizedVariableResults[0]?.score, normalizedVariableResults[0]?.score]
         return [
             Math.min(...normalizedVariableResults.map((result) => result.score)),
@@ -239,11 +250,12 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     const variablesHistogram = useRef<ChartRef>()
     const variableHistogramConfig = useMemo<G2ColumnConfig>(() => {
         const [minScore, maxScore] = absScoreRange
+        console.log("RERENDER")
         return {
             ...(variableHistogramConfigStatic as any),
             data: [...filteredVariables].sort((a, b) => a.score - b.score),
             color: ({ id }) => {
-                const { score } = normalizedVariableResults.find((result) => result.id === id)!
+                const { score } = variableIdMap.get(id)!
                 const absRatio = (score - minScore) / (maxScore - minScore)
                 // const continuousRatio = ([...variableResults].sort((a, b) => a.score - b.score).findIndex((result) => result.id === id) + 1) / variableResults.length
                 /**
@@ -253,7 +265,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
                 return COLOR_GRADIENT(absRatio).toString()
             },
         } as const
-    }, [filteredVariables, normalizedVariableResults, absScoreRange])
+    }, [filteredVariables, normalizedVariableResults, variableIdMap, absScoreRange])
 
     const scoreLegendItems = useMemo(() => GRADIENT_CONSTITUENTS.map((color, i) => {
         const [minScore, maxScore] = absScoreRange

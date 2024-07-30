@@ -57,6 +57,7 @@ export const HelxSearch = ({ children }) => {
   const [isLoadingVariableResults, setIsLoadingVariableResults] = useState(false);
   const [variableError, setVariableError] = useState({})
 
+  const variablesAbortController = useRef()
   const inputRef = useRef()
   const navigate = useNavigate()
   const [searchHistory, setSearchHistory] = useLocalStorage('search_history', [])
@@ -448,12 +449,14 @@ export const HelxSearch = ({ children }) => {
     const fetchAllVariables = async () => {
       setIsLoadingVariableResults(true)
       try {
+        variablesAbortController.current?.abort()
+        variablesAbortController.current = new AbortController()
         const params = {
           index: 'variables_index',
           query: query,
           size: MAX_SEARCH_VAR_ALL_VARIABLES_SIZE,
         }
-        const response = await axios.post(`${helxSearchUrl}/search_var`, params)
+        const response = await axios.post(`${helxSearchUrl}/search_var`, params, { signal: variablesAbortController.current.signal })
         if (response.status === 200 && response.data.status === 'success' && response?.data?.result && Object.keys(response?.data?.result).length > 0 && response?.data?.result.total_items !== 0) {
           
           // Data structure of studies matches API response 
@@ -483,9 +486,11 @@ export const HelxSearch = ({ children }) => {
           setIsLoadingVariableResults(false)
         }
       } catch (variableError) {
-        console.log(variableError)
-        setVariableError({ message: 'An variable error occurred!' })
-        setIsLoadingVariableResults(false)
+        if (!axios.isCancel(variableError)) {
+          console.log(variableError)
+          setVariableError({ message: 'An variable error occurred!' })
+          setIsLoadingVariableResults(false)
+        }
       }
     }
 
