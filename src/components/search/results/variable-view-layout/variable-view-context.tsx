@@ -51,8 +51,9 @@ export interface VariableResult {
     name: string
     description: string
     score: number
-    study: StudyResult
     e_link: string
+    study_id: string
+    study_name: string
     data_source: string // e.g. "HEAL Studies" vs "Non-HEAL Studies"
 }
 
@@ -77,6 +78,8 @@ export interface IVariableViewContext {
     studiesSource: StudyResult[]
     filteredStudies: StudyResult[]
     absScoreRange: [number, number]
+    getVariableById: (id: string) => VariableResult | undefined
+    getStudyById: (id: string) => StudyResult | undefined
 
     // Filters
     scoreFilter: [number, number] | undefined
@@ -126,16 +129,17 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     const [sortOrderOption, setSortOrderOption] = useState<string>("descending")
     const [collapseIntoVariables, setCollapseIntoVariables] = useState<boolean>(true)
 
-    const variableIdMap = useMemo<Map<string, VariableResult>>(() => {
-        const map = new Map()
-        variableResults.forEach((variable) => {
-            map.set(variable.id, variable)
+    const [variableIdMap, studyIdMap] = useMemo<[Map<string, VariableResult>, Map<string, StudyResult>]>(() => {
+        const variableMap = new Map()
+        const studyMap = new Map()
+        variableStudyResults.forEach((study) => {
+            studyMap.set(study.c_id, study)
+            study.elements.forEach((variable) => variableMap.set(variable.id, variable))
         })
-        return map
-    }, [variableResults])
+        return [variableMap, studyMap]
+    }, [variableStudyResults])
 
     const normalizedVariableResults = useMemo(() => {
-        console.log("rerender normalized")
         const values = variableResults.map(result => result.score);
         const min = Math.min(...values)
         const max = Math.max(...values)
@@ -171,7 +175,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     // We want to maintain the ordering of the variables, so compute using the ordered variables source.
     const studiesSource = useMemo<StudyResult[]>(() => {
         return variablesSource.reduce<StudyResult[]>((acc, variable) => {
-            const { study } = variable
+            const study = studyIdMap.get(variable.study_id)!
             const existingStudy = acc.find((s) => s.c_id === study.c_id)
             if (existingStudy) existingStudy.elements.push(variable)
             else acc.push({
@@ -180,34 +184,33 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             })
             return acc
         }, [])
-    }, [variablesSource])
+    }, [variablesSource, studyIdMap])
 
     const variableDocs = useMemo(() => variablesSource.map((variable) => ({
         id: variable.id,
         name: variable.name,
         description: variable.description,
-        study_id: variable.study.c_id,
-        study_name: variable.study.c_name
+        study_id: variable.study_id,
+        study_name: variable.study_name
     })), [variablesSource])
 
     const lunrConfig = useMemo(() => ({
         docs: variableDocs,
         index: {
             ref: "id",
-            fields: ["id", "name", "description", "study_id", "study_name"]
+            fields: ["id", "name", "description"]
         }
     }), [variableDocs])
 
     const { index, lexicalSearch } = useLunrSearch(lunrConfig)
 
     const [filteredVariables, highlightTokens] = useMemo<[VariableResult[], string[]]>(() => {
-        console.log("rerender filtered")
         const { hits, tokens } = lexicalSearch(subsearch)
-        const matchedVariables = hits.map(({ ref: id }) => variableIdMap.get(id)!)
+        const matchedVariables = hits.reduce((acc, { ref: id }) => (acc.add(id), acc), new Set())
         const highlightTokens = subsearch.length > 3 ? tokens.map((token) => token.toString()) : []
-
-        const filtered = [...variablesSource].filter((variable) => {
-            if (subsearch.length > 3 && !matchedVariables.includes(variable)) return false
+        
+        const filtered = variablesSource.filter((variable) => {
+            if (subsearch.length > 3 && !matchedVariables.has(variable.id)) return false
             if (scoreFilter) {
                 const [minScore, maxScore] = scoreFilter
                 if (variable.score < minScore || variable.score > maxScore) return false
@@ -216,10 +219,10 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             return true
         })
         return [filtered, highlightTokens]
-    }, [variablesSource, variableIdMap, scoreFilter, subsearch, lexicalSearch, hiddenDataSources])
+    }, [variablesSource, scoreFilter, subsearch, lexicalSearch, hiddenDataSources])
 
     const filteredStudies = useMemo<StudyResult[]>(() => {
-        return [...studiesSource].reduce<StudyResult[]>((acc, study) => {
+        return studiesSource.reduce<StudyResult[]>((acc, study) => {
             const newStudy = {
                 ...study,
                 elements: study.elements.filter((variable) => filteredVariables.includes(variable))
@@ -230,7 +233,6 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     }, [studiesSource, filteredVariables])
 
     const absScoreRange = useMemo<[number, number]>(() => {
-        console.log("rerender abs range")
         if (normalizedVariableResults.length < 2) return [normalizedVariableResults[0]?.score, normalizedVariableResults[0]?.score]
         return [
             Math.min(...normalizedVariableResults.map((result) => result.score)),
@@ -250,7 +252,6 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     const variablesHistogram = useRef<ChartRef>()
     const variableHistogramConfig = useMemo<G2ColumnConfig>(() => {
         const [minScore, maxScore] = absScoreRange
-        console.log("RERENDER")
         return {
             ...(variableHistogramConfigStatic as any),
             data: [...filteredVariables].sort((a, b) => a.score - b.score),
@@ -315,12 +316,12 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             if (acc.hasOwnProperty(dataSource)) {
                 const { studies, variables } = acc[dataSource]
                 if (!variables.includes(cur.id)) variables.push(cur.id) 
-                if (!studies.includes(cur.study.c_id)) studies.push(cur.study.c_id) 
+                if (!studies.includes(cur.study_id)) studies.push(cur.study_id) 
             } else {
                 acc[dataSource] = {
                     name: dataSource,
                     color: FIXED_DATA_SOURCES[dataSource] ?? seededPalette.getNextColor(),
-                    studies: [cur.study.c_id],
+                    studies: [cur.study_id],
                     variables: [cur.id]
                 }
             }
@@ -363,6 +364,9 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
         setSortOrderOption("descending")
     }, [normalizedVariableResults])
 
+    const getStudyById = useCallback((id: string) => studyIdMap.get(id), [studyIdMap])
+    const getVariableById = useCallback((id: string) => variableIdMap.get(id), [variableIdMap])
+
     useEffect(() => {
         resetFilters()
     }, [normalizedVariableResults, resetFilters])
@@ -402,6 +406,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             studiesSource,
             filteredVariables,
             filteredStudies,
+            getStudyById, getVariableById,
             /**
              * Filters
              */

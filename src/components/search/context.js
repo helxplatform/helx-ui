@@ -419,8 +419,10 @@ export const HelxSearch = ({ children }) => {
 
       study.elements.forEach((variable, indexByVariable) => {
         const variableToUpdate = Object.assign({}, variable);
+        // NOTE: We don't want to store the actual study inside here, since the histogram
+        // will try to do a deep clone on it, which can become very performance heavy for large searches.
+        variableToUpdate["study_id"] = study.c_id
         variableToUpdate["study_name"] = study.c_name
-        variableToUpdate["study"] = study
         variableToUpdate["withinFilter"] = "none"
         variables.push(variableToUpdate)
 

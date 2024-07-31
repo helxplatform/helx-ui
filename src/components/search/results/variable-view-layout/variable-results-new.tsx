@@ -70,6 +70,32 @@ const VariableViewHistogram = () => {
         />
     ), [variableHistogramConfig])
 
+    const sliderMarks = useMemo(() => {
+        return normalizedVariableResults.reduce<SliderBaseProps["marks"]>((acc, cur) => {
+            acc![cur.score] = {
+                label: cur.score,
+                style: {
+                    display: "none"
+                }
+            }
+            return acc
+        }, {})
+    }, [normalizedVariableResults])
+
+    const slider = useMemo(() => (
+        <DebouncedRangeSlider
+            value={ scoreFilter }
+            onChange={ setScoreFilter }
+            min={ 0 }
+            max={ 100 }
+            step={ null }
+            marks={ sliderMarks }
+            // Margin to align with the histogram
+            style={{ marginRight: 0, marginBottom: 4, marginTop: 16, flexGrow: 1 }}
+            className="histogram-slider"
+        />
+    ), [scoreFilter, setScoreFilter, sliderMarks])
+
     return (
         <Collapse
             ghost
@@ -124,25 +150,7 @@ const VariableViewHistogram = () => {
                     <div style={{ display: "flex" }}>
                         <div style={{ flexGrow: 1, width: 0 }}>
                             { histogram }
-                            <DebouncedRangeSlider
-                                value={ scoreFilter }
-                                onChange={ setScoreFilter }
-                                min={ Math.min(...normalizedVariableResults.map((result) => result.score)) }
-                                max={ Math.max(...normalizedVariableResults.map((result) => result.score)) }
-                                step={ null }
-                                marks={ normalizedVariableResults.reduce<SliderBaseProps["marks"]>((acc, cur) => ({
-                                    ...acc,
-                                    [cur.score]: {
-                                        label: cur.score,
-                                        style: {
-                                            display: "none"
-                                        }
-                                    }
-                                }), {}) }
-                                // Margin to align with the histogram
-                                style={{ marginRight: 0, marginBottom: 4, marginTop: 16, flexGrow: 1 }}
-                                className="histogram-slider"
-                            />
+                            { slider }
                         </div>
                         <HistogramLegend
                             title="Score Legend"
@@ -455,7 +463,7 @@ const StudyListItem = ({ study }: StudyListItemProps) => {
 }
 
 const VariableListItem = ({ variable, showStudySource=true, showDataSource=true, style={}, ...props }: VariableListItemProps) => {
-    const { dataSources, highlightTokens } = useVariableView()!
+    const { dataSources, highlightTokens, getStudyById } = useVariableView()!
     
     const [showMore, setShowMore] = useState<boolean>(false)
     
@@ -535,9 +543,9 @@ const VariableListItem = ({ variable, showStudySource=true, showDataSource=true,
             { showStudySource && (
                 <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12, color: "rgba(0, 0, 0, 0.45)" }}>
                     Source:&nbsp;<i>
-                        <Highlighter textToHighlight={ variable.study.c_name } />
+                        <Highlighter textToHighlight={ variable.study_name } />
                     </i>&nbsp;
-                    <StudyInfoTooltip study={ variable.study } />
+                    <StudyInfoTooltip study={ getStudyById(variable.study_id)! } />
                 </span>
             ) }
         </div>
