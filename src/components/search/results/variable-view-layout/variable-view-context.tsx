@@ -127,7 +127,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     const [subsearch, setSubsearch] = useState<string>("")
     const [sortOption, setSortOption] = useState<string>("score")
     const [sortOrderOption, setSortOrderOption] = useState<string>("descending")
-    const [collapseIntoVariables, setCollapseIntoVariables] = useState<boolean>(true)
+    const [collapseIntoVariables, setCollapseIntoVariables] = useState<boolean>(false)
 
     const [variableIdMap, studyIdMap] = useMemo<[Map<string, VariableResult>, Map<string, StudyResult>]>(() => {
         const variableMap = new Map()
@@ -198,14 +198,16 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
         docs: variableDocs,
         index: {
             ref: "id",
-            fields: ["id", "name", "description"]
+            fields: ["id", "name", "description", "study_name"]
         }
     }), [variableDocs])
 
     const { index, lexicalSearch } = useLunrSearch(lunrConfig)
 
     const [filteredVariables, highlightTokens] = useMemo<[VariableResult[], string[]]>(() => {
-        const { hits, tokens } = lexicalSearch(subsearch)
+        const { hits, tokens } = lexicalSearch(subsearch, {
+            fuzziness: (term: string) => 1
+        })
         const matchedVariables = hits.reduce((acc, { ref: id }) => (acc.add(id), acc), new Set())
         const highlightTokens = subsearch.length > 3 ? tokens.map((token) => token.toString()) : []
         
