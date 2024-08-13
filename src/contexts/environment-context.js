@@ -70,7 +70,7 @@ export const EnvironmentProvider = ({ children }) => {
       baseRoutes.push({ path: '/workspaces/active', parent: '/workspaces', text: '', Component: ActiveView })
       baseRoutes.push({ path: '/connect/:app_name/:app_url', parent: '/workspaces', text: '', Component: SplashScreenView })
     }
-    baseRoutes.push({ path: '/support', text: 'Support', Component: SupportView })
+    baseRoutes.push({ path: '/support', text: 'Get Help', Component: SupportView })
     return baseRoutes;
   }
 

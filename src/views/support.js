@@ -94,7 +94,7 @@ const UserGuide = (context) => {
 
 export const SupportView = () => {
   const { context } = useEnvironment()
-  useTitle("Support")
+  useTitle("Get Help")
   console.log(context.support.help_portal_url)
   return (
     <Fragment>
