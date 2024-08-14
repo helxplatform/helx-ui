@@ -37,7 +37,7 @@ export const RelatedStudiesList = ({relatedStudySource}) => {
                         size="small"
                         description={
                             <>
-                            <font size="-1"><a href={study.c_link} target="_blank" rel="noopener noreferrer">{study.c_id}</a></font>: {study.c_name}
+                            <a href={study.c_link} target="_blank" rel="noopener noreferrer">{study.c_id}</a>: {study.c_name}
                             </>
                         }
                     />
