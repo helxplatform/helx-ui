@@ -3,6 +3,7 @@ import { List, Collapse, Typography, Space, Button } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
 import _Highlighter from 'react-highlight-words'
 import { RelatedConceptsList } from './related-concepts'
+import { RelatedStudiesList } from './related-studies'
 import Highlighter from 'react-highlight-words'
 import { SideCollapse } from '../../../..'
 import { useAnalytics } from '../../../../../contexts'
@@ -10,8 +11,6 @@ import { useAnalytics } from '../../../../../contexts'
 const { Text, Link } = Typography
 const { Panel } = Collapse
 
-/** Only display these many related studies initially. */
-const SHOW_MORE_CUTOFF = 3
 
 const Section = ({ title, children }) => (
     <Space size="small" direction="vertical" className="cde-section">
@@ -22,56 +21,6 @@ const Section = ({ title, children }) => (
         {children}
     </Space>
 )
-
-const RelatedStudiesList = ({relatedStudySource}) => {
-    const { analyticsEvents } = useAnalytics()
-    // const studyLinkClicked = () => {
-    //   analyticsEvents.studyLinkClicked(study.c_id)
-    // }
-    const [showMore, setShowMore] = useState(false)
-
-    if (!relatedStudySource) return (
-        <Text style={{ fontSize: 13, color: "rgba(0, 0, 0, 0.45)" }}>We couldn&apos;t load any related studies.</Text>
-    )
-
-    // Sort the related studies.
-    const relatedStudies = relatedStudySource.sort((a, b) => { return b.c_id < a.c_id});
-
-    if (relatedStudies.length === 0) return (
-        <Text style={{ fontSize: 13, color: "rgba(0, 0, 0, 0.45)" }}>We don&apos;t know of any related studies.</Text>
-    )
-
-    return (
-        <div>
-            <List
-                size="small"
-                dataSource={showMore ? relatedStudies : relatedStudies.slice(0, SHOW_MORE_CUTOFF)}
-                renderItem={(study) => (
-                    <List.Item key={study.c_id}>
-                    <List.Item.Meta
-                        size="small"
-                        description={
-                            <>
-                            <font size="-1"><a href={study.c_link} target="_blank" rel="noopener noreferrer">{study.c_id}</a></font>: {study.c_name}
-                            </>
-                        }
-                    />
-                    </List.Item>
-                )}
-            />
-            { relatedStudies.length >= SHOW_MORE_CUTOFF && (
-                        <Button
-                            type="link"
-                            size="small"
-                            style={{ padding: 0 }}
-                            onClick={ () => setShowMore(!showMore) }
-                        >
-                            { showMore ? "Show less" : "Show more" }
-                        </Button>
-            ) }
-        </div>
-    )
-}
 
 export const CdeItem = ({ cde, cdeRelatedConcepts, cdeRelatedStudies, highlight }) => {
     const [collapsed, setCollapsed] = useState(false)
