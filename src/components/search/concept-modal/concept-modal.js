@@ -373,6 +373,7 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
       style={{ top: 135 }}
       bodyStyle={{ padding: `0`, minHeight: `50vh`, position: `relative` }}
       cancelButtonProps={{ hidden: true }}
+      className="concept-modal"
       footer={(
         <Space style={{ justifyContent: "flex-end" }}>
           <Button type="ghost" onClick={ openFullscreen }>Fullscreen</Button>

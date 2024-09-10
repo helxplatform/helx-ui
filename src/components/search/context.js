@@ -366,31 +366,31 @@ export const HelxSearch = ({ children }) => {
     }
   }, [helxSearchUrl])
 
-  const doSearch = queryString => {
+  const doSearch = useCallback((queryString) => {
     const trimmedQuery = queryString.trim()
     if (trimmedQuery !== '') {
       setSelectedResult(null)
       setQuery(trimmedQuery)
       setCurrentPage(1)
       navigate(`${basePath}search?q=${trimmedQuery}&p=1`)
-      const existingHistoryEntry = searchHistory.find((searchHistoryEntry) => searchHistoryEntry.search === trimmedQuery)
-      if (!existingHistoryEntry) {
-        setSearchHistory([...searchHistory, {
-          search: trimmedQuery,
-          time: Date.now()
-        }])
-      } else {
-        // If the user is searching something that's already in history, move it to the end and update its `time`.
-        setSearchHistory([
+      setSearchHistory((searchHistory) => {
+        const existingHistoryEntry = searchHistory.find((searchHistoryEntry) => searchHistoryEntry.search === trimmedQuery)
+        // Update existing entry to current time.
+        if (existingHistoryEntry) return [
           ...searchHistory.filter((entry) => entry !== existingHistoryEntry),
           {
             ...existingHistoryEntry,
             time: Date.now()
           }
-        ])
-      }
+        ]
+        // Add new search history entry
+        else return [...searchHistory, {
+          search: trimmedQuery,
+          time: Date.now()
+        }]
+      })
     }
-  }
+  }, [setSelectedResult, navigate, basePath, setSearchHistory])
 
   useEffect(() => {
     return () => {

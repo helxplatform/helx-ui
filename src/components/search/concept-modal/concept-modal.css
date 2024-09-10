@@ -12,6 +12,25 @@
   width: 100%;
 }
 
+.concept-modal {
+}
+
+.concept-modal > .ant-modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.concept-modal > .ant-modal-content > .ant-modal-footer {
+  background: white;
+  z-index: 1;
+}
+
+.concept-modal .ant-modal-body > .ant-space {
+  /* Override the inline-flex */
+  display: flex;
+  max-height: 60vh;
+}
+
 .concept-modal-body > .ant-space-item:nth-child(2) {
   width: 100% !important;
   flex-grow: 1;
