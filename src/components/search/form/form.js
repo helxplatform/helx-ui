@@ -247,6 +247,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
         <Form.Item>
           <Tooltip title="Change search type">
             <Radio.Group
+              className="search-layout-radio-group"
               options={[
                   {
                     label: "Concepts",

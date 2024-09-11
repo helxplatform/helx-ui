@@ -41,8 +41,9 @@ export const useSyntheticDOMMask = (
         showMask: () => setShow(true),
         hideMask: () => setShow(false),
         selector: "#" + mask.id,
+        originalSelector: selector,
         element: mask
-    }) as const, [mask])
+    }) as const, [mask, selector])
 
     const resize = useCallback((element: HTMLElement, bb: DOMRect) => {
         const elBB = element.getBoundingClientRect()

@@ -7,10 +7,9 @@ import { useEnvironment } from '../environment-context'
 import { SearchLayout, useHelxSearch } from '../../components/search'
 import { SearchView } from '../../views'
 import { useSyntheticDOMMask } from '../../hooks'
-import { waitForNoElement } from '../../utils'
+import { scrollIntoViewIfNeeded, waitForAttribute, waitForElement, waitForNoElement } from '../../utils'
 import 'shepherd.js/dist/css/shepherd.css'
 const { useLocation, useNavigate } = require('@gatsbyjs/reach-router')
-const waitForElement = require('wait-for-element')
 
 interface ShepherdOptionsWithTypeFixed extends ShepherdOptionsWithType {
     when?: any
@@ -41,7 +40,7 @@ const setNativeValueReact15_16 = (input: HTMLInputElement, value: string) => {
 class SelectorTimeoutError extends Error {}
 class ErrorSelectorReachedError extends Error {}
 
-const waitForSelector = async (selector: string, errorSelector?: string, timeout: number = 5000) => {
+const waitForSelector = async (selector: string, errorSelector?: string, timeout: number | null = 10000) => {
     try {
         const waitForNormalSelector = waitForElement(selector, timeout)
         // Error selector never terminates if none provided.
@@ -57,6 +56,7 @@ const waitForSelector = async (selector: string, errorSelector?: string, timeout
 }
 
 const getExpandButton = () => document.querySelector<HTMLSpanElement>(`.result-card:first-child span.anticon-expand`)
+const getVariableViewRadioOption = () => document.querySelector<HTMLLabelElement>(`.search-layout-radio-group > label:nth-child(2)`)
 
 export const TourProvider = ({ children }: ITourProvider ) => {
     const { context, routes, basePath} = useEnvironment() as any
@@ -78,6 +78,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
     const searchBarDomMask = useSyntheticDOMMask(".search-bar, .search-button", { blockClicks: true })
     const resultCardDomMask = useSyntheticDOMMask(".result-card:first-child", { blockClicks: false })
     const resultModalDomMask = useSyntheticDOMMask(".concept-modal > .ant-modal-content", { blockClicks: false })
+    const variableRadioOptionDomMask = useSyntheticDOMMask(".search-layout-radio-group > label:nth-child(2)", { blockClicks: false })
 
     const tourOptions = useMemo<Tour.TourOptions>(() => ({
         defaultStepOptions: {
@@ -233,7 +234,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     element: resultCardDomMask.selector!,
                     on: "right"
                 },
-                scrollTo: false,
+                scrollToHandler: () => scrollIntoViewIfNeeded(resultCardDomMask.originalSelector),
                 title: "",
                 text: renderToStaticMarkup(
                     <div>
@@ -265,7 +266,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     element: resultCardDomMask.selector!,
                     on: "right"
                 },
-                scrollTo: false,
+                scrollToHandler: () => scrollIntoViewIfNeeded(resultCardDomMask.originalSelector),
                 title: "",
                 text: renderToStaticMarkup(
                     <div>
@@ -305,7 +306,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         show: () => {
                             resultCardDomMask.showMask()
 
-                            const expandBtn = getExpandButton()!
+                            const expandBtn = getExpandButton()
                             if (!expandBtn) {
                                 console.log("couldn't find expand button, cancelling tour...")
                                 tour.cancel()
@@ -317,20 +318,20 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         hide: () => {
                             resultCardDomMask.hideMask()
 
-                            const expandBtn = getExpandButton()!
-                            expandBtn.removeEventListener("click", listener)
+                            const expandBtn = getExpandButton()
+                            expandBtn?.removeEventListener("click", listener)
                         },
                         cancel: () => {
                             resultCardDomMask.hideMask()
 
-                            const expandBtn = getExpandButton()!
-                            expandBtn.removeEventListener("click", listener)
+                            const expandBtn = getExpandButton()
+                            expandBtn?.removeEventListener("click", listener)
                         },
                         complete: () => {
                             resultCardDomMask.hideMask()
 
-                            const expandBtn = getExpandButton()!
-                            expandBtn.removeEventListener("click", listener)
+                            const expandBtn = getExpandButton()
+                            expandBtn?.removeEventListener("click", listener)
                         }
                     }
                 })()
@@ -425,7 +426,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         cancel: () => {
                             stillOnStep = false
 
-                            const fullscreenBtn = getFullscreenBtn()!
+                            const fullscreenBtn = getFullscreenBtn()
                             if (fullscreenBtn) fullscreenBtn.disabled = false
 
                             resultModalDomMask.hideMask()
@@ -450,8 +451,8 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 text: renderToStaticMarkup(
                     <div>
                         Search results are scored based on their search term relevance.
-                        Higher scoring, more relevant results are shown first. Further down
-                        the results, you&apos;ll see concepts less directly relevant to your original
+                        Higher scoring, more relevant results are shown first. Further down,
+                        you&apos;ll see concepts less directly relevant to your original
                         query but still potentially of unexpected interest.
                     </div>
                 ),
@@ -472,6 +473,74 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     }
                 ],
             },
+            {
+                id: "main.search.concept.variable-transition",
+                attachTo: {
+                    // Antd v4 does not allow id/class identifiers to be set for radio group options. 
+                    element: variableRadioOptionDomMask.selector!,
+                    on: "bottom-end"
+                },
+                scrollToHandler: () => scrollIntoViewIfNeeded(variableRadioOptionDomMask.originalSelector),
+                title: "Variable view",
+                text: renderToStaticMarkup(
+                    <div>
+                        HSS also offers variable-level searching. Click on the Variables button
+                        shows variables containing the search query or synonyms grouped by study.
+                        Similar to concepts, variable results are scored based on the level of the match
+                        between variable information (name, description, related terms) and the search term.
+                    </div>
+                ),
+                buttons: [
+                    {
+                        classes: 'shepherd-button-secondary',
+                        text: 'Back',
+                        type: 'back'
+                    },
+                    {
+                        classes: 'shepherd-button-primary',
+                        text: 'Next',
+                        type: 'next'
+                    }
+                ],
+                when: (() => {
+                    const listener = () => {
+                        tour.next()
+                    }
+                    return {
+                        show: () => {
+                            variableRadioOptionDomMask.showMask()
+
+                            const variableViewOption = getVariableViewRadioOption()
+                            if (!variableViewOption) {
+                                console.log("couldn't find variable view radio option, cancelling tour...")
+                                tour.cancel()
+                                return
+                            }
+                            
+                            variableViewOption.addEventListener("click", listener)
+                        },
+                        hide: () => {
+                            variableRadioOptionDomMask.hideMask()
+                            
+                            const variableViewOption = getVariableViewRadioOption()
+                            variableViewOption?.removeEventListener("click", listener)
+                        },
+                        cancel: () => {
+                            variableRadioOptionDomMask.hideMask()
+                            
+                            const variableViewOption = getVariableViewRadioOption()
+                            variableViewOption?.removeEventListener("click", listener)
+                        },
+                        complete: () => {
+                            variableRadioOptionDomMask.hideMask()
+
+                            const variableViewOption = getVariableViewRadioOption()
+                            variableViewOption?.removeEventListener("click", listener)
+                        }
+                    }
+                })()
+            },
+            
         ]
         return []
     }, [searchBarDomMask, basePath, navigate, doSearch])
@@ -523,7 +592,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             window.addEventListener("beforeunload", cleanup)
         }
         const cleanup = () => {
-            restoreSettings()
+            // restoreSettings()
             window.removeEventListener("beforeunload", cleanup)
         }
         tour.on("start", setup)
