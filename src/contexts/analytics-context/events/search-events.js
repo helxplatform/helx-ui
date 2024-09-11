@@ -118,7 +118,6 @@ export function cdeRelatedConceptSearched(conceptId) {
     });
 }
 export function studyLinkClicked(studyId) {
-    console.log("study link", studyName)
     this.analytics.trackEvent({
         category: "ui_interaction",
         action: "study_link_clicked",

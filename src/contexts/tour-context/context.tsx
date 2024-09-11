@@ -7,6 +7,7 @@ import { useEnvironment } from '../environment-context'
 import { SearchLayout, useHelxSearch } from '../../components/search'
 import { SearchView } from '../../views'
 import { useSyntheticDOMMask } from '../../hooks'
+import { waitForNoElement } from '../../utils'
 import 'shepherd.js/dist/css/shepherd.css'
 const { useLocation, useNavigate } = require('@gatsbyjs/reach-router')
 const waitForElement = require('wait-for-element')
@@ -358,12 +359,20 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     {
                         classes: 'shepherd-button-secondary',
                         text: 'Back',
-                        type: 'back'
+                        action: function() {
+                            const closeBtn = document.querySelector<HTMLButtonElement>(".concept-modal .ant-modal-close")
+                            this.back()
+                            closeBtn?.click()
+                        }
                     },
                     {
                         classes: 'shepherd-button-primary',
                         text: 'Next',
-                        type: 'next'
+                        action: function() {
+                            const closeBtn = document.querySelector<HTMLButtonElement>(".concept-modal .ant-modal-close")
+                            this.next()
+                            closeBtn?.click()
+                        }
                     }
                 ],
                 beforeShowPromise: async () => {
@@ -385,12 +394,43 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         })
                     })
                 },
-                when: {
-                    show: () => resultModalDomMask.showMask(),
-                    hide: () => resultModalDomMask.hideMask(),
-                    cancel: () => resultModalDomMask.hideMask(),
-                    complete: () => resultModalDomMask.hideMask()
-                }
+                when: (() => {
+                    const getFullscreenBtn = () => document.querySelector<HTMLButtonElement>(".concept-modal-fullscreen-btn")
+
+                    return {
+                        show: function() {
+                            const fullscreenBtn = getFullscreenBtn()!
+                            fullscreenBtn.disabled = true
+
+                            // The root component is demounted (and so picked up), not the nested `.concept-modal`
+                            waitForNoElement(".ant-modal-root", null).then((resolve) => {
+                                // If the modal was closed but we're still on this step, then the
+                                // user closed the modal manually = advance to the next step.
+                                const currentStep = tour.getCurrentStep()!
+                                if (currentStep.id === this.id) tour.next()
+                            })
+
+                            resultModalDomMask.showMask()
+                        },
+                        hide: () => {
+                            const fullscreenBtn = getFullscreenBtn()
+                            if (fullscreenBtn) fullscreenBtn.disabled = false
+                            resultModalDomMask.hideMask()
+                        },
+                        cancel: () => {
+                            const fullscreenBtn = getFullscreenBtn()!
+                            if (fullscreenBtn) fullscreenBtn.disabled = false
+
+                            resultModalDomMask.hideMask()
+                        },
+                        complete: () => {
+                            const fullscreenBtn = getFullscreenBtn()
+                            if (fullscreenBtn) fullscreenBtn.disabled = false
+
+                            resultModalDomMask.hideMask()
+                        }
+                    }
+                })()
             }
         ]
         return []

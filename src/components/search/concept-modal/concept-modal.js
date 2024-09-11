@@ -377,8 +377,8 @@ export const ConceptModal = ({ result, visible, closeHandler }) => {
       className="concept-modal"
       footer={(
         <Space style={{ justifyContent: "flex-end" }}>
-          <Button type="ghost" onClick={ openFullscreen }>Fullscreen</Button>
-          <Button type="primary" onClick={ closeHandler }>Close</Button>
+          <Button className="concept-modal-fullscreen-btn" type="ghost" onClick={ openFullscreen }>Fullscreen</Button>
+          <Button className="concept-modal-close-btn" type="primary" onClick={ closeHandler }>Close</Button>
         </Space>
       )}
     >

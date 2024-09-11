@@ -11,7 +11,7 @@ interface SyntheticDOMMaskOptions {
 const prepareMaskContainer = (): HTMLDivElement => {
     const mask = document.createElement("div")
     mask.id = "mask-" + uuid()
-    mask.style.position = "absolute"
+    mask.style.position = "fixed"
     mask.style.zIndex = "999999"
     mask.style.pointerEvents = "none"
     mask.style.borderRadius = "4px"
