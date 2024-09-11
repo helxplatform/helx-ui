@@ -310,6 +310,7 @@ export const ConceptModalBody = ({ result }) => {
         defaultSelectedKeys={ ['overview'] }
         mode="inline"
         theme="light"
+        className="concept-modal-tabs"
         selectedKeys={ [currentTab] }
       >
         {

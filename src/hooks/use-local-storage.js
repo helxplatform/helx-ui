@@ -2,7 +2,7 @@
  * Source: https://github.com/RENCI/ncdot-road-safety-client/blob/53c147c434d6d29d9ecbb0d682a3127c08086559/src/hooks/use-local-storage.js
  */
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 /** `storage` events do not fire on the same tab.
  * this code monkey patches a global, custom `localStorageModified`
@@ -57,7 +57,11 @@ export const useLocalStorage = (key, initialValue, observeOtherPages=true) => {
       // Get from local storage by key
       const item = window.localStorage.getItem(key)
       // Parse stored json or if none return initialValue
-      return item ? JSON.parse(item) : initialValue
+      if (item) return JSON.parse(item)
+      else {
+        window.localStorage2.setItem(key, JSON.stringify(initialValue))
+        return initialValue
+      }
     } catch (error) {
       // If error also return initialValue
       console.log(error)
@@ -67,20 +71,22 @@ export const useLocalStorage = (key, initialValue, observeOtherPages=true) => {
 
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to localStorage.
-  const setValue = value => {
+  const setValue = useCallback((value) => {
     try {
-      // Allow value to be a function so we have same API as useState
-      const valueToStore = value instanceof Function ? value(storedValue) : value
       // Save state
-      setStoredValue(valueToStore)
-      // Save to local storage
-      // Use the non-monkey patched version to avoid double-calling setState in the effect.
-      window.localStorage2.setItem(key, JSON.stringify(valueToStore))
+      setStoredValue((existingValue) => {
+        // Allow value to be a function so we have same API as useState
+        const valueToStore = value instanceof Function ? value(existingValue) : value
+        // Save to local storage
+        // Use the non-monkey patched version to avoid double-calling setState in the effect.
+        window.localStorage2.setItem(key, JSON.stringify(valueToStore))
+        return valueToStore
+      })
     } catch (error) {
       // A more advanced implementation would handle the error case
       console.log(error)
     }
-  }
+  }, [])
   
   useEffect(() => {
     const storageCallback = (e) => {

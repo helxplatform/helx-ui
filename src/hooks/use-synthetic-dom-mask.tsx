@@ -1,5 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { v4 as uuid } from 'uuid'
+
+interface SyntheticDOMMaskOptions {
+    padding?: number
+    resizeInterval?: number
+    selectorInterval?: number
+    blockClicks?: boolean
+}
 
 const prepareMaskContainer = (): HTMLDivElement => {
     const mask = document.createElement("div")
@@ -15,14 +22,27 @@ const prepareMaskContainer = (): HTMLDivElement => {
 
 export const useSyntheticDOMMask = (
     selector: string,
-    padding: number = 0,
-    resizeInterval: number = 0,
-    selectorInterval: number = 10
+    options: SyntheticDOMMaskOptions = {}
 ) => {
+    const { padding, resizeInterval, selectorInterval, blockClicks } = {
+        padding: 0,
+        resizeInterval: 0,
+        selectorInterval: 10,
+        blockClicks: false,
+        ...options
+    }
+
     const [mask] = useState<HTMLDivElement>(prepareMaskContainer)
     const [elements, setElements] = useState<Element[] | undefined>(undefined)
     const [elementMasks, setElementMasks] = useState<Map<Element, HTMLElement> | undefined>(undefined)
     const [show, setShow] = useState<boolean>(false)
+
+    const context = useMemo(() => ({
+        showMask: () => setShow(true),
+        hideMask: () => setShow(false),
+        selector: "#" + mask.id,
+        element: mask
+    }) as const, [mask])
 
     const resize = useCallback((element: HTMLElement, bb: DOMRect) => {
         const elBB = element.getBoundingClientRect()
@@ -45,6 +65,10 @@ export const useSyntheticDOMMask = (
         })
         return new DOMRect(x1, y1, x2 - x1, y2 - y1)
     }, [padding])
+
+    useEffect(() => {
+        mask.style.pointerEvents = blockClicks ? "auto" : "none"
+    }, [mask, blockClicks])
 
     // Maintain up-to-date list of DOM elements matching the given selector
     useEffect(() => {
@@ -72,7 +96,6 @@ export const useSyntheticDOMMask = (
     // Make sure the mask displays properly and maintains correct position/size
     useEffect(() => {
         const observers: IntersectionObserver[] = []
-        let interval: number
         let cancelled = false
         if (!mask || !elementMasks) return
         if (!show) mask.style.display = "none"
@@ -129,7 +152,6 @@ export const useSyntheticDOMMask = (
 
         return () => {
             observers.forEach((observer) => observer.disconnect())
-            window.clearInterval(interval)
             cancelled = true
         }
     }, [mask, elementMasks, show, resizeInterval, computeMinimumBounds])
@@ -159,10 +181,5 @@ export const useSyntheticDOMMask = (
         }
     }, [])
 
-    return {
-        showMask: () => setShow(true),
-        hideMask: () => setShow(false),
-        selector: "#" + mask.id,
-        element: mask
-    } as const
+    return context
 }

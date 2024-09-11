@@ -12,9 +12,6 @@
   width: 100%;
 }
 
-.concept-modal {
-}
-
 .concept-modal > .ant-modal-content {
   display: flex;
   flex-direction: column;
@@ -28,11 +25,35 @@
 .concept-modal .ant-modal-body > .ant-space {
   /* Override the inline-flex */
   display: flex;
+  align-items: stretch;
   max-height: 60vh;
+}
+.concept-modal .ant-modal-body > .ant-space > .ant-space-item {
+  overflow: auto;
+}
+
+/* Space item container for concept-modal-tabs  */
+.concept-modal .ant-modal-body .ant-space .ant-space-item:first-child {
+  flex: none;
+}
+
+.concept-modal-tabs {
+  width: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.concept-modal-tabs .ant-menu-item {
+  display: inline-flex !important;
+  width: auto !important;
+}
+.concept-modal-tabs .ant-menu-title-content {
+  flex: none !important;
+  overflow: visible !important;
 }
 
 .concept-modal-body > .ant-space-item:nth-child(2) {
-  width: 100% !important;
+  /* width: 100% !important; */
   flex-grow: 1;
 }
 
