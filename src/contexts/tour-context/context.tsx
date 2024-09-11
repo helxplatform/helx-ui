@@ -397,8 +397,11 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 when: (() => {
                     const getFullscreenBtn = () => document.querySelector<HTMLButtonElement>(".concept-modal-fullscreen-btn")
 
+                    let stillOnStep = true
                     return {
                         show: function() {
+                            stillOnStep = true
+
                             const fullscreenBtn = getFullscreenBtn()!
                             fullscreenBtn.disabled = true
 
@@ -406,24 +409,30 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                             waitForNoElement(".ant-modal-root", null).then((resolve) => {
                                 // If the modal was closed but we're still on this step, then the
                                 // user closed the modal manually = advance to the next step.
-                                const currentStep = tour.getCurrentStep()!
-                                if (currentStep.id === this.id) tour.next()
+                                if (stillOnStep) tour.next()
                             })
 
                             resultModalDomMask.showMask()
                         },
                         hide: () => {
+                            stillOnStep = false
+
                             const fullscreenBtn = getFullscreenBtn()
                             if (fullscreenBtn) fullscreenBtn.disabled = false
+
                             resultModalDomMask.hideMask()
                         },
                         cancel: () => {
+                            stillOnStep = false
+
                             const fullscreenBtn = getFullscreenBtn()!
                             if (fullscreenBtn) fullscreenBtn.disabled = false
 
                             resultModalDomMask.hideMask()
                         },
                         complete: () => {
+                            stillOnStep = false
+
                             const fullscreenBtn = getFullscreenBtn()
                             if (fullscreenBtn) fullscreenBtn.disabled = false
 
@@ -431,7 +440,38 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         }
                     }
                 })()
-            }
+            },
+            {
+                id: "main.search.concept.search-rankings",
+                attachTo: {
+                    element: "head"
+                },
+                title: "Concept rankings",
+                text: renderToStaticMarkup(
+                    <div>
+                        Search results are scored based on their search term relevance.
+                        Higher scoring, more relevant results are shown first. Further down
+                        the results, you&apos;ll see concepts less directly relevant to your original
+                        query but still potentially of unexpected interest.
+                    </div>
+                ),
+                buttons: [
+                    {
+                        classes: 'shepherd-button-secondary',
+                        text: 'Back',
+                        action: function() {
+                            const expandBtn = getExpandButton()!
+                            expandBtn.click()
+                            this.back()
+                        }
+                    },
+                    {
+                        classes: 'shepherd-button-primary',
+                        text: 'Next',
+                        type: 'next'
+                    }
+                ],
+            },
         ]
         return []
     }, [searchBarDomMask, basePath, navigate, doSearch])
