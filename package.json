@@ -6,6 +6,7 @@
     "@ant-design/plots": "^1.0.9",
     "@ant-design/pro-form": "^1.74.7",
     "@antv/g2plot": "^2.4.8",
+    "@floating-ui/dom": "^1.6.10",
     "@gatsbyjs/reach-router": "^1.3.9",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
@@ -32,11 +33,12 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-shepherd": "^4.3.0",
     "react-time-until": "^1.0.6",
-    "shepherd.js": "^11.2.0",
+    "shepherd.js": "^13.0.3",
     "styled-components": "^5.3.0",
     "timeago-react": "^3.0.2",
     "use-debounce": "^7.0.0",
     "uuid": "^9.0.1",
+    "wait-for-element": "^1.0.2",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
