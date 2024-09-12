@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 
 interface SyntheticDOMMaskOptions {
-    padding?: number
+    padding?: number | { top: number, right: number, bottom: number, left: number }
     resizeInterval?: number
     selectorInterval?: number
     blockClicks?: boolean
@@ -45,6 +45,18 @@ export const useSyntheticDOMMask = (
         element: mask
     }) as const, [mask, selector])
 
+    const [paddingTop, paddingRight, paddingBottom, paddingLeft] = useMemo(() => (typeof padding === "number" ? [
+        padding,
+        padding,
+        padding,
+        padding
+    ] : [
+        padding.top,
+        padding.right,
+        padding.bottom,
+        padding.left
+    ]), [padding])
+
     const resize = useCallback((element: HTMLElement, bb: DOMRect) => {
         const elBB = element.getBoundingClientRect()
         if (elBB.x !== bb.x) element.style.left = (bb.x) + "px"
@@ -59,13 +71,13 @@ export const useSyntheticDOMMask = (
         elements.forEach((element) => {
             const bb = element.getBoundingClientRect()
             if (bb.width === 0 || bb.height === 0) return
-            x1 = Math.min(x1, bb.x - padding)
-            y1 = Math.min(y1, bb.y - padding)
-            x2 = Math.max(x2, bb.right + padding)
-            y2 = Math.max(y2, bb.bottom + padding)
+            x1 = Math.min(x1, bb.x - paddingLeft)
+            y1 = Math.min(y1, bb.y - paddingTop)
+            x2 = Math.max(x2, bb.right + paddingRight)
+            y2 = Math.max(y2, bb.bottom + paddingBottom)
         })
         return new DOMRect(x1, y1, x2 - x1, y2 - y1)
-    }, [padding])
+    }, [paddingTop, paddingRight, paddingBottom, paddingLeft])
 
     useEffect(() => {
         mask.style.pointerEvents = blockClicks ? "auto" : "none"

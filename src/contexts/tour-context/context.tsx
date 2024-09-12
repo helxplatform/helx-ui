@@ -56,6 +56,7 @@ const waitForSelector = async (selector: string, errorSelector?: string, timeout
 }
 
 const getExpandButton = () => document.querySelector<HTMLSpanElement>(`.result-card:first-child span.anticon-expand`)
+const getConceptViewRadioOption = () => document.querySelector<HTMLLabelElement>(`.search-layout-radio-group > label:nth-child(1)`)
 const getVariableViewRadioOption = () => document.querySelector<HTMLLabelElement>(`.search-layout-radio-group > label:nth-child(2)`)
 
 export const TourProvider = ({ children }: ITourProvider ) => {
@@ -79,6 +80,24 @@ export const TourProvider = ({ children }: ITourProvider ) => {
     const resultCardDomMask = useSyntheticDOMMask(".result-card:first-child", { blockClicks: false })
     const resultModalDomMask = useSyntheticDOMMask(".concept-modal > .ant-modal-content", { blockClicks: false })
     const variableRadioOptionDomMask = useSyntheticDOMMask(".search-layout-radio-group > label:nth-child(2)", { blockClicks: false })
+    const studyListItemDomMask = useSyntheticDOMMask(".variables-collapse > div:first-child", {
+        blockClicks: false,
+        padding: {
+            top: 0,
+            bottom: 0,
+            left: 32,
+            right: 32
+        }
+    })
+    const supportNavDomMask = useSyntheticDOMMask(`.helx-header ul.ant-menu > li[data-menu-id$="/support"] > span`, {
+        blockClicks: false,
+        padding: {
+            top: 24,
+            bottom: 24,
+            left: 12,
+            right: 12
+        }
+    })
 
     const tourOptions = useMemo<Tour.TourOptions>(() => ({
         defaultStepOptions: {
@@ -125,7 +144,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     <div>
                         HSS is an open-access search engine for exploring the HEAL research landscape.<br /><br />
                         HSS is not the search you use every day - it uses linked knowledge to return concepts related
-                        to your search term. This enables researchers to find biomedical concepts of interest
+                        to your search. This enables researchers to find biomedical concepts of interest
                         in the HEAL space such as diseases, phenotypes, anatomical parts, and drugs. Click next
                         to begin a tour.
                     </div>
@@ -192,7 +211,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 attachTo: {
                     element: "head"
                 },
-                title: "Concept overview",
+                title: "Concept search",
                 text: renderToStaticMarkup(
                     <div>
                         When a user searches for a term, HSS returns relevant biomedical concepts in the form of concept cards.
@@ -200,7 +219,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         are related to the concept.<br /><br />
 
                         In HSS, a concept is a named entity defined in an ontology or another formal knowledge source. This means
-                        the biomedical concept, and its relation to the search term, comes from a well-defined, established source.
+                        the biomedical concept, and its relation to the search query, comes from a well-defined, established source.
                     </div>
                 ),
                 beforeShowPromise: async () => {
@@ -485,9 +504,9 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 text: renderToStaticMarkup(
                     <div>
                         HSS also offers variable-level searching. Click on the Variables button
-                        shows variables containing the search query or synonyms grouped by study.
+                        shows variables matching the search terms or synonyms grouped by study.
                         Similar to concepts, variable results are scored based on the level of the match
-                        between variable information (name, description, related terms) and the search term.
+                        between variable information (name, description, related terms) and the search terms.
                     </div>
                 ),
                 buttons: [
@@ -499,7 +518,11 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     {
                         classes: 'shepherd-button-primary',
                         text: 'Next',
-                        type: 'next'
+                        action: function() {
+                            const variableViewOption = getVariableViewRadioOption()!
+                            this.next()
+                            variableViewOption.click()
+                        }
                     }
                 ],
                 when: (() => {
@@ -540,7 +563,107 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     }
                 })()
             },
-            
+            {
+                id: "main.search.variable-view.intro",
+                attachTo: {
+                    element: "head"
+                },
+                title: "Variable search",
+                text: renderToStaticMarkup(
+                    <div>
+                        Variable search returns all the variables with a match with the search term.
+                        HSS provides a histogram filter to zoom in on higher-scoring results (those more
+                        relevant to the search query). Hovering the mouse pointer over each variable in the
+                        histogram displays additional information, including its name, description, and study.
+                    </div>
+                ),
+                buttons: [
+                    {
+                        classes: 'shepherd-button-secondary',
+                        text: 'Back',
+                        action: function() {
+                            const conceptGridViewOption = getConceptViewRadioOption()!
+                            this.back()
+                            conceptGridViewOption.click()
+                        }
+                    },
+                    {
+                        classes: 'shepherd-button-primary',
+                        text: 'Next',
+                        type: 'next'
+                    }
+                ],
+            },
+            {
+                id: "main.search.variable-view.study-list",
+                attachTo: {
+                    element: studyListItemDomMask.selector,
+                    on: "bottom"
+                },
+                scrollToHandler: () => scrollIntoViewIfNeeded(studyListItemDomMask.originalSelector),
+                title: "",
+                text: renderToStaticMarkup(
+                    <div>
+                        You can also click to expand each study to view the study variables associated
+                        with the search query.
+                    </div>
+                ),
+                buttons: [
+                    {
+                        classes: 'shepherd-button-secondary',
+                        text: 'Back',
+                        type: 'back'
+                    },
+                    {
+                        classes: 'shepherd-button-primary',
+                        text: 'Next',
+                        type: 'next'
+                    }
+                ],
+                when: {
+                    show: () => { studyListItemDomMask.showMask() },
+                    hide: () => { studyListItemDomMask.hideMask() },
+                    cancel: () => { studyListItemDomMask.hideMask() },
+                    complete: () => { studyListItemDomMask.hideMask() }
+                }
+            },
+            {
+                id: "main.outro",
+                attachTo: {
+                    element: supportNavDomMask.selector,
+                    on: "bottom"
+                },
+                scrollToHandler: () => scrollIntoViewIfNeeded(supportNavDomMask.originalSelector),
+                title: "Conclusion",
+                text: renderToStaticMarkup(
+                    <div>
+                        This concludes the introductory tour of HSS. For more detailed information,
+                        read our <a href={ context.user_guide_url } target="_blank" rel="noopener noreferrer">User Guide</a>
+                        or visit our support page to revisit the tour or access the Help Portal, where you can report bugs,
+                        request technical assistance, submit feedback, or submit other requests.<br /><br />
+
+                        Happy searching!
+                    </div>
+                ),
+                buttons: [
+                    {
+                        classes: 'shepherd-button-secondary',
+                        text: 'Back',
+                        type: 'back'
+                    },
+                    {
+                        classes: 'shepherd-button-primary',
+                        text: 'Done',
+                        type: 'next'
+                    }
+                ],
+                when: {
+                    show: () => { supportNavDomMask.showMask() },
+                    hide: () => { supportNavDomMask.hideMask() },
+                    cancel: () => { supportNavDomMask.hideMask() },
+                    complete: () => { supportNavDomMask.hideMask() }
+                }
+            }
         ]
         return []
     }, [searchBarDomMask, basePath, navigate, doSearch])
