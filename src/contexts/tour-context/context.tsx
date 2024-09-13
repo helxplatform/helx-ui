@@ -1,4 +1,4 @@
-import { Fragment, ReactNode, createContext, useContext, useEffect, useMemo, useRef } from 'react'
+import { Fragment, ReactNode, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { useShepherdTour, Tour, ShepherdOptionsWithType } from 'react-shepherd'
 import { offset as tooltipOffset } from '@floating-ui/dom'
@@ -17,6 +17,7 @@ interface ShepherdOptionsWithTypeFixed extends ShepherdOptionsWithType {
 
 export interface ITourContext {
     tour: any
+    tourStarted: boolean
 }
 
 export interface ITourProvider {
@@ -64,6 +65,8 @@ export const TourProvider = ({ children }: ITourProvider ) => {
     const { doSearch } = useHelxSearch() as any
     const location = useLocation()
     const navigate = useNavigate()
+
+    const [tourStarted, setTourStarted] = useState<boolean>(false)
 
     const removeTrailingSlash = (url: string) => url.endsWith("/") ? url.slice(0, url.length - 1) : url
     const activeRoutes = useMemo<any[] | undefined>(() => {
@@ -273,10 +276,42 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     }
                 ],
                 when: {
-                    show: () => resultCardDomMask.showMask(),
-                    hide: () => resultCardDomMask.hideMask(),
-                    cancel: () => resultCardDomMask.hideMask(),
-                    complete: () => resultCardDomMask.hideMask()
+                    show: () => {
+                        resultCardDomMask.showMask()
+                        
+                        const expandBtn = getExpandButton()
+                        if (expandBtn) {
+                            expandBtn.style.pointerEvents = "none"
+                            expandBtn.style.color = "rgba(0, 0, 0, 0.35)"
+                        }
+                    },
+                    hide: () => {
+                        resultCardDomMask.hideMask()
+
+                        const expandBtn = getExpandButton()
+                        if (expandBtn) {
+                            expandBtn.style.removeProperty("pointer-events")
+                            expandBtn.style.removeProperty("color")
+                        }
+                    },
+                    cancel: () => {
+                        resultCardDomMask.hideMask()
+
+                        const expandBtn = getExpandButton()
+                        if (expandBtn) {
+                            expandBtn.style.removeProperty("pointer-events")
+                            expandBtn.style.removeProperty("color")
+                        }
+                    },
+                    complete: () => {
+                        resultCardDomMask.hideMask()
+
+                        const expandBtn = getExpandButton()
+                        if (expandBtn) {
+                            expandBtn.style.removeProperty("pointer-events")
+                            expandBtn.style.removeProperty("color")
+                        }
+                    }
                 }
             },
             {
@@ -671,13 +706,19 @@ export const TourProvider = ({ children }: ITourProvider ) => {
     const tour = useShepherdTour({ tourOptions, steps: tourSteps })
 
     useEffect(() => {
+        const startTour = () => {
+            setTourStarted(true)
+        }
         const cleanupTour = () => {
+            setTourStarted(false)
             console.log("cleanup")
         }
+        tour.on("start", startTour)
         tour.on("complete", cleanupTour)
         tour.on("cancel", cleanupTour)
 
         return () => {
+            tour.off("start", startTour)
             tour.off("complete", cleanupTour)
             tour.off("cancel", cleanupTour)
         }
@@ -731,6 +772,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
     return (
         <TourContext.Provider value={{
             tour,
+            tourStarted
         }}>
             { children }
         </TourContext.Provider>
