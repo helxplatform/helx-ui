@@ -4,6 +4,7 @@ import { Typography } from 'antd'
 import { Breadcrumbs } from '../components/layout'
 import { useEnvironment } from '../contexts'
 import { useTitle } from './'
+import { GuidedTourButton } from '../components/guided-tour'
 
 const { Title } = Typography
 
@@ -24,6 +25,8 @@ export const SearchView = () => {
       {context.workspaces_enabled === 'true' && <Breadcrumbs crumbs={breadcrumbs} />}
 
       {context.workspaces_enabled === 'true' && <Title level={1}>Search</Title>}
+
+      <GuidedTourButton />
 
       <Results />
 

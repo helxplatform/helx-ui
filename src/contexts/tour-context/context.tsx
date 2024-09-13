@@ -668,8 +668,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
         return []
     }, [searchBarDomMask, basePath, navigate, doSearch])
 
-    const tour = useShepherdTour({ tourOptions, steps: tourSteps });
-    (window as any).tour = tour
+    const tour = useShepherdTour({ tourOptions, steps: tourSteps })
 
     useEffect(() => {
         const cleanupTour = () => {
