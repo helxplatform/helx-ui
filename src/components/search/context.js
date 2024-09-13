@@ -30,6 +30,8 @@ export const HelxSearch = ({ children }) => {
   const [error, setError] = useState({})
   const [conceptPages, setConceptPages] = useState({})
   const [conceptTypes, setConceptTypes] = useState({})
+  // E.g. for HEAL, HEAL Studies, Non-HEAL studies, HEAL Research Programs
+  const [studySources, setStudySources] = useState([])
   // const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
@@ -55,6 +57,7 @@ export const HelxSearch = ({ children }) => {
   /** Abort controllers */
   const fetchConceptsController = useRef()
   const searchSelectedResultController = useRef()
+  const fetchStudySourcesController = useRef()
 
   // const selectedResultLoading = useMemo(() => selectedResult && selectedResult.loading === true, [selectedResult])
   // const selectedResultFailed = useMemo(() => selectedResult && selectedResult.failed === true, [selectedResult])
@@ -218,6 +221,34 @@ export const HelxSearch = ({ children }) => {
     setVariableStudyResults([])
     setVariableResults([])
   }, [query])
+
+  useEffect(() => {
+    const fetchStudySources = async () => {
+      fetchStudySourcesController.current?.abort()
+      fetchStudySourcesController.current = new AbortController()
+
+      const response = await axios.get(`${helxSearchUrl}/agg_data_types`, undefined, {
+        signal: fetchStudySourcesController.current.signal
+      })
+      if (response.status === 200 && response.data.status === 'success' && response.data.result) {
+        // We treat the CDE source as separate from the study sources, even though it is returned under
+        // `/agg_data_types` since CDE variables are classified under the `cde` data_type field
+        setStudySources(
+          response.data.result
+            .filter((source) => source !== "cde")
+            .sort((a, b) => a.localeCompare(b))
+          )
+      } else {
+        setStudySources([])
+      }
+    }
+
+    fetchStudySources()
+
+    return () => {
+      fetchStudySourcesController.current?.abort()
+    }
+  }, [helxSearchUrl])
 
   useEffect(() => {
     setConceptPages({})
@@ -502,7 +533,8 @@ export const HelxSearch = ({ children }) => {
       conceptTypes,
       variableStudyResults, variableStudyResultCount,
       variableError, variableResults, isLoadingVariableResults,
-      totalVariableResults
+      totalVariableResults,
+      studySources
     }}>
       {children}
       <ConceptModal

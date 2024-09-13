@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Menu, Modal, Result, Space, Spin, Typography, Tooltip, Divider, Popover } from 'antd'
 import CustomIcon, {
   InfoCircleOutlined as OverviewIcon,
@@ -73,7 +73,7 @@ export const ConceptModalBody = ({ result }) => {
   const { analyticsEvents } = useAnalytics();
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
-  const { query, setSelectedResult, fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs } = useHelxSearch()
+  const { query, setSelectedResult, fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs, studySources } = useHelxSearch()
   const [graphs, setGraphs] = useState([])
   const [studies, setStudies] = useState([])
   const [cdes, setCdes] = useState(null)
@@ -115,8 +115,15 @@ export const ConceptModalBody = ({ result }) => {
       content: <StudiesTab studies={ studies } />,
       tooltip: <div>
         The Studies tab displays studies referencing or researching the concept.
-        Studies are grouped into three categories: HEAL research programs, HEAL studies,
-        and non-HEAL studies. By default, all studies are shown, but categories can be filtered
+        Studies are grouped into { studySources.length } categories:&nbsp;
+        { studySources.map((source, i) => (
+          <Fragment key={ source }>
+            { i === studySources.length - 1 ? "and " : ""}
+            <span style={{ fontWeight: 500 }}>{ source }</span>
+            { i !== studySources.length - 1 ? ", " : ". " }
+          </Fragment>
+        )) }
+        By default, all studies are shown, but categories can be filtered
         out by clicking on them. You can also click on studies to view which of their variables are
         related to the concept.
       </div>
@@ -127,8 +134,10 @@ export const ConceptModalBody = ({ result }) => {
       content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } loading={ cdesLoading } />,
       tooltip: <div>
         The CDEs tab displays{ context.brand === "heal" ? " HEAL-approved" : "" } common data elements (CDEs)
-        associated with the concept. {context.brand === "heal" ? <span>
-          The <a href="https://heal.nih.gov/data/common-data-elements" target="_blank" rel="noopener noreferrer">
+        associated with the concept. A CDE is a standardized question used across studies and clinical
+        trials with a precisely defined set of permissible responses to ensure consistent data collection.
+        {context.brand === "heal" ? <span>
+          &nbsp;The <a href="https://heal.nih.gov/data/common-data-elements" target="_blank" rel="noopener noreferrer">
             HEAL CDE program
           </a> provides further information.
         </span> : null}
