@@ -243,7 +243,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
           )
         }
       </Form.Item>
-      { totalConcepts ? (
+      {
         <Form.Item>
           <Tooltip title="Change search type">
             <Radio.Group
@@ -286,7 +286,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
             />
           </Tooltip>
         </Form.Item>
-      ) : null }
+    }
     </Form>
   )
 }

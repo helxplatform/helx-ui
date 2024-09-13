@@ -12,7 +12,7 @@ export function searchExecuted(query, execTime, resultCount, error=null) {
         }
     });
 }
-export function resultModalOpened(query, result) {
+export function resultModalOpened(query, result, resultRank) {
     this.analytics.trackEvent({
         category: "ui_interaction",
         action: "result_modal_opened",
@@ -21,11 +21,26 @@ export function resultModalOpened(query, result) {
             "search_query": query,
             "result_name": result.name,
             "result_type": result.type,
+            // Rank = index in results sorted by score + 1
+            "result_rank": resultRank,
             "additional_search_terms": result.search_terms
         }
     });
 }
-export function resultTabSelected(newTabTitle, oldTabTitle, elapsed) {
+export function resultCardTabSelected(newTabTitle, oldTabTitle, resultRank, elapsed) {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "result_card_tab_selected",
+        label: newTabTitle,
+        customParameters: {
+            "tab_name": newTabTitle,
+            "previous_tab_name": oldTabTitle,
+            "result_rank": resultRank,
+            "time_spent_on_previous_tab": elapsed
+        }
+    });
+}
+export function resultModalTabSelected(newTabTitle, oldTabTitle, elapsed) {
     this.analytics.trackEvent({
         category: "ui_interaction",
         action: "result_tab_selected",

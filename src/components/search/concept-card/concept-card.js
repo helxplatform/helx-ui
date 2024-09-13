@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect, useMemo, forwardRef } from 'react'
+import { Fragment, useState, useEffect, useMemo, forwardRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { Badge, Card, Space, Typography } from 'antd'
 import { ExpandOutlined as ViewIcon, LoadingOutlined } from '@ant-design/icons'
@@ -13,10 +13,17 @@ import './concept-card.css'
 
 const { Text } = Typography
 
-export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=ViewIcon, className="" }, ref) => {
+export const ConceptCard = forwardRef(({
+  index,
+  result,
+  resultRank,
+  openModalHandler,
+  icon=ViewIcon,
+  className=""
+}, ref) => {
   let { name, type } = result
   
-  const [currentTab, setCurrentTab] = useState('overview')
+  const [currentTab, _setCurrentTab] = useState('overview')
   const [studies, setStudies] = useState(null)
   const [cdeStudies, setCdeStudies] = useState(null)
 
@@ -56,9 +63,25 @@ export const ConceptCard = forwardRef(({ index, result, openModalHandler, icon=V
   const tabList = Object.keys(tabs).map(key => tabs[key].content ? ({ key, tab: tabs[key].title }) : null).filter(tab => tab !== null)
   const tabContents = Object.keys(tabs).reduce((obj, key) => tabs[key].content ? ({ ...obj, [key]: tabs[key].content }) : obj, {})
 
+  const setCurrentTab = useCallback((() => {
+    let oldTime = Date.now();
+    return (tabName) => {
+      const newTime = Date.now();
+      const elapsed = newTime - oldTime;
+      _setCurrentTab((currentTab) => {
+        if (tabName !== currentTab) {
+          // Make sure we only track events when the tab actually changes.
+          analyticsEvents.resultCardTabSelected(tabs[tabName].title, tabs[currentTab].title, resultRank, elapsed)
+        } 
+        return tabName
+      })
+      oldTime = newTime;
+    }
+  })(), [tabs])
+
   const openModal = (...args) => {
     openModalHandler(...args)
-    analyticsEvents.resultModalOpened(query, result)
+    analyticsEvents.resultModalOpened(query, result, resultRank)
   }
 
   useEffect(() => {

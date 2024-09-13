@@ -51,6 +51,7 @@ export const ConceptSearchResults = () => {
 												key={ result.id }
 												index={ index }
 												result={ result }
+												resultRank={ concepts.indexOf(result) + 1 }
 												openModalHandler={ () => setSelectedResult(result) }
 											/>
 										)

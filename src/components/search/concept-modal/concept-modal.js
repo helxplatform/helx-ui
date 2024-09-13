@@ -78,6 +78,7 @@ export const ConceptModalBody = ({ result }) => {
   const [studies, setStudies] = useState([])
   const [cdes, setCdes] = useState(null)
   const [cdeRelatedConcepts, setCdeRelatedConcepts] = useState(null)
+  const [cdeRelatedStudies, setCdeRelatedStudies] = useState(null)
   const [cdesLoading, setCdesLoading] = useState(true)
 
   /** Abort controllers */
@@ -131,7 +132,7 @@ export const ConceptModalBody = ({ result }) => {
     'cdes': {
       title: cdeTitle,
       icon: <CdesIcon />,
-      content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } loading={ cdesLoading } />,
+      content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } cdeRelatedStudies={cdeRelatedStudies} loading={ cdesLoading } />,
       tooltip: <div>
         The CDEs tab displays{ context.brand === "heal" ? " HEAL-approved" : "" } common data elements (CDEs)
         associated with the concept. A CDE is a standardized question used across studies and clinical
@@ -187,7 +188,7 @@ export const ConceptModalBody = ({ result }) => {
       _setCurrentTab((currentTab) => {
         if (tabName !== currentTab) {
           // Make sure we only track events when the tab actually changes.
-          analyticsEvents.resultTabSelected(tabs[tabName].title, tabs[currentTab].title, elapsed)
+          analyticsEvents.resultModalTabSelected(tabs[tabName].title, tabs[currentTab].title, elapsed)
         } 
         return tabName
       })
@@ -273,7 +274,41 @@ export const ConceptModalBody = ({ result }) => {
             }
           )
         }
+
+        const loadRelatedStudies = async (cdeId) => {
+          const formatCdeQuery = () => {
+            return `\
+      SELECT publication->study
+      FROM "/schema"
+      WHERE publication="${cdeId}"`
+          }
+          const tranqlUrl = context.tranql_url
+          const controller = new AbortController()
+          fetchCdesTranqlController.current.push(controller)
+          const res = await fetch(
+              `${tranqlUrl}tranql/query`,
+              {
+                  headers: { 'Content-Type': 'text/plain' },
+                  method: 'POST',
+                  body: formatCdeQuery(),
+                  signal: controller.signal
+              }
+          )
+          const message = await res.json()
+          const studies = []
+          const nodes =  message.message.knowledge_graph.nodes
+          for (const [key, value] of Object.entries(nodes)) {
+            const name = value.name;
+            const urlAttribute = value.attributes.find(attr => attr.name === 'url');
+            urlAttribute && studies.push({c_id: key,
+                                          c_name: name,
+                                          c_link: urlAttribute.value});
+          }
+          return studies
+        }
+
         const relatedConcepts = {}
+        const relatedStudies = {}
         if (cdeData) {
           const cdeIds = cdeData.elements.map((cde) => cde.id)
           await Promise.all(cdeIds.map(async (cdeId, i) => {
@@ -287,10 +322,21 @@ export const ConceptModalBody = ({ result }) => {
               relatedConcepts[cdeId] = null
             }
           }))
+          await Promise.all(cdeIds.map(async (cdeId, i) => {
+            try {
+              relatedStudies[cdeId] = await loadRelatedStudies(cdeId)
+            } catch (e) {
+              // Here, we explicitly want to halt execution and forward this error to the outer handler
+              // if a related concept request was aborted, because we now have stale data and don't want to
+              // update state with it.
+              if (e.name === "CanceledError" || e.name === "AbortError") throw e
+            }
+          }))
         }
         setCdes(cdeData)
         /** Note that relatedConcepts are *TranQL* concepts/nodes, not DUG concepts. Both have the top level fields `id` and `name`. */
         setCdeRelatedConcepts(relatedConcepts)
+        setCdeRelatedStudies(relatedStudies)
         setCdesLoading(false)
       } catch (e) {
         // Check both because this function uses both Fetch API & Axios
@@ -314,6 +360,7 @@ export const ConceptModalBody = ({ result }) => {
       setStudies([])
       setCdes(null)
       setCdeRelatedConcepts(null)
+      setCdeRelatedStudies(null)
       setGraphs([])
       
       getVars()
