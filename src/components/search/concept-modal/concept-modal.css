@@ -46,10 +46,18 @@
 .concept-modal-tabs .ant-menu-item {
   display: inline-flex !important;
   width: auto !important;
+  margin-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0;
 }
 .concept-modal-tabs .ant-menu-title-content {
   flex: none !important;
   overflow: visible !important;
+  width: 100%;
+}
+.concept-modal-tabs .ant-menu-title-content > .tab-menu-item-wrapper {
+  padding-left: 24px;
+  padding-right: 16;
 }
 
 .concept-modal-body > .ant-space-item:nth-child(2) {

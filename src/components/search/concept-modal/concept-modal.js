@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Menu, Modal, Result, Space, Spin, Typography, Tooltip, Divider } from 'antd'
+import { Button, Menu, Modal, Result, Space, Spin, Typography, Tooltip, Divider, Popover } from 'antd'
 import CustomIcon, {
   InfoCircleOutlined as OverviewIcon,
   BookOutlined as StudiesIcon,
@@ -98,12 +98,69 @@ export const ConceptModalBody = ({ result }) => {
   )
 
   const tabs = {
-    'overview':     { title: 'Overview',         icon: <OverviewIcon />,         content: <OverviewTab result={ result } />, },
-    'studies':      { title: studyTitle,         icon: <StudiesIcon />,          content: <StudiesTab studies={ studies } />, },
-    'cdes':         { title: cdeTitle,           icon: <CdesIcon />,             content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } loading={ cdesLoading } /> },
-    'kgs':          { title: 'Knowledge Graphs', icon: <KnowledgeGraphsIcon />,  content: <KnowledgeGraphsTab graphs={ graphs } />, },
-    'explanation':  { title: 'Explanation',      icon: <ExplanationIcon />,      content: <ExplanationTab result={ result } /> },
-    'tranql':       { title: 'TranQL',           icon: <TranQLIcon />,           content: <TranQLTab result={ result } graphs = { graphs } /> }
+    'overview': {
+      title: 'Overview',
+      icon: <OverviewIcon />,
+      content: <OverviewTab result={ result } />,
+      tooltip: <div>
+        The Overview tab provides a brief description of the concept.
+        Hovering over the <InfoCircleOutlined style={{ color: "rgba(0, 0, 0, 0.45)", margin: "0 2px" }} />
+        &nbsp;besides the concept name displays the corresponding ontological
+        identifier, and where applicable, a link to the entry on the ontology&apos;s website.
+      </div>
+    },
+    'studies': {
+      title: studyTitle,
+      icon: <StudiesIcon />,
+      content: <StudiesTab studies={ studies } />,
+      tooltip: <div>
+        The Studies tab displays studies referencing or researching the concept.
+        Studies are grouped into three categories: HEAL research programs, HEAL studies,
+        and non-HEAL studies. By default, all studies are shown, but categories can be filtered
+        out by clicking on them. You can also click on studies to view which of their variables are
+        related to the concept.
+      </div>
+    },
+    'cdes': {
+      title: cdeTitle,
+      icon: <CdesIcon />,
+      content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } loading={ cdesLoading } />,
+      tooltip: <div>
+        The CDEs tab displays{ context.brand === "heal" ? " HEAL-approved" : "" } common data elements (CDEs)
+        associated with the concept. {context.brand === "heal" ? <span>
+          The <a href="https://heal.nih.gov/data/common-data-elements" target="_blank" rel="noopener noreferrer">
+            HEAL CDE program
+          </a> provides further information.
+        </span> : null}
+      </div>
+    },
+    'kgs': {
+      title: 'Knowledge Graphs',
+      icon: <KnowledgeGraphsIcon />, 
+      content: <KnowledgeGraphsTab graphs={ graphs } />,
+      tooltip: <div>
+        The Knowledge Graphs tab displays the <a href="https://www.oxfordsemantic.tech/faqs/what-is-a-knowledge-graph" target="_blank" rel="noopener noreferrer">
+          knowledge graph
+        </a> portion connected to the concept and containing the search terms. This section highlights
+        potential interesting knowledge graph relationships and shows terms (e.g., synonyms) that
+        would be returned as related concepts.
+      </div>
+    },
+    'explanation': {
+      title: 'Explanation',
+      icon: <ExplanationIcon />,
+      content: <ExplanationTab result={ result } />,
+      tooltip: <div>
+        The Explanation tab explains why a particular concept was returned for a search. Specifically,
+        it breaks down the concept&apos;s relevance score based on information where the search query
+        was found, including the concept&apos;s name, synonyms, and related terms (as shown in the Knowledge Graphs tab). 
+      </div>
+    },
+    'tranql': {
+      title: 'TranQL',
+      icon: <TranQLIcon />,
+      content: <TranQLTab result={ result } graphs = { graphs } />,
+    }
   }
   const links = {
     'robokop' : { title: 'ROBOKOP', icon: <RobokopIcon/>, url: "https://robokop.renci.org/" }
@@ -315,8 +372,20 @@ export const ConceptModalBody = ({ result }) => {
       >
         {
           Object.keys(tabs).map(key => (
-            <Menu.Item className="tab-menu-item" key={ key } onClick={ () => setCurrentTab(key) }>
-              <span className="tab-icon">{ tabs[key].icon }</span> &nbsp; <span className="tab-name">{ tabs[key].title }</span>
+            <Menu.Item key={ key } className="tab-menu-item" onClick={ () => setCurrentTab(key) }>
+              <Popover
+                content={ tabs[key].tooltip }
+                placement="rightTop"
+                overlayStyle={{ maxWidth: 400, wordBreak: "break-word" }}
+                // Position the arrow a bit more to the right of the tab, since they have have white backgrounds.
+                align={{ offset: [16, 0] }}
+              >
+                <div className="tab-menu-item-wrapper">
+                  <span className="tab-icon">{ tabs[key].icon }</span>
+                  &nbsp;&nbsp;&nbsp;
+                  <span className="tab-name">{ tabs[key].title }</span>
+                </div>
+              </Popover>
             </Menu.Item>
           ))
         }
@@ -324,9 +393,13 @@ export const ConceptModalBody = ({ result }) => {
         {
           Object.keys(links).map(key => (
             <Menu.Item className="tab-menu-item" key={ key } onClick={null}>
-              <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
-                <span className="tab-icon">{ links[key].icon || <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
-              </a>
+              <Tooltip title={ links[key].tooltip } placement="right">
+                <div className="tab-menu-item-wrapper">
+                  <a href={ links[key].url } target="_blank" rel="noopener noreferrer">
+                    <span className="tab-icon">{ links[key].icon || <ExternalLinkIcon/> }</span> &nbsp; <span className="tab-name">{ links[key].title }</span>
+                  </a>
+                </div>
+              </Tooltip>
             </Menu.Item>
           ))
         }
