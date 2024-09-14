@@ -675,7 +675,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     <div>
                         This concludes the introductory tour of HSS. For more detailed information,
                         read our <a href={ context.support.user_guide_url } target="_blank" rel="noopener noreferrer">User Guide</a>
-                        or visit our support page to revisit the tour or access the Help Portal, where you can report bugs,
+                        &nbsp;or visit our support page to revisit the tour or access the Help Portal, where you can report bugs,
                         request technical assistance, submit feedback, or submit other requests.<br /><br />
 
                         Happy searching!
