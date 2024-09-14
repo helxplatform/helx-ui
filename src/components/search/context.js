@@ -236,19 +236,26 @@ export const HelxSearch = ({ children }) => {
       fetchStudySourcesController.current?.abort()
       fetchStudySourcesController.current = new AbortController()
 
-      const response = await axios.get(`${helxSearchUrl}/agg_data_types`, undefined, {
-        signal: fetchStudySourcesController.current.signal
-      })
-      if (response.status === 200 && response.data.status === 'success' && response.data.result) {
-        // We treat the CDE source as separate from the study sources, even though it is returned under
-        // `/agg_data_types` since CDE variables are classified under the `cde` data_type field
-        setStudySources(
-          response.data.result
-            .filter((source) => source !== "cde")
-            .sort((a, b) => a.localeCompare(b))
-          )
-      } else {
-        setStudySources([])
+      try {
+        const response = await axios.get(`${helxSearchUrl}/agg_data_types`, undefined, {
+          signal: fetchStudySourcesController.current.signal
+        })
+        if (response.status === 200 && response.data.status === 'success' && response.data.result) {
+          // We treat the CDE source as separate from the study sources, even though it is returned under
+          // `/agg_data_types` since CDE variables are classified under the `cde` data_type field
+          setStudySources(
+            response.data.result
+              .filter((source) => source !== "cde")
+              .sort((a, b) => a.localeCompare(b))
+            )
+        } else {
+          setStudySources([])
+        }
+      } catch (error) {
+        if (error.name !== "CanceledError") {
+          console.log(error)
+          setStudySources([])
+        }
       }
     }
 
