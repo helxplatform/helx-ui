@@ -9,6 +9,7 @@ import { SearchView } from '../../views'
 import { useSyntheticDOMMask } from '../../hooks'
 import { scrollIntoViewIfNeeded, waitForAttribute, waitForElement, waitForNoElement } from '../../utils'
 import 'shepherd.js/dist/css/shepherd.css'
+import './tour.css'
 const { useLocation, useNavigate } = require('@gatsbyjs/reach-router')
 
 interface ShepherdOptionsWithTypeFixed extends ShepherdOptionsWithType {
@@ -59,6 +60,9 @@ const waitForSelector = async (selector: string, errorSelector?: string, timeout
 const getExpandButton = () => document.querySelector<HTMLSpanElement>(`.result-card:first-child span.anticon-expand`)
 const getConceptViewRadioOption = () => document.querySelector<HTMLLabelElement>(`.search-layout-radio-group > label:nth-child(1)`)
 const getVariableViewRadioOption = () => document.querySelector<HTMLLabelElement>(`.search-layout-radio-group > label:nth-child(2)`)
+
+const secondaryButtonClass = "ant-btn ant-btn-default"
+const primaryButtonClass = "ant-btn ant-btn-primary"
 
 export const TourProvider = ({ children }: ITourProvider ) => {
     const { context, routes, basePath} = useEnvironment() as any
@@ -118,12 +122,12 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             buttons: [
                 {
-                    classes: 'shepherd-button-primary',
+                    classes: secondaryButtonClass,
                     text: 'Back',
                     type: 'back'
                 },
                 {
-                    classes: 'shepherd-button-primary',
+                    classes: primaryButtonClass,
                     text: 'Next',
                     type: 'next'
                 }
@@ -157,12 +161,12 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 },
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Exit',
                         type: 'cancel'
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         type: 'next'
                     }
@@ -189,12 +193,12 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 },
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
                         type: 'back'
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         action: function() {
                             doSearch("Chronic pain")
@@ -239,12 +243,12 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 },
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
                         type: 'back'
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         type: 'next'
                     }
@@ -257,7 +261,6 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     on: "right"
                 },
                 scrollToHandler: () => scrollIntoViewIfNeeded(resultCardDomMask.originalSelector),
-                title: "",
                 text: renderToStaticMarkup(
                     <div>
                         In this example, we see &quot;chronic pain&quot; is a biomedical concept with an identifier and precise definition.
@@ -265,12 +268,12 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 ),
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
                         type: 'back'
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         type: 'next'
                     }
@@ -321,7 +324,6 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     on: "right"
                 },
                 scrollToHandler: () => scrollIntoViewIfNeeded(resultCardDomMask.originalSelector),
-                title: "",
                 text: renderToStaticMarkup(
                     <div>
                         To learn more about a concept, click the <ExpandOutlined style={{ margin: "0 4px" }} /> (expand)
@@ -332,12 +334,12 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 ),
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
                         type: 'back'
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         action: function() {
                             const expandBtn = getExpandButton()!
@@ -412,7 +414,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 ),
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
                         action: function() {
                             const closeBtn = document.querySelector<HTMLButtonElement>(".concept-modal .ant-modal-close")
@@ -421,7 +423,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         }
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         action: function() {
                             const closeBtn = document.querySelector<HTMLButtonElement>(".concept-modal .ant-modal-close")
@@ -512,7 +514,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 ),
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
                         action: function() {
                             const expandBtn = getExpandButton()!
@@ -521,7 +523,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         }
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         type: 'next'
                     }
@@ -546,12 +548,12 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 ),
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
                         type: 'back'
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         action: function() {
                             const variableViewOption = getVariableViewRadioOption()!
@@ -614,7 +616,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 ),
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
                         action: function() {
                             const conceptGridViewOption = getConceptViewRadioOption()!
@@ -623,7 +625,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         }
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         type: 'next'
                     }
@@ -636,7 +638,6 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     on: "bottom"
                 },
                 scrollToHandler: () => scrollIntoViewIfNeeded(studyListItemDomMask.originalSelector),
-                title: "",
                 text: renderToStaticMarkup(
                     <div>
                         You can also click to expand each study to view the study variables associated
@@ -645,12 +646,12 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 ),
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
-                        type: 'back'
+                        type: 'back',
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Next',
                         type: 'next'
                     }
@@ -682,12 +683,12 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 ),
                 buttons: [
                     {
-                        classes: 'shepherd-button-secondary',
+                        classes: secondaryButtonClass,
                         text: 'Back',
                         type: 'back'
                     },
                     {
-                        classes: 'shepherd-button-primary',
+                        classes: primaryButtonClass,
                         text: 'Done',
                         type: 'next'
                     }
