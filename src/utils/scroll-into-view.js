@@ -1,5 +1,6 @@
 export function scrollIntoViewIfNeeded(element, scrollOptions) {
   if (typeof element === "string") element = document.querySelector(element)
+  if (!element) return
   const rect = element.getBoundingClientRect()
   const isInViewport = (
     rect.top >= 0 &&

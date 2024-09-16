@@ -53,6 +53,7 @@ const waitForSelector = async (selector: string, errorSelector?: string, timeout
             throw new ErrorSelectorReachedError()
         }
     } catch (e: any) {
+        if (e instanceof ErrorSelectorReachedError) throw e
         throw new SelectorTimeoutError()
     }
 }
@@ -138,6 +139,43 @@ export const TourProvider = ({ children }: ITourProvider ) => {
     
     // NOTE: we can't really access internal React context here because of how shepherd works.
     const tourSteps = useMemo<ShepherdOptionsWithTypeFixed[]>(() => {
+        let error: string | null = null
+        // Message can be HTML markup
+        const doError = (message?: string) => {
+            if (error) return
+            if (!message) message = renderToStaticMarkup(
+                <div>
+                    Something unexpected went wrong during the tour.
+                </div>
+            )
+            error = message
+            // Cull every step after the current step.
+            tour.steps.splice(tour.steps.indexOf(tour.getCurrentStep()!) + 1, tour.steps.length)
+            // Add an error step
+            tour.addStep({
+                id: "error",
+                attachTo: {
+                    element: "head"
+                },
+                showOn: () => error !== null,
+                title: () => "Sorry!",
+                text: () => error!,
+                buttons: [
+                    {
+                        classes: secondaryButtonClass,
+                        text: 'Exit',
+                        action: () => tour.cancel()
+                    },
+                    {
+                        classes: primaryButtonClass,
+                        text: 'Reload',
+                        action: () => window.location.reload()
+                    }
+                ]
+            })
+            // Advance to error step.
+            tour.next()
+        }
         if (context.brand === "heal") return [
             {
                 id: "main.intro",
@@ -231,14 +269,15 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 ),
                 beforeShowPromise: async () => {
                     try {
-                        await waitForSelector(".result-card:first-child", ".results-error")
+                        // Wait a full minute for search, but timeout if it takes longer.
+                        await waitForSelector(".result-card:first-child", ".results-error", 60000)
                     } catch (e: any) {
                         if (e instanceof ErrorSelectorReachedError) {
                             console.error("search error found, cancelling tour...")
                         } else if (e instanceof SelectorTimeoutError) {
                             console.error("result card selector timed out, cancelling tour...")
                         }
-                        window.requestAnimationFrame(() => tour.cancel())
+                        window.requestAnimationFrame(() => doError())
                     }
                 },
                 buttons: [
@@ -345,7 +384,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                             const expandBtn = getExpandButton()!
                             if (!expandBtn) {
                                 console.log("couldn't find expand button, cancelling tour...")
-                                tour.cancel()
+                                doError()
                                 return
                             }
                             // We don't use next() because that will be picked up implicitly.
@@ -365,7 +404,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                             const expandBtn = getExpandButton()
                             if (!expandBtn) {
                                 console.log("couldn't find expand button, cancelling tour...")
-                                tour.cancel()
+                                doError()
                                 return
                             }
                             
@@ -446,7 +485,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                                 if (e instanceof SelectorTimeoutError) {
                                     console.error("concept modal selector timed out, cancelling tour...")
                                 }
-                                window.requestAnimationFrame(() => tour.cancel())
+                                window.requestAnimationFrame(() => doError())
                             }
                         })
                     })
@@ -573,7 +612,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                             const variableViewOption = getVariableViewRadioOption()
                             if (!variableViewOption) {
                                 console.log("couldn't find variable view radio option, cancelling tour...")
-                                tour.cancel()
+                                doError()
                                 return
                             }
                             
@@ -712,7 +751,6 @@ export const TourProvider = ({ children }: ITourProvider ) => {
         }
         const cleanupTour = () => {
             setTourStarted(false)
-            console.log("cleanup")
         }
         tour.on("start", startTour)
         tour.on("complete", cleanupTour)
