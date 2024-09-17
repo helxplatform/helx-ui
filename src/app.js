@@ -4,7 +4,6 @@ import {
   EnvironmentProvider, ActivityProvider, AppProvider, InstanceProvider,
   AnalyticsProvider, DestProvider, useEnvironment, useAnalytics, WorkspacesAPIProvider,
   TourProvider,
-  useTourContext
 } from './contexts'
 import { Layout } from './components/layout'
 import { HelxSearch } from './components/search'
@@ -39,7 +38,6 @@ const Router = () => {
   const { analytics, analyticsEvents } = useAnalytics();
   const location = useLocation();
   const baseRouterPath = context.workspaces_enabled === 'true' ? '/helx' : '/'
-  const { tour } = useTourContext()
   
   // Component mount
   useEffect(() => {

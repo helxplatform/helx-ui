@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { useShepherdTour, Tour, ShepherdOptionsWithType } from 'react-shepherd'
 import { offset as tooltipOffset } from '@floating-ui/dom'
 import { ExpandOutlined } from '@ant-design/icons'
+import { globalHistory } from '@gatsbyjs/reach-router'
 import { useEnvironment } from '../environment-context'
 import { SearchLayout, useHelxSearch } from '../../components/search'
 import { SearchView } from '../../views'
@@ -13,6 +14,7 @@ import './tour.css'
 const { useLocation, useNavigate } = require('@gatsbyjs/reach-router')
 
 interface ShepherdOptionsWithTypeFixed extends ShepherdOptionsWithType {
+    path: RegExp
     when?: any
 }
 
@@ -64,6 +66,9 @@ const getVariableViewRadioOption = () => document.querySelector<HTMLLabelElement
 
 const secondaryButtonClass = "ant-btn ant-btn-default"
 const primaryButtonClass = "ant-btn ant-btn-primary"
+
+const homePathPattern = /^\/(helx\/?)?$/i
+const searchPathPattern = /^\/(helx\/)?search\/?$/i
 
 export const TourProvider = ({ children }: ITourProvider ) => {
     const { context, routes, basePath} = useEnvironment() as any
@@ -179,6 +184,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
         if (context.brand === "heal") return [
             {
                 id: "main.intro",
+                path: homePathPattern,
                 attachTo: {
                     // We want to mount to a sizeless element so that nothing is "highlighted",
                     // i.e., everything is backdrop except the floating tour popup.
@@ -212,6 +218,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: 'main.search.intro',
+                path: homePathPattern,
                 attachTo: {
                     element: searchBarDomMask.selector!,
                     on: 'bottom'
@@ -239,8 +246,8 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         classes: primaryButtonClass,
                         text: 'Next',
                         action: function() {
-                            doSearch("Chronic pain")
                             this.next()
+                            doSearch("Chronic pain")
                         }
                     }
                 ],
@@ -253,6 +260,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: "main.search.concept.intro",
+                path: searchPathPattern,
                 attachTo: {
                     element: "head"
                 },
@@ -295,6 +303,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: "main.search.concept.card",
+                path: searchPathPattern,
                 attachTo: {
                     element: resultCardDomMask.selector!,
                     on: "right"
@@ -358,6 +367,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: "main.search.concept.card2",
+                path: searchPathPattern,
                 attachTo: {
                     element: resultCardDomMask.selector!,
                     on: "right"
@@ -433,6 +443,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: "main.search.concept.modal",
+                path: searchPathPattern,
                 attachTo: {
                     element: resultModalDomMask.selector!,
                     on: "bottom"
@@ -539,6 +550,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: "main.search.concept.search-rankings",
+                path: searchPathPattern,
                 attachTo: {
                     element: "head"
                 },
@@ -570,6 +582,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: "main.search.concept.variable-transition",
+                path: searchPathPattern,
                 attachTo: {
                     // Antd v4 does not allow id/class identifiers to be set for radio group options. 
                     element: variableRadioOptionDomMask.selector!,
@@ -641,6 +654,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: "main.search.variable-view.intro",
+                path: searchPathPattern,
                 attachTo: {
                     element: "head"
                 },
@@ -672,6 +686,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: "main.search.variable-view.study-list",
+                path: searchPathPattern,
                 attachTo: {
                     element: studyListItemDomMask.selector,
                     on: "bottom"
@@ -704,6 +719,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             },
             {
                 id: "main.outro",
+                path: searchPathPattern,
                 attachTo: {
                     element: supportNavDomMask.selector,
                     on: "bottom"
@@ -741,16 +757,23 @@ export const TourProvider = ({ children }: ITourProvider ) => {
             }
         ]
         return []
-    }, [searchBarDomMask, basePath, navigate, doSearch])
+    }, [searchBarDomMask, basePath, navigate, doSearch, context])
 
     const tour = useShepherdTour({ tourOptions, steps: tourSteps })
 
     useEffect(() => {
+        let unlisten: () => void
         const startTour = () => {
             setTourStarted(true)
+            unlisten = globalHistory.listen(({ location }) => {
+                const { options } = tour.getCurrentStep()!
+                const pathMatches = (options as any).path.test(location.pathname)
+                if (!pathMatches) tour.cancel()
+            })
         }
         const cleanupTour = () => {
             setTourStarted(false)
+            unlisten()
         }
         tour.on("start", startTour)
         tour.on("complete", cleanupTour)
