@@ -633,7 +633,7 @@ export const VariableList = () => {
     )
 }
 
-export const VariableSearchResults2 = () => {
+export const VariableSearchResults = () => {
     const { variableResults } = useHelxSearch() as any
     const noResults = useMemo(() => variableResults.length === 0, [variableResults])
     return (

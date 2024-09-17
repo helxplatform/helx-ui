@@ -1,7 +1,6 @@
 import { Fragment } from 'react'
 import { Spin, Typography, Empty } from 'antd'
-import { VariableSearchResults } from './'
-import { VariableSearchResults2 } from './variable-results-new'
+import { VariableSearchResults } from './variable-results-new'
 import { ResultsHeader } from '../'
 import { useHelxSearch, SearchForm } from '../../'
 
@@ -26,7 +25,7 @@ export const VariableViewLayout = () => {
                         // <span style={{ marginTop: -144, padding: "0 6px" }}>No results found</span>
                     ) : null }
                     { variableResults.length > 0 && <ResultsHeader variables={ true } />}
-                    <VariableSearchResults2 />
+                    <VariableSearchResults />
                 </Fragment>
             ) }
         </Fragment>
