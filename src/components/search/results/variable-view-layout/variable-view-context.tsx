@@ -36,6 +36,7 @@ export interface DataSource {
     color: string
     studies: string[]
     variables: string[]
+    filteredVariables: string[]
 }
 
 export interface StudyResult {
@@ -113,11 +114,7 @@ interface VariableViewProviderProps {
 export const VariableViewContext = createContext<IVariableViewContext|undefined>(undefined)
 
 export const VariableViewProvider = ({ children }: VariableViewProviderProps) => {
-    const { query, variableResults, variableStudyResults } = useHelxSearch() as ISearchContext
-    const { analyticsEvents } = useAnalytics()
-
-    const [collapseHistogram, setCollapseHistogram] = useState<boolean>(false)
-    const [historyPage, setHistoryPage] = useState<number>(0)
+    const { variableResults, variableStudyResults } = useHelxSearch() as ISearchContext
 
     /**
      * Filters
@@ -318,18 +315,20 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             if (acc.hasOwnProperty(dataSource)) {
                 const { studies, variables } = acc[dataSource]
                 if (!variables.includes(cur.id)) variables.push(cur.id) 
+                if (filteredVariables.includes(cur)) acc[dataSource].filteredVariables.push(cur.id)
                 if (!studies.includes(cur.study_id)) studies.push(cur.study_id) 
             } else {
                 acc[dataSource] = {
                     name: dataSource,
                     color: FIXED_DATA_SOURCES[dataSource] ?? seededPalette.getNextColor(),
                     studies: [cur.study_id],
-                    variables: [cur.id]
+                    variables: [cur.id],
+                    filteredVariables: filteredVariables.includes(cur) ? [cur.id] : []
                 }
             }
             return acc
         }, {})
-    }, [variablesSource])
+    }, [variablesSource, filteredVariables])
     
     const orderedDataSources = useMemo<DataSource[]>(() => {
         const dataSourceKeyOrder = Object.keys(FIXED_DATA_SOURCES)

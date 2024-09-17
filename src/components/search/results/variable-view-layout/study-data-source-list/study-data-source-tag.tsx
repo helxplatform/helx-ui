@@ -11,6 +11,11 @@ interface StudyDataSourceTagProps {
 export const StudyDataSourceTag = ({ dataSource }: StudyDataSourceTagProps) => {
     const { hiddenDataSources, setHiddenDataSources } = useVariableView()!
     
+    const displayedCount = useMemo(() => {
+        if (dataSource.variables.length === dataSource.filteredVariables.length) return dataSource.variables.length
+        return `${ dataSource.filteredVariables.length }/${ dataSource.variables.length }`
+    }, [dataSource])
+
     const active = useMemo(() => !hiddenDataSources.includes(dataSource.name), [hiddenDataSources, dataSource])
     const setActive = useCallback((active: boolean) => setHiddenDataSources((prevDataSources) => {
         if (active) return prevDataSources.filter((s) => s !== dataSource.name)
@@ -30,7 +35,7 @@ export const StudyDataSourceTag = ({ dataSource }: StudyDataSourceTagProps) => {
             checked={ active }
             onChange={ () => setActive(!active) }
         >
-            { `${ dataSource.name } (${ dataSource.variables.length })` }
+            { `${ dataSource.name } (${ displayedCount })` }
         </CheckableTag>
     )
 }
