@@ -63,6 +63,7 @@ const waitForSelector = async (selector: string, errorSelector?: string, timeout
 const getExpandButton = () => document.querySelector<HTMLSpanElement>(`.result-card:first-child span.anticon-expand`)
 const getConceptViewRadioOption = () => document.querySelector<HTMLLabelElement>(`.search-layout-radio-group > label:nth-child(1)`)
 const getVariableViewRadioOption = () => document.querySelector<HTMLLabelElement>(`.search-layout-radio-group > label:nth-child(2)`)
+const getFullscreenBtn = () => document.querySelector<HTMLButtonElement>(".concept-modal-fullscreen-btn")
 
 const secondaryButtonClass = "ant-btn ant-btn-default"
 const primaryButtonClass = "ant-btn ant-btn-primary"
@@ -89,7 +90,9 @@ export const TourProvider = ({ children }: ITourProvider ) => {
         ])).map((route: any) => route.path)
     }, [basePath, routes])
 
-    const searchBarDomMask = useSyntheticDOMMask(".search-bar, .search-button", { blockClicks: true })
+    const searchInputDomMask = useSyntheticDOMMask(".search-bar", { blockClicks: true })
+    const searchButtonDomMask = useSyntheticDOMMask(".search-button", { blockClicks: false })
+    const searchBarDomMask = useSyntheticDOMMask(`${ searchInputDomMask.selector }, ${ searchButtonDomMask.selector }`, { blockClicks: false })
     const resultCardDomMask = useSyntheticDOMMask(".result-card:first-child", { blockClicks: false })
     const resultModalDomMask = useSyntheticDOMMask(".concept-modal > .ant-modal-content", { blockClicks: false })
     const variableRadioOptionDomMask = useSyntheticDOMMask(".search-layout-radio-group > label:nth-child(2)", { blockClicks: false })
@@ -235,6 +238,11 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         const input = document.querySelector(".search-bar input") as HTMLInputElement
                         setNativeValueReact15_16(input, "Chronic pain")
                     })
+                    await Promise.all([
+                        searchInputDomMask.showMask(),
+                        searchButtonDomMask.showMask()
+                    ])
+                    await searchBarDomMask.showMask()
                 },
                 buttons: [
                     {
@@ -251,12 +259,49 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                         }
                     }
                 ],
-                when: {
-                    show: () => { searchBarDomMask.showMask() },
-                    hide: () => { searchBarDomMask.hideMask() },
-                    cancel: () => { searchBarDomMask.hideMask() },
-                    complete: () => { searchBarDomMask.hideMask() }
-                }
+                when: (() => {
+                    let stillOnStep = true
+                    return {
+                        show: () => {
+                            stillOnStep = true
+                            
+                            waitForSelector(".result-card:first-child", ".results-error", null)
+                                .then(() => {
+                                    // If search was executed but we're still on this step, then the
+                                    // user pressed the search button = advance to the next step.
+                                    if (stillOnStep) tour.next()
+                                })
+                                .catch((e: any) => {
+                                    // If results error was hit, cancel
+                                    console.error("search error found, cancelling tour...")
+                                    window.requestAnimationFrame(() => doError())
+                                })
+
+                            // We handle showing the mask in beforeShowPromise
+                        },
+                        hide: () => {
+                            stillOnStep = false
+
+                            searchBarDomMask.hideMask()
+                            searchInputDomMask.hideMask()
+                            searchButtonDomMask.hideMask()
+                        },
+                        cancel: () => {
+                            stillOnStep = false
+
+                            searchBarDomMask.hideMask()
+                            searchInputDomMask.hideMask()
+                            searchButtonDomMask.hideMask()
+                        },
+                        complete: () => {
+                            stillOnStep = false
+
+                            searchBarDomMask.hideMask()
+                            searchInputDomMask.hideMask()
+                            searchButtonDomMask.hideMask()
+                        }
+                    }
+                })()
             },
             {
                 id: "main.search.concept.intro",
@@ -502,8 +547,6 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     })
                 },
                 when: (() => {
-                    const getFullscreenBtn = () => document.querySelector<HTMLButtonElement>(".concept-modal-fullscreen-btn")
-
                     let stillOnStep = true
                     return {
                         show: function() {
@@ -513,7 +556,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                             fullscreenBtn.disabled = true
 
                             // The root component is demounted (and so picked up), not the nested `.concept-modal`
-                            waitForNoElement(".ant-modal-root", null).then((resolve) => {
+                            waitForNoElement(".ant-modal-root", null).then(() => {
                                 // If the modal was closed but we're still on this step, then the
                                 // user closed the modal manually = advance to the next step.
                                 if (stillOnStep) tour.next()

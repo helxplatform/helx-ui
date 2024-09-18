@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { v4 as uuid } from 'uuid'
+import { useStateCallback } from './use-state-callback'
 
 interface SyntheticDOMMaskOptions {
     padding?: number | { top: number, right: number, bottom: number, left: number }
@@ -35,10 +36,16 @@ export const useSyntheticDOMMask = (
     const [mask] = useState<HTMLDivElement>(prepareMaskContainer)
     const [elements, setElements] = useState<Element[] | undefined>(undefined)
     const [elementMasks, setElementMasks] = useState<Map<Element, HTMLElement> | undefined>(undefined)
-    const [show, setShow] = useState<boolean>(false)
+    const [show, setShow] = useStateCallback<boolean>(false)
+
+    const showMask = useCallback(async () => {
+        return new Promise<void>((resolve) => {
+            setShow(true, () => resolve())
+        })
+    }, [])
 
     const context = useMemo(() => ({
-        showMask: () => setShow(true),
+        showMask,
         hideMask: () => setShow(false),
         selector: "#" + mask.id,
         originalSelector: selector,
