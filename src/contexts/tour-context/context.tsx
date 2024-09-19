@@ -230,7 +230,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     element: searchBarDomMask.selector!,
                     on: 'bottom'
                 },
-                title: "Searching",
+                title: "Enter search query",
                 text: renderToStaticMarkup(
                     <div>
                         You can enter your search query here. In this example, we&apos;ll be looking at &quot;chronic pain.&quot;
@@ -488,7 +488,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     ]
                 },
                 scrollTo: false,
-                title: "Expanded concept view",
+                title: "Exploring concept information",
                 text: renderToStaticMarkup(
                     <div>
                         You can click on each of the tabs in the side bar for more detailed information, such as 
