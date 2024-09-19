@@ -1,15 +1,15 @@
 import { Fragment, ReactNode, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { useShepherdTour, Tour, ShepherdOptionsWithType } from 'react-shepherd'
 import { offset as tooltipOffset } from '@floating-ui/dom'
 import { ExpandOutlined } from '@ant-design/icons'
 import { globalHistory } from '@gatsbyjs/reach-router'
+import { TourOptions } from '@groupe/shepherd.js'
 import { useEnvironment } from '../environment-context'
 import { SearchLayout, useHelxSearch } from '../../components/search'
 import { SearchView } from '../../views'
-import { useSyntheticDOMMask } from '../../hooks'
+import { useSyntheticDOMMask, useShepherdTour, ShepherdOptionsWithType } from '../../hooks'
 import { scrollIntoViewIfNeeded, waitForAttribute, waitForElement, waitForNoElement } from '../../utils'
-import 'shepherd.js/dist/css/shepherd.css'
+import '@groupe/shepherd.js/dist/css/shepherd.css'
 import './tour.css'
 const { useLocation, useNavigate } = require('@gatsbyjs/reach-router')
 
@@ -115,7 +115,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
         }
     })
 
-    const tourOptions = useMemo<Tour.TourOptions>(() => ({
+    const tourOptions = useMemo<TourOptions>(() => ({
         defaultStepOptions: {
             cancelIcon: {
                 enabled: true
@@ -128,6 +128,9 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 middleware: [
                     tooltipOffset({ mainAxis: 16 })
                 ]
+            },
+            floatingUIAutoUpdateOptions: {
+                animationFrame: true
             },
             buttons: [
                 {
