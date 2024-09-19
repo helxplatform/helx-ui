@@ -60,6 +60,7 @@ const waitForSelector = async (selector: string, errorSelector?: string, timeout
     }
 }
 
+const getSearchButton = () => document.querySelector<HTMLButtonElement>(`.search-button`)
 const getExpandButton = () => document.querySelector<HTMLSpanElement>(`.result-card:first-child span.anticon-expand`)
 const getConceptViewRadioOption = () => document.querySelector<HTMLLabelElement>(`.search-layout-radio-group > label:nth-child(1)`)
 const getVariableViewRadioOption = () => document.querySelector<HTMLLabelElement>(`.search-layout-radio-group > label:nth-child(2)`)
@@ -263,45 +264,30 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                     }
                 ],
                 when: (() => {
-                    let stillOnStep = true
+                    const cleanup = () => {
+                        searchBarDomMask.hideMask()
+                        searchInputDomMask.hideMask()
+                        searchButtonDomMask.hideMask()
+
+                        const searchBtn = getSearchButton()
+                        searchBtn?.removeEventListener("click", onSearchButtonClick)
+                    }
+                    const onSearchButtonClick = () => {
+                        tour.next()
+                    }
                     return {
                         show: () => {
-                            stillOnStep = true
-                            
-                            waitForSelector(".result-card:first-child", ".results-error", null)
-                                .then(() => {
-                                    // If search was executed but we're still on this step, then the
-                                    // user pressed the search button = advance to the next step.
-                                    if (stillOnStep) tour.next()
-                                })
-                                .catch((e: any) => {
-                                    // If results error was hit, cancel
-                                    console.error("search error found, cancelling tour...")
-                                    window.requestAnimationFrame(() => doError())
-                                })
-
-                            // We handle showing the mask in beforeShowPromise
+                            const searchBtn = getSearchButton()
+                            searchBtn?.addEventListener("click", onSearchButtonClick)
                         },
                         hide: () => {
-                            stillOnStep = false
-
-                            searchBarDomMask.hideMask()
-                            searchInputDomMask.hideMask()
-                            searchButtonDomMask.hideMask()
+                            cleanup()
                         },
                         cancel: () => {
-                            stillOnStep = false
-
-                            searchBarDomMask.hideMask()
-                            searchInputDomMask.hideMask()
-                            searchButtonDomMask.hideMask()
+                            cleanup()
                         },
                         complete: () => {
-                            stillOnStep = false
-
-                            searchBarDomMask.hideMask()
-                            searchInputDomMask.hideMask()
-                            searchButtonDomMask.hideMask()
+                            cleanup()
                         }
                     }
                 })()
