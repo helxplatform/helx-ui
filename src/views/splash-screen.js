@@ -25,6 +25,12 @@ export const SplashScreenView = withWorkspaceAuthentication((props) => {
             ? `${appstoreContext.dockstore_app_specs_dir_url}/${props.app_name}/icon.png`
             : undefined
     ), [appstoreContext, props.app_name])
+
+    const breadcrumbs = useMemo(() => [
+        { text: 'Home', path: '/helx' },
+        { text: 'Workspaces', path: '/helx/workspaces' },
+        { text: `${ props.app_name }`, path: `` },
+    ], [])
     
     useTitle("Connecting")
 
@@ -58,7 +64,6 @@ export const SplashScreenView = withWorkspaceAuthentication((props) => {
             shouldCancel = true
         }
     }, [decoded_url])
-
     if (loading) {
         return (
             <div style={{ textAlign: "center", marginTop: "175px" }}>
@@ -86,6 +91,16 @@ export const SplashScreenView = withWorkspaceAuthentication((props) => {
     }
     else {
         window.location = decoded_url;
+        return null
+        // return (
+        //     <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+        //         <iframe
+        //             src={ "https://groupe.apps.renci.org" + decoded_url }
+        //             title={ props.app_name }
+        //             style={{ width: "100%", flexGrow: 1, border: "none" }}
+        //         />
+        //     </div>
+        // )
     }
 
 })

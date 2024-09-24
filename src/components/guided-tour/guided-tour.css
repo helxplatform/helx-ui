@@ -1,0 +1,36 @@
+.guided-tour-button-container {
+    display: flex;
+    position: fixed;
+    top: 60%;
+    right: 0;
+    z-index: 99;
+    transform: rotate(-90deg) translateY(-100%);
+    transform-origin: top right;
+}
+
+button.guided-tour-button {
+    padding: 8px 32px;
+    height: 40px;
+    font-weight: 600;
+    font-size: 16px;
+    /* Improves readability when rotated */
+    letter-spacing: .8px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-width: 0;
+    
+}
+
+.guided-tour-button.heal {
+    background-color: #982465;
+    color: white;
+    border-color: #982465;
+}
+.guided-tour-button.heal:hover {
+    color: #c41d7f;
+    border-color: #c41d7f;
+}
+.guided-tour-button.heal:active, .guided-tour-button.heal:focus {
+    color: #982465;
+    border-color: #982465;
+}
