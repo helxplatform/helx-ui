@@ -14,19 +14,21 @@ export const VariableViewLayout = () => {
             <SearchForm />
             { isLoadingVariableResults ? (
                 <Spin style={{ display: "block", margin: "32px" }} />
-            ) : query && (
-                <Fragment>
-                    { error.message ? (
-                        <span style={{ marginTop: -144, padding: "0 6px" }}>{ error.message }</span>
-                    ) : !isLoadingVariableResults && totalVariableResults === 0 ? (
-                        <Empty style={{ marginTop: -24 }} description={
-                            <Text type="secondary">No results were found for &quot;{ query }&quot;</Text>
-                        } />
-                        // <span style={{ marginTop: -144, padding: "0 6px" }}>No results found</span>
-                    ) : null }
-                    { variableResults.length > 0 && <ResultsHeader variables={ true } />}
-                    <VariableSearchResults />
-                </Fragment>
+            ) : (
+                    query && (
+                        <Fragment>
+                            { error.message ? (
+                                <span className="results-error" style={{ marginTop: -144, padding: "0 6px" }}>{ error.message }</span>
+                            ) : !isLoadingVariableResults && totalVariableResults === 0 ? (
+                                <Empty style={{ marginTop: -24 }} description={
+                                    <Text type="secondary">No results were found for &quot;{ query }&quot;</Text>
+                                } />
+                                // <span style={{ marginTop: -144, padding: "0 6px" }}>No results found</span>
+                            ) : null }
+                            {totalVariableResults > 0 && <ResultsHeader variables={ true } />}
+                            <VariableSearchResults />
+                        </Fragment>
+                    )
             ) }
         </Fragment>
     )

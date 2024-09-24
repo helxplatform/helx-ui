@@ -29,7 +29,7 @@ export const Study = ({ study, highlight, collapsed, ...panelProps }) => {
               (<Link to={ study.c_link } onClick={ studyLinkClicked }>{ study.c_id }</Link>)
             </Text>
           }
-          extra={ <Text>{ study.elements.length } variable{ study.elements.length === 1 ? '' : 's' }</Text> }
+          extra={ <Text style={{ whiteSpace: "nowrap" }}>{ study.elements.length } variable{ study.elements.length === 1 ? '' : 's' }</Text> }
           {...panelProps}
         >
           <StudyVariables variables={ study.elements } highlight={ highlight } />

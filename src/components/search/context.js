@@ -39,6 +39,8 @@ export const HelxSearch = ({ children }) => {
   const [error, setError] = useState({})
   const [conceptPages, setConceptPages] = useState({})
   const [conceptTypes, setConceptTypes] = useState({})
+  // E.g. for HEAL, HEAL Studies, Non-HEAL studies, HEAL Research Programs
+  const [studySources, setStudySources] = useState([])
   // const [concepts, setConcepts] = useState([])
   const [totalConcepts, setTotalConcepts] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
@@ -65,6 +67,7 @@ export const HelxSearch = ({ children }) => {
   /** Abort controllers */
   const fetchConceptsController = useRef()
   const searchSelectedResultController = useRef()
+  const fetchStudySourcesController = useRef()
 
   // const selectedResultLoading = useMemo(() => selectedResult && selectedResult.loading === true, [selectedResult])
   // const selectedResultFailed = useMemo(() => selectedResult && selectedResult.failed === true, [selectedResult])
@@ -230,6 +233,41 @@ export const HelxSearch = ({ children }) => {
   }, [query])
 
   useEffect(() => {
+    const fetchStudySources = async () => {
+      fetchStudySourcesController.current?.abort()
+      fetchStudySourcesController.current = new AbortController()
+
+      try {
+        const response = await axios.get(`${helxSearchUrl}/agg_data_types`, undefined, {
+          signal: fetchStudySourcesController.current.signal
+        })
+        if (response.status === 200 && response.data.status === 'success' && response.data.result) {
+          // We treat the CDE source as separate from the study sources, even though it is returned under
+          // `/agg_data_types` since CDE variables are classified under the `cde` data_type field
+          setStudySources(
+            response.data.result
+              .filter((source) => source !== "cde")
+              .sort((a, b) => a.localeCompare(b))
+            )
+        } else {
+          setStudySources([])
+        }
+      } catch (error) {
+        if (error.name !== "CanceledError") {
+          console.log(error)
+          setStudySources([])
+        }
+      }
+    }
+
+    fetchStudySources()
+
+    return () => {
+      fetchStudySourcesController.current?.abort()
+    }
+  }, [helxSearchUrl])
+
+  useEffect(() => {
     setConceptPages({})
     setCurrentPage(1)
     setError({})
@@ -376,31 +414,31 @@ export const HelxSearch = ({ children }) => {
     }
   }, [helxSearchUrl])
 
-  const doSearch = queryString => {
+  const doSearch = useCallback((queryString) => {
     const trimmedQuery = queryString.trim()
     if (trimmedQuery !== '') {
       setSelectedResult(null)
       setQuery(trimmedQuery)
       setCurrentPage(1)
       navigate(`${basePath}search?q=${encodeURIComponent(trimmedQuery)}&p=1`)
-      const existingHistoryEntry = searchHistory.find((searchHistoryEntry) => searchHistoryEntry.search === trimmedQuery)
-      if (!existingHistoryEntry) {
-        setSearchHistory([...searchHistory, {
-          search: trimmedQuery,
-          time: Date.now()
-        }])
-      } else {
-        // If the user is searching something that's already in history, move it to the end and update its `time`.
-        setSearchHistory([
+      setSearchHistory((searchHistory) => {
+        const existingHistoryEntry = searchHistory.find((searchHistoryEntry) => searchHistoryEntry.search === trimmedQuery)
+        // Update existing entry to current time.
+        if (existingHistoryEntry) return [
           ...searchHistory.filter((entry) => entry !== existingHistoryEntry),
           {
             ...existingHistoryEntry,
             time: Date.now()
           }
-        ])
-      }
+        ]
+        // Add new search history entry
+        else return [...searchHistory, {
+          search: trimmedQuery,
+          time: Date.now()
+        }]
+      })
     }
-  }
+  }, [setSelectedResult, navigate, basePath, setSearchHistory])
 
   useEffect(() => {
     return () => {
@@ -518,7 +556,8 @@ export const HelxSearch = ({ children }) => {
       conceptTypes,
       variableStudyResults, variableStudyResultCount,
       variableError, variableResults, isLoadingVariableResults,
-      totalVariableResults
+      totalVariableResults,
+      studySources
     }}>
       {children}
       <ConceptModal

@@ -211,6 +211,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
           notFoundContent={loadingSuggestions ? "Loading" : "No results found"}
           defaultActiveFirstOption={false}
           onSelect={handleSelect}
+          popupClassName="search-autocomplete-suggestions"
           dropdownStyle={{ display: hideAutocomplete ? "none" : undefined }}
           // dropdownStyle={{ display: searchCompletionDataSource === null ? "none" : undefined }}
           // onSearch={handleSearch}
@@ -220,6 +221,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
             autoFocus
             ref={inputRef}
             placeholder="Enter search term"
+            className="search-bar"
             value={searchTerm}
             onChange={handleChangeQuery}
             onKeyDown={handleKeyDown}
@@ -237,7 +239,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
       <Form.Item>
         {
           type === FULL && (
-            <Button htmlType="submit" style={{ marginLeft: "16px" }}>Search</Button>
+            <Button htmlType="submit" className="search-button" style={{ marginLeft: "16px" }}>Search</Button>
           )
         }
       </Form.Item>
@@ -245,6 +247,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
         <Form.Item>
           <Tooltip title="Change search type">
             <Radio.Group
+              className="search-layout-radio-group"
               options={[
                   {
                     label: "Concepts",

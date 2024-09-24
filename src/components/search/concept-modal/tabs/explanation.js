@@ -91,16 +91,16 @@ export const ExplanationTab = ({ result }) => {
         .reduce((acc, cur) => {
             const { fieldMatch, termMatch, source, value } = cur
             const [fieldMatchName, fieldMatchDescription] = (
-                  fieldMatch ===        "name"    ? ["Name", "The name of this concept"]
-                : fieldMatch === "description"    ? ["Description", "The description of this concept"]
-                : fieldMatch === "search_terms"   ? ["Search terms", "Synonymous names for this concept"]
-                : fieldMatch === "optional_terms" ? ["Related terms", "Search terms for concepts related to this concept"]
+                  fieldMatch ===        "name"    ? ["Concept Name", "Contribution to the score because the search query matched this concept's name"]
+                : fieldMatch === "description"    ? ["Description", "Contribution to the score because we found the search query in this concept description"]
+                : fieldMatch === "search_terms"   ? ["Synonyms", "Contribution to the score because we found the search query in this concept's synonymns"]
+                : fieldMatch === "optional_terms" ? ["Related terms", "Contribution to the score because we found the search query among this concept's semantically related terms"]
                 : ["", ""]
             )
-            const advancedBreakdownString = ` ${ fieldMatchName.endsWith("s") ? "contain" : "contains"} the term "${ termMatch }"`
+            const advancedBreakdownString = `term "${ termMatch }"`
             if (fieldMatch && termMatch) acc.push({
                 name: `${ fieldMatchName }`,
-                description: `${ fieldMatchDescription }${ advancedBreakdown ? advancedBreakdownString : ""}`,
+                description: advancedBreakdown ? `${ fieldMatchDescription.replace("query", advancedBreakdownString) }` : `${fieldMatchDescription}`,
                 key: source,
                 matchedField: fieldMatch,
                 matchedTerms: termMatch,
@@ -172,10 +172,10 @@ export const ExplanationTab = ({ result }) => {
                         fontSize: 15,
                         fontWeight: 500
                     }}>
-                        Score breakdown
+                        Explanation for this concept&apos;s relation to search term
                     </Text>
                     <div>
-                        <Text style={{ fontSize: 13 }} italic>Why am I seeing this result?</Text>
+                        <Text style={{ fontSize: 13 }} italic>What does the total score returned by the search mean??</Text>
                     </div>
                 </div>
                 <div style={{ display: "flex", flexFlow: "row", alignItems: "center", marginRight: 16 }}>
