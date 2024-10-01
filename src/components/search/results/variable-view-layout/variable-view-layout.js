@@ -1,13 +1,13 @@
 import { Fragment } from 'react'
 import { Spin, Typography, Empty } from 'antd'
-import { VariableSearchResults } from './'
+import { VariableSearchResults } from './variable-results-new'
 import { ResultsHeader } from '../'
 import { useHelxSearch, SearchForm } from '../../'
 
 const { Text } = Typography
 
 export const VariableViewLayout = () => {
-    const { query, error, totalVariableResults, isLoadingVariableResults } = useHelxSearch()
+    const { query, error, variableResults, isLoadingVariableResults, totalVariableResults } = useHelxSearch()
     
     return (
         <Fragment>
