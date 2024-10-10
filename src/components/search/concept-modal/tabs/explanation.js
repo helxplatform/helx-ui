@@ -25,8 +25,18 @@ const palette = [
 
 const parseScoreDetail = ({ value, description, details }) => {
     if (value === 0) return null
+    // For "sum of:", relevant details contribute their own scores to a final aggregate value.
+    // (e.g., in a relevance scoring for a term over two search fields, perhaps name and description, maybe the name detail
+    // has score 5.2 and the description detail has score 3.3, then the aggregate score 8.5 will be used.)
     if (description === "sum of:") {
         return details.flatMap((detail) => parseScoreDetail(detail))
+    }
+    // For "max of:", only the detail with maximum score is used to compute the score.
+    // (e.g., in a relevance scoring for a term over two search fields, perhaps name and description, maybe the name detail
+    // has score 5.2 and the description detail has score 3.3, then the score of 5.2 will be used.)
+    if (description === "max of:") {
+        const maximalDetail = details.reduce((acc, cur) => cur.value > acc.value ? cur : acc, details[0])
+        return [parseScoreDetail(maximalDetail)]
     }
 
     const explainPattern = /^weight\((?<fieldName>.+):(?<searchTerm>.+) in (?<segmentNumber>\d+)\) \[(?<similarityMetric>.+)\], result of:$/
@@ -92,7 +102,7 @@ export const ExplanationTab = ({ result }) => {
             const { fieldMatch, termMatch, source, value } = cur
             const [fieldMatchName, fieldMatchDescription] = (
                   fieldMatch ===        "name"    ? ["Concept Name", "Contribution to the score because the search query matched this concept's name"]
-                : fieldMatch === "description"    ? ["Description", "Contribution to the score because we found the search query in this concept description"]
+                : fieldMatch === "description"    ? ["Description", "Contribution to the score because we found the search query in this concept's description"]
                 : fieldMatch === "search_terms"   ? ["Synonyms", "Contribution to the score because we found the search query in this concept's synonymns"]
                 : fieldMatch === "optional_terms" ? ["Related terms", "Contribution to the score because we found the search query among this concept's semantically related terms"]
                 : ["", ""]
@@ -175,7 +185,7 @@ export const ExplanationTab = ({ result }) => {
                         Explanation for this concept&apos;s relation to search term
                     </Text>
                     <div>
-                        <Text style={{ fontSize: 13 }} italic>What does the total score returned by the search mean??</Text>
+                        <Text style={{ fontSize: 13 }} italic>What does the total score returned by the search mean?</Text>
                     </div>
                 </div>
                 <div style={{ display: "flex", flexFlow: "row", alignItems: "center", marginRight: 16 }}>
@@ -204,6 +214,8 @@ export const ExplanationTab = ({ result }) => {
                                         className="explanation-score-progress"
                                         strokeColor={ colorMap[i] }
                                         percent={ ((detail.value / totalScore) * 100).toFixed(0) }
+                                        // Get rid of annoying style rules at 100%
+                                        success={{ percent: 0 }}
                                         title={ detail.value.toFixed(2) }
                                         style={{ marginLeft: 8 }}
                                     />
