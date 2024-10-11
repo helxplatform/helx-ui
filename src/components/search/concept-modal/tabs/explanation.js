@@ -103,7 +103,7 @@ export const ExplanationTab = ({ result }) => {
             const [fieldMatchName, fieldMatchDescription] = (
                   fieldMatch ===        "name"    ? ["Concept Name", "Contribution to the score because the search query matched this concept's name"]
                 : fieldMatch === "description"    ? ["Description", "Contribution to the score because we found the search query in this concept's description"]
-                : fieldMatch === "search_terms"   ? ["Synonyms", "Contribution to the score because we found the search query in this concept's synonymns"]
+                : fieldMatch === "search_terms"   ? ["Synonyms", "Contribution to the score because we found the search query in this concept's synonyms"]
                 : fieldMatch === "optional_terms" ? ["Related terms", "Contribution to the score because we found the search query among this concept's semantically related terms"]
                 : ["", ""]
             )
