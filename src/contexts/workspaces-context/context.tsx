@@ -7,6 +7,7 @@ import { IWebsocketAPI, WebsocketAPI } from './ws'
 import { APIError, IWorkspacesAPI, User, ExtraLink, EnvironmentContext } from './api.types'
 import { useEnvironment } from '../'
 import { usePageActivity } from '../../hooks'
+import { openNotificationWithIcon } from '../../components'
 
 const { Text } = Typography
 
@@ -106,7 +107,7 @@ export const WorkspacesAPIProvider = ({ sessionTimeoutWarningSeconds=60, childre
             // but this is here just in case.
             setUser(null)
         } else {
-            console.log("--- API error encountered ---", "\n", error)
+            openNotificationWithIcon('error', "--- API error encountered ---\n", error)
         }
     }, [])
     
