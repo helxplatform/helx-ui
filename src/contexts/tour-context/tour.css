@@ -1,0 +1,79 @@
+.shepherd-element {
+    border-radius: 2px !important;
+}
+
+.shepherd-content {
+    background: #fff;
+    box-shadow: 0 3px 6px -4px #0000001f,0 6px 16px #00000014,0 9px 28px 8px #0000000d;
+    border-radius: 2px !important;
+}
+
+.shepherd-header {
+    background: #fff !important;
+    padding: 8px 16px !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.shepherd-header > h3 {
+    font-weight: 500 !important;
+    font-size: 15px;
+}
+
+.shepherd-text {
+    padding: 16px;
+    font-size: 14px;
+}
+
+.shepherd-button.ant-btn-default:hover {
+    background: initial;
+    color: #1890ff;
+}
+
+.shepherd-button.ant-btn-default:active {
+    color: #096dd9;
+}
+
+.shepherd-button.ant-btn-primary:hover {
+    background: #40a9ff;
+    color: #fff;
+}
+
+.shepherd-button.ant-btn-primary:active {
+    background: #096dd9;
+    color: #fff;
+}
+
+.shepherd-arrow {
+    z-index: 99999;
+}
+
+.shepherd-arrow::before {
+    background: #fff !important;
+}
+
+.shepherd-element:not(.shepherd-has-title) .shepherd-header {
+    padding: 0;
+    padding-bottom: 8px;
+    border-bottom: none;
+}
+
+.shepherd-element:not(.shepherd-has-title) .shepherd-header > button {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+}
+
+
+/* .shepherd-header > h3 {
+    padding: 12px;
+    padding-bottom: 0;
+}
+
+.shepherd-header > button {
+    position: absolute;
+    top: -2px;
+    right: 4px;
+}
+.shepherd-header > h3 + button {
+    position: static !important;
+} */
