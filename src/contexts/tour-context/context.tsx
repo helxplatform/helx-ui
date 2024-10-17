@@ -233,7 +233,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 title: "Enter search query",
                 text: renderToStaticMarkup(
                     <div>
-                        You can enter your search query here. In this example, we&apos;ll be looking at &quot;chronic pain.&quot;
+                        You can enter your search query here. In this example, we&apos;ll be searching for &quot;chronic pain.&quot;
                     </div>
                 ),
                 beforeShowPromise: async function() {

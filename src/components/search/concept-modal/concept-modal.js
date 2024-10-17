@@ -151,7 +151,7 @@ export const ConceptModalBody = ({ result }) => {
       tooltip: <div>
         The Knowledge Graphs tab displays the <a href="https://www.oxfordsemantic.tech/faqs/what-is-a-knowledge-graph" target="_blank" rel="noopener noreferrer">
           knowledge graph
-        </a> portion connected to the concept and containing the search terms. This section highlights
+        </a> portion connected to the concept and containing your search terms. This section highlights
         potential interesting knowledge graph relationships and shows terms (e.g., synonyms) that
         would be returned as related concepts.
       </div>
