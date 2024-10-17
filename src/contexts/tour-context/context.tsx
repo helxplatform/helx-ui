@@ -492,7 +492,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 text: renderToStaticMarkup(
                     <div>
                         You can click on each of the tabs in the side bar for more detailed information, such as 
-                        associated studies, CDEs (common data elements), knowledge graphs, and an explanation
+                        associated studies, common data elements (CDEs), knowledge graphs, and an explanation
                         about why the concept was included in the search result.
                     </div>
                 ),
