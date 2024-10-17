@@ -26,7 +26,7 @@ export const SearchView = () => {
 
       {context.workspaces_enabled === 'true' && <Title level={1}>Search</Title>}
 
-      <GuidedTourButton />
+      { context.brand === "heal" && <GuidedTourButton /> }
 
       <Results />
 

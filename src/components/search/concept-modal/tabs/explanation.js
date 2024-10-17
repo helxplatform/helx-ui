@@ -182,7 +182,7 @@ export const ExplanationTab = ({ result }) => {
                         fontSize: 15,
                         fontWeight: 500
                     }}>
-                        Explanation for this concept&apos;s relation to search term
+                        Explanation for this concept&apos;s relation to your search
                     </Text>
                     <div>
                         <Text style={{ fontSize: 13 }} italic>What does the total score returned by the search mean?</Text>
