@@ -116,9 +116,12 @@ export const SupportView = () => {
     <Fragment>
       {context.support.help_portal_url && <HelpPortal help_portal_url={context.support.help_portal_url} />}
       {(context.support.user_guide_url || context.support.faqs_url) && <Documentation user_guide_url={context.support.user_guide_url} faqs_url={context.support.faqs_url}/>}
-      <GuidedTourSection brand={ context.brand } tour={ tour } tourStarted={ tourStarted } />
-      
-      <GuidedTourButton />
+      { context.brand === "heal" && (
+        <Fragment>
+          <GuidedTourSection brand={ context.brand } tour={ tour } tourStarted={ tourStarted } />
+          <GuidedTourButton />
+        </Fragment>
+      ) }
     </Fragment>
   )
 }
