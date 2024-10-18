@@ -22,8 +22,13 @@ export const useLunr = (initIndex, populateIndex) => {
    }, [initIndex, populateIndex])
    // Takes a lexical search, i.e. a user inputted search query, transforms it into a lunr search query, and executes the search.
    const lexicalSearch = useCallback((searchQuery, options={
-      // Can be either a number or a function with signature (term: string) => number (e.g. if you want to increase fuzziness for longer terms)
-      // By default, use fuzziness of 1 character and give an extra character of fuzziness to terms longer than 4 characters.
+      /**
+       * Can be either a number or a function with signature (term: string) => number (e.g. if you want to increase fuzziness for longer terms)
+       * By default, use fuzziness of 1 character and give an extra character of fuzziness to terms longer than 4 characters.
+       * IMPORTANT NOTE: Lunr stems each word before it makes it into the index. This means that the edit distance may be more forgiving
+       * than specified. For example: `interim` and `interval` have an LD of 3. However, when stemmed, we get `interim` => `interim`
+       * and `interval` => `interv` and `interim/interv` only have an LD of 2.
+       */
       fuzziness: (term) => term.length >= 5 ? 2 : 1,
       prefixSearch: true
    }) => {
@@ -43,7 +48,6 @@ export const useLunr = (initIndex, populateIndex) => {
                q.term(token, { boost: 10, usePipeline: false, wildcard: lunr.Query.wildcard.TRAILING })
             }
             if (fuzziness) {
-
                // Fuzzy search without prefix
                q.term(token, { boost: 1, usePipeline: false, editDistance: typeof fuzziness === 'function' ? fuzziness.call(null, token) : fuzziness })
             }

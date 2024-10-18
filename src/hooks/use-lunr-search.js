@@ -5,7 +5,7 @@
  * 
  */
 
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useLunr } from './'
 
 export const useLunrSearch = ({
@@ -39,13 +39,21 @@ export const useLunrSearch = ({
         initIndex,
         populateIndex
     )
+    
+    const docMap = useMemo(() => {
+        const map = new Map()
+        docs.forEach((doc) => map.set(doc[ref], doc))
+        return map
+    }, [docs, ref])
+
+    const getDocByRef = useCallback((ref) => docMap.get(ref), [docMap])
 
     const lexicalSearch = useCallback((...args) => {
         const result = lunrLexicalSearch(...args)
         const searchTokens = []
         result.forEach(({ ref: id, score, matchData: { metadata } }) => {
             // `ref` is always a string, so the doc ref needs to be converted to a string.
-            const doc = docs.find((doc) => doc[ref].toString() === id)
+            const doc = getDocByRef(id)
             Object.entries(metadata).forEach(([partialTerm, hitFields]) => {
               Object.entries(hitFields).forEach(([ field, meta ]) => {
                 const { position: [[start, length]] } = meta
@@ -56,7 +64,7 @@ export const useLunrSearch = ({
             })
           })
         return { hits: result, tokens: searchTokens }
-    }, [docs, lunrLexicalSearch])
+    }, [docs, getDocByRef, lunrLexicalSearch])
 
     return {
         index, lexicalSearch

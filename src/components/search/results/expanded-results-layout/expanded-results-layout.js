@@ -55,7 +55,7 @@ export const ExpandedResultsLayout = () => {
                 <Spin style={{ display: 'block', margin: '4rem', flexGrow: 1 }} />
             )}
             { error.message ? (
-                <span style={{ marginTop: -144, padding: "0 6px" }}>{ error.message }</span>
+                <span className="results-error" style={{ marginTop: -144, padding: "0 6px" }}>{ error.message }</span>
             ) : concepts.length === 0 && !isLoadingConcepts ? (
                 <Empty style={{ marginTop: -24 }} description={
                     <Text type="secondary">No results were found for &quot;{ query }&quot;</Text>

@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react'
 import { Layout as AntLayout, Button, Menu, Grid, Divider } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
-import { useLocation, Link } from '@gatsbyjs/reach-router'
+import { useLocation, useNavigate, Link } from '@gatsbyjs/reach-router'
 import { useEnvironment, useAnalytics, useWorkspacesAPI } from '../../contexts';
 import { MobileMenu } from './menu';
 import { SidePanel } from '../side-panel/side-panel';
@@ -17,6 +17,7 @@ export const Layout = ({ children }) => {
   const { md } = useBreakpoint()
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
   const location = useLocation();
+  const navigate = useNavigate()
 
   // Logging out is an async operation. It's better to wait until it's complete to avoid 
   // session persistence errors (helx-278).
@@ -56,7 +57,9 @@ export const Layout = ({ children }) => {
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               {routes.map(m => m['text'] !== '' && (
-                <Menu.Item key={`${m.path}`}><Link to={`${baseLinkPath}${m.path}`}>{m.text}</Link></Menu.Item>
+                <Menu.Item key={`${m.path}`} onClick={ () => navigate(`${baseLinkPath}${m.path}`) }>
+                  <Link to={ `${baseLinkPath}${m.path}` }>{m.text}</Link>
+                </Menu.Item>
               ))}
               {context.workspaces_enabled && !apiLoading && (
                 appstoreContext.links.map((link) => (
