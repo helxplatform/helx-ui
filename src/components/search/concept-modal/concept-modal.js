@@ -149,9 +149,8 @@ export const ConceptModalBody = ({ result }) => {
       icon: <KnowledgeGraphsIcon />, 
       content: <KnowledgeGraphsTab graphs={ graphs } />,
       tooltip: <div>
-        The Knowledge Graphs tab displays the <a href="https://www.oxfordsemantic.tech/faqs/what-is-a-knowledge-graph" target="_blank" rel="noopener noreferrer">
-          knowledge graph
-        </a> portion connected to the concept and containing your search terms. This section highlights
+        The Knowledge Graphs tab displays relevant edges from the <a href="https://robokop.renci.org/" target="_blank" rel="noopener noreferrer">ROBOKOP Knowledge Graph</a>
+        portion connected to the concept and containing your search terms. This section highlights
         potential interesting knowledge graph relationships and shows terms (e.g., synonyms) that
         would be returned as related concepts.
       </div>
