@@ -233,7 +233,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 title: "Enter search query",
                 text: renderToStaticMarkup(
                     <div>
-                        You can enter your search query here. In this example, we&apos;ll be looking at &quot;chronic pain.&quot;
+                        You can enter your search query here. In this example, we&apos;ll be searching for &quot;chronic pain.&quot;
                     </div>
                 ),
                 beforeShowPromise: async function() {
@@ -492,7 +492,7 @@ export const TourProvider = ({ children }: ITourProvider ) => {
                 text: renderToStaticMarkup(
                     <div>
                         You can click on each of the tabs in the side bar for more detailed information, such as 
-                        associated studies, CDEs (common data elements), knowledge graphs, and an explanation
+                        associated studies, common data elements (CDEs), knowledge graphs, and an explanation
                         about why the concept was included in the search result.
                     </div>
                 ),
