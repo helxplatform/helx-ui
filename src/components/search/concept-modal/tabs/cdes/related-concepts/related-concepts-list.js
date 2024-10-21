@@ -1,6 +1,5 @@
 import { Fragment, useMemo, useState } from 'react'
 import { Button, Typography } from 'antd'
-import { EllipsisOutlined } from '@ant-design/icons'
 import { RelatedConceptTag } from './related-concept-tag'
 
 const { Text } = Typography

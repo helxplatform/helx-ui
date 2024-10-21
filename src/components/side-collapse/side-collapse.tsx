@@ -1,5 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { Collapse, CollapsePanelProps, CollapseProps } from 'antd'
+import classNames from 'classnames'
 import './side-collapse.css'
 
 const { Panel } = Collapse
@@ -18,7 +19,7 @@ export const SideCollapse = ({
     onCollapse,
     header,
     children,
-    panelProps={},
+    panelProps: { className: panelClassName, ...panelProps } = {},
     ...collapseProps
 }: SideCollapseProps) => {
     return (
@@ -26,7 +27,7 @@ export const SideCollapse = ({
             <Panel
                 key={`side-collapse-panel`}
                 header={ header }
-                className="side-collapse-panel"
+                className={ classNames("side-collapse-panel", panelClassName) }
                 { ...panelProps }
             >
                 <div className="side-collapse-container">

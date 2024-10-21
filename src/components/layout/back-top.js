@@ -3,7 +3,7 @@ import { ArrowUpOutlined } from '@ant-design/icons'
 
 const { useBreakpoint } = Grid
 
-export const BackTop = ({ style, ...props }) => {
+export const BackTop = ({ style={}, ...props }) => {
   const { md } = useBreakpoint()
   return (
     <AntBackTop

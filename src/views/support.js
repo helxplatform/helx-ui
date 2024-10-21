@@ -1,10 +1,11 @@
 import { Fragment, useEffect } from 'react'
 import { Typography } from 'antd'
-import { useAnalytics, useEnvironment } from '../contexts'
+import { useAnalytics, useEnvironment, useTourContext } from '../contexts'
 import { useTitle } from './'
 import {faqsOpened, userGuideOpened} from "../contexts/analytics-context/events/support-events";
+import { GuidedTourButton } from '../components';
 
-const { Title } = Typography
+const { Title, Link } = Typography
 
 // This section points to a portal to report bugs, submit feedback, or feature requests for the deployments.
 const HelpPortal = (context) =>{
@@ -90,16 +91,37 @@ const UserGuide = (context) => {
   )
  }
 
+const GuidedTourSection = (context) => {
+  return (
+    <Fragment>
+      <Title level={1}>Take a Guided Tour</Title>
+      <Typography>
+        <Link
+          disabled={ context.tourStarted }
+          onClick={ () => !context.tourStarted && context.tour.start() }>
+            <b>Click here</b>
+        </Link>
+        &nbsp;to take a brief guided tour of { context.brand === "heal" ? "HEAL Semantic Search" : "Semantic Search" }
+      </Typography>
+    </Fragment>
+  )
+}
 
 
 export const SupportView = () => {
   const { context } = useEnvironment()
-  useTitle("Support")
-  console.log(context.support.help_portal_url)
+  const { tour, tourStarted } = useTourContext()
+  useTitle("Get Help")
   return (
     <Fragment>
       {context.support.help_portal_url && <HelpPortal help_portal_url={context.support.help_portal_url} />}
       {(context.support.user_guide_url || context.support.faqs_url) && <Documentation user_guide_url={context.support.user_guide_url} faqs_url={context.support.faqs_url}/>}
+      { context.brand === "heal" && (
+        <Fragment>
+          <GuidedTourSection brand={ context.brand } tour={ tour } tourStarted={ tourStarted } />
+          <GuidedTourButton />
+        </Fragment>
+      ) }
     </Fragment>
   )
 }

@@ -3,11 +3,14 @@ import { List, Collapse, Typography, Space, Button } from 'antd'
 import { ExportOutlined } from '@ant-design/icons'
 import _Highlighter from 'react-highlight-words'
 import { RelatedConceptsList } from './related-concepts'
+import { RelatedStudiesList } from './related-studies'
+import Highlighter from 'react-highlight-words'
 import { SideCollapse } from '../../../..'
 import { useAnalytics } from '../../../../../contexts'
 
 const { Text, Link } = Typography
 const { Panel } = Collapse
+
 
 const Section = ({ title, children }) => (
     <Space size="small" direction="vertical" className="cde-section">
@@ -19,7 +22,7 @@ const Section = ({ title, children }) => (
     </Space>
 )
 
-export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
+export const CdeItem = ({ cde, cdeRelatedConcepts, cdeRelatedStudies, highlight }) => {
     const [collapsed, setCollapsed] = useState(false)
     
     const { analyticsEvents } = useAnalytics()
@@ -27,6 +30,10 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
     const relatedConceptsSource = useMemo(() => (
         cdeRelatedConcepts[cde.id]
     ), [cdeRelatedConcepts, cde])
+
+    const relatedStudySource = useMemo(() => (
+        cdeRelatedStudies[cde.id]
+    ), [cdeRelatedStudies, cde])
 
     const Highlighter = useCallback(({ ...props }) => (
         <_Highlighter autoEscape={ true } searchWords={highlight} {...props}/>
@@ -84,6 +91,11 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, highlight }) => {
                             onShowMore={ (expanded) => {
                                 analyticsEvents.cdeRelatedConceptsToggled(cde.id, expanded)
                             } }
+                        />
+                    </Section>
+                    <Section title={"Studies using this measure (" + (relatedStudySource ? relatedStudySource.length : 0) + ")"}>
+                        <RelatedStudiesList
+                            relatedStudySource={relatedStudySource}
                         />
                     </Section>
                     {false && <Section>
