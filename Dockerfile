@@ -19,7 +19,7 @@ RUN npm run build
 # Production environment
 ########################
 
-FROM nginx:1.25.1-alpine-slim
+FROM nginx:mainline-alpine-slim
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /usr/src/app/build/ /usr/share/nginx/static/
