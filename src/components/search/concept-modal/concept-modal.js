@@ -74,12 +74,15 @@ export const ConceptModalBody = ({ result }) => {
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
   const { query, setSelectedResult, fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs, studySources } = useHelxSearch()
-  const [graphs, setGraphs] = useState([])
-  const [studies, setStudies] = useState([])
-  const [cdes, setCdes] = useState(null)
+  const [graphs, setGraphs] = useState(undefined)
+  const [studies, setStudies] = useState(undefined)
+  const [cdes, setCdes] = useState(undefined)
   const [cdeRelatedConcepts, setCdeRelatedConcepts] = useState(null)
   const [cdeRelatedStudies, setCdeRelatedStudies] = useState(null)
-  const [cdesLoading, setCdesLoading] = useState(true)
+
+  const [cdesLoading, cdesError] = useMemo(() => ([ cdes === undefined, cdes === null ]), [cdes])
+  const [graphsLoading, graphsError] = useMemo(() => ([ graphs === undefined, graphs === null ]), [graphs])
+  const [studiesLoading, studiesError] = useMemo(() => ([ studies === undefined, studies === null ]), [studies])
 
   /** Abort controllers */
   const fetchVarsController = useRef()
@@ -113,7 +116,7 @@ export const ConceptModalBody = ({ result }) => {
     'studies': {
       title: studyTitle,
       icon: <StudiesIcon />,
-      content: <StudiesTab studies={ studies } />,
+      content: <StudiesTab studies={ studies } loading={ studiesLoading } error={ studiesError } />,
       tooltip: <div>
         The Studies tab displays studies referencing or researching the concept.
         Studies are grouped into { studySources.length } categories:&nbsp;
@@ -132,7 +135,7 @@ export const ConceptModalBody = ({ result }) => {
     'cdes': {
       title: cdeTitle,
       icon: <CdesIcon />,
-      content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } cdeRelatedStudies={cdeRelatedStudies} loading={ cdesLoading } />,
+      content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } cdeRelatedStudies={cdeRelatedStudies} loading={ cdesLoading } error={ cdesError } />,
       tooltip: <div>
         The CDEs tab displays{ context.brand === "heal" ? " HEAL-approved" : "" } common data elements (CDEs)
         associated with the concept. A CDE is a standardized question used across studies and clinical
@@ -147,7 +150,7 @@ export const ConceptModalBody = ({ result }) => {
     'kgs': {
       title: 'Knowledge Graphs',
       icon: <KnowledgeGraphsIcon />, 
-      content: <KnowledgeGraphsTab graphs={ graphs } />,
+      content: <KnowledgeGraphsTab graphs={ graphs } loading={ graphsLoading } error={ graphsError } />,
       tooltip: <div>
         The Knowledge Graphs tab displays relevant edges from the <a href="https://robokop.renci.org/" target="_blank" rel="noopener noreferrer">ROBOKOP Knowledge Graph</a>
         portion connected to the concept and containing your search terms. This section highlights
@@ -214,13 +217,14 @@ export const ConceptModalBody = ({ result }) => {
           return studies
         }, {}))
       } catch (e) {
-        if (e.name !== "CanceledError") throw e
+        if (e.name !== "CanceledError") {
+          console.error(e)
+          setStudies(null)
+        }
       }
     }
     const getCdes = async () => {
       try {
-        setCdesLoading(true)
-
         fetchCdesController.current?.abort()
         fetchCdesController.current = new AbortController()
         fetchCdesTranqlController.current.forEach((controller) => controller.abort())
@@ -336,10 +340,12 @@ export const ConceptModalBody = ({ result }) => {
         /** Note that relatedConcepts are *TranQL* concepts/nodes, not DUG concepts. Both have the top level fields `id` and `name`. */
         setCdeRelatedConcepts(relatedConcepts)
         setCdeRelatedStudies(relatedStudies)
-        setCdesLoading(false)
       } catch (e) {
         // Check both because this function uses both Fetch API & Axios
-        if (e.name !== "CanceledError" && e.name !== "AbortError") throw e
+        if (e.name !== "CanceledError" && e.name !== "AbortError") {
+          console.error(e)
+          setCdes(null)
+        }
       }
     }
     const getKgs = async () => {
@@ -352,19 +358,22 @@ export const ConceptModalBody = ({ result }) => {
         })
         setGraphs(kgs)
       } catch (e) {
-        if (e.name !== "CanceledError") throw e
+        if (e.name !== "CanceledError") {
+          console.error(e)
+          setGraphs(null)
+        }
       }
     }
     if (!result.loading && !result.failed) {
-      setStudies([])
-      setCdes(null)
+      setStudies(undefined)
+      setGraphs(undefined)
+      setCdes(undefined)
       setCdeRelatedConcepts(null)
       setCdeRelatedStudies(null)
-      setGraphs([])
       
       getVars()
-      getCdes()
       getKgs()
+      getCdes()
     }
   }, [fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs, result, query])
 

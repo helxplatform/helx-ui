@@ -6,28 +6,27 @@ import { useLunrSearch } from '../../../../hooks'
 
 const { Title } = Typography
 
-export const KnowledgeGraphsTab = ({ graphs }) => {
+export const KnowledgeGraphsTab = ({ graphs, loading, error }) => {
   const [search, setSearch] = useState("")
 
   const docs = useMemo(() => {
-    if (graphs) {
-      return graphs.map(({ knowledge_graph }, i) => {
-        const { nodes, edges } = knowledge_graph
+    if (loading || error) return []
+    return graphs.map(({ knowledge_graph }, i) => {
+      const { nodes, edges } = knowledge_graph
 
-        const edge = edges[0]
-        const subject = nodes.find((node) => node.id === edge.subject)
-        const object = nodes.find((node) => node.id === edge.object)
-        return {
-          id: i,
-          predicate: edge.predicate_label,
-          subjectName: subject.name,
-          subjectSynonyms: subject.synonyms?.join(" "),
-          objectName: object.name,
-          objectSynonyms: object.synonyms?.join(" ")
-        }
-      })
-    } else return []
-  }, [graphs])
+      const edge = edges[0]
+      const subject = nodes.find((node) => node.id === edge.subject)
+      const object = nodes.find((node) => node.id === edge.object)
+      return {
+        id: i,
+        predicate: edge.predicate_label,
+        subjectName: subject.name,
+        subjectSynonyms: subject.synonyms?.join(" "),
+        objectName: object.name,
+        objectSynonyms: object.synonyms?.join(" ")
+      }
+    })
+  }, [graphs, loading, error])
 
   const lunrConfig = useMemo(() => ({
     docs,
@@ -50,21 +49,22 @@ export const KnowledgeGraphsTab = ({ graphs }) => {
   const { index, lexicalSearch } = useLunrSearch(lunrConfig)
 
   const [graphSource, highlightTokens] = useMemo(() => {
+    if (loading || error) return [[], []]
     if (search.length < 3) return [graphs, []]
 
     const { hits, tokens } = lexicalSearch(search)
     const matchedGraphs = hits.map(({ ref: i }) => graphs[i])
 
     return [ matchedGraphs, tokens ]
-  }, [graphs, search, lexicalSearch])
+  }, [graphs, loading, error, search, lexicalSearch])
   
   return (
     <Space direction="vertical">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
         <Title level={ 4 } style={{ margin: 0 }}>Knowledge Graphs</Title>
-        <DebouncedInput setValue={setSearch}/>
+        { !loading && !error && <DebouncedInput setValue={setSearch}/> }
       </div>
-      <KnowledgeGraphs graphs={ graphSource } highlight={ highlightTokens } />
+      <KnowledgeGraphs graphs={ graphSource } loading={ loading } error={ error } highlight={ highlightTokens } />
     </Space>    
   )
 }

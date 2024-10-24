@@ -11,12 +11,12 @@ const { Text, Title } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 const { Panel } = Collapse
 
-export const CdesTab = ({ cdes, cdeRelatedConcepts, cdeRelatedStudies, loading }) => {
+export const CdesTab = ({ cdes, cdeRelatedConcepts, cdeRelatedStudies, loading, error }) => {
   const [search, setSearch] = useState("")
   const { context } = useEnvironment()
 
-  /** CDEs have loaded, but there aren't any. */
-  const failed = useMemo(() => !loading && !cdes, [loading, cdes])
+  /** CDEs failed to load or loaded but no results. */
+  const failed = useMemo(() => error && !cdes, [error, cdes])
 
   const docs = useMemo(() => {
     if (!loading && !failed) {
