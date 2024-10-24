@@ -18,17 +18,15 @@ const GRADIENT_CONSTITUENTS = [
 // ]
 const COLOR_GRADIENT = chroma.scale(GRADIENT_CONSTITUENTS).mode("lrgb")
 
-// Determines the order in which data sources appear in the tag list.
-const seededPalette = new Palette(chroma.rgb(255 * .75, 255 * .25, 255 * .25), {mode: 'hex'});
 const FIXED_DATA_SOURCES: { [string: string]: string } = {
-    "HEAL Studies": "#40bf65",
-    "HEAL Research Programs": "#bfaf40",
-    "Non-HEAL Studies": "#bf4040",
+    "heal studies": "#40bf65",
+    "heal research programs": "#bfaf40",
+    "non-heal studies": "#bf4040",
     "cde": "#8a40bf",
-    "dbGaP": "#40aabf",
-    "AnVIL": "#bf4085",
-    "Cancer Data Commons": "#60bf40",
-    "Kids First": "#4540bf"
+    "dbgap": "#40aabf",
+    "anvil": "#bf4085",
+    "cancer data commons": "#60bf40",
+    "kids first": "#4540bf"
 }
 
 export interface DataSource {
@@ -57,6 +55,10 @@ export interface VariableResult {
     study_name: string
     data_source: string // e.g. "HEAL Studies" vs "Non-HEAL Studies"
 }
+export interface CdeVariableResult extends VariableResult {
+    // null indicates error state
+    attributes: { name: string, type: string, value: any }[] | null
+}
 
 interface GetChart {
     (): G2Column
@@ -67,9 +69,11 @@ interface ChartRef {
 
 export interface ISearchContext {
     query: string
+    studySources: string[]
     variableResults: VariableResult[]
     variableStudyResults: StudyResult[]
     totalVariableResults: number
+    isCDE: (variable: VariableResult) => variable is CdeVariableResult
 }
 
 export interface IVariableViewContext {
@@ -114,7 +118,7 @@ interface VariableViewProviderProps {
 export const VariableViewContext = createContext<IVariableViewContext|undefined>(undefined)
 
 export const VariableViewProvider = ({ children }: VariableViewProviderProps) => {
-    const { variableResults, variableStudyResults } = useHelxSearch() as ISearchContext
+    const { variableResults, variableStudyResults, studySources } = useHelxSearch() as ISearchContext
 
     /**
      * Filters
@@ -125,6 +129,16 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
     const [sortOption, setSortOption] = useState<string>("score")
     const [sortOrderOption, setSortOrderOption] = useState<string>("descending")
     const [collapseIntoVariables, setCollapseIntoVariables] = useState<boolean>(false)
+
+    const dataSourceColors = useMemo<Map<string, string>>(() => {
+        const colorMap = new Map()
+        const seededPalette = new Palette(chroma.rgb(255 * .25, 255 * .75, 255 * .75), {mode: 'hex'});
+        studySources.sort((a, b) => a.localeCompare(b)).forEach((s) => {
+            const color = FIXED_DATA_SOURCES[s.toLowerCase()] ?? seededPalette.getNextColor()
+            colorMap.set(s, color)
+    })
+        return colorMap
+    }, [studySources])
 
     const [variableIdMap, studyIdMap] = useMemo<[Map<string, VariableResult>, Map<string, StudyResult>]>(() => {
         const variableMap = new Map()
@@ -320,7 +334,7 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             } else {
                 acc[dataSource] = {
                     name: dataSource,
-                    color: FIXED_DATA_SOURCES[dataSource] ?? seededPalette.getNextColor(),
+                    color: dataSourceColors.get(dataSource)!,
                     studies: [cur.study_id],
                     variables: [cur.id],
                     filteredVariables: filteredVariables.includes(cur) ? [cur.id] : []
@@ -328,25 +342,12 @@ export const VariableViewProvider = ({ children }: VariableViewProviderProps) =>
             }
             return acc
         }, {})
-    }, [variablesSource, filteredVariables])
+    }, [variablesSource, filteredVariables, dataSourceColors])
     
     const orderedDataSources = useMemo<DataSource[]>(() => {
-        const dataSourceKeyOrder = Object.keys(FIXED_DATA_SOURCES)
-        return Object.entries(dataSources)
-            .sort((a, b) => {
-                const [aName, aDataSource] = a
-                const [bName, bDataSource] = b
-                const aIndex = dataSourceKeyOrder.indexOf(aName)
-                const bIndex = dataSourceKeyOrder.indexOf(bName)
-                // Sort unrecognized data sources alphabetically.
-                if (aIndex === -1 && bIndex === -1) return aName.localeCompare(bName)
-                // Put unrecognized data sources at the end of the array.
-                if (aIndex === -1) return 1
-                if (bIndex === -1) return -1
-                return aIndex - bIndex
-            })
-            .map(([name, dataSource]) => dataSource)
-    }, [dataSources])
+        const order = studySources.sort((a, b) => a.localeCompare(b))
+        return Object.values(dataSources).sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name))
+    }, [dataSources, studySources])
 
     const isFiltered = useMemo(() => (
         collapseIntoVariables

@@ -1,13 +1,33 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { Button, Tooltip, Typography } from 'antd'
+import { Button, Spin, Tooltip, Typography } from 'antd'
 import _Highlighter from 'react-highlight-words'
-import { useVariableView, VariableResult } from '../variable-view-context'
+import { CdeVariableResult, ISearchContext, useVariableView, VariableResult } from '../variable-view-context'
 import classNames from 'classnames'
 import { StudyInfoTooltip } from '../study-info-tooltip'
+import { useHelxSearch } from '../../../context'
 
 const { Text } = Typography
 
 const VARIABLE_DESCRIPTION_CUTOFF = 500
+
+interface VariableCdeAttributesProps {
+    // null indicates error state
+    attributes: { name: string, type: string, value: any }[] | null
+}
+
+const VariableCdeAttributes = ({ attributes }: VariableCdeAttributesProps) => {
+    const cdeCategories = useMemo<string[]>(() => attributes?.find((a) => a.name === "cde_categories")?.value, [attributes])
+    if (attributes === null) return (
+        null
+    )
+    else return (
+        <ul style={{ paddingLeft: 16, fontSize: 13 }}>
+            <li>
+                Categories: { cdeCategories!.sort((a, b) => a.localeCompare(b)).join(", ") }
+            </li>
+        </ul>
+    )
+}
 
 interface VariableListItemProps extends React.HTMLProps<HTMLDivElement> {
     variable: VariableResult
@@ -16,6 +36,7 @@ interface VariableListItemProps extends React.HTMLProps<HTMLDivElement> {
 }
 
 export const VariableListItem = ({ variable, showStudySource=true, showDataSource=true, style={}, ...props }: VariableListItemProps) => {
+    const { isCDE } = useHelxSearch() as ISearchContext
     const { dataSources, highlightTokens, getStudyById } = useVariableView()!
     
     const [showMore, setShowMore] = useState<boolean>(false)
@@ -37,6 +58,7 @@ export const VariableListItem = ({ variable, showStudySource=true, showDataSourc
                 alignItems: "flex-start",
                 flexWrap: "nowrap",
                 paddingRight: 16,
+                gap: 4,
                 ...style
             }}
             { ...props }
@@ -93,6 +115,9 @@ export const VariableListItem = ({ variable, showStudySource=true, showDataSourc
                     </Button>
                 ) }
             </span>
+            { isCDE(variable) && (
+                <VariableCdeAttributes attributes={ variable.attributes } />
+            ) }
             { showStudySource && (
                 <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12, color: "rgba(0, 0, 0, 0.45)" }}>
                     Source:&nbsp;<i>

@@ -153,7 +153,7 @@ export const ConceptModalBody = ({ result }) => {
       content: <KnowledgeGraphsTab graphs={ graphs } loading={ graphsLoading } error={ graphsError } />,
       tooltip: <div>
         The Knowledge Graphs tab displays relevant edges from the <a href="https://robokop.renci.org/" target="_blank" rel="noopener noreferrer">ROBOKOP Knowledge Graph</a>
-        portion connected to the concept and containing your search terms. This section highlights
+        &nbsp;portion connected to the concept and containing your search terms. This section highlights
         potential interesting knowledge graph relationships and shows terms (e.g., synonyms) that
         would be returned as related concepts.
       </div>
@@ -218,7 +218,7 @@ export const ConceptModalBody = ({ result }) => {
         }, {}))
       } catch (e) {
         if (e.name !== "CanceledError") {
-          console.error(e)
+          console.warning(e)
           setStudies(null)
         }
       }
@@ -316,7 +316,9 @@ export const ConceptModalBody = ({ result }) => {
           const cdeIds = cdeData.elements.map((cde) => cde.id)
           await Promise.all(cdeIds.map(async (cdeId, i) => {
             try {
-              relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
+              const relatedConceptsRaw = await loadRelatedConcepts(cdeId)
+              // Counterproductive to suggest the concept the user is actively viewing as "related"
+              relatedConcepts[cdeId] = relatedConceptsRaw.filter((c) => c.id !== result.id)
             } catch (e) {
               // Here, we explicitly want to halt execution and forward this error to the outer handler
               // if a related concept request was aborted, because we now have stale data and don't want to
@@ -343,7 +345,7 @@ export const ConceptModalBody = ({ result }) => {
       } catch (e) {
         // Check both because this function uses both Fetch API & Axios
         if (e.name !== "CanceledError" && e.name !== "AbortError") {
-          console.error(e)
+          console.warning(e)
           setCdes(null)
         }
       }
@@ -359,7 +361,7 @@ export const ConceptModalBody = ({ result }) => {
         setGraphs(kgs)
       } catch (e) {
         if (e.name !== "CanceledError") {
-          console.error(e)
+          console.warning(e)
           setGraphs(null)
         }
       }

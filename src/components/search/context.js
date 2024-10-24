@@ -32,7 +32,7 @@ const validateResult = result => {
 }
 
 export const HelxSearch = ({ children }) => {
-  const { helxSearchUrl, basePath } = useEnvironment()
+  const { helxSearchUrl, basePath, context } = useEnvironment()
   const { analyticsEvents } = useAnalytics()
   const [query, setQuery] = useState('')
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
@@ -60,6 +60,7 @@ export const HelxSearch = ({ children }) => {
   const [variableError, setVariableError] = useState({})
 
   const variablesAbortController = useRef()
+  const cdeVariableAttributeControllers = useRef([])
   const inputRef = useRef()
   const navigate = useNavigate()
   const [searchHistory, setSearchHistory] = useLocalStorage('search_history', [])
@@ -246,7 +247,6 @@ export const HelxSearch = ({ children }) => {
           // `/agg_data_types` since CDE variables are classified under the `cde` data_type field
           setStudySources(
             response.data.result
-              .filter((source) => source !== "cde")
               .sort((a, b) => a.localeCompare(b))
             )
         } else {
@@ -440,6 +440,19 @@ export const HelxSearch = ({ children }) => {
     }
   }, [setSelectedResult, navigate, basePath, setSearchHistory])
 
+  const loadTranQLNode = useCallback(async (nodeId, axiosOptions={}) => {
+    const tranqlUrl = context.tranql_url
+    const tranqlQuery = `SELECT named_thing FROM "redis:" WHERE named_thing='${ nodeId }'`
+    const response = await axios.post(`${tranqlUrl}tranql/query`, tranqlQuery, {
+      headers: { "Content-Type": "text/plain" },
+      ...axiosOptions
+    })
+    const kg = response.data.message.knowledge_graph
+    return kg.nodes[nodeId]
+  }, [context])
+
+  const isCDE = useCallback((variable) => variable.data_source.toLowerCase() === "cde", [])
+
   useEffect(() => {
     return () => {
       // Unmount
@@ -491,6 +504,10 @@ export const HelxSearch = ({ children }) => {
       try {
         variablesAbortController.current?.abort()
         variablesAbortController.current = new AbortController()
+
+        cdeVariableAttributeControllers.current.forEach((controller) => controller.abort())
+        cdeVariableAttributeControllers.current = []
+
         const params = {
           index: 'variables_index',
           query: query,
@@ -509,6 +526,23 @@ export const HelxSearch = ({ children }) => {
             })
             return [...acc, ...studies]
           }, [])
+          // Load non-indexed supplemental CDE attributes where applicable.
+          const cdeVariables = studies.flatMap((s) => s.elements).filter((v) => isCDE(v))
+          await Promise.all(cdeVariables.map(async (cde) => {
+            try {
+              const controller = new AbortController()
+              cdeVariableAttributeControllers.current.push(controller)
+              const { attributes } = await loadTranQLNode(cde.id, {
+                signal: controller.signal
+              })
+              cde.attributes = attributes
+            } catch (e) {
+              if (!axios.isCancel(e)) {
+                console.warning(e)
+                cde.attributes = null
+              }
+            }
+          }))
           // Data structure of sortedVariables is designed to populate the histogram feature
           const {sortedVariables, variablesCount, studiesWithVariablesMarked, studiesCount} = collectVariablesAndUpdateStudies(studies)
           setVariableStudyResults(studiesWithVariablesMarked)
@@ -537,7 +571,7 @@ export const HelxSearch = ({ children }) => {
     if (query) {
       fetchAllVariables()
     }
-  }, [query, helxSearchUrl])
+  }, [query, loadTranQLNode, isCDE, helxSearchUrl])
 
 
   return (
@@ -556,7 +590,7 @@ export const HelxSearch = ({ children }) => {
       conceptTypes,
       variableStudyResults, variableStudyResultCount,
       variableError, variableResults, isLoadingVariableResults,
-      totalVariableResults,
+      totalVariableResults, isCDE,
       studySources
     }}>
       {children}
