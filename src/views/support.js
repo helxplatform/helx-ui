@@ -2,7 +2,7 @@ import { Fragment, useEffect } from 'react'
 import { Typography } from 'antd'
 import { useAnalytics, useEnvironment, useTourContext } from '../contexts'
 import { useTitle } from './'
-import {faqsOpened, userGuideOpened} from "../contexts/analytics-context/events/support-events";
+//import {faqsOpened, userGuideOpened, } from "../contexts/analytics-context/events/support-events";
 import { GuidedTourButton } from '../components';
 
 const { Title, Link } = Typography
@@ -53,10 +53,10 @@ const UserGuide = (context) => {
           </a>
       </li>
   )
- }
+}
 
  // This section points a link with FAQs.
- const Faqs = (context) => {
+const Faqs = (context) => {
   const { analyticsEvents } = useAnalytics()
   return (
       <li>
@@ -72,16 +72,56 @@ const UserGuide = (context) => {
           </a>
       </li>
   )
- }
+}
+
+// This section links to a user documentation.
+const IntroVideo = (context) => {
+  const { analyticsEvents } = useAnalytics()
+  return (
+      <li>
+          <a
+              //example href="https://docs.google.com/document/d/1M43Ex0eg_ObvXIGvWFUuwqKAYpWATXa8vYSpB5gUa6Q/edit?pli=1"
+              href = {context.intro_video_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={ () => {
+                  analyticsEvents.introVideoOpened()
+              } }
+          >
+              <b>Introduction Video</b>
+          </a>
+      </li>
+  )
+}
+
+const HowToVideo = (context) => {
+  const { analyticsEvents } = useAnalytics()
+  return (
+      <li>
+          <a
+              //example href="https://docs.google.com/document/d/1M43Ex0eg_ObvXIGvWFUuwqKAYpWATXa8vYSpB5gUa6Q/edit?pli=1"
+              href = {context.howto_video_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={ () => {
+                  analyticsEvents.howtoVideoOpened()
+              } }
+          >
+              <b>Demo Video</b>
+          </a>
+      </li>
+  )
+}
+
 
  // This section combines user guide, and faqs together.
- const Documentation = (context) => {
+const Documentation = (context) => {
   return (
     <Fragment>
         <Title level={1}>Documentation</Title>
         <Typography>
-          Our documentation is designed to help guide you through your first steps. 
-          We encourage you to get started with these introductory guides
+          Our documentation is designed to help guide you through your first steps of { context.meta_title ?? 'HeLx' }. 
+          We encourage you to get started with these introductory guides.
         </Typography>
         <ul>
           {context.user_guide_url && <UserGuide user_guide_url={context.user_guide_url} />}
@@ -89,7 +129,7 @@ const UserGuide = (context) => {
         </ul>
       </Fragment>
   )
- }
+}
 
 const GuidedTourSection = (context) => {
   return (
@@ -101,7 +141,22 @@ const GuidedTourSection = (context) => {
           onClick={ () => !context.tourStarted && context.tour.start() }>
             <b>Click here</b>
         </Link>
-        &nbsp;to take a brief guided tour of { context.brand === "heal" ? "HEAL Semantic Search" : "Semantic Search" }
+        &nbsp;to take a brief guided tour of { context.meta_title ?? 'Search' }.
+      </Typography>
+    </Fragment>
+  )
+}
+
+const Resources = (context) => {
+  return (
+    <Fragment>
+      <Title level={1}>Other Resources</Title>
+      <Typography>
+        Links for further resources to help you use the {context.meta_title ?? 'site' }.
+        <ul>
+            {context.intro_video_url && <IntroVideo intro_video_url={context.intro_video_url} />}
+            {context.howto_video_url && <HowToVideo howto_video_url={context.howto_video_url} />}
+        </ul>
       </Typography>
     </Fragment>
   )
@@ -115,10 +170,15 @@ export const SupportView = () => {
   return (
     <Fragment>
       {context.support.help_portal_url && <HelpPortal help_portal_url={context.support.help_portal_url} />}
-      {(context.support.user_guide_url || context.support.faqs_url) && <Documentation user_guide_url={context.support.user_guide_url} faqs_url={context.support.faqs_url}/>}
-      { context.brand === "heal" && (
+      {(context.support.user_guide_url || context.support.faqs_url) && 
+        <Documentation user_guide_url={context.support.user_guide_url} faqs_url={context.support.faqs_url} meta_title={ context.meta.title }/>
+      }
+      {(context.support.intro_video_url || context.support.howto_video_url) &&
+        <Resources intro_video_url={ context.support.intro_video_url } howto_video_url={ context.support.howto_video_url } meta_title={ context.meta.title }/>
+      }
+      {context.search_tour_enabled === 'true' && (
         <Fragment>
-          <GuidedTourSection brand={ context.brand } tour={ tour } tourStarted={ tourStarted } />
+          <GuidedTourSection brand={ context.brand } tour={ tour } tourStarted={ tourStarted } meta_title={ context.meta.title }/>
           <GuidedTourButton />
         </Fragment>
       ) }

@@ -25,6 +25,10 @@ login_title="${REACT_APP_LOGIN_TITLE}"
 support_help_url="${REACT_APP_SUPPORT_HELP_PORTAL_URL}"
 support_user_guide_url="${REACT_APP_SUPPORT_USER_GUIDE_URL}"
 support_faqs_url="${REACT_APP_SUPPORT_FAQS_URL}"
+support_intro_video_url="${REACT_APP_SUPPORT_INTRO_VIDEO_URL}"
+support_howto_video_url="${REACT_APP_SUPPORT_HOWTO_VIDEO_URL}"
+search_tour_enabled="${REACT_APP_SEARCH_TOUR_ENABLED:-false}"
+
 
 template='{
     "brand": "%BRAND%",
@@ -51,8 +55,11 @@ template='{
     "support": {
       "help_portal_url": "%SUPPORT_HELP_PORTAL_URL%",
       "user_guide_url": "%SUPPORT_USER_GUIDE_URL%",
-      "faqs_url": "%SUPPORT_FAQS_URL%"
-    }
+      "faqs_url": "%SUPPORT_FAQS_URL%",
+      "intro_video_url": "%SUPPORT_INTRO_VIDEO_URL%",
+      "howto_video_url": "%SUPPORT_HOWTO_VIDEO_URL%"
+    },
+    "search_tour_enabled": "%SEARCH_TOUR_ENABLED%"
 }'
 
 echo "$template" | sed \
@@ -75,4 +82,7 @@ echo "$template" | sed \
   -e "s/%SUPPORT_HELP_PORTAL_URL%/$support_help_url/" \
   -e "s/%SUPPORT_USER_GUIDE_URL%/$support_user_guide_url/" \
   -e "s/%SUPPORT_FAQS_URL%/$support_faqs_url/" \
+  -e "s/%SUPPORT_INTRO_VIDEO_URL%/$support_intro_video_url/" \
+  -e "s/%SUPPORT_HOWTO_VIDEO_URL%/$support_howto_video_url/" \
+  -e "s/%SEARCH_TOUR_ENABLED%/$search_tour_enabled/" \
   > $1
