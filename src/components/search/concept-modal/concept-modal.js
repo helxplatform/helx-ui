@@ -275,11 +275,9 @@ export const ConceptModalBody = ({ result }) => {
             try {
               const [relatedConceptsRaw, relatedStudiesRaw] = await loadRelatedConceptsAndStudies(cdeId)
               // Counterproductive to suggest the concept the user is actively viewing as "related"
-              console.log(relatedConceptsRaw, relatedStudiesRaw)
               relatedConcepts[cdeId] = relatedConceptsRaw.filter((c) => c.id !== result.id)
               relatedStudies[cdeId] = relatedStudiesRaw
             } catch (e) {
-              console.log(e)
               // Here, we explicitly want to halt execution and forward this error to the outer handler
               // if a related concept request was aborted, because we now have stale data and don't want to
               // update state with it.

@@ -17,9 +17,7 @@ interface VariableCdeAttributesProps {
 
 const VariableCdeAttributes = ({ attributes }: VariableCdeAttributesProps) => {
     const cdeCategories = useMemo<string[]>(() => attributes?.find((a) => a.name === "cde_categories")?.value, [attributes])
-    if (attributes === null) return (
-        null
-    )
+    if (!attributes) return null
     else return (
         <ul style={{ paddingLeft: 16, fontSize: 13 }}>
             <li>

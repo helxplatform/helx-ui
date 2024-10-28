@@ -373,7 +373,7 @@ export const HelxSearch = ({ children }) => {
       }
       const filteredAndTypedStudies = Object.keys(result)
         .reduce((studies, key) => {
-          if (key !== "cde") {
+          if (key.toLowerCase() !== "cde") {
             const newStudies = [...result[key].map(item => ({ type: key, ...item }))]
             return [...newStudies, ...studies]
           }
@@ -400,7 +400,7 @@ export const HelxSearch = ({ children }) => {
       }
       const cdesOnly = Object.keys(result)
         .reduce((studies, key) => {
-          if (key === 'cde') {
+          if (key.toLowerCase() === 'cde') {
             const newStudies = [...result[key].map(item => ({ type: key, ...item }))]
             return [...newStudies, ...studies]
           }
@@ -528,6 +528,8 @@ export const HelxSearch = ({ children }) => {
           }, [])
           // Load non-indexed supplemental CDE attributes where applicable.
           const cdeVariables = studies.flatMap((s) => s.elements).filter((v) => isCDE(v))
+          /**
+           * Currently, don't load these. Not much useful info and requires 1 TranQL request per CDE returned.
           await Promise.all(cdeVariables.map(async (cde) => {
             try {
               const controller = new AbortController()
@@ -543,6 +545,7 @@ export const HelxSearch = ({ children }) => {
               }
             }
           }))
+          */
           // Data structure of sortedVariables is designed to populate the histogram feature
           const {sortedVariables, variablesCount, studiesWithVariablesMarked, studiesCount} = collectVariablesAndUpdateStudies(studies)
           setVariableStudyResults(studiesWithVariablesMarked)
