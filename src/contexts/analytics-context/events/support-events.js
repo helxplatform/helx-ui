@@ -18,3 +18,17 @@ export function faqsOpened() {
         action: "support_faqs_open"
     });
 }
+
+export function introVideoOpened() {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "support_intro_video_open"
+    });
+}
+
+export function howtoVideoOpened() {
+    this.analytics.trackEvent({
+        category: "ui_interaction",
+        action: "support_howto_video_open"
+    });
+}

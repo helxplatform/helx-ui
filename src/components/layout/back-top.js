@@ -16,9 +16,12 @@ export const BackTop = ({ style={}, ...props }) => {
     >
       <div className="ant-back-top-content" style={{
         color: "#fff",
-        backgroundColor: "#1088e9"
+        backgroundColor: "#1088e9",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
       }}>
-        <ArrowUpOutlined className="ant-back-top-icon" style={{ fontSize: "20px", marginTop: "2px" }} />
+        <ArrowUpOutlined className="ant-back-top-icon" style={{ fontSize: "20px" }} />
       </div>
     </AntBackTop>
   )
