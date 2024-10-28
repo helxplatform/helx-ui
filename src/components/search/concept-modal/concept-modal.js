@@ -233,108 +233,58 @@ export const ConceptModalBody = ({ result }) => {
         const cdeData = await fetchCDEs(result.id, query, {
           signal: fetchCdesController.current.signal
         })
-        const loadRelatedConcepts = async (cdeId) => {
-          const formatCdeQuery = (conceptType) => {
-            return `\
-      SELECT publication-[mentions]->${conceptType}
-      FROM "/schema"
-      WHERE publication="${cdeId}"`
-          }
-          const tranqlUrl = context.tranql_url
-          const types = ['disease', 'anatomical_entity', 'phenotypic_feature', 'biological_process'] // add any others that you can think of, these are the main 4 found in heal results and supported by tranql
-          const kg = (await Promise.all(types.map(async (type) => {
-              const controller = new AbortController()
-              fetchCdesTranqlController.current.push(controller)
-              const res = await fetch(
-                  `${tranqlUrl}tranql/query`,
-                  {
-                      headers: { 'Content-Type': 'text/plain' },
-                      method: 'POST',
-                      body: formatCdeQuery(type),
-                      signal: controller.signal
-                  }
-              )
-              const message = await res.json()
-              return message.message.knowledge_graph
-          }))).reduce((acc, kg) => ({
-              nodes: {
-                  ...acc.nodes,
-                  ...kg.nodes
-              },
-              edges: {
-                  ...acc.edges,
-                  ...kg.edges
-              }
-          }), {"nodes": {}, "edges": {}})
-          const cdeOutEdges = Object.values(kg.edges).filter((edge) => edge.subject ===  cdeId)
-          return cdeOutEdges.map(
-            (outEdge) => {
-              const [nodeId, node] = Object.entries(kg.nodes).find(([nodeId, node]) => nodeId === outEdge.object)
-              return {
-                id: nodeId,
-                ...node
-              }
-            }
-          )
-        }
-
-        const loadRelatedStudies = async (cdeId) => {
-          const formatCdeQuery = () => {
-            return `\
-      SELECT publication->study
-      FROM "/schema"
-      WHERE publication="${cdeId}"`
+        const loadRelatedConceptsAndStudies = async (cdeId) => {
+          const getNodeAttribute = (node, attrName) => {
+            return node.attributes.find((attr) => attr.name === attrName)
           }
           const tranqlUrl = context.tranql_url
           const controller = new AbortController()
           fetchCdesTranqlController.current.push(controller)
           const res = await fetch(
-              `${tranqlUrl}tranql/query`,
-              {
-                  headers: { 'Content-Type': 'text/plain' },
-                  method: 'POST',
-                  body: formatCdeQuery(),
-                  signal: controller.signal
-              }
+            `${tranqlUrl}tranql/query`,
+            {
+                headers: { 'Content-Type': 'text/plain' },
+                method: 'POST',
+                body: `SELECT publication->named_thing FROM "redis:" WHERE publication="${cdeId}"`,
+                signal: controller.signal
+            }
           )
           const message = await res.json()
-          const studies = []
-          const nodes =  message.message.knowledge_graph.nodes
-          for (const [key, value] of Object.entries(nodes)) {
-            const name = value.name;
-            const urlAttribute = value.attributes.find(attr => attr.name === 'url');
-            urlAttribute && studies.push({c_id: key,
-                                          c_name: name,
-                                          c_link: urlAttribute.value});
-          }
-          return studies
+          const kg = message.message.knowledge_graph
+          const cdeOutEdges = Object.values(kg.edges).filter((edge) => edge.subject ===  cdeId)
+          return cdeOutEdges.map(({ object }) => kg.nodes[object])
+            .reduce((acc, node) => {
+              const [relatedConceptNodes, relatedStudyNodes] = acc
+              const types = getNodeAttribute(node, "category")
+              const url = getNodeAttribute(node, "url")
+              if (url && types && types.value.includes("biolink:Study")) relatedStudyNodes.push({
+                c_id: node.id,
+                c_name: node.name,
+                c_link: url.value
+              })
+              else relatedConceptNodes.push(node)
+              return [relatedConceptNodes, relatedStudyNodes]
+            }, [[], []])
         }
-
+        
         const relatedConcepts = {}
         const relatedStudies = {}
         if (cdeData) {
           const cdeIds = cdeData.elements.map((cde) => cde.id)
           await Promise.all(cdeIds.map(async (cdeId, i) => {
             try {
-              const relatedConceptsRaw = await loadRelatedConcepts(cdeId)
+              const [relatedConceptsRaw, relatedStudiesRaw] = await loadRelatedConceptsAndStudies(cdeId)
               // Counterproductive to suggest the concept the user is actively viewing as "related"
+              console.log(relatedConceptsRaw, relatedStudiesRaw)
               relatedConcepts[cdeId] = relatedConceptsRaw.filter((c) => c.id !== result.id)
+              relatedStudies[cdeId] = relatedStudiesRaw
             } catch (e) {
+              console.log(e)
               // Here, we explicitly want to halt execution and forward this error to the outer handler
               // if a related concept request was aborted, because we now have stale data and don't want to
               // update state with it.
               if (e.name === "CanceledError" || e.name === "AbortError") throw e
               relatedConcepts[cdeId] = null
-            }
-          }))
-          await Promise.all(cdeIds.map(async (cdeId, i) => {
-            try {
-              relatedStudies[cdeId] = await loadRelatedStudies(cdeId)
-            } catch (e) {
-              // Here, we explicitly want to halt execution and forward this error to the outer handler
-              // if a related concept request was aborted, because we now have stale data and don't want to
-              // update state with it.
-              if (e.name === "CanceledError" || e.name === "AbortError") throw e
             }
           }))
         }
