@@ -406,11 +406,14 @@ export const HelxSearch = ({ children }) => {
           }
           return [...studies]
         }, [])
-      return cdesOnly ? cdesOnly[0] : null
+      return cdesOnly.length > 0 ? cdesOnly[0] : null
     } catch (error) {
       /** Forward AbortError upwards. Handle other errors here. */
       if (error.name === "CanceledError") throw error
-      else console.error(error)
+      else {
+        console.error(error)
+        return null
+      }
     }
   }, [helxSearchUrl])
 
