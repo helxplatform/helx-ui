@@ -158,7 +158,7 @@ export const HelxSearch = ({ children }) => {
       setSelectedResult(foundConceptResult ? foundConceptResult : {
         name,
         failed: true,
-        suggestions: synonymousConcepts.length > 0 ? synonymousConcepts : results
+        suggestions: synonymousConcepts?.length > 0 ? synonymousConcepts : null
       })
     } catch (e) {
       if (e.name !== "CanceledError") throw e

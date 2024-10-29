@@ -240,6 +240,7 @@ export const ConceptModalBody = ({ result }) => {
           const tranqlUrl = context.tranql_url
           const controller = new AbortController()
           fetchCdesTranqlController.current.push(controller)
+          
           const res = await fetch(
             `${tranqlUrl}tranql/query`,
             {
@@ -354,25 +355,29 @@ export const ConceptModalBody = ({ result }) => {
       ]}
       className="concept-modal-failed-result"
     >
-      <Paragraph style={{ marginBottom: 0 }}>
-        <Text strong style={{ fontSize: 16 }}>Related concepts</Text>
-      </Paragraph>
-      <div>
-        {
-          result.suggestions
-            .slice(0, 8)
-            .map((suggestedResult) => (
-              <a
-                key={ suggestedResult.id }
-                role="button"
-                style={{ display: "inline", marginRight: "12px", lineHeight: "36px" }}
-                onClick={() => setSelectedResult(suggestedResult)}
-              >
-                {suggestedResult.name}
-              </a>
-            ))
-        }
-      </div>
+      { result.suggestions && (
+        <Fragment>
+          <Paragraph style={{ marginBottom: 0 }}>
+            <Text strong style={{ fontSize: 16 }}>Related concepts</Text>
+          </Paragraph>
+          <div>
+            {
+              result.suggestions
+                .slice(0, 8)
+                .map((suggestedResult) => (
+                  <a
+                    key={ suggestedResult.id }
+                    role="button"
+                    style={{ display: "inline", marginRight: "12px", lineHeight: "36px" }}
+                    onClick={() => setSelectedResult(suggestedResult)}
+                  >
+                    {suggestedResult.name}
+                  </a>
+                ))
+            }
+          </div>
+        </Fragment>
+      ) }
     </Result>
   )
   return (
