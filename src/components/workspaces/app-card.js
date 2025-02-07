@@ -82,8 +82,19 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
         <Card
             style={{ width: '400px', height: '450px' }}
             actions={[
-                launchTab ? (isLaunching ? <Spin /> : <div className="launch_control"><Tooltip title={available ? "" : "The maximum number of instances is currently running"}><Button icon={<RocketOutlined />} disabled={!available} onClick={appLauncher}>Launch</Button></Tooltip><Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>About</Button></div>) :
-                    <Button icon={<SettingOutlined />} key='setting' onClick={() => setLaunchTab(true)}>Configuration</Button>
+                launchTab ? (
+                    isLaunching ?
+                        <Spin /> : <div className="launch_control">
+                            <Tooltip title={available ? "" : count > 1 ? "The maximum number of instances is currently running" : "This application is already launched"}>
+                                <Button icon={<RocketOutlined />} disabled={!available} onClick={appLauncher}>
+                                    Launch
+                                </Button>
+                            </Tooltip>
+                            <Button icon={<InfoCircleOutlined />} onClick={() => setLaunchTab(false)}>
+                                About
+                            </Button>
+                        </div>
+                ) : <Button icon={<SettingOutlined />} key='setting' onClick={() => setLaunchTab(true)}>Configuration</Button>
             ]}
         >
             <div className="app_logo_container">
