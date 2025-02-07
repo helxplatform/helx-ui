@@ -20,7 +20,7 @@ const validateLocalstorageValue = (config, app_id, min, max) => {
     }
 }
 
-export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources, available }) => {
+export const AppCard = ({ name, app_id, description, detail, docs, status, minimum_resources, maximum_resources, available, count }) => {
     const { api, appstoreContext } = useWorkspacesAPI();
     const { addActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
