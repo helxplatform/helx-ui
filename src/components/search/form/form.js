@@ -132,6 +132,10 @@ export const SearchForm = ({ type=undefined, ...props }) => {
     doSearch(selection)
   }
 
+  const handleSearchClick = () => {
+    doSearch(searchTerm)
+  }
+
   const searchSuggestionsWithHistory = useMemo(() => {
     if (searchSuggestions && searchHistory) {
       const suggestions = searchSuggestions.map((hit) => ({
@@ -229,7 +233,7 @@ export const SearchForm = ({ type=undefined, ...props }) => {
               type === MINIMAL ? (
                 <div style={{ display: "flex", alignItems: "center", height: "100%"}}>
                   <Divider type="vertical" style={{ height: "100%", top: 0 }} />
-                  <SearchOutlined style={{ fontSize: "16px", marginLeft: "4px" }} />
+                  <SearchOutlined style={{ fontSize: "16px", marginLeft: "4px" }} onClick={handleSearchClick} />
                 </div>
               ) : undefined
             }
