@@ -80,13 +80,17 @@ export const ActiveView = withWorkspaceAuthentication(() => {
 
     useEffect(() => {
         if (!instances) return
-        
+
         const pollAppReadiness = (instance) => {
             let cancelled = false
             const poll = async () => {
                 try {
                     const ready = await api.getAppReady(instance.sid)
-                    if (!cancelled) setReadinessStates((oldStates) => ({ ...oldStates, [instance.sid]: ready }))
+                    if (!cancelled) {
+                        setReadinessStates((oldStates) => ({ ...oldStates, [instance.sid]: ready }))
+                        // Once the app's readiness probe is passing, we don't need to continue polling it.
+                        if (!ready) setTimeout(poll, 5000)
+                    }
                 } catch (e) {
                     console.log(`Failed to get app readiness for instance ${ instance }`, e)
                     if (!cancelled) setTimeout(poll, 5000)
