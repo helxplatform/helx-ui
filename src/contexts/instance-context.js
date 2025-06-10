@@ -32,7 +32,7 @@ export const InstanceProvider = ({ children }) => {
             let isAppReady = false;
 
             try {
-               isAppReady = await api.getAppReady(decoded_url);
+               isAppReady = await api.getAppReady(sid);
             } catch(e) {} // just absorb the exception, the default false is correct here
             if (isAppReady) {
                 let newActivity = {

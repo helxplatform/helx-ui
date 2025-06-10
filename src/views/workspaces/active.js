@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row, Progress, Space, Tooltip } from 'antd';
 import { DeleteOutlined, RightCircleOutlined, LoadingOutlined, CloseOutlined, ExclamationOutlined, QuestionOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
@@ -18,6 +18,7 @@ const memoryFormatter = (value) => {
 
 export const ActiveView = withWorkspaceAuthentication(() => {
     const [instances, setInstances] = useState();
+    const [readinessStates, setReadinessStates] = useState({})
     const [apps, setApps] = useState();
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setLoading] = useState(false);
@@ -41,6 +42,8 @@ export const ActiveView = withWorkspaceAuthentication(() => {
         { text: 'Workspaces', path: '/helx/workspaces' },
         { text: 'Active', path: '/helx/workspaces/active' },
     ]
+
+    const readinessStateAbortControllers = useRef([])
 
     useTitle("Active Workspaces")
 
@@ -74,6 +77,35 @@ export const ActiveView = withWorkspaceAuthentication(() => {
         else loadAppsConfig();
 
     }, [instances, api])
+
+    useEffect(() => {
+        if (!instances) return
+        
+        const pollAppReadiness = (instance) => {
+            let cancelled = false
+            const poll = async () => {
+                try {
+                    const ready = await api.getAppReady(instance.sid)
+                    if (!cancelled) setReadinessStates((oldStates) => ({ ...oldStates, [instance.sid]: ready }))
+                } catch (e) {
+                    console.log(`Failed to get app readiness for instance ${ instance }`, e)
+                    if (!cancelled) setTimeout(poll, 5000)
+                }
+            }
+            setTimeout(poll, 5000)
+            return () => {
+                cancelled = true
+            }
+        }
+        const launchedApps = instances.filter((instance) => {
+            const activity = getLatestActivity(instance.sid)
+            return activity?.data.status === "LAUNCHED"
+        })
+        const pollCancels = launchedApps.map((instance) => pollAppReadiness(instance))
+        return () => {
+            pollCancels.forEach((cancel) => cancel())
+        }
+    }, [instances, getLatestActivity, api])
 
     const stopInstanceHandler = async () => {
         // besides making requests to delete the instance, close its browser tab and stop polling service
@@ -202,7 +234,14 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                 let activity = getLatestActivity(record.sid)
                 let indicator = null
                 let statusText = null
-                switch (activity?.data.status) {
+
+                let status = activity?.data.status
+                if (status === "LAUNCHED") {
+                    // Containers may be launched but also need to ensure the pod readiness probe has passed,
+                    // otherwise display as still launching.
+                    if (!readinessStates[record.sid]) status = "LAUNCHING"
+                }
+                switch (status) {
                     case "LAUNCHING":
                         indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
                         statusText = "Launching"

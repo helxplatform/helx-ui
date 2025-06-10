@@ -39,7 +39,7 @@ export const SplashScreenView = withWorkspaceAuthentication((props) => {
         (async () => {
             try {
                 await callWithRetry(async () => { 
-                    const isReady = await api.getAppReady(decoded_url);
+                    const isReady = await api.getAppReadyByURL(decoded_url);
                     if (isReady && shouldCancel === false) {
                         setLoading(false)
                     } else {

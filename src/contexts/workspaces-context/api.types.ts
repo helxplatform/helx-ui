@@ -233,5 +233,6 @@ export interface IWorkspacesAPI {
     stopAppInstance(sid: string, fetchOptions?: AxiosRequestConfig): Promise<void>
     updateAppInstance(sid: string, workspace: string, cpu: string, gpu: string, memory: string, fetchOptions?: AxiosRequestConfig): Promise<UpdateAppInstanceResponse>
     launchApp(appId: string, cpus: number, gpus: number, memory: string, fetchOptions?: AxiosRequestConfig): Promise<LaunchAppResponse>
-    getAppReady(appUrl: string, fetchOptions?: AxiosRequestConfig): Promise<boolean>
+    getAppReady(sid: string, fetchOptions?: AxiosRequestConfig): Promise<boolean>
+    getAppReadyByURL(decodedURL: string, fetchOptions?: AxiosRequestConfig): Promise<boolean>
 }

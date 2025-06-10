@@ -357,16 +357,21 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     }
 
     @APIRequest()
-    async getAppReady(decodedURL: string, fetchOptions: AxiosRequestConfig={}): Promise<boolean> {
-        const parts = decodedURL.split('/');
-        const sid = (parts.length >= 2)?parts[parts.length - 2]:"";
-
-        if(sid.length == 0) return false;
+    async getAppReady(sid: string, fetchOptions: AxiosRequestConfig={}): Promise<boolean> {
         const res = await this.axios.get<AppInstanceIsReadyResponse>(`/instances/${ sid }/is_ready/`, {
             ...fetchOptions
         });
         if(res.data) return res.data.is_ready;
         return false;
+    }
+
+    @APIRequest()
+    async getAppReadyByURL(decodedURL: string, fetchOptions: AxiosRequestConfig={}): Promise<boolean> {
+        const parts = decodedURL.split('/');
+        const sid = (parts.length >= 2)?parts[parts.length - 2]:"";
+
+        if(sid.length == 0) return false;
+        return await this.getAppReady(sid, fetchOptions)
     }
 }
 
