@@ -5,7 +5,7 @@ import { LoginForm } from '@ant-design/pro-form'
 import classNames from 'classnames'
 import { FormWrapper } from './form-wrapper'
 import { UsernameInput, PasswordInput } from './form-fields'
-import { GithubSSO, GoogleSSO, UNCSSO } from './sso'
+import {CILogonSSO, CILOGONSSO, GithubSSO, GoogleSSO, UNCSSO} from './sso'
 import { withAPIReady } from '../'
 import { useDest, useEnvironment, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
@@ -39,7 +39,7 @@ const WhitelistRequired = (props) => (
     // </Space>
 )
 
-const SSOLoginOptions = ({ main, unc, google, github, onWhitelistRequired, onSignupRequired }) => (
+const SSOLoginOptions = ({ main, unc, google, github, cilogon, onWhitelistRequired, onSignupRequired }) => (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
         <Divider plain style={{ marginTop: main ? 0 : undefined }}>
             <Text style={{ color: main ? "rgba(0, 0, 0, 0.45)" : "rgba(0, 0, 0, 0.25)", fontWeight: "normal", fontSize: 14 }}>
@@ -55,6 +55,9 @@ const SSOLoginOptions = ({ main, unc, google, github, onWhitelistRequired, onSig
             ) }
             { github && (
                 <GithubSSO onWhitelistRequired={ onWhitelistRequired } onSignupRequired={ onSignupRequired } />
+            ) }
+            { cilogon && (
+                <CILogonSSO onWhitelistRequired={ onWhitelistRequired } onSignupRequired={ onSignupRequired } />
             ) }
         </Space>
     </div>
@@ -87,6 +90,7 @@ export const WorkspaceLoginView = withAPIReady(({
     const allowUncLogin = useMemo(() => loginProviders.includes("UNC Chapel Hill Single Sign-On"), [loginProviders])
     const allowGoogleLogin = useMemo(() => loginProviders.includes("Google"), [loginProviders])
     const allowGithubLogin =  useMemo(() => loginProviders.includes("GitHub"), [loginProviders])
+    const allowCiLogon = useMemo(() => loginProviders.includes("CILogon"), [loginProviders])
 
     const hasAdditionalProviders = useMemo(() => (
         allowUncLogin ||
@@ -193,6 +197,7 @@ export const WorkspaceLoginView = withAPIReady(({
                                 unc={ allowUncLogin }
                                 google={ allowGoogleLogin }
                                 github={ allowGithubLogin }
+                                cilogon={ allowCiLogon }
                                 onWhitelistRequired={ () => {
                                     setShowWhitelistRequired(true)
                                 } }
