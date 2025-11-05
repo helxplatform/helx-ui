@@ -271,6 +271,11 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     loginSAMLUNC() {
         return this.loginSAML(`${this.apiUrl}../../accounts/saml/`, 448, 753)
     }
+
+    @APIRequest()
+    loginSAMLCILogon() {
+        return this.loginSAML(`${this.apiUrl}../../accounts/cilogon/login/?process=/`, 448, 753)
+    }
     
     @APIRequest()
     loginSAMLGoogle() {
