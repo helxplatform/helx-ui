@@ -274,7 +274,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
 
     @APIRequest()
     loginSAMLCILogon() {
-        return this.loginSAML(`${this.apiUrl}../../accounts/cilogon/login/?process=/`, 448, 753)
+        return this.loginSAML(`${this.apiUrl}../../accounts/cilogon/login/?process=`, 448, 753)
     }
     
     @APIRequest()
