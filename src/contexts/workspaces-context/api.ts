@@ -274,7 +274,10 @@ export class WorkspacesAPI implements IWorkspacesAPI {
 
     @APIRequest()
     loginSAMLCILogon() {
-        return this.loginSAML(`${this.apiUrl}../../accounts/cilogon/login/?process=`, 600, 760)
+        // return this.loginSAML(`${this.apiUrl}../../accounts/cilogon/login/?process=`, 600, 760)
+
+        // note: because of CILogon's cross-origin-opener-policy only redirects can be supported
+        window.location.href = `${this.apiUrl}../../accounts/cilogon/login/?process=`
     }
     
     @APIRequest()
