@@ -5,7 +5,7 @@ import { LoginForm } from '@ant-design/pro-form'
 import classNames from 'classnames'
 import { FormWrapper } from './form-wrapper'
 import { UsernameInput, PasswordInput } from './form-fields'
-import {CILogonSSO, CILOGONSSO, GithubSSO, GoogleSSO, UNCSSO} from './sso'
+import { CILogonSSO, GithubSSO, GoogleSSO, UNCSSO } from './sso'
 import { withAPIReady } from '../'
 import { useDest, useEnvironment, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
@@ -95,8 +95,9 @@ export const WorkspaceLoginView = withAPIReady(({
     const hasAdditionalProviders = useMemo(() => (
         allowUncLogin ||
         allowGoogleLogin ||
-        allowGithubLogin
-    ), [allowUncLogin, allowGoogleLogin, allowGithubLogin])
+        allowGithubLogin ||
+        allowCiLogon
+    ), [allowUncLogin, allowGoogleLogin, allowGithubLogin, allowCiLogon])
 
     useEffect(() => {
         if (revalidateForm) {
