@@ -90,14 +90,14 @@ export const WorkspaceLoginView = withAPIReady(({
     const allowUncLogin = useMemo(() => loginProviders.includes("UNC Chapel Hill Single Sign-On"), [loginProviders])
     const allowGoogleLogin = useMemo(() => loginProviders.includes("Google"), [loginProviders])
     const allowGithubLogin =  useMemo(() => loginProviders.includes("GitHub"), [loginProviders])
-    const allowCiLogon = useMemo(() => loginProviders.includes("CILogon"), [loginProviders])
+    const allowCILogon = useMemo(() => loginProviders.includes("CILogon"), [loginProviders])
 
     const hasAdditionalProviders = useMemo(() => (
         allowUncLogin ||
         allowGoogleLogin ||
         allowGithubLogin ||
-        allowCiLogon
-    ), [allowUncLogin, allowGoogleLogin, allowGithubLogin, allowCiLogon])
+        allowCILogon
+    ), [allowUncLogin, allowGoogleLogin, allowGithubLogin, allowCILogon])
 
     useEffect(() => {
         if (revalidateForm) {
@@ -198,7 +198,7 @@ export const WorkspaceLoginView = withAPIReady(({
                                 unc={ allowUncLogin }
                                 google={ allowGoogleLogin }
                                 github={ allowGithubLogin }
-                                cilogon={ allowCiLogon }
+                                cilogon={ allowCILogon }
                                 onWhitelistRequired={ () => {
                                     setShowWhitelistRequired(true)
                                 } }
@@ -218,14 +218,16 @@ export const WorkspaceLoginView = withAPIReady(({
                     <UsernameInput name="username" { ...formFieldProps } />
                     <PasswordInput name="password" { ...formFieldProps } />
                 </LoginForm>
-                { showWhitelistRequired && (
+                {
+                    showWhitelistRequired && (
                     <WhitelistRequired
                         closable={ true }
                         onClose={ () => setShowWhitelistRequired(false) }
                         // align-self for auto width, instead of stretch.
                         style={{ marginTop: 16, alignSelf: "center" }}
                     />
-                ) }
+                    )
+                }
             </FormWrapper>
         </div>
     )
