@@ -5,7 +5,7 @@ import { LoginForm } from '@ant-design/pro-form'
 import classNames from 'classnames'
 import { FormWrapper } from './form-wrapper'
 import { UsernameInput, PasswordInput } from './form-fields'
-import { CILogonSSO, GithubSSO, GoogleSSO, UNCSSO } from './sso'
+import { CILogonSSO, GithubSSO, GoogleSSO, UNCSSO, DexOAuth } from './sso'
 import { withAPIReady } from '../'
 import { useDest, useEnvironment, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
@@ -39,7 +39,7 @@ const WhitelistRequired = (props) => (
     // </Space>
 )
 
-const SSOLoginOptions = ({ main, unc, google, github, cilogon, onWhitelistRequired, onSignupRequired }) => (
+const SSOLoginOptions = ({ main, unc, google, github, cilogon, dex, onWhitelistRequired, onSignupRequired }) => (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
         <Divider plain style={{ marginTop: main ? 0 : undefined }}>
             <Text style={{ color: main ? "rgba(0, 0, 0, 0.45)" : "rgba(0, 0, 0, 0.25)", fontWeight: "normal", fontSize: 14 }}>
@@ -58,6 +58,9 @@ const SSOLoginOptions = ({ main, unc, google, github, cilogon, onWhitelistRequir
             ) }
             { cilogon && (
                 <CILogonSSO onWhitelistRequired={ onWhitelistRequired } onSignupRequired={ onSignupRequired } />
+            ) }
+            { dex && (
+                <DexOAuth onWhitelistRequired={ onWhitelistRequired } onSignupRequired={ onSignupRequired } />
             ) }
         </Space>
     </div>
@@ -91,13 +94,15 @@ export const WorkspaceLoginView = withAPIReady(({
     const allowGoogleLogin = useMemo(() => loginProviders.includes("Google"), [loginProviders])
     const allowGithubLogin =  useMemo(() => loginProviders.includes("GitHub"), [loginProviders])
     const allowCILogon = useMemo(() => loginProviders.includes("CILogon"), [loginProviders])
+    const allowDexLogon = true; //useMemo(() => loginProviders.includes("dex"), [loginProviders])
 
     const hasAdditionalProviders = useMemo(() => (
         allowUncLogin ||
         allowGoogleLogin ||
         allowGithubLogin ||
-        allowCILogon
-    ), [allowUncLogin, allowGoogleLogin, allowGithubLogin, allowCILogon])
+        allowCILogon ||
+        allowDexLogon
+    ), [allowUncLogin, allowGoogleLogin, allowGithubLogin, allowCILogon, allowDexLogon])
 
     useEffect(() => {
         if (revalidateForm) {
@@ -199,6 +204,7 @@ export const WorkspaceLoginView = withAPIReady(({
                                 google={ allowGoogleLogin }
                                 github={ allowGithubLogin }
                                 cilogon={ allowCILogon }
+                                dex={ allowDexLogon }
                                 onWhitelistRequired={ () => {
                                     setShowWhitelistRequired(true)
                                 } }
