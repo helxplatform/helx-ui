@@ -1,4 +1,5 @@
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from '@gatsbyjs/reach-router'
 import { Button, Typography, Form, Divider, Space, Alert, Result } from 'antd'
 import Icon, { AppstoreOutlined, WarningOutlined } from '@ant-design/icons'
 import { LoginForm } from '@ant-design/pro-form'
@@ -72,13 +73,14 @@ export const WorkspaceLoginView = withAPIReady(({
 }) => {
     const [currentlyValidating, setCurrentlyValidating] = useState(false)
     const [errors, setErrors] = useState([])
-    const [showWhitelistRequired, setShowWhitelistRequired] = useState(false)
     const [revalidateForm, setRevalidateForm] = useState(false)
 
     const [form] = useForm()
     const { context, basePath } = useEnvironment()
     const { api, user, loggedIn, loginProviders } = useWorkspacesAPI()
     const { redirectToDest, redirectWithCurrentDest } = useDest()
+    const location = useLocation()
+    const navigate = useNavigate()
 
     useTitle("Login")
 
@@ -103,6 +105,18 @@ export const WorkspaceLoginView = withAPIReady(({
         allowCILogon ||
         allowDexLogon
     ), [allowUncLogin, allowGoogleLogin, allowGithubLogin, allowCILogon, allowDexLogon])
+
+    const showWhitelistRequired = useMemo(() => {
+        const required = new URLSearchParams(location.search).get("whitelist_required")
+        return required ? required.toLowerCase() === "true" : false
+    }, [location])
+    const setShowWhitelistRequired = useCallback((whitelistRequired) => {
+        const params = new URLSearchParams(location.search)
+        if (!whitelistRequired) params.delete("whitelist_required")
+        else params.set("whitelist_required", whitelistRequired)
+        const qsString = params.toString()
+        navigate(`${ location.pathname }?${ qsString }`)
+    }, [location, navigate])
 
     useEffect(() => {
         if (revalidateForm) {

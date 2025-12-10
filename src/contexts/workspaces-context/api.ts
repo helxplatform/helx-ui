@@ -124,6 +124,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     async getActiveUser(fetchOptions: AxiosRequestConfig={}): Promise<User|null> {
         /** Get information about the active (logged in) user, check if whitelist required */
         const res = await this.axios.get<UsersResponse>("/users/", fetchOptions)
+        // Supports old versions of appstore.
         if (/\/login_whitelist\/?$/.test(res.request.responseURL)) {
             throw new WhitelistRequiredError()
         }
