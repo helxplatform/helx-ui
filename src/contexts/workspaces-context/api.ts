@@ -284,22 +284,11 @@ export class WorkspacesAPI implements IWorkspacesAPI {
 
     @APIRequest()
     loginDex() {
-        // https://cilogon.org/authorize?client_id=cilogon%3A%2Fclient_id%2F54c7f6324cf8c00bdfa505ae7121d0c3&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Faccounts%2Fcilogon%2Flogin%2Fcallback%2F&scope=org.cilogon.userinfo+openid+profile+email&response_type=code&state=5uemd2vtDISPTVh0
+        // const url = `https://helx-dex-server.apps.renci.org/dex/auth?client_id=django&response_type=code&scope=openid&redirect_uri=http://localhost:8000/accounts/dex/login/callback/`
 
-        // window.location.href = `http://dex-server:5556/dex/auth?access_type=offline&code_challenge=4D_XTSNq5SlWWyJ2NirJ6vukwVo2zhf-FGEf8bUQ968&code_challenge_method=S256&redirect_uri=http://dex-client:5555/callback&response_type=code&scope=audience:server:client_id:example-app+openid+profile+email+offline_access&state=I+wish+to+wash+my+irish+wristwatch`
-
-        // const url = `https://helx-dex-server.apps.renci.org/dex/auth?client_id=django&code_challenge=IVU6q5ggIFd4ddP6KSVfxV7UTGuEUKE1xk10oMOREWc&code_challenge_method=S256&redirect_uri=https%3A%2F%2Fhelx-dex-client.apps.renci.org%2Fcallback&response_type=code&scope=openid+profile+email+offline_access&state=I+wish+to+wash+my+irish+wristwatch`
-
-        // const url = `https://helx-dex-server.apps.renci.org/dex/auth?client_id=django&code_challenge=IVU6q5ggIFd4ddP6KSVfxV7UTGuEUKE1xk10oMOREWc&code_challenge_method=S256&redirect_uri=http://localhost:8000/oidc/callback&response_type=code&scope=openid+profile+email+offline_access&state=I+wish+to+wash+my+irish+wristwatch`
-
-        // this works -> const url = `https://helx-dex-server.apps.renci.org/dex/auth?client_id=django&response_type=code&scope=openid&redirect_uri=https://helx-dex-client.apps.renci.org/callback`
-
-        const url = `https://helx-dex-server.apps.renci.org/dex/auth?client_id=django&response_type=code&scope=openid&redirect_uri=http://localhost:8000/accounts/dex/login/callback/`
+        const url = `${this.apiUrl}../../accounts/oidc/dex/login/`;
 
         window.location.href = url
-
-        // gets to the cilogon page - invalid redirect_url for client
-        // window.location.href = `https://helx-dex-server.apps.renci.org/dex/auth?access_type=offline&client_id=helx-dex-client&code_challenge=IVU6q5ggIFd4ddP6KSVfxV7UTGuEUKE1xk10oMOREWc&code_challenge_method=S256&redirect_uri=https%3A%2F%2Fhelx-dex-client.apps.renci.org%2Fcallback&response_type=code&scope=openid+profile+email+offline_access&state=I+wish+to+wash+my+irish+wristwatch`
     }
 
     @APIRequest()
