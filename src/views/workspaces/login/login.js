@@ -96,7 +96,7 @@ export const WorkspaceLoginView = withAPIReady(({
     const allowGoogleLogin = useMemo(() => loginProviders.includes("Google"), [loginProviders])
     const allowGithubLogin =  useMemo(() => loginProviders.includes("GitHub"), [loginProviders])
     const allowCILogon = useMemo(() => loginProviders.includes("CILogon"), [loginProviders])
-    const allowDexLogon = true; //useMemo(() => loginProviders.includes("dex"), [loginProviders])
+    const allowDexLogon = useMemo(() => loginProviders.includes("dex"), [loginProviders])
 
     const hasAdditionalProviders = useMemo(() => (
         allowUncLogin ||
