@@ -223,6 +223,9 @@ export interface IWorkspacesAPI {
      */
     loginSAMLUNC(): Promise<void>
     loginSAMLGoogle(): Promise<void>
+    loginSAMLCILogon(): void
+    loginDex(): void
+
     logout(fetchOptions?: AxiosRequestConfig): Promise<LogoutResponse>
     /** May throw a WhitelistRequiredError */
     getActiveUser(fetchOptions?: AxiosRequestConfig): Promise<User|null>
