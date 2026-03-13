@@ -225,6 +225,7 @@ export interface IWorkspacesAPI {
     loginSAMLGoogle(): Promise<void>
     loginSAMLCILogon(): void
     loginDex(): void
+    loginKeycloak(): void
 
     logout(fetchOptions?: AxiosRequestConfig): Promise<LogoutResponse>
     /** May throw a WhitelistRequiredError */
