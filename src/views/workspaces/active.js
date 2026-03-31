@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row, Progress, Space, Tooltip } from 'antd';
 import { DeleteOutlined, RightCircleOutlined, LoadingOutlined, CloseOutlined, ExclamationOutlined, QuestionOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
@@ -7,6 +7,7 @@ import { useActivity, useApp, useInstance, useAnalytics, useWorkspacesAPI } from
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
+import { callWithRetry } from '../../utils';
 import { updateTabName } from '../../utils/update-tab-name';
 import { withWorkspaceAuthentication } from '.';
 import { navigate } from '@gatsbyjs/reach-router';
@@ -36,6 +37,11 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     const [cpu, setCpu] = useState();
     const [gpu, setGpu] = useState();
     const [memory, setMemory] = useState();
+    // Tracks readiness probe results per instance: "checking" | "ready" | "failed"
+    const [readinessMap, setReadinessMap] = useState({});
+    // Ref to track which sids already have an in-flight readiness probe so we don't duplicate
+    const readinessProbesRef = useRef({});
+
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
         { text: 'Workspaces', path: '/helx/workspaces' },
@@ -43,6 +49,48 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     ]
 
     useTitle("Active Workspaces")
+
+    // Kick off readiness probes for instances that have reached LAUNCHED status
+    useEffect(() => {
+        if (!instances || instances.length === 0) return;
+
+        let cancelled = false;
+
+        for (const instance of instances) {
+            const activity = getLatestActivity(instance.sid);
+            if (activity?.data.status !== "LAUNCHED") continue;
+            // Skip if we already started a probe or have a result for this sid
+            if (readinessProbesRef.current[instance.sid]) continue;
+
+            readinessProbesRef.current[instance.sid] = true;
+            setReadinessMap((prev) => ({ ...prev, [instance.sid]: "checking" }));
+
+            const decodedUrl = decodeURIComponent(instance.url);
+
+            (async () => {
+                try {
+                    await callWithRetry(async () => {
+                        const isReady = await api.getAppReady(decodedUrl);
+                        if (!isReady) throw new Error("app not ready");
+                    }, {
+                        failedCallback: () => cancelled,
+                        timeout: 600000,
+                        initialDelay: 6000,
+                        depth: 15
+                    });
+                    if (!cancelled) {
+                        setReadinessMap((prev) => ({ ...prev, [instance.sid]: "ready" }));
+                    }
+                } catch (e) {
+                    if (!cancelled) {
+                        setReadinessMap((prev) => ({ ...prev, [instance.sid]: "failed" }));
+                    }
+                }
+            })();
+        }
+
+        return () => { cancelled = true; };
+    }, [instances, api, getLatestActivity]);
 
     useEffect(() => {
         const renderInstance = async () => {
@@ -207,10 +255,23 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                         indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
                         statusText = "Launching"
                         break
-                    case "LAUNCHED":
-                        indicator = <Progress type="circle" percent={ 100 } width={ 16 } />
-                        statusText = "Ready"
+                    case "LAUNCHED": {
+                        const readiness = readinessMap[record.sid];
+                        if (readiness === "ready") {
+                            indicator = <Progress type="circle" percent={ 100 } width={ 16 } />
+                            statusText = "Ready"
+                        } else if (readiness === "failed") {
+                            // Readiness probe timed out — app launched but not responding yet.
+                            // Use a warning-style indicator rather than a hard error.
+                            indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16, color: "#faad14" }} spin /> } />
+                            statusText = "Not responding"
+                        } else {
+                            // "checking" or probe not yet started
+                            indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
+                            statusText = "Verifying"
+                        }
                         break
+                    }
                     case "FAILED":
                         indicator = (
                             <Progress
