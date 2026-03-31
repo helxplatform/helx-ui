@@ -50,20 +50,41 @@ export const ActiveView = withWorkspaceAuthentication(() => {
 
     useTitle("Active Workspaces")
 
-    // Kick off readiness probes for instances that have reached LAUNCHED status
+    // Cancel all in-flight readiness probes on unmount
+    useEffect(() => {
+        return () => {
+            for (const entry of Object.values(readinessProbesRef.current)) {
+                if (entry?.token) entry.token.cancelled = true;
+            }
+            readinessProbesRef.current = {};
+        };
+    }, []);
+
+    // Kick off readiness probes for all instances.
+    // No cleanup is returned so that re-runs (from new `instances` references)
+    // do not cancel probes that are still in-flight.
     useEffect(() => {
         if (!instances || instances.length === 0) return;
 
-        let cancelled = false;
+        // Cancel probes for instances that have been removed
+        const currentSids = new Set(instances.map((i) => i.sid));
+        for (const sid of Object.keys(readinessProbesRef.current)) {
+            if (!currentSids.has(sid)) {
+                const entry = readinessProbesRef.current[sid];
+                if (entry?.token) entry.token.cancelled = true;
+                delete readinessProbesRef.current[sid];
+            }
+        }
 
         for (const instance of instances) {
-            const activity = getLatestActivity(instance.sid);
-            if (activity?.data.status !== "LAUNCHED") continue;
-            // Skip if we already started a probe or have a result for this sid
-            if (readinessProbesRef.current[instance.sid]) continue;
+            const sid = instance.sid;
+            const existing = readinessProbesRef.current[sid];
+            // Skip if a probe is already in-flight or has already succeeded
+            if (existing?.active || existing?.result === "ready") continue;
 
-            readinessProbesRef.current[instance.sid] = true;
-            setReadinessMap((prev) => ({ ...prev, [instance.sid]: "checking" }));
+            const token = { cancelled: false };
+            readinessProbesRef.current[sid] = { active: true, token, result: null };
+            setReadinessMap((prev) => ({ ...prev, [sid]: "checking" }));
 
             const decodedUrl = decodeURIComponent(instance.url);
 
@@ -73,24 +94,24 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                         const isReady = await api.getAppReady(decodedUrl);
                         if (!isReady) throw new Error("app not ready");
                     }, {
-                        failedCallback: () => cancelled,
+                        failedCallback: () => token.cancelled,
                         timeout: 600000,
                         initialDelay: 6000,
                         depth: 15
                     });
-                    if (!cancelled) {
-                        setReadinessMap((prev) => ({ ...prev, [instance.sid]: "ready" }));
+                    if (!token.cancelled) {
+                        readinessProbesRef.current[sid] = { active: false, token, result: "ready" };
+                        setReadinessMap((prev) => ({ ...prev, [sid]: "ready" }));
                     }
                 } catch (e) {
-                    if (!cancelled) {
-                        setReadinessMap((prev) => ({ ...prev, [instance.sid]: "failed" }));
+                    if (!token.cancelled) {
+                        readinessProbesRef.current[sid] = { active: false, token, result: "failed" };
+                        setReadinessMap((prev) => ({ ...prev, [sid]: "failed" }));
                     }
                 }
             })();
         }
-
-        return () => { cancelled = true; };
-    }, [instances, api, getLatestActivity]);
+    }, [instances, api]);
 
     useEffect(() => {
         const renderInstance = async () => {
@@ -247,31 +268,29 @@ export const ActiveView = withWorkspaceAuthentication(() => {
             title: 'Status',
             align: 'center',
             render: (record) => {
+                const readiness = readinessMap[record.sid];
                 let activity = getLatestActivity(record.sid)
                 let indicator = null
                 let statusText = null
-                switch (activity?.data.status) {
+
+                // Readiness probe passed — show Ready regardless of activity status
+                if (readiness === "ready") {
+                    indicator = <Progress type="circle" percent={ 100 } width={ 16 } />
+                    statusText = "Ready"
+                } else switch (activity?.data.status) {
                     case "LAUNCHING":
                         indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
                         statusText = "Launching"
                         break
-                    case "LAUNCHED": {
-                        const readiness = readinessMap[record.sid];
-                        if (readiness === "ready") {
-                            indicator = <Progress type="circle" percent={ 100 } width={ 16 } />
-                            statusText = "Ready"
-                        } else if (readiness === "failed") {
-                            // Readiness probe timed out — app launched but not responding yet.
-                            // Use a warning-style indicator rather than a hard error.
+                    case "LAUNCHED":
+                        if (readiness === "failed") {
                             indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16, color: "#faad14" }} spin /> } />
                             statusText = "Not responding"
                         } else {
-                            // "checking" or probe not yet started
                             indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
                             statusText = "Verifying"
                         }
                         break
-                    }
                     case "FAILED":
                         indicator = (
                             <Progress
