@@ -4,7 +4,7 @@ import { navigate } from '@gatsbyjs/reach-router';
 import { RocketOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ExternalLink } from '../';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
-import { useActivity, useInstance, useAnalytics, useEnvironment, useWorkspacesAPI } from "../../contexts";
+import { useActivity, useAnalytics, useEnvironment, useWorkspacesAPI } from "../../contexts";
 import './app-card.css';
 
 const { Meta } = Card;
@@ -27,7 +27,6 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     const { context } = useEnvironment()
     const [launchTab, setLaunchTab] = useState(true);
     const [isLaunching, setLaunching] = useState(false);
-    const { pollingInstance } = useInstance();
     const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
     const [currentCpu, setCpu] = useState(validateLocalstorageValue('cpu', app_id, minimum_resources.cpus, maximum_resources.cpus));
     const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpus, maximum_resources.gpus));
@@ -52,8 +51,6 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
             }
             analyticsEvents.appLaunched(name, sid, currentCpu, currentGpu, currentMemory, false)
             addActivity(newActivity)
-            // start polling service and navigate to active tab if the launch is successful
-            pollingInstance(app_id, sid, data.url, name);
             navigate('/helx/workspaces/active');
         } catch (e) {
             let newActivity = {

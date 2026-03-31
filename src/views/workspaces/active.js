@@ -25,7 +25,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     const { api } = useWorkspacesAPI()
     const { appSpecs, appActivityCache, getLatestActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
-    const { pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
+    const { addOrDeleteInstanceTab } = useInstance();
     const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
     const [stopModalVisibility, setStopModalVisibility] = useState(false);
     const [stopAllModalVisibility, setStopAllModalVisibility] = useState(false);
@@ -127,7 +127,6 @@ export const ActiveView = withWorkspaceAuthentication(() => {
         // besides making requests to delete the instance, close its browser tab and stop polling service
         setIsStopping(true);
         addOrDeleteInstanceTab("close", currentRecord.sid);
-        stopPolling(currentRecord.sid)
 
         try {
             await api.stopAppInstance(currentRecord.sid)
@@ -210,7 +209,6 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                 setUpdateModalVisibility(false);
                 setUpdating(false);
                 appUpdatedAnalyticsEvent(false)
-                pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
                 setRefresh(!refresh);
             } else {
                 failed = true
