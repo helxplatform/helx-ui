@@ -7,7 +7,7 @@ import { useActivity, useApp, useInstance, useAnalytics, useWorkspacesAPI } from
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
-import { callWithRetry } from '../../utils';
+
 import { updateTabName } from '../../utils/update-tab-name';
 import { withWorkspaceAuthentication } from '.';
 import { navigate } from '@gatsbyjs/reach-router';
@@ -37,9 +37,9 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     const [cpu, setCpu] = useState();
     const [gpu, setGpu] = useState();
     const [memory, setMemory] = useState();
-    // Tracks readiness probe results per instance: "checking" | "ready" | "failed"
+    // Readiness state per sid: "ready" once the probe passes, absent otherwise
     const [readinessMap, setReadinessMap] = useState({});
-    // Ref to track which sids already have an in-flight readiness probe so we don't duplicate
+    // Ref values: true = polling in progress, "ready" = passed (stop polling)
     const readinessProbesRef = useRef({});
 
     const breadcrumbs = [
@@ -50,68 +50,47 @@ export const ActiveView = withWorkspaceAuthentication(() => {
 
     useTitle("Active Workspaces")
 
-    // Cancel all in-flight readiness probes on unmount
-    useEffect(() => {
-        return () => {
-            for (const entry of Object.values(readinessProbesRef.current)) {
-                if (entry?.token) entry.token.cancelled = true;
-            }
-            readinessProbesRef.current = {};
-        };
-    }, []);
-
-    // Kick off readiness probes for all instances.
-    // No cleanup is returned so that re-runs (from new `instances` references)
-    // do not cancel probes that are still in-flight.
+    // Poll readiness for each instance. Once an instance passes, it stays "ready".
+    // Ref guards against duplicate loops: true = polling, "ready" = done.
     useEffect(() => {
         if (!instances || instances.length === 0) return;
 
-        // Cancel probes for instances that have been removed
-        const currentSids = new Set(instances.map((i) => i.sid));
-        for (const sid of Object.keys(readinessProbesRef.current)) {
-            if (!currentSids.has(sid)) {
-                const entry = readinessProbesRef.current[sid];
-                if (entry?.token) entry.token.cancelled = true;
-                delete readinessProbesRef.current[sid];
-            }
-        }
-
         for (const instance of instances) {
             const sid = instance.sid;
-            const existing = readinessProbesRef.current[sid];
-            // Skip if a probe is already in-flight or has already succeeded
-            if (existing?.active || existing?.result === "ready") continue;
+            // Already polling or already passed
+            if (readinessProbesRef.current[sid]) continue;
 
-            const token = { cancelled: false };
-            readinessProbesRef.current[sid] = { active: true, token, result: null };
-            setReadinessMap((prev) => ({ ...prev, [sid]: "checking" }));
-
+            readinessProbesRef.current[sid] = true;
             const decodedUrl = decodeURIComponent(instance.url);
 
             (async () => {
-                try {
-                    await callWithRetry(async () => {
+                while (readinessProbesRef.current[sid] === true) {
+                    try {
                         const isReady = await api.getAppReady(decodedUrl);
-                        if (!isReady) throw new Error("app not ready");
-                    }, {
-                        failedCallback: () => token.cancelled,
-                        timeout: 600000,
-                        initialDelay: 6000,
-                        depth: 15
-                    });
-                    if (!token.cancelled) {
-                        readinessProbesRef.current[sid] = { active: false, token, result: "ready" };
-                        setReadinessMap((prev) => ({ ...prev, [sid]: "ready" }));
+                        if (isReady && readinessProbesRef.current[sid] === true) {
+                            readinessProbesRef.current[sid] = "ready";
+                            setReadinessMap((prev) => ({ ...prev, [sid]: "ready" }));
+                            return;
+                        }
+                    } catch (e) {
+                        // ignore, retry next iteration
                     }
-                } catch (e) {
-                    if (!token.cancelled) {
-                        readinessProbesRef.current[sid] = { active: false, token, result: "failed" };
-                        setReadinessMap((prev) => ({ ...prev, [sid]: "failed" }));
-                    }
+                    await new Promise((r) => setTimeout(r, 5000));
                 }
             })();
         }
     }, [instances, api]);
+
+    // Stop all active polling loops on unmount. Completed ("ready") entries
+    // are preserved so a StrictMode remount won't re-poll them.
+    useEffect(() => {
+        const probes = readinessProbesRef.current;
+        return () => {
+            for (const sid of Object.keys(probes)) {
+                if (probes[sid] === true) probes[sid] = false;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         const renderInstance = async () => {
@@ -283,13 +262,8 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                         statusText = "Launching"
                         break
                     case "LAUNCHED":
-                        if (readiness === "failed") {
-                            indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16, color: "#faad14" }} spin /> } />
-                            statusText = "Not responding"
-                        } else {
-                            indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
-                            statusText = "Verifying"
-                        }
+                        indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
+                        statusText = "Verifying"
                         break
                     case "FAILED":
                         indicator = (
