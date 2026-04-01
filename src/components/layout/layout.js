@@ -78,7 +78,7 @@ export const Layout = ({ children }) => {
             {context.workspaces_enabled === 'true' && !apiLoading && loggedIn && (
               <div style={{ height: "100%" }}>
                 <Button
-                  type="primary"
+                  type={context.brand === 'ai_sandbox' ? 'default' : 'primary'}
                   ghost
                   className="logout-button"
                   // Could use `loading` property but logout tends to happen so quickly that it doesn't work well.
@@ -108,8 +108,9 @@ export const Layout = ({ children }) => {
         }}>
           <span style={{
             color: '#fff',
-            fontSize: 42,
-            fontWeight: 300
+            fontSize: 40,
+            fontWeight: 300,
+            letterSpacing: 2
           }}>
             AI Applied Research Collaborations
           </span>
