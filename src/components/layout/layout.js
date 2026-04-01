@@ -14,7 +14,7 @@ export const Layout = ({ children }) => {
   const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
   const { api, loading: apiLoading, loggedIn, appstoreContext } = useWorkspacesAPI()
   const { analyticsEvents } = useAnalytics()
-  const { md } = useBreakpoint()
+  const { sm, md, lg } = useBreakpoint()
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
   const location = useLocation();
   const navigate = useNavigate()
@@ -104,13 +104,15 @@ export const Layout = ({ children }) => {
           backgroundImage: "url('" + context.logo_url.substring(0, context.logo_url.lastIndexOf('/')) + '/banner.png' + "')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
+          backgroundRepeat: 'no-repeat',
         }}>
           <span style={{
             color: '#fff',
-            fontSize: 40,
+            fontSize: md ? 40 : sm ? 32 : 24,
             fontWeight: 300,
-            letterSpacing: 2
+            letterSpacing: 2,
+            textAlign: 'center',
+            padding: '0 16px'
           }}>
             AI Applied Research Collaborations
           </span>
