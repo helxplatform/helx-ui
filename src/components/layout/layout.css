@@ -1,5 +1,7 @@
 .helx-header {
     padding-right: 2px !important;
+    background: #fff;
+    border-bottom: '1px solid #f0f0f0'
 }
 
 .brand_img {
@@ -26,4 +28,23 @@
 
 .logout-button {
     margin: 0 1rem 0 0.5rem;
+}
+
+
+.helx-header.ai-sandbox-theme {
+    background: #192d3f;
+    border-bottom: 0;
+}
+.helx-header.ai-sandbox-theme .ant-menu-item a {
+    color: #fff !important;
+}
+.helx-header.ai-sandbox-theme .ant-menu-item-active::after {
+    border-color: #fff !important;
+}
+.helx-header.ai-sandbox-theme .ant-menu-item-selected::after {
+    border-color: #fff !important;
+}
+.helx-header.ai-sandbox-theme .logout-button:disabled {
+    color: rgba(255,255,255,0.7);
+    border-color: rgba(255,255,255,0.7);
 }
