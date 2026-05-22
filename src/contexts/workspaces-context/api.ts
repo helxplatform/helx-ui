@@ -124,6 +124,7 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     async getActiveUser(fetchOptions: AxiosRequestConfig={}): Promise<User|null> {
         /** Get information about the active (logged in) user, check if whitelist required */
         const res = await this.axios.get<UsersResponse>("/users/", fetchOptions)
+        // Supports old versions of appstore.
         if (/\/login_whitelist\/?$/.test(res.request.responseURL)) {
             throw new WhitelistRequiredError()
         }
@@ -271,7 +272,26 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     loginSAMLUNC() {
         return this.loginSAML(`${this.apiUrl}../../accounts/saml/`, 448, 753)
     }
-    
+
+    @APIRequest()
+    loginSAMLCILogon() {
+        // return this.loginSAML(`${this.apiUrl}../../accounts/cilogon/login/?process=`, 600, 760)
+
+        // note: because of CILogon's cross-origin-opener-policy only redirects cant be supported
+        const url = `${this.apiUrl}../../accounts/cilogon/login/?process=`
+
+        window.location.href = url
+    }
+
+    @APIRequest()
+    loginDex() {
+        // const url = `https://helx-dex-server.apps.renci.org/dex/auth?client_id=django&response_type=code&scope=openid&redirect_uri=http://localhost:8000/accounts/dex/login/callback/`
+
+        const url = `${this.apiUrl}../../accounts/oidc/dex/login/`;
+
+        window.location.href = url
+    }
+
     @APIRequest()
     loginSAMLGoogle() {
         /** I've been informed that we aren't actually using Google SAML, we're using OAuth... but this gets the job done regardless. */

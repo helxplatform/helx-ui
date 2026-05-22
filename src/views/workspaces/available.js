@@ -4,7 +4,7 @@ import { withWorkspaceAuthentication, WorkspaceProtectedView } from './'
 import { withView } from '../'
 import { AppCard } from '../../components/workspaces'
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group'
-import { useActivity, useApp, useEnvironment, useInstance, useWorkspacesAPI } from '../../contexts'
+import { useActivity, useWorkspacesAPI } from '../../contexts'
 import { openNotificationWithIcon } from '../../components/notifications';
 import { Breadcrumbs } from '../../components/layout'
 import '../../components/workspaces/app-card.css'
@@ -16,7 +16,6 @@ export const AvailableView = withWorkspaceAuthentication(() => {
     const { appSpecs: apps } = useActivity()
     const [runningInstances, setRunningInstances] = useState();
     const [filteredApps, setFilteredApps] = useState();
-    // const { loadInstances } = useInstance();
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
         { text: 'Workspaces', path: '/helx/workspaces' },

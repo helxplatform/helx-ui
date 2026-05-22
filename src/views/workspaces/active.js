@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Col, Form, Input, Layout, Modal, Table, Typography, Slider, Spin, Row, Progress, Space, Tooltip } from 'antd';
 import { DeleteOutlined, RightCircleOutlined, LoadingOutlined, CloseOutlined, ExclamationOutlined, QuestionOutlined } from '@ant-design/icons';
 import { NavigationTabGroup } from '../../components/workspaces/navigation-tab-group';
@@ -7,6 +7,7 @@ import { useActivity, useApp, useInstance, useAnalytics, useWorkspacesAPI } from
 import { Breadcrumbs } from '../../components/layout'
 import TimeAgo from 'timeago-react';
 import { toBytes, bytesToMegabytes, formatBytes } from '../../utils/memory-converter';
+
 import { updateTabName } from '../../utils/update-tab-name';
 import { withWorkspaceAuthentication } from '.';
 import { navigate } from '@gatsbyjs/reach-router';
@@ -24,7 +25,7 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     const { api } = useWorkspacesAPI()
     const { appSpecs, appActivityCache, getLatestActivity } = useActivity();
     const { analyticsEvents } = useAnalytics();
-    const { pollingInstance, addOrDeleteInstanceTab, stopPolling } = useInstance();
+    const { addOrDeleteInstanceTab } = useInstance();
     const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
     const [stopModalVisibility, setStopModalVisibility] = useState(false);
     const [stopAllModalVisibility, setStopAllModalVisibility] = useState(false);
@@ -36,6 +37,11 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     const [cpu, setCpu] = useState();
     const [gpu, setGpu] = useState();
     const [memory, setMemory] = useState();
+    // Readiness state per sid: "ready" once the probe passes, absent otherwise
+    const [readinessMap, setReadinessMap] = useState({});
+    // Ref values: true = polling in progress, "ready" = passed (stop polling)
+    const readinessProbesRef = useRef({});
+
     const breadcrumbs = [
         { text: 'Home', path: '/helx' },
         { text: 'Workspaces', path: '/helx/workspaces' },
@@ -43,6 +49,48 @@ export const ActiveView = withWorkspaceAuthentication(() => {
     ]
 
     useTitle("Active Workspaces")
+
+    // Poll readiness for each instance. Once an instance passes, it stays "ready".
+    // Ref guards against duplicate loops: true = polling, "ready" = done.
+    useEffect(() => {
+        if (!instances || instances.length === 0) return;
+
+        for (const instance of instances) {
+            const sid = instance.sid;
+            // Already polling or already passed
+            if (readinessProbesRef.current[sid]) continue;
+
+            readinessProbesRef.current[sid] = true;
+            const decodedUrl = decodeURIComponent(instance.url);
+
+            (async () => {
+                while (readinessProbesRef.current[sid] === true) {
+                    try {
+                        const isReady = await api.getAppReady(decodedUrl);
+                        if (isReady && readinessProbesRef.current[sid] === true) {
+                            readinessProbesRef.current[sid] = "ready";
+                            setReadinessMap((prev) => ({ ...prev, [sid]: "ready" }));
+                            return;
+                        }
+                    } catch (e) {
+                        // ignore, retry next iteration
+                    }
+                    await new Promise((r) => setTimeout(r, 5000));
+                }
+            })();
+        }
+    }, [instances, api]);
+
+    // Stop all active polling loops on unmount. Completed ("ready") entries
+    // are preserved so a StrictMode remount won't re-poll them.
+    useEffect(() => {
+        const probes = readinessProbesRef.current;
+        return () => {
+            for (const sid of Object.keys(probes)) {
+                if (probes[sid] === true) probes[sid] = false;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         const renderInstance = async () => {
@@ -79,7 +127,6 @@ export const ActiveView = withWorkspaceAuthentication(() => {
         // besides making requests to delete the instance, close its browser tab and stop polling service
         setIsStopping(true);
         addOrDeleteInstanceTab("close", currentRecord.sid);
-        stopPolling(currentRecord.sid)
 
         try {
             await api.stopAppInstance(currentRecord.sid)
@@ -162,7 +209,6 @@ export const ActiveView = withWorkspaceAuthentication(() => {
                 setUpdateModalVisibility(false);
                 setUpdating(false);
                 appUpdatedAnalyticsEvent(false)
-                pollingInstance(currentRecord.aid, currentRecord.sid, currentRecord.url, currentRecord.name)
                 setRefresh(!refresh);
             } else {
                 failed = true
@@ -199,17 +245,23 @@ export const ActiveView = withWorkspaceAuthentication(() => {
             title: 'Status',
             align: 'center',
             render: (record) => {
+                const readiness = readinessMap[record.sid];
                 let activity = getLatestActivity(record.sid)
                 let indicator = null
                 let statusText = null
-                switch (activity?.data.status) {
+
+                // Readiness probe passed — show Ready regardless of activity status
+                if (readiness === "ready") {
+                    indicator = <Progress type="circle" percent={ 100 } width={ 16 } />
+                    statusText = "Ready"
+                } else switch (activity?.data.status) {
                     case "LAUNCHING":
                         indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
                         statusText = "Launching"
                         break
                     case "LAUNCHED":
-                        indicator = <Progress type="circle" percent={ 100 } width={ 16 } />
-                        statusText = "Ready"
+                        indicator = <Spin indicator={ <LoadingOutlined style={{ fontSize: 16 }} spin /> } />
+                        statusText = "Verifying"
                         break
                     case "FAILED":
                         indicator = (

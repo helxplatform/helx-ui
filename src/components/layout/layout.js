@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { Layout as AntLayout, Button, Menu, Grid, Divider } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import { useLocation, useNavigate, Link } from '@gatsbyjs/reach-router'
@@ -14,7 +14,7 @@ export const Layout = ({ children }) => {
   const { helxAppstoreUrl, routes, context, basePath } = useEnvironment()
   const { api, loading: apiLoading, loggedIn, appstoreContext } = useWorkspacesAPI()
   const { analyticsEvents } = useAnalytics()
-  const { md } = useBreakpoint()
+  const { sm, md, lg } = useBreakpoint()
   const baseLinkPath = context.workspaces_enabled === 'true' ? '/helx' : ''
   const location = useLocation();
   const navigate = useNavigate()
@@ -42,7 +42,10 @@ export const Layout = ({ children }) => {
 
   return (
     <AntLayout className="layout">
-      <Header className="helx-header" style={{ display: 'flex', zIndex: 1, width: '100%', background: '#fff' }}>
+      <Header
+        className={`helx-header ${context.brand === 'ai_sandbox' && 'ai-sandbox-theme'}`}
+        style={{ display: 'flex', zIndex: 1, width: '100%' }}
+      >
         {context !== undefined ? <Link to={basePath}><img className="brand_img" src={'' + context.logo_url} alt={context.brand}></img></Link> : <span />}
         {md ? (
           <div style={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}>
@@ -51,7 +54,7 @@ export const Layout = ({ children }) => {
               theme="light"
               mode="horizontal"
               selectedKeys={activeRoutes}
-              style={{ display: "flex", flexGrow: 1, justifyContent: "flex-end" }}
+              style={{ display: "flex", flexGrow: 1, justifyContent: "flex-end", background: 'transparent', border: 0 }}
             >
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
               <Menu.Item style={{ visibility: 'hidden' }}></Menu.Item>
@@ -75,7 +78,7 @@ export const Layout = ({ children }) => {
             {context.workspaces_enabled === 'true' && !apiLoading && loggedIn && (
               <div style={{ height: "100%" }}>
                 <Button
-                  type="primary"
+                  type={context.brand === 'ai_sandbox' ? 'default' : 'primary'}
                   ghost
                   className="logout-button"
                   // Could use `loading` property but logout tends to happen so quickly that it doesn't work well.
@@ -91,6 +94,30 @@ export const Layout = ({ children }) => {
           <MobileMenu menu={routes} />
         )}
       </Header>
+      {context.brand === 'ai_sandbox' && (
+        <div style={{
+          width: '100%',
+          height: 64,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundImage: "url('" + context.logo_url.substring(0, context.logo_url.lastIndexOf('/')) + '/banner.png' + "')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}>
+          <span style={{
+            color: '#fff',
+            fontSize: md ? 40 : sm ? 32 : 24,
+            fontWeight: 300,
+            letterSpacing: 2,
+            textAlign: 'center',
+            padding: '0 16px'
+          }}>
+            AI Applied Research Collaborations
+          </span>
+        </div>
+      )}
       <Content className>
         {children}
         {context.workspaces_enabled === 'true' && <SidePanel />}
