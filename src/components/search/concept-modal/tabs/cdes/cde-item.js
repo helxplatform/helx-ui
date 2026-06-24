@@ -28,11 +28,11 @@ export const CdeItem = ({ cde, cdeRelatedConcepts, cdeRelatedStudies, highlight 
     const { analyticsEvents } = useAnalytics()
 
     const relatedConceptsSource = useMemo(() => (
-        cdeRelatedConcepts[cde.id]
+        cdeRelatedConcepts ? cdeRelatedConcepts[cde.id] : null
     ), [cdeRelatedConcepts, cde])
 
     const relatedStudySource = useMemo(() => (
-        cdeRelatedStudies[cde.id]
+        cdeRelatedStudies ? cdeRelatedStudies[cde.id] : null
     ), [cdeRelatedStudies, cde])
 
     const Highlighter = useCallback(({ ...props }) => (

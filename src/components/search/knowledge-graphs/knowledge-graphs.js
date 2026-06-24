@@ -1,4 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import { Result, Spin } from 'antd'
 import _Highlighter from 'react-highlight-words'
 import { kgLink } from '../../../utils'
 import { Link } from '../../link'
@@ -64,8 +65,16 @@ const NoKnowledgeGraphsMessage = () => {
   )
 }
 
-export const KnowledgeGraphs = ({ graphs: complete_graphs, highlight }) => {
-  if (complete_graphs.length) {
+export const KnowledgeGraphs = ({ graphs: complete_graphs, loading, error, highlight }) => {
+  if (loading) return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Spin />
+    </div>
+  )
+  else if (error) return (
+    <Result status="error" title="Oops!" subTitle="We&apos;re having trouble loading knowledge graphs right now. Please try again later..." />
+  )
+  else if (complete_graphs.length) {
     const graphs = complete_graphs.map((graph) => graph.knowledge_graph);
     return (
       <div className="interactions-grid">
@@ -88,6 +97,5 @@ export const KnowledgeGraphs = ({ graphs: complete_graphs, highlight }) => {
       </div>
     )
   }
-
-  return <NoKnowledgeGraphsMessage />
+  else return <NoKnowledgeGraphsMessage />
 }

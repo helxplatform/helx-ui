@@ -74,12 +74,15 @@ export const ConceptModalBody = ({ result }) => {
   const { context } = useEnvironment();
   const [currentTab, _setCurrentTab] = useState('overview')
   const { query, setSelectedResult, fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs, studySources } = useHelxSearch()
-  const [graphs, setGraphs] = useState([])
-  const [studies, setStudies] = useState([])
-  const [cdes, setCdes] = useState(null)
+  const [graphs, setGraphs] = useState(undefined)
+  const [studies, setStudies] = useState(undefined)
+  const [cdes, setCdes] = useState(undefined)
   const [cdeRelatedConcepts, setCdeRelatedConcepts] = useState(null)
   const [cdeRelatedStudies, setCdeRelatedStudies] = useState(null)
-  const [cdesLoading, setCdesLoading] = useState(true)
+
+  const [cdesLoading, cdesError] = useMemo(() => ([ cdes === undefined, cdes === null ]), [cdes])
+  const [graphsLoading, graphsError] = useMemo(() => ([ graphs === undefined, graphs === null ]), [graphs])
+  const [studiesLoading, studiesError] = useMemo(() => ([ studies === undefined, studies === null ]), [studies])
 
   /** Abort controllers */
   const fetchVarsController = useRef()
@@ -113,7 +116,7 @@ export const ConceptModalBody = ({ result }) => {
     'studies': {
       title: studyTitle,
       icon: <StudiesIcon />,
-      content: <StudiesTab studies={ studies } />,
+      content: <StudiesTab studies={ studies } loading={ studiesLoading } error={ studiesError } />,
       tooltip: <div>
         The Studies tab displays studies referencing or researching the concept.
         Studies are grouped into { studySources.length } categories:&nbsp;
@@ -132,7 +135,7 @@ export const ConceptModalBody = ({ result }) => {
     'cdes': {
       title: cdeTitle,
       icon: <CdesIcon />,
-      content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } cdeRelatedStudies={cdeRelatedStudies} loading={ cdesLoading } />,
+      content: <CdesTab cdes={ cdes } cdeRelatedConcepts={ cdeRelatedConcepts } cdeRelatedStudies={cdeRelatedStudies} loading={ cdesLoading } error={ cdesError } />,
       tooltip: <div>
         The CDEs tab displays{ context.brand === "heal" ? " HEAL-approved" : "" } common data elements (CDEs)
         associated with the concept. A CDE is a standardized question used across studies and clinical
@@ -147,10 +150,10 @@ export const ConceptModalBody = ({ result }) => {
     'kgs': {
       title: 'Knowledge Graphs',
       icon: <KnowledgeGraphsIcon />, 
-      content: <KnowledgeGraphsTab graphs={ graphs } />,
+      content: <KnowledgeGraphsTab graphs={ graphs } loading={ graphsLoading } error={ graphsError } />,
       tooltip: <div>
         The Knowledge Graphs tab displays relevant edges from the <a href="https://robokop.renci.org/" target="_blank" rel="noopener noreferrer">ROBOKOP Knowledge Graph</a>
-        portion connected to the concept and containing your search terms. This section highlights
+        &nbsp;portion connected to the concept and containing your search terms. This section highlights
         potential interesting knowledge graph relationships and shows terms (e.g., synonyms) that
         would be returned as related concepts.
       </div>
@@ -214,13 +217,14 @@ export const ConceptModalBody = ({ result }) => {
           return studies
         }, {}))
       } catch (e) {
-        if (e.name !== "CanceledError") throw e
+        if (e.name !== "CanceledError") {
+          console.warning(e)
+          setStudies(null)
+        }
       }
     }
     const getCdes = async () => {
       try {
-        setCdesLoading(true)
-
         fetchCdesController.current?.abort()
         fetchCdesController.current = new AbortController()
         fetchCdesTranqlController.current.forEach((controller) => controller.abort())
@@ -229,90 +233,51 @@ export const ConceptModalBody = ({ result }) => {
         const cdeData = await fetchCDEs(result.id, query, {
           signal: fetchCdesController.current.signal
         })
-        const loadRelatedConcepts = async (cdeId) => {
-          const formatCdeQuery = (conceptType) => {
-            return `\
-      SELECT publication-[mentions]->${conceptType}
-      FROM "/schema"
-      WHERE publication="${cdeId}"`
-          }
-          const tranqlUrl = context.tranql_url
-          const types = ['disease', 'anatomical_entity', 'phenotypic_feature', 'biological_process'] // add any others that you can think of, these are the main 4 found in heal results and supported by tranql
-          const kg = (await Promise.all(types.map(async (type) => {
-              const controller = new AbortController()
-              fetchCdesTranqlController.current.push(controller)
-              const res = await fetch(
-                  `${tranqlUrl}tranql/query`,
-                  {
-                      headers: { 'Content-Type': 'text/plain' },
-                      method: 'POST',
-                      body: formatCdeQuery(type),
-                      signal: controller.signal
-                  }
-              )
-              const message = await res.json()
-              return message.message.knowledge_graph
-          }))).reduce((acc, kg) => ({
-              nodes: {
-                  ...acc.nodes,
-                  ...kg.nodes
-              },
-              edges: {
-                  ...acc.edges,
-                  ...kg.edges
-              }
-          }), {"nodes": {}, "edges": {}})
-          const cdeOutEdges = Object.values(kg.edges).filter((edge) => edge.subject ===  cdeId)
-          return cdeOutEdges.map(
-            (outEdge) => {
-              const [nodeId, node] = Object.entries(kg.nodes).find(([nodeId, node]) => nodeId === outEdge.object)
-              return {
-                id: nodeId,
-                ...node
-              }
-            }
-          )
-        }
-
-        const loadRelatedStudies = async (cdeId) => {
-          const formatCdeQuery = () => {
-            return `\
-      SELECT publication->study
-      FROM "/schema"
-      WHERE publication="${cdeId}"`
+        const loadRelatedConceptsAndStudies = async (cdeId) => {
+          const getNodeAttribute = (node, attrName) => {
+            return node.attributes.find((attr) => attr.name === attrName)
           }
           const tranqlUrl = context.tranql_url
           const controller = new AbortController()
           fetchCdesTranqlController.current.push(controller)
+          
           const res = await fetch(
-              `${tranqlUrl}tranql/query`,
-              {
-                  headers: { 'Content-Type': 'text/plain' },
-                  method: 'POST',
-                  body: formatCdeQuery(),
-                  signal: controller.signal
-              }
+            `${tranqlUrl}tranql/query`,
+            {
+                headers: { 'Content-Type': 'text/plain' },
+                method: 'POST',
+                body: `SELECT publication->named_thing FROM "redis:" WHERE publication="${cdeId}"`,
+                signal: controller.signal
+            }
           )
           const message = await res.json()
-          const studies = []
-          const nodes =  message.message.knowledge_graph.nodes
-          for (const [key, value] of Object.entries(nodes)) {
-            const name = value.name;
-            const urlAttribute = value.attributes.find(attr => attr.name === 'url');
-            urlAttribute && studies.push({c_id: key,
-                                          c_name: name,
-                                          c_link: urlAttribute.value});
-          }
-          return studies
+          const kg = message.message.knowledge_graph
+          const cdeOutEdges = Object.values(kg.edges).filter((edge) => edge.subject ===  cdeId)
+          return cdeOutEdges.map(({ object }) => kg.nodes[object])
+            .reduce((acc, node) => {
+              const [relatedConceptNodes, relatedStudyNodes] = acc
+              const types = getNodeAttribute(node, "category")
+              const url = getNodeAttribute(node, "url")
+              if (url && types && types.value.includes("biolink:Study")) relatedStudyNodes.push({
+                c_id: node.id,
+                c_name: node.name,
+                c_link: url.value
+              })
+              else relatedConceptNodes.push(node)
+              return [relatedConceptNodes, relatedStudyNodes]
+            }, [[], []])
         }
-
+        
         const relatedConcepts = {}
         const relatedStudies = {}
         if (cdeData) {
           const cdeIds = cdeData.elements.map((cde) => cde.id)
           await Promise.all(cdeIds.map(async (cdeId, i) => {
             try {
-              relatedConcepts[cdeId] = await loadRelatedConcepts(cdeId)
+              const [relatedConceptsRaw, relatedStudiesRaw] = await loadRelatedConceptsAndStudies(cdeId)
+              // Counterproductive to suggest the concept the user is actively viewing as "related"
+              relatedConcepts[cdeId] = relatedConceptsRaw.filter((c) => c.id !== result.id)
+              relatedStudies[cdeId] = relatedStudiesRaw
             } catch (e) {
               // Here, we explicitly want to halt execution and forward this error to the outer handler
               // if a related concept request was aborted, because we now have stale data and don't want to
@@ -321,25 +286,17 @@ export const ConceptModalBody = ({ result }) => {
               relatedConcepts[cdeId] = null
             }
           }))
-          await Promise.all(cdeIds.map(async (cdeId, i) => {
-            try {
-              relatedStudies[cdeId] = await loadRelatedStudies(cdeId)
-            } catch (e) {
-              // Here, we explicitly want to halt execution and forward this error to the outer handler
-              // if a related concept request was aborted, because we now have stale data and don't want to
-              // update state with it.
-              if (e.name === "CanceledError" || e.name === "AbortError") throw e
-            }
-          }))
         }
         setCdes(cdeData)
         /** Note that relatedConcepts are *TranQL* concepts/nodes, not DUG concepts. Both have the top level fields `id` and `name`. */
         setCdeRelatedConcepts(relatedConcepts)
         setCdeRelatedStudies(relatedStudies)
-        setCdesLoading(false)
       } catch (e) {
         // Check both because this function uses both Fetch API & Axios
-        if (e.name !== "CanceledError" && e.name !== "AbortError") throw e
+        if (e.name !== "CanceledError" && e.name !== "AbortError") {
+          console.warning(e)
+          setCdes(null)
+        }
       }
     }
     const getKgs = async () => {
@@ -352,19 +309,22 @@ export const ConceptModalBody = ({ result }) => {
         })
         setGraphs(kgs)
       } catch (e) {
-        if (e.name !== "CanceledError") throw e
+        if (e.name !== "CanceledError") {
+          console.warning(e)
+          setGraphs(null)
+        }
       }
     }
     if (!result.loading && !result.failed) {
-      setStudies([])
-      setCdes(null)
+      setStudies(undefined)
+      setGraphs(undefined)
+      setCdes(undefined)
       setCdeRelatedConcepts(null)
       setCdeRelatedStudies(null)
-      setGraphs([])
       
       getVars()
-      getCdes()
       getKgs()
+      getCdes()
     }
   }, [fetchKnowledgeGraphs, fetchVariablesForConceptId, fetchCDEs, result, query])
 
@@ -395,25 +355,29 @@ export const ConceptModalBody = ({ result }) => {
       ]}
       className="concept-modal-failed-result"
     >
-      <Paragraph style={{ marginBottom: 0 }}>
-        <Text strong style={{ fontSize: 16 }}>Related concepts</Text>
-      </Paragraph>
-      <div>
-        {
-          result.suggestions
-            .slice(0, 8)
-            .map((suggestedResult) => (
-              <a
-                key={ suggestedResult.id }
-                role="button"
-                style={{ display: "inline", marginRight: "12px", lineHeight: "36px" }}
-                onClick={() => setSelectedResult(suggestedResult)}
-              >
-                {suggestedResult.name}
-              </a>
-            ))
-        }
-      </div>
+      { result.suggestions && (
+        <Fragment>
+          <Paragraph style={{ marginBottom: 0 }}>
+            <Text strong style={{ fontSize: 16 }}>Related concepts</Text>
+          </Paragraph>
+          <div>
+            {
+              result.suggestions
+                .slice(0, 8)
+                .map((suggestedResult) => (
+                  <a
+                    key={ suggestedResult.id }
+                    role="button"
+                    style={{ display: "inline", marginRight: "12px", lineHeight: "36px" }}
+                    onClick={() => setSelectedResult(suggestedResult)}
+                  >
+                    {suggestedResult.name}
+                  </a>
+                ))
+            }
+          </div>
+        </Fragment>
+      ) }
     </Result>
   )
   return (

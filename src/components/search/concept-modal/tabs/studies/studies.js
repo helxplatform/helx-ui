@@ -1,31 +1,30 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Collapse, List, Space, Tag, Typography } from 'antd'
+import { Collapse, List, Result, Space, Spin, Tag, Typography } from 'antd'
 import { Study } from './study'
 import { DebouncedInput } from '../../../../'
 import { useLunrSearch } from '../../../../../hooks'
 
-const { Title } = Typography
+const { Title, Text } = Typography
 const { CheckableTag: CheckableFacet } = Tag
 
-export const StudiesTab = ({ studies }) => {
+export const StudiesTab = ({ studies, loading, error }) => {
   const [search, setSearch] = useState("")
   const [facets, setFacets] = useState([])
   const [selectedFacets, setSelectedFacets] = useState([])
   const [activeStudyKeys, setActiveStudyKeys] = useState([])
 
   const docs = useMemo(() => {
-    if (studies) {
-      return Object.entries(studies).flatMap(([source, studies]) => (
-        studies.map((study) => ({
-          id: study.c_id,
-          type: source,
-          studyName: study.c_name,
-          variableNames: study.elements.map((variable) => variable.name).join(" "),
-          variableDescriptions: study.elements.map((variable) => variable.description).join(" ")
-        }))
-      ))
-    } else return []
-  }, [studies])
+    if (loading || error) return []
+    return Object.entries(studies).flatMap(([source, studies]) => (
+      studies.map((study) => ({
+        id: study.c_id,
+        type: source,
+        studyName: study.c_name,
+        variableNames: study.elements.map((variable) => variable.name).join(" "),
+        variableDescriptions: study.elements.map((variable) => variable.description).join(" ")
+      }))
+    ))
+  }, [studies, loading, error])
 
   const lunrConfig = useMemo(() => ({
     docs,
@@ -52,11 +51,13 @@ export const StudiesTab = ({ studies }) => {
   }
 
   useEffect(() => {
+    if (!studies) return
     setFacets(Object.keys(studies))
     setSelectedFacets(Object.keys(studies))
   }, [studies])
 
   const [studiesSource, highlightTokens] = useMemo(() => {
+    if (loading || error) return [[], []]
     if (search.length < 3) return [studies, []]
 
     const { hits, tokens } = lexicalSearch(search)
@@ -75,7 +76,7 @@ export const StudiesTab = ({ studies }) => {
     // ))
 
     return [ matchedStudies, tokens ]
-  }, [studies, search, lexicalSearch])
+  }, [studies, loading, error, search, lexicalSearch])
 
   const filteredStudiesSource = useMemo(() => (
     Object.keys(studiesSource)
@@ -84,7 +85,19 @@ export const StudiesTab = ({ studies }) => {
       .sort((s, t) => s.c_name < t.c_name ? -1 : 1)
   ), [studiesSource, selectedFacets])
 
-  return (
+  if (loading || error) return (
+    <Space direction="vertical">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+        <Title level={ 4 } style={{ margin: 0 }}>Studies</Title>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        { loading ? <Spin /> : (
+          <Result status="error" title="Oops!" subTitle="We&apos;re having trouble loading studies right now. Please try again later..." />
+        ) }
+      </div>
+    </Space>
+  )
+  else return (
     <Space direction="vertical">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
         <Title level={ 4 } style={{ margin: 0 }}>Studies</Title>
