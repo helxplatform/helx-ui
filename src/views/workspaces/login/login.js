@@ -6,7 +6,7 @@ import { LoginForm } from '@ant-design/pro-form'
 import classNames from 'classnames'
 import { FormWrapper } from './form-wrapper'
 import { UsernameInput, PasswordInput } from './form-fields'
-import { CILogonSSO, GithubSSO, GoogleSSO, UNCSSO, DexOAuth } from './sso'
+import { CILogonSSO, GithubSSO, GoogleSSO, UNCSSO, DexOAuth, KeycloakOAuth } from './sso'
 import { withAPIReady } from '../'
 import { useDest, useEnvironment, useWorkspacesAPI } from '../../../contexts'
 import '@ant-design/pro-form/dist/form.css'
@@ -40,7 +40,7 @@ const WhitelistRequired = (props) => (
     // </Space>
 )
 
-const SSOLoginOptions = ({ main, unc, google, github, cilogon, dex, onWhitelistRequired, onSignupRequired }) => (
+const SSOLoginOptions = ({ main, unc, google, github, cilogon, dex, keycloak, onWhitelistRequired, onSignupRequired }) => (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
         <Divider plain style={{ marginTop: main ? 0 : undefined }}>
             <Text style={{ color: main ? "rgba(0, 0, 0, 0.45)" : "rgba(0, 0, 0, 0.25)", fontWeight: "normal", fontSize: 14 }}>
@@ -62,6 +62,9 @@ const SSOLoginOptions = ({ main, unc, google, github, cilogon, dex, onWhitelistR
             ) }
             { dex && (
                 <DexOAuth onWhitelistRequired={ onWhitelistRequired } onSignupRequired={ onSignupRequired } />
+            ) }
+            { keycloak && (
+                <KeycloakOAuth onWhitelistRequired={ onWhitelistRequired } onSignupRequired={ onSignupRequired } />
             ) }
         </Space>
     </div>
@@ -97,14 +100,16 @@ export const WorkspaceLoginView = withAPIReady(({
     const allowGithubLogin =  useMemo(() => loginProviders.includes("GitHub"), [loginProviders])
     const allowCILogon = useMemo(() => loginProviders.includes("CILogon"), [loginProviders])
     const allowDexLogon = useMemo(() => loginProviders.includes("dex"), [loginProviders])
+    const allowKeycloakLogon = useMemo(() => loginProviders.includes("keycloak"), [loginProviders])
 
     const hasAdditionalProviders = useMemo(() => (
         allowUncLogin ||
         allowGoogleLogin ||
         allowGithubLogin ||
         allowCILogon ||
-        allowDexLogon
-    ), [allowUncLogin, allowGoogleLogin, allowGithubLogin, allowCILogon, allowDexLogon])
+        allowDexLogon ||
+        allowKeycloakLogon
+    ), [allowUncLogin, allowGoogleLogin, allowGithubLogin, allowCILogon, allowDexLogon, allowKeycloakLogon])
 
     const showWhitelistRequired = useMemo(() => {
         const required = new URLSearchParams(location.search).get("whitelist_required")
@@ -219,6 +224,7 @@ export const WorkspaceLoginView = withAPIReady(({
                                 github={ allowGithubLogin }
                                 cilogon={ allowCILogon }
                                 dex={ allowDexLogon }
+                                keycloak={ allowKeycloakLogon }
                                 onWhitelistRequired={ () => {
                                     setShowWhitelistRequired(true)
                                 } }

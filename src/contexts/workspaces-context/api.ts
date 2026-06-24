@@ -293,6 +293,14 @@ export class WorkspacesAPI implements IWorkspacesAPI {
     }
 
     @APIRequest()
+    loginKeycloak() {
+        // const url = `http://localhost:8080/Keycloak/auth?client_id=django-app&response_type=code&scope=openid&redirect_uri=http://localhost:8000/accounts/keycloak/login/callback/`
+
+        const url = `${this.apiUrl}../../accounts/oidc/keycloak/login/`;
+
+        window.location.href = url
+    }
+    @APIRequest()
     loginSAMLGoogle() {
         /** I've been informed that we aren't actually using Google SAML, we're using OAuth... but this gets the job done regardless. */
         return this.loginSAML(`${this.apiUrl}../../accounts/google/login/?process=`, 450, 600)
