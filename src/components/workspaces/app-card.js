@@ -29,7 +29,8 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
     const [isLaunching, setLaunching] = useState(false);
     const [currentMemory, setMemory] = useState(validateLocalstorageValue('memory', app_id, toBytes(minimum_resources.memory), toBytes(maximum_resources.memory)));
     const [currentCpu, setCpu] = useState(validateLocalstorageValue('cpu', app_id, minimum_resources.cpus, maximum_resources.cpus));
-    const [currentGpu, setGpu] = useState(validateLocalstorageValue('gpu', app_id, minimum_resources.gpus, maximum_resources.gpus));
+    // Appstore rejects fractional GPU counts.
+    const [currentGpu, setGpu] = useState(Math.floor(validateLocalstorageValue('gpu', app_id, minimum_resources.gpus, maximum_resources.gpus)));
 
     const memoryFormatter = (value) => {
         return formatBytes(value, 2);
@@ -119,7 +120,7 @@ export const AppCard = ({ name, app_id, description, detail, docs, status, minim
                                     max={parseFloat(maximum_resources.gpus)}
                                     onChange={(value) => { setGpu(value) }}
                                     value={typeof currentGpu === 'number' ? currentGpu : 0}
-                                    step={0.5}
+                                    step={1}
                                 />
                             </Col>
                             <Col className="app_config_value" span={6}>
